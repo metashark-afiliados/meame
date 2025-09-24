@@ -1,14 +1,15 @@
 // RUTA: src/shared/lib/middleware/handlers/i18n.handler.ts
 /**
  * @file i18n.handler.ts
- * @version 7.0.0 (Production-Grade Logging)
+ * @description Manejador de middleware para la internacionalización.
+ * @version 7.1.0 (Code Hygiene Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { NextResponse } from "next/server";
 import {
   supportedLocales,
   defaultLocale,
-  type Locale,
+  // type Locale, // <-- IMPORTACIÓN NO UTILIZADA ELIMINADA
 } from "../../i18n/i18n.config";
 import { getLocaleFromBrowser } from "../../i18n/locale-detector";
 import { getLocaleFromCountry } from "../../i18n/country-locale-map";
@@ -35,14 +36,18 @@ export const i18nHandler: MiddlewareHandler = (req, res) => {
   const localeFromCountry = getLocaleFromCountry(countryCode || undefined);
 
   if (localeFromCountry) {
-    logger.info(`[i18nHandler] Locale detectado por país (${countryCode}): ${localeFromCountry}.`);
+    logger.info(
+      `[i18nHandler] Locale detectado por país (${countryCode}): ${localeFromCountry}.`
+    );
     const newUrl = new URL(`/${localeFromCountry}${pathname}`, req.url);
     return NextResponse.redirect(newUrl, 308);
   }
 
   // 3. Si el país es conocido pero el idioma no está soportado, redirigir a selección.
   if (countryCode && countryCode !== "unknown") {
-    logger.warn(`[i18nHandler] País ${countryCode} no tiene un locale soportado. Redirigiendo a /select-language.`);
+    logger.warn(
+      `[i18nHandler] País ${countryCode} no tiene un locale soportado. Redirigiendo a /select-language.`
+    );
     const selectLangUrl = new URL(routes.selectLanguage.path(), req.url);
     selectLangUrl.searchParams.set("returnUrl", pathname);
     return NextResponse.redirect(selectLangUrl);
@@ -50,14 +55,10 @@ export const i18nHandler: MiddlewareHandler = (req, res) => {
 
   // 4. Detección basada en el navegador.
   const localeFromBrowser = getLocaleFromBrowser(req);
-  if (localeFromBrowser) {
-    logger.info(`[i18nHandler] Locale detectado por navegador: ${localeFromBrowser}.`);
-    const newUrl = new URL(`/${localeFromBrowser}${pathname}`, req.url);
-    return NextResponse.redirect(newUrl, 308);
-  }
-
-  // 5. Fallback al locale por defecto.
-  logger.info(`[i18nHandler] No se pudo detectar locale. Usando fallback por defecto: ${defaultLocale}.`);
-  const newUrl = new URL(`/${defaultLocale}${pathname}`, req.url);
+  // No hay un chequeo explícito aquí, getLocaleFromBrowser siempre devuelve un locale
+  logger.info(
+    `[i18nHandler] Locale detectado por navegador: ${localeFromBrowser}.`
+  );
+  const newUrl = new URL(`/${localeFromBrowser}${pathname}`, req.url);
   return NextResponse.redirect(newUrl, 308);
 };

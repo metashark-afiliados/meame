@@ -1,4 +1,4 @@
-// Ruta correcta: src/components/layout/Footer.tsx
+// RUTA: src/components/layout/Footer.tsx
 /**
  * @file Footer.tsx
  * @description Componente de pie de página principal del portal.
@@ -12,7 +12,7 @@ import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { Container } from "@/components/ui/Container";
 import { NewsletterForm } from "@/components/features/contact/NewsletterForm";
-import { DynamicIcon } from "@/components/ui/DynamicIcon";
+import { DynamicIcon } from "@/components/ui";
 import { Separator } from "@/components/ui/Separator";
 import {
   Tooltip,
@@ -22,11 +22,13 @@ import {
 } from "@/components/ui/Tooltip";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
 import type {
   LinkColumn,
-  Link as LinkType,
+  LinkType,
   SocialLink,
 } from "@/shared/lib/schemas/components/footer.schema";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 type FooterContent = NonNullable<Dictionary["footer"]>;
 
@@ -119,7 +121,7 @@ export function Footer({ content }: FooterProps): React.ReactElement | null {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {developerLink.text}
+                  {developerLink.label} {/* <-- CORRECCIÓN A .label */}
                 </Link>
               )}
             </p>

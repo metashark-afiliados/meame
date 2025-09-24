@@ -1,11 +1,15 @@
-// tsconfig.scripts.json
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "CommonJS",
     "moduleResolution": "node",
     "types": ["node"],
-    "typeRoots": ["./node_modules/@types", "./types"]
+    "typeRoots": ["./node_modules/@types", "./src/shared/lib/types"],
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "include": ["scripts/**/*.ts", "types/**/*.d.ts"]
+  "include": ["scripts/**/*.ts", "src/shared/lib/types/**/*.d.ts"]
 }

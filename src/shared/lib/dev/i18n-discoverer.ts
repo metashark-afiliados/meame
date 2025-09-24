@@ -88,3 +88,4 @@ export async function discoverAndReadI18nFiles(options?: {
   );
   return { files, contents };
 }
+

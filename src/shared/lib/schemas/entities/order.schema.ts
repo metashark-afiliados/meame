@@ -1,21 +1,25 @@
-// shared/lib/schemas/entities/order.schema.ts
+// RUTA: src/shared/lib/schemas/entities/order.schema.ts
 /**
  * @file order.schema.ts
  * @description SSoT para el contrato de datos de la entidad Pedido (Order).
- *              Define la estructura para un documento en la colección 'orders' de MongoDB.
- * @version 1.0.0
+ *              v1.1.0 (Module Export Fix): Se exporta el `OrderItemSchema` para
+ *              permitir su reutilización en otros módulos, como el de notificaciones,
+ *              resolviendo un error crítico de build TS2724.
+ * @version 1.1.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 import { logger } from "@/shared/lib/logging";
 
-logger.trace("[Schema] Definiendo contrato de élite para la entidad [Order] v1.0.0");
+logger.trace("[Schema] Definiendo contrato de élite para la entidad [Order] v1.1.0");
 
 /**
  * @const OrderItemSchema
  * @description Valida un único ítem dentro de un pedido. Es una instantánea del producto en el momento de la compra.
  */
-const OrderItemSchema = z.object({
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+export const OrderItemSchema = z.object({
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
   productId: z.string().describe("ID del producto en nuestro sistema."),
   variantId: z.string().describe("ID de la variante del producto."),
   name: z.string().describe("Nombre del producto en el momento de la compra."),
@@ -68,4 +72,3 @@ export type Order = z.infer<typeof OrderSchema>;
  * @description Infiere el tipo TypeScript para un ítem de pedido.
  */
 export type OrderItem = z.infer<typeof OrderItemSchema>;
-// shared/lib/schemas/entities/order.schema.ts

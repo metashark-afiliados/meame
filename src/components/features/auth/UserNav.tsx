@@ -10,7 +10,7 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/shared/lib/hooks/use-auth";
+import { useAuth } from "@/shared/hooks/use-auth";
 import { createClient } from "@/shared/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";

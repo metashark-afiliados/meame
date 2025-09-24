@@ -8,7 +8,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+// Se importa la función en lugar de la constante para una inicialización diferida y segura.
 import { getProducerConfig } from "@/shared/lib/config/producer.config";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { logger } from "@/shared/lib/logging";
 
 const GA_REMOTE_SCRIPT_ID = "google-analytics-gtag";
@@ -22,18 +25,19 @@ export function useGoogleAnalytics(enabled: boolean): void {
       return;
     }
 
+    // Se invoca la función para obtener la configuración de forma segura.
     const producerConfig = getProducerConfig();
     const gaId = producerConfig.TRACKING.GOOGLE_ANALYTICS_ID;
 
     if (!gaId) {
-      return;
+      return; // Falla silenciosamente si el ID no está configurado.
     }
 
     if (
       document.getElementById(GA_REMOTE_SCRIPT_ID) ||
       document.getElementById(GA_INIT_SCRIPT_ID)
     ) {
-      return;
+      return; // Evita la reinyección.
     }
 
     logger.info(`[Tracking] Inyectando Google Analytics con ID: ${gaId}`);

@@ -12,8 +12,8 @@
 
 import React, { useEffect } from "react";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
-import { useProducerLogic } from "@/shared/lib/hooks/use-producer-logic";
-import { useUserPreferences } from "@/shared/lib/hooks/use-user-preferences";
+import { useProducerLogic } from "@/shared/hooks/use-producer-logic";
+import { useUserPreferences } from "@/shared/hooks/use-user-preferences";
 import { CookieConsentBanner } from "./CookieConsentBanner";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { defaultLocale, type Locale } from "@/shared/lib/i18n/i18n.config";

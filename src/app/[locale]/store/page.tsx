@@ -1,13 +1,13 @@
-// app/[locale]/store/page.tsx
+// RUTA: src/app/[locale]/store/page.tsx
 /**
  * @file page.tsx
  * @description Página de la Tienda, ahora como un Client Component interactivo.
- * @version 6.0.0 (Interactive Filtering)
+ * @version 6.1.0 (Build Stability Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; // <-- IMPORTACIÓN CORREGIDA
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 import { Container, Skeleton } from "@/components/ui";
@@ -16,7 +16,8 @@ import { ProductFilters } from "@/components/sections/ProductFilters";
 import { ProductGrid } from "@/components/sections/ProductGrid";
 import { FaqAccordion } from "@/components/sections/FaqAccordion";
 import { CommunitySection } from "@/components/sections/CommunitySection";
-import { useProductFilters } import type { ProductFiltersState } from "@/shared/hooks/use-product-filters";import type { Product } from "@/shared/lib/schemas/entities/product.schema";
+import { useProductFilters } from "@/shared/hooks/use-product-filters";
+import type { Product } from "@/shared/lib/schemas/entities/product.schema";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
 import { getProducts } from "@/shared/lib/commerce";
@@ -27,7 +28,7 @@ interface StorePageProps {
 
 export default function StorePage({ params: { locale } }: StorePageProps) {
   logger.info(
-    `[StorePage] Renderizando v6.0 (Interactive) para locale: ${locale}`
+    `[StorePage] Renderizando v6.1 (Stability Fix) para locale: ${locale}`
   );
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -40,23 +41,29 @@ export default function StorePage({ params: { locale } }: StorePageProps) {
   >(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Hook de lógica de filtrado
   const { filters, setFilters, filteredProducts } =
     useProductFilters(allProducts);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const [{ dictionary }, products] = await Promise.all([
-        getDictionary(locale),
-        getProducts({ locale }),
-      ]);
+      try {
+        const [{ dictionary }, products] = await Promise.all([
+          getDictionary(locale),
+          getProducts({ locale }),
+        ]);
 
-      setAllProducts(products);
-      setContent(dictionary.storePage);
-      setFaqContent(dictionary.faqAccordion);
-      setCommunityContent(dictionary.communitySection);
-      setIsLoading(false);
+        setAllProducts(products);
+        setContent(dictionary.storePage);
+        setFaqContent(dictionary.faqAccordion);
+        setCommunityContent(dictionary.communitySection);
+      } catch (error) {
+        logger.error("Error al cargar datos para la página de la tienda", {
+          error,
+        });
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchData();
   }, [locale]);
@@ -114,4 +121,3 @@ export default function StorePage({ params: { locale } }: StorePageProps) {
     </>
   );
 }
-// app/[locale]/store/page.tsx

@@ -1,25 +1,30 @@
-// Ruta correcta: src/shared/lib/schemas/i18n.schema.ts
+// RUTA: src/shared/lib/schemas/i18n.schema.ts
 /**
  * @file i18n.schema.ts
  * @description Aparato ensamblador y SSoT para el contrato del diccionario i18n.
- *              v30.0.0 (Architectural Integrity Restoration): Re-arquitecturado
- *              para usar `catchall` en lugar de `merge` para manejar de forma
- *              segura tanto claves estáticas como dinámicas. Corrige rutas de
- *              importación para alinearse con la SSoT de ubicación de schemas.
- * @version 30.0.0
+ *              v30.2.0 (Sovereign & Complete Assembly): Re-arquitecturado para
+ *              usar una composición programática y un `catchall` para manejar
+ *              de forma segura claves estáticas y dinámicas. Esta versión ha sido
+ *              auditada contra el snapshot completo para garantizar la inclusión
+ *              de TODOS los schemas de contenido del proyecto.
+ * @version 30.2.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 
-// --- GRUPO 1: Schemas Globales y de Páginas del Portal ---
+// --- GRUPO 1: Schemas de Páginas Dinámicas (para el .catchall()) ---
+import { ProductDetailPageContentSchema } from "@/shared/lib/schemas/pages/product-detail-page.schema";
+import { NewsArticlePageContentSchema } from "@/shared/lib/schemas/pages/news-article-page.schema";
+
+// --- GRUPO 2: Schemas de Contenido Estático (ensamblados en la base) ---
+
+// Schemas Globales y de Páginas del Portal
 import { GlobalsLocaleSchema } from "@/shared/lib/schemas/globals.schema";
 import { StorePageLocaleSchema } from "@/shared/lib/schemas/pages/store-page.schema";
 import { TextPageContentSchema } from "@/shared/lib/schemas/pages/text-page.schema";
 import { NotFoundPageLocaleSchema } from "@/shared/lib/schemas/pages/not-found-page.schema";
-import { ProductDetailPageContentSchema } from "@/shared/lib/schemas/pages/product-detail-page.schema";
-import { NewsArticlePageContentSchema } from "@/shared/lib/schemas/pages/news-article-page.schema";
 
-// --- GRUPO 2: Schemas de Páginas del Developer Command Center (DCC) ---
+// Schemas de Páginas del Developer Command Center (DCC)
 import { DevDashboardLocaleSchema } from "@/shared/lib/schemas/pages/dev-dashboard.schema";
 import { DevLoginPageLocaleSchema } from "@/shared/lib/schemas/pages/dev-login-page.schema";
 import { DevTestPageLocaleSchema } from "@/shared/lib/schemas/pages/dev-test-page.schema";
@@ -32,7 +37,7 @@ import { CogniReadDashboardLocaleSchema } from "@/shared/lib/schemas/pages/cogni
 import { CogniReadEditorLocaleSchema } from "@/shared/lib/schemas/pages/cogniread-editor.schema";
 import { Nos3DashboardLocaleSchema } from "@/shared/lib/schemas/pages/nos3-dashboard.schema";
 
-// --- GRUPO 3: Schemas de Componentes de Layout y UI ---
+// Schemas de Componentes de Layout y UI Atómicos
 import { HeaderLocaleSchema } from "@/shared/lib/schemas/components/header.schema";
 import { FooterLocaleSchema } from "@/shared/lib/schemas/components/footer.schema";
 import { CookieConsentBannerLocaleSchema } from "@/shared/lib/schemas/components/cookie-consent-banner.schema";
@@ -43,6 +48,7 @@ import { ToggleThemeLocaleSchema } from "@/shared/lib/schemas/components/toggle-
 import { LanguageSwitcherLocaleSchema } from "@/shared/lib/schemas/components/language-switcher.schema";
 import { PageHeaderLocaleSchema } from "@/shared/lib/schemas/components/page-header.schema";
 import { CartLocaleSchema } from "@/shared/lib/schemas/components/cart.schema";
+import { UserNavLocaleSchema } from "@/shared/lib/schemas/components/auth/user-nav.schema"; // CORREGIDO
 import { ValidationErrorLocaleSchema } from "@/shared/lib/schemas/components/validation-error.schema";
 import { SuiteStyleComposerLocaleSchema } from "@/shared/lib/schemas/components/dev/suite-style-composer.schema";
 import { ComponentCanvasHeaderLocaleSchema } from "@/shared/lib/schemas/components/dev/component-canvas-header.schema";
@@ -50,8 +56,9 @@ import { ComponentCanvasLocaleSchema } from "@/shared/lib/schemas/components/dev
 import { ShareButtonLocaleSchema } from "@/shared/lib/schemas/components/share-button.schema";
 import { AlertLocaleSchema } from "@/shared/lib/schemas/components/alert.schema";
 import { AlertDialogLocaleSchema } from "@/shared/lib/schemas/components/alert-dialog.schema";
+import { ProfileFormLocaleSchema } from "@/shared/lib/schemas/components/account/profile-form.schema"; // CORREGIDO
 
-// --- GRUPO 4: Schemas de Componentes de Sección ---
+// Schemas de Componentes de Sección
 import { BenefitsSectionLocaleSchema } from "@/shared/lib/schemas/components/benefits-section.schema";
 import { CommunitySectionLocaleSchema } from "@/shared/lib/schemas/components/community-section.schema";
 import { ContactSectionLocaleSchema } from "@/shared/lib/schemas/components/contact-section.schema";
@@ -77,16 +84,14 @@ import { TestimonialGridLocaleSchema } from "@/shared/lib/schemas/components/tes
 import { ThumbnailCarouselLocaleSchema } from "@/shared/lib/schemas/components/thumbnail-carousel.schema";
 import { CommentSectionLocaleSchema } from "@/shared/lib/schemas/components/comment-section.schema";
 
-// --- GRUPO 5: Schemas de Ecosistemas Adicionales ---
+// Schemas de Ecosistemas Adicionales
 import { BaviUploaderLocaleSchema } from "@/shared/lib/schemas/bavi/bavi-uploader.i18n.schema";
 import { PromptCreatorLocaleSchema } from "@/shared/lib/schemas/raz-prompts/prompt-creator.i18n.schema";
 import { PromptVaultLocaleSchema } from "@/shared/lib/schemas/raz-prompts/prompt-vault.i18n.schema";
 import { OrderConfirmationEmailLocaleSchema } from "@/shared/lib/schemas/emails/order-confirmation-email.schema";
-// --- [INICIO DE CORRECCIÓN DE RUTA] ---
 import { DockLocaleSchema } from "@/shared/lib/schemas/components/razBits/Dock/dock.schema";
 import { LightRaysLocaleSchema } from "@/shared/lib/schemas/components/razBits/LightRays/light-rays.schema";
 import { MagicBentoLocaleSchema } from "@/shared/lib/schemas/components/razBits/MagicBento/magic-bento.schema";
-// --- [FIN DE CORRECCIÓN DE RUTA] ---
 
 // 1. Base Schema: Contiene todas las claves ESTÁTICAS conocidas.
 const baseStaticSchema = z.object({
@@ -118,6 +123,7 @@ const baseStaticSchema = z.object({
   ...LanguageSwitcherLocaleSchema.shape,
   ...PageHeaderLocaleSchema.shape,
   ...CartLocaleSchema.shape,
+  ...UserNavLocaleSchema.shape,
   ...ValidationErrorLocaleSchema.shape,
   ...SuiteStyleComposerLocaleSchema.shape,
   ...ComponentCanvasHeaderLocaleSchema.shape,
@@ -125,6 +131,7 @@ const baseStaticSchema = z.object({
   ...ShareButtonLocaleSchema.shape,
   ...AlertLocaleSchema.shape,
   ...AlertDialogLocaleSchema.shape,
+  ...ProfileFormLocaleSchema.shape,
   ...BenefitsSectionLocaleSchema.shape,
   ...CommunitySectionLocaleSchema.shape,
   ...ContactSectionLocaleSchema.shape,
@@ -170,4 +177,3 @@ export const i18nSchema = baseStaticSchema.catchall(
 );
 
 export type Dictionary = z.infer<typeof i18nSchema>;
-// Ruta correcta: src/shared/lib/schemas/i18n.schema.ts
