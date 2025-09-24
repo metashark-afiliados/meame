@@ -1,0 +1,60 @@
+{
+  "it-IT": {
+    "step5": {
+      "title": "Passo 5: Gestione e Pubblicazione",
+      "description": "Sei all'ultimo passo. Rivedi la configurazione e scegli l'azione finale per la tua nuova variante di campagna.",
+      "summaryTitle": "Riepilogo della Configurazione",
+      "summaryPlaceholder": "Anteprima della configurazione della campagna...",
+      "checklistTitle": "Checklist di Pre-lancio",
+      "publishButtonText": "Pubblica sul Sito",
+      "packageButtonText": "Esporta come .zip",
+      "deleteButtonText": "Elimina Bozze",
+      "templateButtonText": "Salva come Template",
+      "deleteDialog": {
+        "title": "Sei assolutamente sicuro?",
+        "description": "Questa azione non può essere annullata. Questo eliminerà permanentemente la tua bozza di campagna.",
+        "cancelButton": "Annulla",
+        "confirmButton": "Sì, Elimina"
+      },
+      "templateDialog": {
+        "title": "Salva come Template",
+        "description": "Salva la configurazione attuale come un template riutilizzabile per future campagne.",
+        "nameLabel": "Nome del Template",
+        "namePlaceholder": "Es. Template di Vendita Diret...",
+        "descriptionLabel": "Descrizione",
+        "descriptionPlaceholder": "Per campagne con focus su...",
+        "saveButton": "Salva Template",
+        "cancelButton": "Annulla"
+      }
+    }
+  },
+  "es-ES": {
+    "step5": {
+      "title": "Paso 5: Gestión y Publicación",
+      "description": "Estás en el último paso. Revisa la configuración y elige la acción final para tu nueva variante de campaña.",
+      "summaryTitle": "Resumen de la Configuración",
+      "summaryPlaceholder": "Vista previa de la configuración de la campaña...",
+      "checklistTitle": "Checklist de Prelanzamiento",
+      "publishButtonText": "Publicar en el Sitio",
+      "packageButtonText": "Exportar como .zip",
+      "deleteButtonText": "Eliminar Borrador",
+      "templateButtonText": "Guardar como Plantilla",
+      "deleteDialog": {
+        "title": "¿Estás absolutamente seguro?",
+        "description": "Esta acción no se puede deshacer. Esto eliminará permanentemente tu borrador de campaña.",
+        "cancelButton": "Cancelar",
+        "confirmButton": "Sí, Eliminar"
+      },
+      "templateDialog": {
+        "title": "Guardar como Plantilla",
+        "description": "Guarda la configuración actual como una plantilla reutilizable para futuras campañas.",
+        "nameLabel": "Nombre de la Plantilla",
+        "namePlaceholder": "Ej. Plantilla de Venta Directa...",
+        "descriptionLabel": "Descripción",
+        "descriptionPlaceholder": "Para campañas con enfoque en...",
+        "saveButton": "Guardar Plantilla",
+        "cancelButton": "Cancelar"
+      }
+    }
+  }
+}

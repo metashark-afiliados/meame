@@ -1,0 +1,78 @@
+{
+  "it-IT": {
+    "step0": {
+      "title": "Passo 0: Identificazione",
+      "description": "Questo è il passo fondazionale. Le informazioni qui definiscono l'identità della tua campagna.",
+      "baseCampaignLabel": "Campagna Base",
+      "baseCampaignPlaceholder": "Seleziona un prodotto",
+      "baseCampaignDescription": "Seleziona il prodotto base per questa nuova variante.",
+      "variantNameLabel": "Nome Variante",
+      "variantNamePlaceholder": "Es. 'Vitalità', 'Approccio Scientifico'",
+      "seoKeywordsLabel": "Parole Chiave SEO",
+      "seoKeywordsPlaceholder": "Es. 'benessere, energia, naturale'",
+      "seoKeywordsDescription": "Separate da virgole. Verranno usate per generare l'URL.",
+      "affiliateNetworkLabel": "Rete di Affiliazione",
+      "affiliateNetworkPlaceholder": "Seleziona una rete...",
+      "affiliateUrlLabel": "URL Affiliato Base",
+      "affiliateUrlPlaceholder": "Incolla qui il link della tua offerta",
+      "passportStampLabel": "Passaporto Campagna Creato!"
+    }
+  },
+  "es-ES": {
+    "step0": {
+      "title": "Paso 0: Identificación",
+      "description": "Este es el paso fundacional. La información aquí define la identidad de tu campaña.",
+      "baseCampaignLabel": "Campaña Base",
+      "baseCampaignPlaceholder": "Selecciona un producto",
+      "baseCampaignDescription": "Selecciona el producto base para esta nueva variante.",
+      "variantNameLabel": "Nombre de la Variante",
+      "variantNamePlaceholder": "Ej. 'Vitalidad', 'Enfoque Científico'",
+      "seoKeywordsLabel": "Palabras Clave SEO",
+      "seoKeywordsPlaceholder": "Ej. 'bienestar, energía, natural'",
+      "seoKeywordsDescription": "Separadas por comas. Se usarán para generar la URL.",
+      "affiliateNetworkLabel": "Red de Afiliados",
+      "affiliateNetworkPlaceholder": "Selecciona una red...",
+      "affiliateUrlLabel": "URL de Afiliado Base",
+      "affiliateUrlPlaceholder": "Pega aquí el enlace de tu oferta",
+      "passportStampLabel": "¡Pasaporte de Campaña Creado!"
+    }
+  },
+  "en-US": {
+    "step0": {
+      "title": "Step 0: Identification",
+      "description": "This is the foundational step. The information here defines your campaign's identity.",
+      "baseCampaignLabel": "Base Campaign",
+      "baseCampaignPlaceholder": "Select a product",
+      "baseCampaignDescription": "Select the base product for this new variant.",
+      "variantNameLabel": "Variant Name",
+      "variantNamePlaceholder": "E.g., 'Vitality', 'Scientific Approach'",
+      "seoKeywordsLabel": "SEO Keywords",
+      "seoKeywordsPlaceholder": "E.g., 'wellness, energy, natural'",
+      "seoKeywordsDescription": "Separated by commas. They will be used to generate the URL.",
+      "affiliateNetworkLabel": "Affiliate Network",
+      "affiliateNetworkPlaceholder": "Select a network...",
+      "affiliateUrlLabel": "Base Affiliate URL",
+      "affiliateUrlPlaceholder": "Paste your offer link here",
+      "passportStampLabel": "Campaign Passport Created!"
+    }
+  },
+  "pt-BR": {
+    "step0": {
+      "title": "Passo 0: Identificação",
+      "description": "Este é o passo fundamental. As informações aqui definem a identidade da sua campanha.",
+      "baseCampaignLabel": "Campanha Base",
+      "baseCampaignPlaceholder": "Selecione um produto",
+      "baseCampaignDescription": "Selecione o produto base para esta nova variante.",
+      "variantNameLabel": "Nome da Variante",
+      "variantNamePlaceholder": "Ex: 'Vitalidade', 'Foco Científico'",
+      "seoKeywordsLabel": "Palavras-chave de SEO",
+      "seoKeywordsPlaceholder": "Ex: 'bem-estar, energia, natural'",
+      "seoKeywordsDescription": "Separadas por vírgulas. Serão usadas para gerar a URL.",
+      "affiliateNetworkLabel": "Rede de Afiliados",
+      "affiliateNetworkPlaceholder": "Selecione uma rede...",
+      "affiliateUrlLabel": "URL de Afiliado Base",
+      "affiliateUrlPlaceholder": "Cole o link da sua oferta aqui",
+      "passportStampLabel": "Passaporte da Campanha Criado!"
+    }
+  }
+}

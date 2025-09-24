@@ -1,0 +1,38 @@
+{
+  "it-IT": {
+    "orderConfirmationEmail": {
+      "previewText": "Conferma del tuo ordine Global Fitwell #{{orderId}}",
+      "title": "Grazie per il tuo ordine!",
+      "greeting": "Ciao, abbiamo ricevuto il tuo ordine **#{{orderId}}**. Riceverai un'altra notifica quando il tuo ordine verrà spedito.",
+      "summaryLabel": "Riepilogo Ordine:",
+      "totalLabel": "Totale"
+    }
+  },
+  "es-ES": {
+    "orderConfirmationEmail": {
+      "previewText": "Confirmación de tu pedido de Global Fitwell #{{orderId}}",
+      "title": "¡Gracias por tu pedido!",
+      "greeting": "Hola, hemos recibido tu pedido **#{{orderId}}**. Recibirás otra notificación cuando tu pedido sea enviado.",
+      "summaryLabel": "Resumen del Pedido:",
+      "totalLabel": "Total"
+    }
+  },
+  "en-US": {
+    "orderConfirmationEmail": {
+      "previewText": "Confirmation of your Global Fitwell order #{{orderId}}",
+      "title": "Thank you for your order!",
+      "greeting": "Hi, we have received your order **#{{orderId}}**. You will receive another notification when your order is shipped.",
+      "summaryLabel": "Order Summary:",
+      "totalLabel": "Total"
+    }
+  },
+  "pt-BR": {
+    "orderConfirmationEmail": {
+      "previewText": "Confirmação do seu pedido Global Fitwell #{{orderId}}",
+      "title": "Obrigado pelo seu pedido!",
+      "greeting": "Olá, recebemos seu pedido **#{{orderId}}**. Você receberá outra notificação quando seu pedido for enviado.",
+      "summaryLabel": "Resumo do Pedido:",
+      "totalLabel": "Total"
+    }
+  }
+}

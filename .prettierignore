@@ -1,0 +1,10 @@
+# Ignore artifacts
+.next/
+node_modules/
+dist/
+
+# Ignore compiled locales
+public/locales/
+
+# Ignore vendor scripts
+public/vendor/

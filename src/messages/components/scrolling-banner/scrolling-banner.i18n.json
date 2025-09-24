@@ -1,0 +1,22 @@
+{
+  "es-ES": {
+    "scrollingBanner": {
+      "message": "Oferta por tiempo limitado: ¡Stock casi agotado!"
+    }
+  },
+  "pt-BR": {
+    "scrollingBanner": {
+      "message": "Oferta por tempo limitado: Estoque quase esgotado!"
+    }
+  },
+  "en-US": {
+    "scrollingBanner": {
+      "message": "Limited time offer: Stock is almost sold out!"
+    }
+  },
+  "it-IT": {
+    "scrollingBanner": {
+      "message": "Offerta a tempo limitato: Scorte quasi esaurite!"
+    }
+  }
+}

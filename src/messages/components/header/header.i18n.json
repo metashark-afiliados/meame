@@ -1,0 +1,62 @@
+{
+  "es-ES": {
+    "header": {
+      "logoUrl": "/img/layout/header/globalfitwell-logo-v2.svg",
+      "logoAlt": "Logo de Global Fitwell",
+      "navLinks": [
+        { "label": "Inicio", "href": "/" },
+        { "label": "Tienda", "href": "/store" },
+        { "label": "Sobre Nosotros", "href": "/about" }
+      ],
+      "ctaButton": {
+        "label": "Ver Campaña",
+        "href": "/campaigns/12157"
+      }
+    }
+  },
+  "it-IT": {
+    "header": {
+      "logoUrl": "/img/layout/header/globalfitwell-logo-v2.svg",
+      "logoAlt": "Logo di Global Fitwell",
+      "navLinks": [
+        { "label": "Home", "href": "/" },
+        { "label": "Negozio", "href": "/store" },
+        { "label": "Chi Siamo", "href": "/about" }
+      ],
+      "ctaButton": {
+        "label": "Vedi Campagna",
+        "href": "/campaigns/12157"
+      }
+    }
+  },
+  "en-US": {
+    "header": {
+      "logoUrl": "/img/layout/header/globalfitwell-logo-v2.svg",
+      "logoAlt": "Global Fitwell Logo",
+      "navLinks": [
+        { "label": "Home", "href": "/" },
+        { "label": "Store", "href": "/store" },
+        { "label": "About Us", "href": "/about" }
+      ],
+      "ctaButton": {
+        "label": "View Campaign",
+        "href": "/campaigns/12157"
+      }
+    }
+  },
+  "pt-BR": {
+    "header": {
+      "logoUrl": "/img/layout/header/globalfitwell-logo-v2.svg",
+      "logoAlt": "Logo da Global Fitwell",
+      "navLinks": [
+        { "label": "Início", "href": "/" },
+        { "label": "Loja", "href": "/store" },
+        { "label": "Sobre Nós", "href": "/about" }
+      ],
+      "ctaButton": {
+        "label": "Ver Campanha",
+        "href": "/campaigns/12157"
+      }
+    }
+  }
+}

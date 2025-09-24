@@ -1,0 +1,34 @@
+{
+  "assets": [
+    {
+      "assetId": "i-prv-standard-header-01",
+      "provider": "cloudinary",
+      "tags": {
+        "thm": "dev",
+        "cnt": "ui",
+        "ori": "lsc",
+        "sty": "pht"
+      },
+      "variants": [
+        {
+          "versionId": "v1-orig",
+          "publicId": "webvork/assets/i-prv-standard-header-01/v1-original",
+          "state": "orig",
+          "dimensions": {
+            "width": 1024,
+            "height": 576
+          }
+        }
+      ],
+      "metadata": {
+        "altText": {
+          "it-IT": "Anteprima di un'intestazione di sito web standard e pulita.",
+          "es-ES": "Vista previa de un encabezado de sitio web estándar y limpio.",
+          "en-US": "Preview of a standard, clean website header.",
+          "pt-BR": "Pré-visualização de um cabeçalho de site padrão e limpo."
+        }
+      },
+      "promptId": "prompt-001"
+    }
+  ]
+}

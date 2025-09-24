@@ -1,0 +1,66 @@
+{
+  "it-IT": {
+    "commentSection": {
+      "title": "Commenti",
+      "form": {
+        "placeholder": "Aggiungi il tuo commento...",
+        "minCharactersError": "Il commento deve avere almeno 3 caratteri.",
+        "publishButton": "Pubblica Commento",
+        "publishButtonLoading": "Pubblicazione in corso...",
+        "authRequiredMessage": "Devi",
+        "loginLinkText": "accedere"
+      },
+      "list": {
+        "emptyState": "Ancora nessun commento. Sii il primo a partecipare!"
+      }
+    }
+  },
+  "es-ES": {
+    "commentSection": {
+      "title": "Comentarios",
+      "form": {
+        "placeholder": "Añade tu comentario...",
+        "minCharactersError": "El comentario debe tener al menos 3 caracteres.",
+        "publishButton": "Publicar Comentario",
+        "publishButtonLoading": "Publicando...",
+        "authRequiredMessage": "Debes",
+        "loginLinkText": "iniciar sesión"
+      },
+      "list": {
+        "emptyState": "Aún no hay comentarios. ¡Sé el primero en participar!"
+      }
+    }
+  },
+  "en-US": {
+    "commentSection": {
+      "title": "Comments",
+      "form": {
+        "placeholder": "Add your comment...",
+        "minCharactersError": "Comment must be at least 3 characters long.",
+        "publishButton": "Post Comment",
+        "publishButtonLoading": "Posting...",
+        "authRequiredMessage": "You must",
+        "loginLinkText": "log in"
+      },
+      "list": {
+        "emptyState": "No comments yet. Be the first to participate!"
+      }
+    }
+  },
+  "pt-BR": {
+    "commentSection": {
+      "title": "Comentários",
+      "form": {
+        "placeholder": "Adicione seu comentário...",
+        "minCharactersError": "O comentário deve ter pelo menos 3 caracteres.",
+        "publishButton": "Publicar Comentário",
+        "publishButtonLoading": "Publicando...",
+        "authRequiredMessage": "Você deve",
+        "loginLinkText": "fazer login"
+      },
+      "list": {
+        "emptyState": "Ainda sem comentários. Seja o primeiro a participar!"
+      }
+    }
+  }
+}

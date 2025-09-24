@@ -1,0 +1,94 @@
+{
+  "es-ES": {
+    "socialProofLogos": {
+      "title": "Con la confianza de las principales autoridades del bienestar",
+      "logos": [
+        {
+          "src": "/img/sections/social-proof-logos/logo-wellness-insider.svg",
+          "alt": "Logo de Wellness Insider"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-health-journal.svg",
+          "alt": "Logo de The Health Journal"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-bio-innovate.svg",
+          "alt": "Logo de Bio-Innovate Forum"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-nutrition-council.svg",
+          "alt": "Logo del Nutrition Council"
+        }
+      ]
+    }
+  },
+  "it-IT": {
+    "socialProofLogos": {
+      "title": "Scelto dalle principali autorità del benessere",
+      "logos": [
+        {
+          "src": "/img/sections/social-proof-logos/logo-wellness-insider.svg",
+          "alt": "Logo di Wellness Insider"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-health-journal.svg",
+          "alt": "Logo di The Health Journal"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-bio-innovate.svg",
+          "alt": "Logo del Bio-Innovate Forum"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-nutrition-council.svg",
+          "alt": "Logo del Nutrition Council"
+        }
+      ]
+    }
+  },
+  "en-US": {
+    "socialProofLogos": {
+      "title": "Trusted by leading wellness authorities",
+      "logos": [
+        {
+          "src": "/img/sections/social-proof-logos/logo-wellness-insider.svg",
+          "alt": "Wellness Insider Logo"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-health-journal.svg",
+          "alt": "The Health Journal Logo"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-bio-innovate.svg",
+          "alt": "Bio-Innovate Forum Logo"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-nutrition-council.svg",
+          "alt": "Nutrition Council Logo"
+        }
+      ]
+    }
+  },
+  "pt-BR": {
+    "socialProofLogos": {
+      "title": "Com a confiança das principais autoridades em bem-estar",
+      "logos": [
+        {
+          "src": "/img/sections/social-proof-logos/logo-wellness-insider.svg",
+          "alt": "Logo da Wellness Insider"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-health-journal.svg",
+          "alt": "Logo do The Health Journal"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-bio-innovate.svg",
+          "alt": "Logo do Fórum Bio-Innovate"
+        },
+        {
+          "src": "/img/sections/social-proof-logos/logo-nutrition-council.svg",
+          "alt": "Logo do Conselho de Nutrição"
+        }
+      ]
+    }
+  }
+}

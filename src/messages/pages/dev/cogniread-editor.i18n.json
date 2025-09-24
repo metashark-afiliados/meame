@@ -1,0 +1,146 @@
+{
+  "it-IT": {
+    "cogniReadEditor": {
+      "pageHeader": {
+        "createTitle": "Nuovo Analisi di Studio",
+        "createSubtitle": "Rellena il DNA dello studio scientifico per registrarlo in CogniRead.",
+        "editTitle": "Modifica Analisi di Studio",
+        "editSubtitle": "Aggiorna i dettagli dello studio scientifico e il suo contenuto multilingue."
+      },
+      "tabs": {
+        "dna": "ADN dello Studio",
+        "content": "Contenuto Multilingue",
+        "ecosystem": "Ecosistema"
+      },
+      "contentTab": {
+        "titleLabel": "Titolo dell'Articolo",
+        "titlePlaceholder": "Il titolo che verrà mostrato nel blog...",
+        "slugLabel": "Slug (URL)",
+        "slugPlaceholder": "esempio-di-slug-amichevole",
+        "summaryLabel": "Riassunto (per anteprime)",
+        "summaryPlaceholder": "Un riassunto breve e accattivante per le schede del blog...",
+        "bodyLabel": "Corpo dell'Articolo (Markdown)",
+        "bodyPlaceholder": "Scrivi il contenuto completo dell'articolo qui. Puoi usare Markdown."
+      },
+      "ecosystemTab": {
+        "heroImageTitle": "Immagine Destacada (BAVI)",
+        "heroImageDescription": "Seleziona l'immagine principale per questo articolo dalla Biblioteca di Attivi Visuali Integrata.",
+        "noImageSelected": "Nessuna immagine selezionata",
+        "selectFromBaviButton": "Seleziona dalla BAVI",
+        "loadingBaviButton": "Caricamento BAVI...",
+        "relatedPromptsTitle": "Prompts Relacionados (RaZPrompts)",
+        "relatedPromptsDescription": "Vincola i prompts che sono stati usati per generare idee o attivi per questo articolo. (Funzionalità futura)"
+      },
+      "saveButton": "Salva Cambiamenti nell'Articolo",
+      "saveButtonLoading": "Salvataggio in corso..."
+    }
+  },
+  "es-ES": {
+    "cogniReadEditor": {
+      "pageHeader": {
+        "createTitle": "Nuevo Análisis de Estudio",
+        "createSubtitle": "Rellena el ADN del estudio científico para registrarlo en CogniRead.",
+        "editTitle": "Editar Análisis de Estudio",
+        "editSubtitle": "Actualiza los detalles del estudio científico y su contenido multilingüe."
+      },
+      "tabs": {
+        "dna": "ADN del Estudio",
+        "content": "Contenido Multilingüe",
+        "ecosystem": "Ecosistema"
+      },
+      "contentTab": {
+        "titleLabel": "Título del Artículo",
+        "titlePlaceholder": "El título que se mostrará en el blog...",
+        "slugLabel": "Slug (URL)",
+        "slugPlaceholder": "ejemplo-de-slug-amigable",
+        "summaryLabel": "Resumen (para vistas previas)",
+        "summaryPlaceholder": "Un resumen corto y atractivo para las tarjetas del blog...",
+        "bodyLabel": "Cuerpo del Artículo (Markdown)",
+        "bodyPlaceholder": "Escribe el contenido completo del artículo aquí. Puedes usar Markdown."
+      },
+      "ecosystemTab": {
+        "heroImageTitle": "Imagen Destacada (BAVI)",
+        "heroImageDescription": "Selecciona la imagen principal para este artículo desde la Biblioteca de Activos Visuales Integrada.",
+        "noImageSelected": "Ninguna imagen seleccionada",
+        "selectFromBaviButton": "Seleccionar de la BAVI",
+        "loadingBaviButton": "Cargando BAVI...",
+        "relatedPromptsTitle": "Prompts Relacionados (RaZPrompts)",
+        "relatedPromptsDescription": "Vincula los prompts que se usaron para generar ideas o activos para este artículo. (Funcionalidad futura)"
+      },
+      "saveButton": "Guardar Cambios en el Artículo",
+      "saveButtonLoading": "Guardando..."
+    }
+  },
+  "en-US": {
+    "cogniReadEditor": {
+      "pageHeader": {
+        "createTitle": "New Study Analysis",
+        "createSubtitle": "Fill in the scientific study's DNA to register it in CogniRead.",
+        "editTitle": "Edit Study Analysis",
+        "editSubtitle": "Update the details of the scientific study and its multilingual content."
+      },
+      "tabs": {
+        "dna": "Study DNA",
+        "content": "Multilingual Content",
+        "ecosystem": "Ecosystem"
+      },
+      "contentTab": {
+        "titleLabel": "Article Title",
+        "titlePlaceholder": "The title that will be displayed on the blog...",
+        "slugLabel": "Slug (URL)",
+        "slugPlaceholder": "friendly-slug-example",
+        "summaryLabel": "Summary (for previews)",
+        "summaryPlaceholder": "A short and appealing summary for blog cards...",
+        "bodyLabel": "Article Body (Markdown)",
+        "bodyPlaceholder": "Write the full article content here. You can use Markdown."
+      },
+      "ecosystemTab": {
+        "heroImageTitle": "Featured Image (BAVI)",
+        "heroImageDescription": "Select the main image for this article from the Integrated Visual Asset Library.",
+        "noImageSelected": "No image selected",
+        "selectFromBaviButton": "Select from BAVI",
+        "loadingBaviButton": "Loading BAVI...",
+        "relatedPromptsTitle": "Related Prompts (RaZPrompts)",
+        "relatedPromptsDescription": "Link the prompts that were used to generate ideas or assets for this article. (Future functionality)"
+      },
+      "saveButton": "Save Article Changes",
+      "saveButtonLoading": "Saving..."
+    }
+  },
+  "pt-BR": {
+    "cogniReadEditor": {
+      "pageHeader": {
+        "createTitle": "Nova Análise de Estudo",
+        "createSubtitle": "Preencha o DNA do estudo científico para registrá-lo no CogniRead.",
+        "editTitle": "Editar Análise de Estudo",
+        "editSubtitle": "Atualize os detalhes do estudo científico e seu conteúdo multilíngue."
+      },
+      "tabs": {
+        "dna": "DNA do Estudo",
+        "content": "Conteúdo Multilíngue",
+        "ecosystem": "Ecossistema"
+      },
+      "contentTab": {
+        "titleLabel": "Título do Artigo",
+        "titlePlaceholder": "O título que será exibido no blog...",
+        "slugLabel": "Slug (URL)",
+        "slugPlaceholder": "exemplo-de-slug-amigavel",
+        "summaryLabel": "Resumo (para pré-visualizações)",
+        "summaryPlaceholder": "Um resumo curto e atraente para os cartões do blog...",
+        "bodyLabel": "Corpo do Artigo (Markdown)",
+        "bodyPlaceholder": "Escreva o conteúdo completo do artigo aqui. Você pode usar Markdown."
+      },
+      "ecosystemTab": {
+        "heroImageTitle": "Imagem em Destaque (BAVI)",
+        "heroImageDescription": "Selecione a imagem principal para este artigo na Biblioteca de Ativos Visuais Integrada.",
+        "noImageSelected": "Nenhuma imagem selecionada",
+        "selectFromBaviButton": "Selecionar da BAVI",
+        "loadingBaviButton": "Carregando BAVI...",
+        "relatedPromptsTitle": "Prompts Relacionados (RaZPrompts)",
+        "relatedPromptsDescription": "Vincule os prompts que foram usados para gerar ideias ou ativos para este artigo. (Funcionalidade futura)"
+      },
+      "saveButton": "Salvar Alterações do Artigo",
+      "saveButtonLoading": "Salvando..."
+    }
+  }
+}

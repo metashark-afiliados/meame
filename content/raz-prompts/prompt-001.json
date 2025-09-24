@@ -1,0 +1,28 @@
+{
+  "promptId": "prompt-001",
+  "userId": "raz-podesta",
+  "title": "Preview Image for StandardHeader Component",
+  "versions": [
+    {
+      "version": 1,
+      "promptText": "A cinematic, photorealistic header for a modern website. The design is minimalist and elegant, featuring a clean layout on a slightly off-white background. Include a subtle, abstract logo on the left, generic navigation links, and a prominent, vibrant call-to-action button on the right. Aspect ratio 16:9.",
+      "parameters": {
+        "model": "Ideogram 1.0"
+      },
+      "createdAt": "2025-09-17T14:30:00.000Z"
+    }
+  ],
+  "aiService": "ideogram",
+  "baviAssetId": "i-prv-standard-header-01",
+  "baviVariantId": "v1-orig",
+  "tags": {
+    "ai": "ideo",
+    "sty": "pht",
+    "fmt": "16-9",
+    "typ": "ui",
+    "sbj": "abs"
+  },
+  "keywords": ["header", "ui", "preview", "ideogram"],
+  "createdAt": "2025-09-17T14:30:00.000Z",
+  "updatedAt": "2025-09-17T14:30:00.000Z"
+}
