@@ -1,9 +1,8 @@
-// Ruta correcta: src/components/features/notifications/NotificationBell.tsx
+// RUTA: src/components/features/notifications/NotificationBell.tsx
 /**
  * @file NotificationBell.tsx
- * @description Componente de cliente interactivo para las notificaciones del header,
- *              completamente funcional y nivelado a estándar de élite.
- * @version 3.0.0 (Full Functional Implementation)
+ * @description Componente de cliente interactivo para las notificaciones del header.
+ * @version 4.0.0 (Sovereign Content Contract)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -24,26 +23,26 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { logger } from "@/shared/lib/logging";
 import { getNotificationsAction } from "@/shared/lib/actions/notifications/getNotifications.action";
 import { markNotificationsAsReadAction } from "@/shared/lib/actions/notifications/markNotificationsAsRead.action";
+import type { Notification } from "@/shared/lib/types/notifications.types";
+import type { LucideIconName } from "@/shared/lib/config/lucide-icon-names";
+import type { NotificationBellContentSchema } from "@/shared/lib/schemas/components/notifications.schema";
+import type { z } from "zod";
 
-// Este tipo debería vivir en un archivo de tipos de Supabase en el futuro
-interface Notification {
-  id: string;
-  user_id: string;
-  type: "info" | "success" | "warning" | "error";
-  message: string;
-  link: string | null;
-  is_read: boolean;
-  created_at: string;
+type Content = z.infer<typeof NotificationBellContentSchema>;
+
+interface NotificationBellProps {
+  content: Content;
 }
 
-const iconMap: Record<Notification["type"], string> = {
+const iconMap: Record<Notification["type"], LucideIconName> = {
   info: "Info",
   success: "CircleCheck",
   warning: "TriangleAlert",
   error: "CircleX",
 };
 
-export function NotificationBell() {
+export function NotificationBell({ content }: NotificationBellProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,31 +64,22 @@ export function NotificationBell() {
     fetchNotifications();
   }, []);
 
-  const handleOpenChange = (isOpen: boolean) => {
-    if (isOpen && unreadCount > 0) {
-      // UI Optimista
+  const handleOpenChange = (openState: boolean) => {
+    setIsOpen(openState);
+    if (openState && unreadCount > 0) {
       const currentUnread = unreadCount;
       setUnreadCount(0);
-      setNotifications(
-        notifications.map((n) => ({ ...n, is_read: true }))
-      );
-
-      // Acción en segundo plano
+      setNotifications(notifications.map((n) => ({ ...n, is_read: true })));
       markNotificationsAsReadAction().then((result) => {
         if (!result.success) {
-          // Revertir en caso de error
-          logger.error("Fallo al marcar notificaciones como leídas", {
-            error: result.error,
-          });
           setUnreadCount(currentUnread);
-          // Opcional: revertir el estado de `notifications`
         }
       });
     }
   };
 
   return (
-    <DropdownMenu onOpenChange={handleOpenChange}>
+    <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <DynamicIcon name="Bell" />
@@ -99,17 +89,17 @@ export function NotificationBell() {
               <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
             </span>
           )}
-          <span className="sr-only">Abrir notificaciones</span>
+          <span className="sr-only">{content.notificationsLabel}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-96">
         <DropdownMenuLabel className="flex justify-between items-center">
-          Notificaciones
+          {content.notificationsLabel}
           <Link
             href="/notifications"
             className="text-xs font-normal text-muted-foreground hover:underline"
           >
-            Ver todas
+            {content.viewAllNotificationsLink}
           </Link>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -120,16 +110,16 @@ export function NotificationBell() {
           </div>
         ) : notifications.length === 0 ? (
           <p className="p-4 text-center text-sm text-muted-foreground">
-            No tienes notificaciones.
+            {content.noNotificationsText}
           </p>
         ) : (
-          notifications.slice(0, 5).map((notification: Notification) => (
+          notifications.slice(0, 5).map((notification) => (
             <DropdownMenuItem
               key={notification.id}
               className="flex items-start gap-3 p-3 cursor-pointer"
             >
               <DynamicIcon
-                name={iconMap[notification.type] as any}
+                name={iconMap[notification.type]}
                 className="h-5 w-5 mt-1 text-muted-foreground"
               />
               <div className="flex-grow">
@@ -147,4 +137,3 @@ export function NotificationBell() {
     </DropdownMenu>
   );
 }
-// Ruta correcta: src/components/features/notifications/NotificationBell.tsx

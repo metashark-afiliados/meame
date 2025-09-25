@@ -1,10 +1,10 @@
-// Ruta correcta: src/components/sections/ProductFilters.tsx
+// RUTA: src/components/sections/ProductFilters.tsx
 /**
  * @file ProductFilters.tsx
  * @description Barra lateral de filtros interactiva para la Tienda v2.0.
  *              Ahora es un componente controlado que recibe y actualiza el estado
- *              desde un hook padre, con seguridad de tipos completa.
- * @version 4.0.0 (Holistic Integrity & Type Safety)
+ *              desde un hook padre, con seguridad de tipos completa y sintaxis corregida.
+ * @version 4.1.0 (Syntax & Import Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -18,7 +18,8 @@ import { Label } from "@/components/ui/Label";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Slider } from "@/components/ui/Slider";
 import { Switch } from "@/components/ui/Switch";
-import type { ProductFiltersState } import type { ProductFiltersState } from "@/shared/hooks/use-product-filters";
+import type { ProductFiltersState } from "@/shared/hooks/use-product-filters";
+
 type FilterData = NonNullable<
   z.infer<typeof StorePageLocaleSchema>["storePage"]
 >["filters"];
@@ -36,7 +37,7 @@ export function ProductFilters({
   filtersState,
   onFilterChange,
 }: ProductFiltersProps): React.ReactElement {
-  logger.info("[ProductFilters v4.0] Renderizando filtros interactivos.");
+  logger.info("[ProductFilters v4.1] Renderizando filtros interactivos.");
 
   const handleTagChange = (tag: string, checked: boolean) => {
     onFilterChange((prev: ProductFiltersState) => ({
@@ -135,4 +136,3 @@ export function ProductFilters({
     </aside>
   );
 }
-// Ruta correcta: src/components/sections/ProductFilters.tsx

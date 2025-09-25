@@ -1,8 +1,8 @@
-// components/sections/comments/CommentSectionClient.tsx
+// RUTA: src/components/sections/comments/CommentSectionClient.tsx
 /**
  * @file CommentSectionClient.tsx
  * @description Componente "cerebro" para la sección de comentarios interactiva.
- * @version 1.0.0
+ * @version 2.0.0 (FSD Alignment & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,8 +12,10 @@ import { toast } from "sonner";
 import type { Comment } from "@/shared/lib/schemas/community/comment.schema";
 import { CommentList } from "./CommentList";
 import { CommentForm } from "./CommentForm";
-import { postCommentAction } from "@/app/[locale]/(dev)/cogniread/_actions";
+import { postCommentAction } from "@/shared/lib/actions/cogniread"; // <-- RUTA CORREGIDA
 import { logger } from "@/shared/lib/logging";
+import type { CommentSectionContent } from "@/shared/lib/schemas/components/comment-section.schema";
+import type { Locale } from "@/shared/lib/i18n/i18n.config";
 
 interface CommentSectionClientProps {
   initialComments: Comment[];
@@ -24,6 +26,8 @@ interface CommentSectionClientProps {
     name: string;
     avatarUrl?: string | null;
   };
+  content: CommentSectionContent;
+  locale: Locale;
 }
 
 export function CommentSectionClient({
@@ -32,8 +36,10 @@ export function CommentSectionClient({
   articleSlug,
   isAuthenticated,
   currentUser,
+  content,
+  locale,
 }: CommentSectionClientProps) {
-  logger.info("[CommentSectionClient] Renderizando.");
+  logger.info("[CommentSectionClient] Renderizando v2.0 (FSD Aligned).");
 
   const [comments, setComments] = useState(initialComments);
   const [isPending, startTransition] = useTransition();
@@ -47,13 +53,13 @@ export function CommentSectionClient({
       });
 
       if (result.success) {
-        toast.success("Comentario publicado con éxito.");
+        toast.success(content.toast.success);
         setComments((prev) => [...prev, result.data.newComment]);
       } else {
-        toast.error("Error al publicar", {
+        toast.error(content.toast.errorTitle, {
           description:
             result.error === "auth_required"
-              ? "Debes iniciar sesión para comentar."
+              ? content.toast.authError
               : result.error,
         });
       }
@@ -68,9 +74,10 @@ export function CommentSectionClient({
         userName={currentUser?.name}
         onSubmit={handlePostComment}
         isPending={isPending}
+        content={content.form}
+        locale={locale}
       />
-      <CommentList comments={comments} />
+      <CommentList comments={comments} content={content} />
     </div>
   );
 }
-// components/sections/comments/CommentSectionClient.tsx

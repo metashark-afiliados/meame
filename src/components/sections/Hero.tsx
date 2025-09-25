@@ -1,161 +1,64 @@
-// RUTA: components/sections/Hero.tsx
+// RUTA: src/components/sections/Hero.tsx
 /**
  * @file Hero.tsx
- * @description Componente de presentación para la sección Hero.
- *              v9.1.0 (Holistic Elite Compliance): Refactorizado a un Componente
- *              de Cliente que utiliza `forwardRef`. Participa en la animación
- *              orquestada por `SectionAnimator` y cumple con los 7 Pilares de Calidad.
- * @version 9.1.0
+ * @description Server Component "Shell" para la sección Hero. Su única
+ *              responsabilidad es obtener los datos y delegar el renderizado
+ *              al componente de cliente.
+ * @version 11.0.0 (Elite Shell Pattern & MEA Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
-"use client";
-
-import React, { forwardRef } from "react";
-import { motion, type Variants } from "framer-motion";
-import { cn } from "@/shared/lib/utils/cn";
-import { Container } from "@/components/ui/Container";
+import React from "react";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import { getBaviManifest } from "@/shared/lib/bavi"; // <-- Importación corregida
+import { DeveloperErrorDisplay } from "@/components/dev";
+import { HeroClient } from "./HeroClient";
+import type { BaviAsset, BaviVariant } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 
-/**
- * @interface HeroProps
- * @description Contrato de props para el componente Hero, incluyendo `isFocused` para
- *              el modo de edición de la SDC.
- */
+type HeroContent = NonNullable<Dictionary["hero"]>;
+
 interface HeroProps {
-  content: NonNullable<Dictionary["hero"]>;
-  isFocused?: boolean;
+  content: HeroContent;
 }
 
-/**
- * @const sectionVariants
- * @description Define la animación de entrada para la sección, que será disparada
- *              en cascada por el `SectionAnimator` padre.
- */
-const sectionVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.8,
-      ease: [0.22, 1, 0.36, 1], // Curva de easing profesional para un efecto suave
-    },
-  },
-};
+export async function Hero({
+  content,
+}: HeroProps): Promise<React.ReactElement | null> {
+  logger.info("[Hero Shell] Renderizando v11.0 (Server).");
 
-/**
- * @const titleContainerVariants
- * @description Orquesta la animación de las palabras del título.
- */
-const titleContainerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08, // Un ligero retraso entre cada palabra
-      delayChildren: 0.2,
-    },
-  },
-};
-
-/**
- * @const wordVariants
- * @description Anima cada palabra individualmente con un efecto de resorte.
- */
-const wordVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      damping: 12,
-      stiffness: 100,
-    },
-  },
-};
-
-/**
- * @const subtitleVariants
- * @description Anima la entrada del subtítulo después del título.
- */
-const subtitleVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: "easeOut",
-      delay: 0.6, // Aparece después de que el título ha comenzado a animarse
-    },
-  },
-};
-
-/**
- * @component Hero
- * @description Renderiza la sección de cabecera principal de una página. Utiliza `forwardRef`
- *              para permitir que el `SectionRenderer` le pase una `ref` para la
- *              funcionalidad de "Modo Foco".
- */
-export const Hero = forwardRef<HTMLElement, HeroProps>(
-  ({ content, isFocused }, ref) => {
-    logger.info("[Hero] Renderizando v9.1 (Holistic Elite Compliance).");
-
-    if (!content) {
-      logger.warn("[Hero] No se proporcionó contenido. No se renderizará.");
-      return null;
-    }
-
-    const { title, subtitle } = content;
-    const titleWords = title.split(" ");
-
-    return (
-      <motion.section
-        ref={ref}
-        variants={sectionVariants}
-        id="hero"
-        className={cn(
-          "bg-background pt-8 pb-16 text-center overflow-hidden transition-all duration-300 rounded-lg",
-          // Efecto visual para el "Modo Foco" en la SDC
-          isFocused &&
-            "ring-2 ring-primary ring-offset-4 ring-offset-background"
-        )}
-        aria-labelledby="hero-title"
-      >
-        <Container className="max-w-4xl">
-          <motion.h1
-            id="hero-title"
-            className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight font-serif text-primary drop-shadow-md"
-            aria-label={title}
-            variants={titleContainerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {titleWords.map((word: string, index: number) => (
-              <motion.span
-                key={`${word}-${index}`}
-                className="inline-block"
-                variants={wordVariants}
-                style={{ marginRight: "0.25em" }}
-              >
-                {word}
-              </motion.span>
-            ))}
-          </motion.h1>
-          <motion.p
-            className="mt-6 text-xl md:text-2xl text-foreground/80 max-w-2xl mx-auto"
-            variants={subtitleVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {subtitle}
-          </motion.p>
-        </Container>
-      </motion.section>
-    );
+  if (!content) {
+    logger.warn("[Hero Shell] No se proporcionó contenido.");
+    return null;
   }
-);
 
-Hero.displayName = "Hero";
+  let backgroundImageUrl = "";
+
+  if (content.backgroundImageAssetId) {
+    try {
+      const baviManifest = await getBaviManifest();
+      const asset = baviManifest.assets.find(
+        (a: BaviAsset) => a.assetId === content.backgroundImageAssetId
+      );
+      const publicId = asset?.variants.find((v: BaviVariant) => v.state === "orig")?.publicId;
+
+      if (publicId) {
+        backgroundImageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,w_1920/${publicId}`;
+      } else {
+        logger.warn(`[Hero Shell] Asset ID '${content.backgroundImageAssetId}' no encontrado en la BAVI.`);
+      }
+    } catch (error) {
+      logger.error("[Hero Shell] Fallo al cargar datos de BAVI.", { error });
+      if (process.env.NODE_ENV === "development") {
+        return (
+          <DeveloperErrorDisplay
+            context="Hero"
+            errorMessage="No se pudo cargar la imagen de fondo desde la BAVI."
+            errorDetails={error instanceof Error ? error : String(error)}
+          />
+        );
+      }
+    }
+  }
+
+  return <HeroClient content={content} backgroundImageUrl={backgroundImageUrl} />;
+}

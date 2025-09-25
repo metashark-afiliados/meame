@@ -1,9 +1,9 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/shared/FormFieldGroup.tsx
+// RUTA: src/components/forms/FormFieldGroup.tsx
 /**
  * @file FormFieldGroup.tsx
  * @description Componente de layout atómico y reutilizable para agrupar
  *              elementos de un campo de formulario de manera consistente.
- * @version 1.0.0
+ * @version 2.0.0 (Sovereign Architectural Elevation)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -42,4 +42,4 @@ export function FormFieldGroup({
     </FormItem>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/shared/FormFieldGroup.tsx
+// RUTA: src/components/forms/FormFieldGroup.tsx

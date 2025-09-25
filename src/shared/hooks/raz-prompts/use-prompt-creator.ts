@@ -1,8 +1,8 @@
-// Ruta correcta: src/shared/hooks/raz-prompts/use-prompt-creator.ts
+// RUTA: src/shared/hooks/raz-prompts/use-prompt-creator.ts
 /**
  * @file use-prompt-creator.ts
  * @description Hook "cerebro" para la lógica de creación de prompts.
- * @version 3.1.0 (Sovereign Path Normalization)
+ * @version 4.0.0 (Creative Genome v4.0)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -20,12 +20,12 @@ import {
 import { logger } from "@/shared/lib/logging";
 
 export const CreatePromptFormSchema = z.object({
-  title: z.string().min(3, "Il titolo è richiesto."),
-  promptText: z.string().min(10, "Il prompt è richiesto."),
+  title: z.string().min(3, "El título es requerido."),
+  promptText: z.string().min(10, "El prompt es requerido."),
   negativePrompt: z.string().optional(),
   tags: RaZPromptsSesaTagsSchema,
   parameters: PromptParametersSchema.deepPartial(),
-  keywords: z.string().min(1, "Almeno una parola chiave è richiesta."),
+  keywords: z.string().min(1, "Al menos una palabra clave es requerida."),
 });
 
 export type CreatePromptFormData = z.infer<typeof CreatePromptFormSchema>;
@@ -39,7 +39,7 @@ export function usePromptCreator() {
       title: "",
       promptText: "",
       negativePrompt: "",
-      tags: { ai: "ideo", sty: "pht", fmt: "16-9", typ: "ui", sbj: "abs" },
+      tags: { ai: "ideo", sty: "pht", fmt: "16x9", typ: "ui", sbj: "abs" },
       parameters: {
         renderingSpeed: "DEFAULT",
         styleType: "REALISTIC",
@@ -52,7 +52,6 @@ export function usePromptCreator() {
   });
 
   const onSubmit = (data: CreatePromptFormData) => {
-    logger.startGroup("[usePromptCreator] Tentativo di creazione prompt...");
     startTransition(async () => {
       const result = await createPromptEntryAction({
         title: data.title,
@@ -75,27 +74,16 @@ export function usePromptCreator() {
       });
 
       if (result.success) {
-        toast.success("Voce del prompt creata!", {
-          description: `ID: ${result.data.promptId}. Copialo per collegare la tua immagine.`,
+        toast.success("Genoma de Prompt creado!", {
+          description: `ID: ${result.data.promptId}. Ahora puedes vincularlo a un activo en BAVI.`,
           duration: 10000,
         });
-        logger.success(
-          `[usePromptCreator] Prompt creato con successo: ${result.data.promptId}`
-        );
         form.reset();
       } else {
-        toast.error("Errore nella creazione del prompt", {
-          description: result.error,
-        });
-        logger.error(
-          "[usePromptCreator] Fallimento nella creazione del prompt.",
-          { error: result.error }
-        );
+        toast.error("Error en la creación", { description: result.error });
       }
-      logger.endGroup();
     });
   };
 
   return { form, onSubmit, isPending };
 }
-// Ruta correcta: src/shared/hooks/raz-prompts/use-prompt-creator.ts

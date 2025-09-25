@@ -1,9 +1,8 @@
-// Ruta correcta: src/components/layout/Header.tsx
+// RUTA: src/components/layout/Header.tsx
 /**
  * @file Header.tsx
- * @description Componente de cabecera principal. Orquesta la navegación, acciones
- *              de usuario y es 100% data-driven. Inyectado con MEA/UX.
- * @version 29.0.0 (Holistic Elite Leveling & MEA)
+ * @description Componente de cabecera principal, ahora con contratos de contenido atómicos.
+ * @version 31.0.0 (Atomic Content Contracts)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -22,24 +21,29 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { CartTrigger } from "./CartTrigger";
 import { CartSheet } from "./CartSheet";
 import { UserNav } from "@/components/features/auth/UserNav";
+import { NotificationBell } from "@/components/features/notifications/NotificationBell";
 import { routes } from "@/shared/lib/navigation";
 
+// --- SSoT de Contratos de Datos ---
 type HeaderContent = NonNullable<Dictionary["header"]>;
 type ToggleThemeContent = NonNullable<Dictionary["toggleTheme"]>;
 type LanguageSwitcherContent = NonNullable<Dictionary["languageSwitcher"]>;
 type CartContent = NonNullable<Dictionary["cart"]>;
 type UserNavContent = NonNullable<Dictionary["userNav"]>;
+type NotificationBellContent = NonNullable<Dictionary["notificationBell"]>;
 
 interface HeaderProps {
-  content: HeaderContent;
-  toggleThemeContent: ToggleThemeContent;
-  languageSwitcherContent: LanguageSwitcherContent;
-  cartContent: CartContent;
-  userNavContent: UserNavContent;
+  content?: HeaderContent;
+  toggleThemeContent?: ToggleThemeContent;
+  languageSwitcherContent?: LanguageSwitcherContent;
+  cartContent?: CartContent;
+  userNavContent?: UserNavContent;
+  notificationBellContent?: NotificationBellContent;
   currentLocale: Locale;
   supportedLocales: readonly string[];
 }
 
+// --- SSoT de Animaciones (MEA/UX) ---
 const headerVariants: Variants = {
   hidden: { y: -20, opacity: 0 },
   visible: {
@@ -58,11 +62,22 @@ export default function Header({
   languageSwitcherContent,
   cartContent,
   userNavContent,
+  notificationBellContent,
   currentLocale,
   supportedLocales,
 }: HeaderProps): React.ReactElement {
-  logger.info("[Header] Renderizando v29.0 (Holistic Elite & MEA).");
+  logger.info("[Header] Renderizando v31.0 (Atomic Content Contracts).");
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // --- Guardia de Resiliencia ---
+  if (!content) {
+    logger.error(
+      "[Header] Contenido principal no proporcionado. Renderizando un estado de error seguro."
+    );
+    return (
+      <header className="h-16 border-b border-destructive bg-destructive/10" />
+    );
+  }
 
   const { logoUrl, logoAlt, navLinks } = content;
 
@@ -104,28 +119,38 @@ export default function Header({
         </nav>
 
         <div className="flex items-center gap-2 ml-auto">
-          <ToggleTheme content={toggleThemeContent} />
-          <LanguageSwitcher
-            currentLocale={currentLocale}
-            supportedLocales={supportedLocales}
-            content={languageSwitcherContent}
-          />
+          {toggleThemeContent && <ToggleTheme content={toggleThemeContent} />}
+          {languageSwitcherContent && (
+            <LanguageSwitcher
+              currentLocale={currentLocale}
+              supportedLocales={supportedLocales}
+              content={languageSwitcherContent}
+            />
+          )}
           <Separator orientation="vertical" className="h-6 mx-2" />
-          <CartTrigger
-            onClick={() => setIsCartOpen(true)}
-            content={cartContent}
-          />
-          <UserNav content={userNavContent} />
+          {cartContent && (
+            <CartTrigger
+              onClick={() => setIsCartOpen(true)}
+              content={cartContent}
+            />
+          )}
+
+          {notificationBellContent && (
+            <NotificationBell content={notificationBellContent} />
+          )}
+          {userNavContent && <UserNav content={userNavContent} />}
         </div>
       </motion.header>
 
-      <CartSheet
-        isOpen={isCartOpen}
-        onOpenChange={setIsCartOpen}
-        content={cartContent}
-        locale={currentLocale}
-      />
+      {cartContent && (
+        <CartSheet
+          isOpen={isCartOpen}
+          onOpenChange={setIsCartOpen}
+          content={cartContent}
+          locale={currentLocale}
+        />
+      )}
     </>
   );
 }
-// Ruta correcta: src/components/layout/Header.tsx
+// RUTA: src/components/layout/Header.tsx

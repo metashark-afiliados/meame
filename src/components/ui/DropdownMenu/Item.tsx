@@ -1,61 +1,56 @@
-// RUTA: components/ui/DropdownMenu/Item.tsx
+// RUTA: src/components/ui/DropdownMenu/Item.tsx
 /**
  * @file Item.tsx
  * @description Componente para un item individual e interactivo dentro del DropdownMenu.
- * @version 5.2.0 (Elite Type Safety & A11y Fix)
+ *              v6.0.0 (Polymorphic Elite Compliance): Implementa el patrón `asChild`
+ *              utilizando @radix-ui/react-slot para una flexibilidad y seguridad de
+ *              tipos de nivel de élite. Resuelve el error crítico TS2322.
+ * @version 6.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
 import { twMerge } from "tailwind-merge";
 import { useDropdownMenuContext } from "./Context";
 import { logger } from "@/shared/lib/logging";
 
-interface ItemProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ItemProps extends React.HTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
+  asChild?: boolean;
 }
 
-export const Item = React.forwardRef<HTMLDivElement, ItemProps>(
-  ({ children, className, onClick, ...props }, ref) => {
-    logger.trace("[DropdownMenu.Item] Renderizando item (v5.2).");
+export const Item = React.forwardRef<HTMLButtonElement, ItemProps>(
+  ({ children, className, onClick, asChild = false, ...props }, ref) => {
+    logger.trace("[DropdownMenu.Item] Renderizando item polimórfico (v6.0).");
     const { setIsOpen } = useDropdownMenuContext();
 
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const Comp = asChild ? Slot : "button";
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
       if (onClick) {
         onClick(event);
       }
       setIsOpen(false);
     };
 
-    // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
-    // En lugar de una aserción 'any', simulamos un click nativo en el elemento
-    // cuando se presiona Enter o Espacio. Esto es más seguro, accesible y
-    // desencadena el manejador `onClick` de forma natural.
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault(); // Previene el scroll de la página en Espacio
-        event.currentTarget.click(); // Dispara el evento onClick
-      }
-    };
-    // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
-
     return (
-      <div
+      <Comp
         ref={ref}
+        type="button" // Necesario para la semántica
+        role="menuitem"
         className={twMerge(
-          "flex items-center px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 hover:text-foreground cursor-pointer transition-colors rounded-md",
+          "w-full text-left flex items-center px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 hover:text-foreground cursor-pointer transition-colors rounded-md focus:outline-none focus:bg-muted/50",
           className
         )}
-        role="menuitem"
-        tabIndex={0} // Se hace enfocable para la navegación por teclado
         onClick={handleClick}
-        onKeyDown={handleKeyDown} // Se usa el nuevo manejador seguro
         {...props}
       >
         {children}
-      </div>
+      </Comp>
     );
   }
 );
 Item.displayName = "DropdownMenuItem";
+// RUTA: src/components/ui/DropdownMenu/Item.tsx

@@ -1,9 +1,8 @@
-// lib/schemas/raz-prompts/entry.schema.ts
+// RUTA: src/shared/lib/schemas/raz-prompts/entry.schema.ts
 /**
  * @file entry.schema.ts
  * @description Schema ensamblador y SSoT para una entrada completa en RaZPrompts.
- *              v3.0.0 (Image URL for Vault Display): Introduce 'imageUrl' para la visualización.
- * @version 3.0.0
+ * @version 4.0.0 (Creative Genome)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
@@ -18,22 +17,24 @@ export const RaZPromptsEntrySchema = z.object({
 
   // --- Datos Descriptivos ---
   title: z.string().min(3).max(100),
+  status: z.enum(["pending_generation", "generated", "archived"]),
 
-  // --- [NUEVO] Gestión del Ciclo de Vida ---
-  status: z.enum(["pending_generation", "generated"]),
-
-  // --- Versiones del Prompt ---
+  // --- Versiones (El Historial Genético) ---
   versions: z.array(PromptVersionSchema).min(1),
 
-  // --- Conexión Simbiótica con BAVI (Ahora Opcional) ---
-  baviAssetId: z.string().optional(),
-  baviVariantId: z.string().optional(),
-  imageUrl: z.string().url().optional(), // <-- NUEVO: URL de la imagen para mostrar en la bóveda
+  // --- VÍNCULO ARQUITECTÓNICO CLAVE (MEJORA v4.0) ---
+  baviAssetIds: z
+    .array(z.string())
+    .optional()
+    .describe("Array de IDs de activos en BAVI generados a partir de este prompt."),
 
   // --- Sistema de Descubrimiento ---
-  aiService: z.string(), // Dato derivado, SSoT es `tags.ai`
+  aiService: z.string(),
   tags: RaZPromptsSesaTagsSchema,
   keywords: z.array(z.string()),
+
+  // --- Metadatos de Organización (Roadmap v2.0) ---
+  collections: z.array(z.string().cuid2()).optional(),
 
   // --- Timestamps ---
   createdAt: z.string().datetime(),

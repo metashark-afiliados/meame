@@ -1,25 +1,32 @@
-// scripts/generation/generate-lucide-icon-enum.ts
+// RUTA: scripts/generation/generate-lucide-icon-enum.ts
 /**
  * @file generate-lucide-icon-enum.ts
  * @description Script de automatización de élite para la DX.
- *              v5.1.0 (Robust Regex): Se actualiza la expresión regular para
- *              soportar tanto comillas simples como dobles, resolviendo el
- *              error de parseo del manifiesto.
- * @version 5.1.0
+ *              v6.0.0 (Architectural Realignment): Se actualiza la ruta de salida
+ *              para alinearse con la arquitectura FSD soberana, resolviendo el
+ *              error crítico de build ENOENT.
+ * @version 6.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import * as fs from "fs";
 import * as path from "path";
 import chalk from "chalk";
 import { createRequire } from "module";
+import { logger } from "@/shared/lib/logging";
 
 const require = createRequire(import.meta.url);
 
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+// La ruta de salida ahora apunta a la SSoT canónica dentro de src/shared/lib/config/
 const OUTPUT_FILE = path.resolve(
   process.cwd(),
+  "src",
+  "shared",
+  "lib",
   "config",
   "lucide-icon-names.ts"
 );
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 function kebabToPascal(str: string): string {
   return str
@@ -29,29 +36,24 @@ function kebabToPascal(str: string): string {
 }
 
 function main() {
-  console.log(
-    chalk.blue("🚀 Iniciando generación del Zod Enum para iconos de Lucide...")
+  logger.startGroup(
+    "🚀 Iniciando generación del Zod Enum para iconos de Lucide (v6.0)..."
   );
 
   try {
     const lucideManifestPath = require.resolve(
       "lucide-react/dynamicIconImports"
     );
-    console.log(
-      chalk.gray(
-        `   Manifiesto de iconos encontrado en: ${path.relative(process.cwd(), lucideManifestPath)}`
-      )
+    logger.trace(
+      `   Manifiesto de iconos encontrado en: ${path.relative(
+        process.cwd(),
+        lucideManifestPath
+      )}`
     );
 
     const manifestContent = fs.readFileSync(lucideManifestPath, "utf-8");
 
-    // --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
-    // La nueva regex /['"]([^'"]+)['"]:/g busca una comilla (simple o doble),
-    // captura cualquier caracter que NO sea una comilla, y luego busca la comilla
-    // de cierre y los dos puntos. Esto es mucho más robusto.
     const iconKeysMatches = manifestContent.matchAll(/['"]([^'"]+)['"]:/g);
-    // --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
-
     const iconKeys = Array.from(iconKeysMatches, (m) => m[1]);
 
     if (iconKeys.length === 0) {
@@ -62,7 +64,7 @@ function main() {
 
     const pascalCaseIconNames = iconKeys.map(kebabToPascal);
 
-    const fileContent = `// config/lucide-icon-names.ts
+    const fileContent = `// RUTA: src/shared/lib/config/lucide-icon-names.ts
 /**
  * @file lucide-icon-names.ts
  * @description Manifiesto de Nombres de Iconos de Lucide y SSoT.
@@ -83,29 +85,31 @@ export const LucideIconNameSchema = z.enum(lucideIconNames);
 
 export type LucideIconName = z.infer<typeof LucideIconNameSchema>;
 `;
+    // --- MEJORA DE OBSERVABILIDAD ---
+    logger.info(
+      `   Escribiendo manifiesto en la nueva ruta SSoT: ${chalk.yellow(
+        path.relative(process.cwd(), OUTPUT_FILE)
+      )}`
+    );
+
+    // Asegurarse de que el directorio de destino existe antes de escribir
+    const outputDir = path.dirname(OUTPUT_FILE);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
 
     fs.writeFileSync(OUTPUT_FILE, fileContent, "utf-8");
 
-    console.log(
-      chalk.green(
-        `✅ Zod Enum y Tipo generados con éxito en ${chalk.yellow(
-          path.relative(process.cwd(), OUTPUT_FILE)
-        )}`
-      )
-    );
-    console.log(
-      chalk.cyan(
-        `   Total de ${pascalCaseIconNames.length} iconos registrados.`
-      )
+    logger.success(
+      `✅ Zod Enum y Tipo generados con éxito con ${pascalCaseIconNames.length} iconos registrados.`
     );
   } catch (error) {
-    console.error(
-      chalk.red.bold("🔥 Error crítico durante la generación del enum:"),
-      error
-    );
+    logger.error("🔥 Error crítico durante la generación del enum:", { error });
     process.exit(1);
+  } finally {
+    logger.endGroup();
   }
 }
 
 main();
-// scripts/generation/generate-lucide-icon-enum.ts
+// RUTA: scripts/generation/generate-lucide-icon-enum.ts

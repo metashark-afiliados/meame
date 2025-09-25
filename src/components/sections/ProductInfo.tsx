@@ -1,9 +1,10 @@
-// components/sections/ProductInfo.tsx
+// RUTA: src/components/sections/ProductInfo.tsx
 /**
  * @file ProductInfo.tsx
  * @description Panel de información para detalle de producto con capacidad de compartir.
- * @version 7.0.0 (Holistic Contract Fix): Resuelve errores críticos de contrato
- *              de props y se alinea completamente con la arquitectura de datos soberana.
+ * @version 7.1.0 (Component API Contract Fix): Corrige la forma en que se pasan
+ *              las props al componente hijo `TextSection`, resolviendo errores
+ *              críticos de tipo TS2339.
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -25,7 +26,7 @@ import { logger } from "@/shared/lib/logging";
 type ProductPageContent = z.infer<typeof ProductDetailPageContentSchema>;
 
 interface ProductInfoProps {
-  product: Product; // <-- El contrato ahora espera el producto completo
+  product: Product;
   content: ProductPageContent;
   absoluteUrl: string;
 }
@@ -53,7 +54,7 @@ export function ProductInfo({
   content,
   absoluteUrl,
 }: ProductInfoProps) {
-  logger.info(`[ProductInfo] Renderizando v7.0 para producto: ${product.name}`);
+  logger.info(`[ProductInfo] Renderizando v7.1 para producto: ${product.name}`);
   const searchParams = useSearchParams();
 
   const {
@@ -64,7 +65,6 @@ export function ProductInfo({
     shareButton,
   } = content;
 
-  // Los datos del producto ahora vienen de la prop 'product'
   const productData = product;
 
   const variants = React.useMemo(
@@ -110,9 +110,7 @@ export function ProductInfo({
         <ShareButton
           shareData={{
             title: productData.name,
-            // --- [INICIO DE CORRECCIÓN DE CONTRATO] ---
-            text: description.content[0]?.text || productData.name,
-            // --- [FIN DE CORRECCIÓN DE CONTRATO] ---
+            text: description[0]?.text || productData.name, // <-- CORRECCIÓN
             url: absoluteUrl,
           }}
           content={shareButton}
@@ -120,7 +118,7 @@ export function ProductInfo({
       </div>
 
       <TextSection
-        content={description.content}
+        content={description} // <-- CORRECCIÓN: Se pasa el array directamente.
         spacing="compact"
         prose={true}
         className="py-0 text-muted-foreground"
@@ -160,4 +158,3 @@ export function ProductInfo({
     </div>
   );
 }
-// components/sections/ProductInfo.tsx

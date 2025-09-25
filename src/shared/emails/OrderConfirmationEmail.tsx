@@ -1,11 +1,11 @@
-// components/emails/OrderConfirmationEmail.tsx
+// RUTA: src/shared/emails/OrderConfirmationEmail.tsx
 /**
  * @file OrderConfirmationEmail.tsx
- * @description Plantilla de React Email de élite para la confirmación de pedido.
- *              v2.1.0 (Holistic Contract & Linter Fix): Alineado con el contrato
- *              de datos soberano que ahora incluye los ítems del pedido,
- *              resolviendo todos los errores de tipo y de linting.
- * @version 2.1.0
+ * @description Plantilla de correo de élite para confirmación de pedidos.
+ *              v3.0.0 (Decoupled Styling): Refactorizado a un componente de
+ *              presentación puro que recibe sus estilos a través de props,
+ *              cumpliendo con la arquitectura de theming soberana.
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -13,118 +13,72 @@ import {
   Body,
   Container,
   Head,
-  Html,
-  Preview,
-  Text,
-  Img,
-  Section,
-  Row,
-  Column,
+  Heading,
   Hr,
+  Html,
+  Img,
+  Preview,
+  Section,
+  Text,
 } from "@react-email/components";
 import { logger } from "@/shared/lib/logging";
-import type {
-  OrderConfirmationPayload,
-  OrderItem,
-} from "@/shared/lib/schemas/notifications/transactional.schema";
+import type { OrderItem } from "@/shared/lib/schemas/entities/order.schema";
+import type { OrderConfirmationEmailContent } from "@/shared/lib/schemas/emails/order-confirmation-email.schema";
+import type { EmailTheme } from "@/shared/lib/schemas/emails/email-theme.schema";
 
 interface OrderConfirmationEmailProps {
-  payload: OrderConfirmationPayload;
+  content: OrderConfirmationEmailContent;
+  orderId: string;
+  totalAmount: string;
+  items: OrderItem[];
+  styles: EmailTheme;
 }
 
-// --- Estilos en línea para máxima compatibilidad con clientes de email ---
-const main = {
-  backgroundColor: "#f6f9fc",
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Ubuntu,sans-serif',
-};
-
-const container = {
-  backgroundColor: "#ffffff",
-  margin: "0 auto",
-  padding: "20px 0 48px",
-  marginBottom: "64px",
-};
-
-const text = {
-  color: "#333",
-  fontSize: "14px",
-  lineHeight: "24px",
-};
-
-const boldText = {
-  ...text,
-  fontWeight: "bold",
-};
-
-const titleText = {
-  ...boldText,
-  fontSize: "24px",
-  textAlign: "center" as const,
-};
-
-const section = {
-  padding: "0 20px",
-};
-
-const logo = {
-  margin: "0 auto",
-};
-
 export function OrderConfirmationEmail({
-  payload,
+  content,
+  orderId,
+  totalAmount,
+  items,
+  styles,
 }: OrderConfirmationEmailProps): React.ReactElement {
-  logger.trace(
-    "[React Email] Renderizando plantilla OrderConfirmationEmail v2.1"
+  logger.info(
+    `[ReactEmail] Renderizando plantilla OrderConfirmationEmail v3.0 para pedido: ${orderId}`
   );
-  const { orderId, totalAmount, items } = payload;
-  const previewText = `Conferma del tuo ordine Global Fitwell #${orderId}`;
 
   return (
     <Html>
       <Head />
-      <Preview>{previewText}</Preview>
-      <Body style={main}>
-        <Container style={container}>
-          <Section style={section}>
-            <Img
-              src="https://res.cloudinary.com/metashark-tech/image/upload/v1726956294/webvork/assets/i-sybl-logo-fitwell-01/v1-original.png"
-              width="150"
-              alt="Global Fitwell Logo"
-              style={logo}
-            />
-            <Text style={titleText}>Grazie per il tuo ordine!</Text>
-            <Text style={text}>
-              Ciao, abbiamo ricevuto il tuo ordine{" "}
-              <strong style={boldText}>#{orderId}</strong>. Riceverai un'altra
-              notifica quando il tuo ordine verrà spedito.
-            </Text>
-            <Hr />
-            <Text style={boldText}>Riepilogo Ordine:</Text>
-            {items.map((item: OrderItem) => (
-              <Row key={item.variantId}>
-                <Column style={text}>
-                  {item.name} (x{item.quantity})
-                </Column>
-                <Column style={{ ...text, textAlign: "right" as const }}>
-                  {new Intl.NumberFormat("it-IT", {
-                    style: "currency",
-                    currency: "EUR",
-                  }).format(item.price * item.quantity)}
-                </Column>
-              </Row>
+      <Preview>{content.previewText.replace("{{orderId}}", orderId)}</Preview>
+      <Body style={styles.main}>
+        <Container style={styles.container}>
+          <Img
+            src="https://res.cloudinary.com/dzjg5wr4q/image/upload/v1727038933/webvork/assets/i-sybl-global-fitwell-logo-01/v1-original.png"
+            width="150"
+            height="28"
+            alt="Global Fitwell Logo"
+            style={styles.logo}
+          />
+          <Heading style={styles.heading}>{content.title}</Heading>
+          <Text style={styles.paragraph}>
+            {content.greeting.replace("{{orderId}}", orderId)}
+          </Text>
+          <Hr style={styles.hr} />
+          <Section>
+            {items.map((item) => (
+              <Text key={item.variantId} style={styles.itemText}>
+                {item.quantity} x {item.name}
+              </Text>
             ))}
-            <Hr />
-            <Row>
-              <Column style={boldText}>Totale</Column>
-              <Column style={{ ...boldText, textAlign: "right" as const }}>
-                {totalAmount}
-              </Column>
-            </Row>
           </Section>
+          <Hr style={styles.hr} />
+          <Text style={styles.totalText}>
+            <strong>{content.totalLabel}:</strong> {totalAmount}
+          </Text>
+          <Text style={styles.paragraph}>{content.footerText}</Text>
         </Container>
       </Body>
     </Html>
   );
 }
-// components/emails/OrderConfirmationEmail.tsx
+// RUTA: src/shared/emails/OrderConfirmationEmail.tsx
+

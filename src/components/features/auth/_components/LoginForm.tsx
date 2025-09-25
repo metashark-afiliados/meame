@@ -1,19 +1,19 @@
-// RUTA: app/[locale]/(dev)/login/_components/LoginForm.tsx
+// RUTA: src/components/features/auth/_components/LoginForm.tsx
 /**
  * @file LoginForm.tsx
- * @description Componente de cliente de élite para el formulario de login del DCC,
- *              integrado con Supabase a través de Server Actions.
- * @version 2.0.0 (Elite & Functional)
+ * @description Componente de presentación puro para el formulario de login.
+ *              Ahora orquesta el modal de recuperación de contraseña.
+ * @version 3.0.0 (Forgot Password Flow & MEA/UX)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import React, { useTransition } from "react";
-import Link from "next/link";
+import React, { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { motion, type Variants } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -32,6 +32,7 @@ import {
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
+import { Dialog, DialogContent } from "@/components/ui/Dialog";
 import { logger } from "@/shared/lib/logging";
 import { routes } from "@/shared/lib/navigation";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
@@ -40,32 +41,51 @@ import {
   LoginSchema,
   type LoginFormData,
 } from "@/shared/lib/schemas/auth/login.schema";
-import { loginWithPasswordAction } from "@/shared/lib/actions/auth.actions";
+import { loginWithPasswordAction } from "@/shared/lib/actions/auth/auth.actions";
+import { ForgotPasswordForm } from "./ForgotPasswordForm";
 
 type LoginFormContent = NonNullable<Dictionary["devLoginPage"]>;
 
 interface LoginFormProps {
   content: LoginFormContent;
   locale: Locale;
+  onSwitchView: () => void;
 }
 
-export function LoginForm({ content, locale }: LoginFormProps) {
-  logger.info("[LoginForm] Renderizando formulario de login con Supabase.");
+const formVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const fieldVariants: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+};
+
+export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
+  logger.info("[LoginForm] Renderizando v3.0 (Forgot Password Flow).");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email:
+        process.env.NODE_ENV === "development" ? "superuser@webvork.dev" : "",
+      password:
+        process.env.NODE_ENV === "development" ? "superuserpassword123" : "",
     },
   });
 
   const onSubmit = (data: LoginFormData) => {
     startTransition(async () => {
       const result = await loginWithPasswordAction(data);
-
       if (result.success) {
         toast.success("Login exitoso. Redirigiendo al DCC...");
         router.push(routes.devDashboard.path({ locale }));
@@ -77,79 +97,109 @@ export function LoginForm({ content, locale }: LoginFormProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-2xl">{content.title}</CardTitle>
-        <CardDescription>{content.subtitle}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{content.emailLabel}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder={content.emailPlaceholder}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center">
-                    <FormLabel>{content.passwordLabel}</FormLabel>
-                    <Link
-                      href="#"
-                      className="ml-auto inline-block text-sm underline"
-                    >
-                      {content.forgotPasswordLink}
-                    </Link>
-                  </div>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder={content.passwordPlaceholder}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {form.formState.errors.root && (
-              <p className="text-sm font-medium text-destructive">
-                {form.formState.errors.root.message}
-              </p>
-            )}
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending && (
-                <DynamicIcon
-                  name="LoaderCircle"
-                  className="mr-2 h-4 w-4 animate-spin"
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">{content.title}</CardTitle>
+          <CardDescription>{content.subtitle}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <motion.form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+              variants={formVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <motion.div variants={fieldVariants}>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{content.emailLabel}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder={content.emailPlaceholder}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
+              </motion.div>
+              <motion.div variants={fieldVariants}>
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center">
+                        <FormLabel>{content.passwordLabel}</FormLabel>
+                        <button
+                          type="button"
+                          onClick={() => setIsForgotPasswordOpen(true)}
+                          className="ml-auto inline-block text-sm underline"
+                        >
+                          {content.forgotPasswordLink}
+                        </button>
+                      </div>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder={content.passwordPlaceholder}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </motion.div>
+
+              {form.formState.errors.root && (
+                <p className="text-sm font-medium text-destructive">
+                  {form.formState.errors.root.message}
+                </p>
               )}
-              {isPending ? content.buttonLoadingText : content.buttonText}
-            </Button>
-          </form>
-        </Form>
-        <div className="mt-4 text-center text-sm">
-          {content.signUpPrompt}{" "}
-          <Link href="#" className="underline">
-            {content.signUpLink}
-          </Link>
-        </div>
-      </CardContent>
-    </Card>
+
+              <motion.div variants={fieldVariants} className="!mt-6">
+                <Button type="submit" className="w-full" disabled={isPending}>
+                  {isPending && (
+                    <DynamicIcon
+                      name="LoaderCircle"
+                      className="mr-2 h-4 w-4 animate-spin"
+                    />
+                  )}
+                  {isPending ? content.buttonLoadingText : content.buttonText}
+                </Button>
+              </motion.div>
+            </motion.form>
+          </Form>
+          <div className="mt-4 text-center text-sm">
+            {content.signUpPrompt}{" "}
+            <button
+              onClick={onSwitchView}
+              className="underline font-semibold text-primary"
+            >
+              {content.signUpLink}
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isForgotPasswordOpen} onOpenChange={setIsForgotPasswordOpen}>
+        <DialogContent>
+          <ForgotPasswordForm
+            content={content.forgotPassword}
+            onSuccess={() => setIsForgotPasswordOpen(false)}
+            onCancel={() => setIsForgotPasswordOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

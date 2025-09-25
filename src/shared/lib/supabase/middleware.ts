@@ -2,10 +2,10 @@
 /**
  * @file middleware.ts
  * @description SSoT para la lógica de middleware de gestión de sesión de Supabase.
- *              v3.0.0 (Production Config Injection): Resuelve un error crítico
- *              al pasar explícitamente las variables de entorno al cliente de
- *              servidor, garantizando la inicialización en el Edge Runtime.
- * @version 3.0.0
+ * @version 3.1.0 (Route SSoT Sync): Se alinea la lógica de redirección con la
+ *              SSoT de rutas generada por el script, resolviendo un error crítico
+ *              de tipo TS2339 y restaurando la integridad del guardián de seguridad.
+ * @version 3.1.0
  * @author nextjs-with-supabase (original), RaZ Podestá - MetaShark Tech (naturalización)
  */
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
@@ -14,9 +14,6 @@ import { logger } from "@/shared/lib/logging";
 import { routes } from "@/shared/lib/navigation";
 import { getCurrentLocaleFromPathname } from "@/shared/lib/utils/i18n/i18n.utils";
 
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
-// La lógica se ha encapsulado en una función `updateSession` para mayor claridad.
-// El cliente de Supabase ahora recibe las variables de entorno explícitamente.
 export async function updateSession(
   request: NextRequest
 ): Promise<NextResponse> {
@@ -56,8 +53,12 @@ export async function updateSession(
 
   if (isDevRoute && !isLoginPage && !user) {
     const locale = getCurrentLocaleFromPathname(pathname);
+    // --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+    // Se utiliza la clave de ruta 'login', que es la correcta generada por la SSoT.
     const url = request.nextUrl.clone();
-    url.pathname = routes.devLogin.path({ locale });
+    url.pathname = routes.login.path({ locale });
+    // --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
+
     logger.warn(
       `[Supabase Middleware] Acceso denegado a ruta protegida. Redirigiendo a login.`,
       { path: pathname }
@@ -67,4 +68,3 @@ export async function updateSession(
 
   return supabaseResponse;
 }
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---

@@ -1,10 +1,10 @@
-// RUTA: components/ui/DynamicIcon.tsx
+// RUTA: src/components/ui/DynamicIcon.tsx
 /**
  * @file DynamicIcon.tsx
  * @description SSoT para el renderizado dinámico de iconos de lucide-react.
  *              v18.0.0 (Holistic Restoration & Build Stability): Refactorizado para
  *              usar una exportación nombrada y una implementación de `next/dynamic`
- *              más robusta para resolver errores `ChunkLoadError` recurrentes.
+ *              más robusta. Ahora incluye un fallback para nombres de icono inválidos.
  * @version 18.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -24,12 +24,6 @@ const DYNAMIC_ICON_CONFIG = {
   FALLBACK_ICON_NAME: "HelpCircle", // Un fallback seguro
 };
 
-/**
- * @function pascalToKebab
- * @description Convierte una cadena PascalCase a kebab-case para la búsqueda en el manifiesto.
- * @param {string} str - La cadena en PascalCase.
- * @returns {string} La cadena en kebab-case.
- */
 const pascalToKebab = (str: string): string => {
   return str
     .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
@@ -51,7 +45,6 @@ const DynamicIconComponent: FunctionComponent<DynamicIconProps> = ({
     DYNAMIC_ICON_CONFIG.FALLBACK_ICON_NAME
   );
 
-  // Determina qué icono cargar, con un fallback seguro
   const iconToLoad = (
     Object.keys(dynamicIconImports).includes(kebabCaseName)
       ? kebabCaseName
@@ -63,11 +56,10 @@ const DynamicIconComponent: FunctionComponent<DynamicIconProps> = ({
     kebabCaseName !== fallbackKebabCaseName
   ) {
     logger.warn(
-      `[DynamicIcon] Icono "${name}" no encontrado. Usando fallback.`
+      `[DynamicIcon] Icono "${name}" no encontrado en el manifiesto. Usando fallback.`
     );
   }
 
-  // Carga dinámica del componente de icono
   const LucideIcon = dynamic(dynamicIconImports[iconToLoad], {
     loading: () => (
       <div
@@ -89,8 +81,5 @@ const DynamicIconComponent: FunctionComponent<DynamicIconProps> = ({
   );
 };
 
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
-// Se utiliza una exportación nombrada explícita y memoizada para mejorar la
-// estabilidad de la resolución de módulos y el rendimiento.
 export const DynamicIcon = memo(DynamicIconComponent);
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
+// RUTA: src/components/ui/DynamicIcon.tsx

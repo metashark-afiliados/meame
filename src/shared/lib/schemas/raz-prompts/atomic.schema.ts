@@ -1,4 +1,4 @@
-// lib/schemas/raz-prompts/atomic.schema.ts
+// RUTA: src/shared/lib/schemas/raz-prompts/atomic.schema.ts
 /**
  * @file atomic.schema.ts
  * @description SSoT para los schemas atómicos y reutilizables del ecosistema RaZPrompts.
@@ -7,7 +7,6 @@
  */
 import { z } from "zod";
 
-// --- [INICIO DE EXPANSIÓN ARQUITECTÓNICA] ---
 export const IdeogramRenderingSpeedSchema = z.enum([
   "TURBO",
   "DEFAULT",
@@ -36,7 +35,7 @@ export const IdeogramSizeSchema = z.enum([
   "768x1280",
   "1280x960",
   "960x1280",
-]); // Ejemplo de tamaños comunes
+]);
 
 export const PromptParametersSchema = z.object({
   seed: z.number().optional(),
@@ -44,15 +43,12 @@ export const PromptParametersSchema = z.object({
   steps: z.number().int().positive().optional(),
   sampler: z.string().optional(),
   model: z.string().optional(),
-  // Nuevos parámetros de Ideogram.ai
   renderingSpeed: IdeogramRenderingSpeedSchema.optional(),
   styleType: IdeogramStyleTypeSchema.optional(),
   aspectRatio: IdeogramAspectRatioSchema.optional(),
-  numImages: z.number().int().min(1).max(8).optional(), // Número de imágenes a generar
-  // Se añade un campo 'size' para tipado directo en la UI
+  numImages: z.number().int().min(1).max(8).optional(),
   size: IdeogramSizeSchema.optional(),
 });
-// --- [FIN DE EXPANSIÓN ARQUITECTÓNICA] ---
 
 export const RaZPromptsSesaTagsSchema = z.object({
   ai: z.string().regex(/^[a-z]{2,4}$/, "Código de IA inválido"),

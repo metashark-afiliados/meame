@@ -1,8 +1,9 @@
-// Ruta correcta: src/shared/lib/actions/bavi/uploadAsset.action.ts
+// RUTA: src/shared/lib/actions/bavi/uploadAsset.action.ts
 /**
  * @file uploadAsset.action.ts
- * @description Server Action orquestadora para la ingesta completa de activos.
- * @version 5.1.0 (Sovereign Path Restoration)
+ * @description Server Action orquestadora para la ingesta completa de activos,
+ *              ahora instrumentada con tracing de élite.
+ * @version 6.0.0 (Elite Action Tracing)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -35,6 +36,7 @@ export async function uploadAssetAction(
     const metadata = assetUploadMetadataSchema.parse(
       JSON.parse(metadataString)
     );
+    logger.traceEvent(traceId, "Metadatos parseados y validados.");
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = new Uint8Array(arrayBuffer);
@@ -57,7 +59,9 @@ export async function uploadAssetAction(
           .end(buffer);
       }
     );
-    logger.traceEvent(traceId, "Subida a Cloudinary exitosa.");
+    logger.traceEvent(traceId, "Subida a Cloudinary exitosa.", {
+      public_id: cloudinaryResponse.public_id,
+    });
 
     const manifestResult = await addAssetToManifestsAction(
       metadata,
@@ -70,7 +74,7 @@ export async function uploadAssetAction(
       const linkResult = await linkPromptToBaviAssetAction({
         promptId: metadata.promptId,
         baviAssetId: metadata.assetId,
-        baviVariantId: "v1-orig",
+        baviVariantId: "v1-orig", // Asumimos la primera versión
         imageUrl: cloudinaryResponse.secure_url,
       });
       if (!linkResult.success) return linkResult;
@@ -85,8 +89,7 @@ export async function uploadAssetAction(
     logger.error("[uploadAssetAction] Fallo en la orquestación.", {
       error: errorMessage,
     });
-    logger.endTrace(traceId);
+    logger.endTrace(traceId, { error: errorMessage });
     return { success: false, error: "Fallo el proceso de ingesta del activo." };
   }
 }
-// Ruta correcta: src/shared/lib/actions/bavi/uploadAsset.action.ts

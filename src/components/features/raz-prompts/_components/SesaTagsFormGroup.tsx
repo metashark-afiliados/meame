@@ -1,10 +1,8 @@
-// app/[locale]/(dev)/raz-prompts/_components/SesaTagsFormGroup.tsx
+// RUTA: src/components/features/raz-prompts/_components/SesaTagsFormGroup.tsx
 /**
  * @file SesaTagsFormGroup.tsx
  * @description Aparato de presentación atómico para el grupo de selectores de SESA.
- * @version 3.0.0 (Generic Form Integration): Refactorizado para ser compatible
- *              con cualquier formulario de react-hook-form que contenga un
- *              campo anidado 'sesaTags', resolviendo el error de tipo TS2322.
+ * @version 3.1.0 (Sovereign Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -29,14 +27,15 @@ import {
 import type { PromptCreatorContentSchema } from "@/shared/lib/schemas/raz-prompts/prompt-creator.i18n.schema";
 import { logger } from "@/shared/lib/logging";
 import type { z } from "zod";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+import { FormFieldGroup } from "@/components/forms/FormFieldGroup";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 type SesaContent = Pick<
   z.infer<typeof PromptCreatorContentSchema>,
   "sesaLabels" | "sesaOptions"
 >;
 
-// --- [INICIO] REFACTORIZACIÓN DE TIPO ---
-// Ahora acepta cualquier `FieldValues` como genérico.
 interface SesaTagsFormGroupProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
   content: {
@@ -45,7 +44,6 @@ interface SesaTagsFormGroupProps<TFieldValues extends FieldValues> {
     options: SesaContent["sesaOptions"];
   };
 }
-// --- [FIN] REFACTORIZACIÓN DE TIPO ---
 
 const sesaFields: (keyof RaZPromptsSesaTags)[] = Object.keys(
   RaZPromptsSesaTagsSchema.shape
@@ -55,41 +53,39 @@ export function SesaTagsFormGroup<TFieldValues extends FieldValues>({
   control,
   content,
 }: SesaTagsFormGroupProps<TFieldValues>) {
-  logger.trace("[SesaTagsFormGroup] Renderizando grupo de tags SESA v3.0.");
+  logger.trace("[SesaTagsFormGroup] Renderizando grupo de tags SESA v3.1.");
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-      {sesaFields.map((tagName) => (
-        <FormField
-          key={tagName}
-          control={control}
-          // --- [INICIO] REFACTORIZACIÓN DE RUTA DE CAMPO ---
-          // El 'name' ahora apunta al campo anidado 'sesaTags'.
-          name={`sesaTags.${tagName}` as Path<TFieldValues>}
-          // --- [FIN] REFACTORIZACIÓN DE RUTA DE CAMPO ---
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{content[tagName]}</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {content.options[tagName].map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      ))}
-    </div>
+    <FormFieldGroup label={content.tagsGroupLabel}>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {sesaFields.map((tagName) => (
+          <FormField
+            key={tagName}
+            control={control}
+            name={`sesaTags.${tagName}` as Path<TFieldValues>}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{content[tagName]}</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {content.options[tagName].map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ))}
+      </div>
+    </FormFieldGroup>
   );
 }
-// app/[locale]/(dev)/raz-prompts/_components/SesaTagsFormGroup.tsx

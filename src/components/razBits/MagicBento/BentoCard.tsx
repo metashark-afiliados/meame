@@ -1,19 +1,17 @@
-// src/components/razBits/MagicBento/BentoCard.tsx
+// RUTA: src/components/razBits/MagicBento/BentoCard.tsx
 /**
  * @file BentoCard.tsx
  * @description Componente de presentación puro para una tarjeta individual
  *              dentro de la cuadrícula MagicBento.
- * @version 1.0.0
+ * @version 2.0.0 (Holistic Elite Leveling)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
 import { twMerge } from "tailwind-merge";
-import type { z } from "zod";
-import type { BentoCardSchema } from "./magic-bento.schema";
-
-type BentoCardData = z.infer<typeof BentoCardSchema>;
+import type { BentoCardData } from "./magic-bento.schema";
+import { logger } from "@/shared/lib/logging";
 
 interface BentoCardProps {
   card: BentoCardData;
@@ -22,19 +20,13 @@ interface BentoCardProps {
   textAutoHide?: boolean;
 }
 
-/**
- * @component BentoCard
- * @description Renderiza una única tarjeta, aplicando los estilos y asignando la
- *              ref necesaria para que el hook de interacciones funcione.
- * @returns {React.ReactElement} El elemento JSX de la tarjeta.
- */
 export function BentoCard({
   card,
   cardRef,
   className,
   textAutoHide,
 }: BentoCardProps): React.ReactElement {
-  // La observabilidad se maneja en el orquestador para evitar ruido en la consola.
+  logger.trace(`[BentoCard] Renderizando tarjeta: ${card.title}`);
 
   return (
     <div
@@ -67,10 +59,9 @@ export function BentoCard({
           {card.description}
         </p>
       </div>
-      {/* Elemento para el efecto de brillo de borde, controlado por el hook vía JS y CSS variables */}
       <div
         className="absolute inset-0 rounded-3xl pointer-events-none
-                   bg-[radial-gradient(var(--glow-radius)_circle_at_var(--glow-x)_var(--glow-y),_rgba(var(--glow-color),_calc(var(--glow-intensity)_*_0.25)),_transparent_40%)]
+                   bg-[radial-gradient(var(--glow-radius)_circle_at_var(--glow-x)_var(--glow-y),_rgba(var(--glow-color-rgb),_calc(var(--glow-intensity)_*_0.25)),_transparent_40%)]
                    opacity-[var(--glow-intensity)] transition-opacity duration-300"
         style={
           {
@@ -78,11 +69,10 @@ export function BentoCard({
             "--glow-y": "50%",
             "--glow-intensity": 0,
             "--glow-radius": "400px",
-            "--glow-color": "var(--primary-rgb)",
           } as React.CSSProperties
         }
       />
     </div>
   );
 }
-// src/components/razBits/MagicBento/BentoCard.tsx
+// RUTA: src/components/razBits/MagicBento/BentoCard.tsx

@@ -1,15 +1,17 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "types": ["node"],
-    "typeRoots": ["./node_modules/@types", "./src/shared/lib/types"],
-    "esModuleInterop": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "noEmit": true
   },
-  "include": ["scripts/**/*.ts", "src/shared/lib/types/**/*.d.ts"]
+  "include": [
+    "scripts/**/*.ts",
+    "src/shared/lib/types/**/*.d.ts",
+    "src/shared/lib/logging.ts",
+    "src/shared/lib/i18n/i18n.config.ts",
+    "src/shared/lib/schemas/i18n.schema.ts",
+    "src/shared/lib/dev/i18n-discoverer.ts"
+  ]
 }

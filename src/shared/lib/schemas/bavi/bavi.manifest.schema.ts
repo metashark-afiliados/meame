@@ -1,8 +1,8 @@
-// lib/schemas/bavi/bavi.manifest.schema.ts
+// RUTA: src/shared/lib/schemas/bavi/bavi.manifest.schema.ts
 /**
  * @file bavi.manifest.schema.ts
  * @description SSoT para el contrato de datos del manifiesto BAVI.
- * @version 2.0.0 (Timestamp Integration)
+ * @version 2.1.0 (Type Export Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
@@ -28,10 +28,8 @@ const BaviAssetSchema = z.object({
     altText: z.record(z.string()),
   }),
   imageUrl: z.string().url().optional(),
-  // --- [INICIO] MEJORA ARQUITECTÓNICA ---
-  createdAt: z.string().datetime().optional(), // Fecha de creación
-  updatedAt: z.string().datetime().optional(), // Fecha de última modificación
-  // --- [FIN] MEJORA ARQUITECTÓNICA ---
+  createdAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime().optional(),
 });
 
 export const BaviManifestSchema = z.object({
@@ -40,4 +38,7 @@ export const BaviManifestSchema = z.object({
 
 export type BaviAsset = z.infer<typeof BaviAssetSchema>;
 export type BaviManifest = z.infer<typeof BaviManifestSchema>;
-// lib/schemas/bavi/bavi.manifest.schema.ts
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+// Se exporta el tipo inferido desde el schema, resolviendo el error TS2305.
+export type BaviVariant = z.infer<typeof BaviVariantSchema>;
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---

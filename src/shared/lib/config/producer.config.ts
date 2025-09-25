@@ -2,9 +2,9 @@
 /**
  * @file producer.config.ts
  * @description Orquestador de Configuración y SSoT para el productor y tracking.
- *              v3.0.0 (Resilient Lazy Initialization): Refactorizado a una
- *              función memoizada para prevenir condiciones de carrera durante
- *              la carga de variables de entorno en el build de Next.js.
+ *              v3.0.0 (Resilient Lazy Initialization & Elite Logging): Refactorizado
+ *              a una función memoizada y con logging de error granular para
+ *              una DX superior.
  * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -15,9 +15,9 @@ const ProducerConfigSchema = z.object({
   TRACKING_ENABLED: z.boolean(),
   ACTION_URL: z
     .string()
-    .url("A URL do endpoint do produtor deve ser uma URL válida."),
-  LANDING_ID: z.string().min(1, "O ID da Landing Page é obrigatório."),
-  OFFER_ID: z.string().min(1, "O ID da Oferta é obrigatório."),
+    .url("La URL del endpoint del productor debe ser una URL válida."),
+  LANDING_ID: z.string().min(1, "El ID de la Landing Page es obligatorio."),
+  OFFER_ID: z.string().min(1, "El ID de la Oferta es obligatorio."),
   TRACKING: z.object({
     YANDEX_METRIKA_ID: z.string().optional(),
     GOOGLE_ANALYTICS_ID: z.string().optional(),
@@ -61,12 +61,13 @@ export function getProducerConfig(): ProducerConfig {
   const validation = ProducerConfigSchema.safeParse(configData);
 
   if (!validation.success) {
+    // --- MEJORA DE OBSERVABILIDAD ---
     logger.error(
-      "❌ CONFIGURACIÓN DE AMBIENTE INVÁLIDA:",
+      "❌ CONFIGURACIÓN DE ENTORNO INVÁLIDA:",
       validation.error.flatten().fieldErrors
     );
     throw new Error(
-      "Variáveis de ambiente do produtor ausentes ou inválidas. Verifique o arquivo .env e .env.example."
+      "Variables de ambiente del productor ausentes o inválidas. Verifique el archivo .env y .env.example."
     );
   }
 
@@ -76,3 +77,4 @@ export function getProducerConfig(): ProducerConfig {
   cachedConfig = validation.data;
   return cachedConfig;
 }
+// RUTA: src/shared/lib/config/producer.config.ts

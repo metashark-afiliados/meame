@@ -1,102 +1,112 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/ContentEditor/ContentEditor.tsx
+// RUTA: src/components/features/campaign-suite/Step2_Layout/_components/LayoutCanvas.tsx
 /**
- * @file ContentEditor.tsx
- * @description Orquestador de alto nivel para la edición de contenido de una sección.
- *              Gestiona el estado del formulario, la sincronización con el borrador
- *              y la comunicación con el padre. Ahora pasa el `sectionName` a sus
- *              hijos y limpia el foco al cerrar para habilitar el Modo Enfoque.
- * @version 8.1.0 (Focus Mode Cleanup)
+ * @file LayoutCanvas.tsx
+ * @description Aparato atómico para el lienzo de layout reordenable, con
+ *              feedback visual gamificado (MEA/UX) para "Combos Estratégicos".
+ * @version 2.0.0 (Strategic Combo Feedback)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
-
-import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { toast } from "sonner";
+import React from "react";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { motion, AnimatePresence } from "framer-motion";
+import type { LayoutConfigItem } from "@/shared/lib/types/campaigns/draft.types";
+import { Button, DynamicIcon } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
-import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
-import { supportedLocales, type Locale } from "@/shared/lib/i18n/i18n.config";
-import { ContentEditorHeader } from "./ContentEditorHeader";
-import { ContentEditorBody } from "./ContentEditorBody";
-import { ContentEditorFooter } from "./ContentEditorFooter";
-import { useFocusStore } from "../../../_context/FocusContext";
+import { cn } from "@/shared/lib/utils/cn";
 
-type SectionFormData = z.infer<z.ZodObject<z.ZodRawShape>>;
-
-interface ContentEditorProps {
-  sectionName: string;
-  sectionSchema: z.ZodObject<z.ZodRawShape>;
-  draft: CampaignDraft;
-  onClose: () => void;
-  onUpdateContent: (
-    sectionName: string,
-    locale: Locale,
-    field: string,
-    value: unknown
-  ) => void;
+interface SortableItemProps {
+  id: string;
+  isComboPart: boolean;
+  isLastItem: boolean;
+  isNextItemInCombo: boolean;
+  onRemove: (id: string) => void;
 }
 
-export function ContentEditor({
-  sectionName,
-  sectionSchema,
-  draft,
-  onClose,
-  onUpdateContent,
-}: ContentEditorProps): React.ReactElement {
-  const [activeLocale, setActiveLocale] = useState<Locale>(supportedLocales[0]);
-  const { clearFocus } = useFocusStore();
-
-  logger.info(
-    `[ContentEditor] Orquestando editor para '${sectionName}', locale: '${activeLocale}'`
-  );
-
-  const form = useForm<SectionFormData>({
-    resolver: zodResolver(sectionSchema),
-    defaultValues: draft.contentData[sectionName]?.[activeLocale] || {},
-  });
-
-  useEffect(() => {
-    logger.trace(
-      `[ContentEditor] Sincronizando formulario con borrador para locale: ${activeLocale}`
-    );
-    form.reset(draft.contentData[sectionName]?.[activeLocale] || {});
-  }, [activeLocale, draft, sectionName, form]);
-
-  const handlePersistChange = (field: string, value: unknown) => {
-    onUpdateContent(sectionName, activeLocale, field, value);
-    toast.info("Cambio guardado en el borrador.", {
-      description: `El campo '${field}' se actualizó.`,
-    });
-  };
-
-  const handleClose = () => {
-    clearFocus(); // Limpia el foco al cerrar el editor
-    onClose();
-  };
-
-  const handleSubmit = () => {
-    logger.success(`[ContentEditor] Edición finalizada para ${sectionName}.`);
-    handleClose();
+function SortableItem({ id, isComboPart, isLastItem, isNextItemInCombo, onRemove }: SortableItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-in fade-in-0">
-      <div className="relative bg-background border rounded-lg shadow-2xl w-full max-w-2xl h-[90vh] flex flex-col">
-        <ContentEditorHeader sectionName={sectionName} onClose={handleClose} />
-        <ContentEditorBody
-          form={form}
-          activeLocale={activeLocale}
-          setActiveLocale={setActiveLocale}
-          sectionSchema={sectionSchema}
-          onPersistChange={handlePersistChange}
-          onSubmit={form.handleSubmit(handleSubmit)}
-          sectionName={sectionName}
-        />
-        <ContentEditorFooter onClose={handleClose} onSubmit={handleSubmit} />
+    <motion.div
+      ref={setNodeRef}
+      style={style}
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -50 }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      className={cn("relative flex items-center justify-between p-3 border rounded-md bg-background shadow-sm touch-none transition-all duration-300", isComboPart && "border-primary ring-2 ring-primary/50")}
+      {...attributes}
+      {...listeners}
+    >
+      <div className="flex items-center gap-2">
+        <DynamicIcon name="GripVertical" className="h-5 w-5 text-muted-foreground cursor-grab" />
+        <span className="font-medium">{id}</span>
       </div>
+      <Button variant="ghost" size="icon" onClick={() => onRemove(id)}>
+        <DynamicIcon name="X" className="h-4 w-4 text-destructive" />
+      </Button>
+      {!isLastItem && (
+        <div className="absolute left-5 -bottom-3 h-3 w-0.5 bg-border">
+          {isNextItemInCombo && (
+            <motion.div
+              className="absolute inset-0 bg-primary"
+              initial={{ scaleY: 0, originY: 0 }}
+              animate={{ scaleY: 1, originY: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            />
+          )}
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+interface LayoutCanvasProps {
+  activeLayout: LayoutConfigItem[];
+  comboSections: Set<string>;
+  onRemoveSection: (sectionName: string) => void;
+  title: string;
+  emptyCanvasText: string;
+}
+
+export function LayoutCanvas({ activeLayout, comboSections, onRemoveSection, title, emptyCanvasText }: LayoutCanvasProps) {
+  logger.trace("[LayoutCanvas] Renderizando lienzo de layout (v2.0 - MEA).");
+  return (
+    <div className="md:col-span-2 p-4 border rounded-lg bg-muted/20 min-h-[400px]">
+      <h3 className="font-semibold mb-4">{title}</h3>
+      <AnimatePresence>
+        <SortableContext items={activeLayout.map((item) => item.name)} strategy={verticalListSortingStrategy}>
+          <div className="space-y-4">
+            {activeLayout.length > 0 ? (
+              activeLayout.map((item, index) => {
+                const isComboPart = comboSections.has(item.name);
+                const isNextItemInCombo = isComboPart && index < activeLayout.length - 1 && comboSections.has(activeLayout[index + 1].name);
+                return (
+                  <SortableItem
+                    key={item.name}
+                    id={item.name}
+                    onRemove={onRemoveSection}
+                    isComboPart={isComboPart}
+                    isLastItem={index === activeLayout.length - 1}
+                    isNextItemInCombo={isNextItemInCombo}
+                  />
+                );
+              })
+            ) : (
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-muted-foreground text-center py-10">
+                {emptyCanvasText}
+              </motion.p>
+            )}
+          </div>
+        </SortableContext>
+      </AnimatePresence>
     </div>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/ContentEditor/ContentEditor.tsx

@@ -12,7 +12,22 @@
       "buttonLoadingText": "Accesso in corso...",
       "signUpPrompt": "Non hai un account?",
       "signUpLink": "Registrati",
-      "footerHtml": "Questa è un'area di accesso riservata per sviluppatori e amministratori."
+      "footerHtml": "Questa è un'area di accesso riservata per sviluppatori e amministratori.",
+      "backgroundImageAssetId": "i-bkg-login-abstract-01",
+      "forgotPassword": {
+        "modalTitle": "Recupera la tua Password",
+        "modalDescription": "Inserisci il tuo indirizzo email e ti invieremo un link per reimpostare la tua password.",
+        "submitButton": "Invia Link di Recupero",
+        "submitButtonLoading": "Invio in corso...",
+        "cancelButton": "Annulla",
+        "successToastTitle": "Link di Recupero Inviato",
+        "successToastDescription": "Controlla la tua casella di posta per le istruzioni."
+      },
+      "lastSignIn": {
+        "title": "Ultimo Accesso:",
+        "location": "da {{location}}",
+        "ip": "IP: {{ip}}"
+      }
     }
   },
   "es-ES": {
@@ -28,7 +43,22 @@
       "buttonLoadingText": "Iniciando sesión...",
       "signUpPrompt": "¿No tienes una cuenta?",
       "signUpLink": "Regístrate",
-      "footerHtml": "Esta es una zona de acceso restringido para desarrolladores y administradores."
+      "footerHtml": "Esta es una zona de acceso restringido para desarrolladores y administradores.",
+      "backgroundImageAssetId": "i-bkg-login-abstract-01",
+      "forgotPassword": {
+        "modalTitle": "Recupera tu Contraseña",
+        "modalDescription": "Introduce tu dirección de email y te enviaremos un enlace para restablecer tu contraseña.",
+        "submitButton": "Enviar Enlace de Recuperación",
+        "submitButtonLoading": "Enviando...",
+        "cancelButton": "Cancelar",
+        "successToastTitle": "Enlace de Recuperación Enviado",
+        "successToastDescription": "Revisa tu bandeja de entrada para las instrucciones."
+      },
+      "lastSignIn": {
+        "title": "Último Acceso:",
+        "location": "desde {{location}}",
+        "ip": "IP: {{ip}}"
+      }
     }
   },
   "en-US": {
@@ -44,7 +74,22 @@
       "buttonLoadingText": "Signing in...",
       "signUpPrompt": "Don't have an account?",
       "signUpLink": "Sign Up",
-      "footerHtml": "This is a restricted access area for developers and administrators."
+      "footerHtml": "This is a restricted access area for developers and administrators.",
+      "backgroundImageAssetId": "i-bkg-login-abstract-01",
+      "forgotPassword": {
+        "modalTitle": "Recover Your Password",
+        "modalDescription": "Enter your email address and we will send you a link to reset your password.",
+        "submitButton": "Send Recovery Link",
+        "submitButtonLoading": "Sending...",
+        "cancelButton": "Cancel",
+        "successToastTitle": "Recovery Link Sent",
+        "successToastDescription": "Check your inbox for instructions."
+      },
+      "lastSignIn": {
+        "title": "Last Signed In:",
+        "location": "from {{location}}",
+        "ip": "IP: {{ip}}"
+      }
     }
   },
   "pt-BR": {
@@ -60,7 +105,22 @@
       "buttonLoadingText": "Entrando...",
       "signUpPrompt": "Não tem uma conta?",
       "signUpLink": "Cadastre-se",
-      "footerHtml": "Esta é uma área de acesso restrito para desenvolvedores e administradores."
+      "footerHtml": "Esta é uma área de acesso restrito para desenvolvedores e administradores.",
+      "backgroundImageAssetId": "i-bkg-login-abstract-01",
+      "forgotPassword": {
+        "modalTitle": "Recupere sua Senha",
+        "modalDescription": "Digite seu endereço de e-mail e enviaremos um link para redefinir sua senha.",
+        "submitButton": "Enviar Link de Recuperação",
+        "submitButtonLoading": "Enviando...",
+        "cancelButton": "Cancelar",
+        "successToastTitle": "Link de Recuperação Enviado",
+        "successToastDescription": "Verifique sua caixa de entrada para as instruções."
+      },
+      "lastSignIn": {
+        "title": "Último Acesso:",
+        "location": "de {{location}}",
+        "ip": "IP: {{ip}}"
+      }
     }
   }
 }

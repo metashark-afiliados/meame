@@ -1,10 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/shared/ComponentGallery.tsx
+// RUTA: src/components/features/campaign-suite/_components/shared/ComponentGallery.tsx
 /**
  * @file ComponentGallery.tsx
  * @description Componente de UI atómico para mostrar una selección visual.
- *              v5.0.0 (i18n & Layout Refactor): Consume descripciones i18n
- *              y utiliza un layout de una sola columna para mayor claridad.
- * @version 5.0.0
+ * @version 5.1.0 (Sovereign Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -14,7 +12,10 @@ import Image from "next/image";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/RadioGroup";
 import { Label } from "@/components/ui/Label";
 import { cn } from "@/shared/lib/utils/cn";
-import type { GalleryItem } from "../../_config/gallery.config";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+import type { GalleryItem } from "@/shared/lib/config/campaign-suite/gallery.config";
+import { logger } from "@/shared/lib/logging";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 interface ComponentGalleryProps {
   items: readonly GalleryItem[];
@@ -31,14 +32,12 @@ export function ComponentGallery({
   onValueChange,
   descriptions,
 }: ComponentGalleryProps) {
+  logger.trace("[ComponentGallery] Renderizando galería v5.1.");
   return (
     <RadioGroup
       value={selectedValue ?? ""}
       onValueChange={onValueChange}
-      // --- [INICIO DE MEJORA DE LAYOUT] ---
-      // Ahora es una sola columna para hacer los items más grandes y claros.
       className="grid grid-cols-1 gap-4"
-      // --- [FIN DE MEJORA DE LAYOUT] ---
     >
       {items.map((item) => (
         <Label
@@ -70,15 +69,13 @@ export function ComponentGallery({
           </div>
           <div className="p-2 text-center">
             <p className="font-semibold text-foreground text-sm">{item.name}</p>
-            {/* --- [INICIO DE MEJORA I18N] --- */}
             <p className="text-xs text-muted-foreground mt-1">
               {descriptions[item.name] || "Descripción no encontrada"}
             </p>
-            {/* --- [FIN DE MEJORA I18N] --- */}
           </div>
         </Label>
       ))}
     </RadioGroup>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/shared/ComponentGallery.tsx
+// RUTA: src/components/features/campaign-suite/_components/shared/ComponentGallery.tsx

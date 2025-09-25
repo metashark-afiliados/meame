@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/raz-prompts/_components/PromptCard.tsx
+// RUTA: src/components/features/raz-prompts/_components/PromptCard.tsx
 /**
  * @file PromptCard.tsx
- * @description Componente de presentación puro para visualizar un prompt en la bóveda.
- * @version 3.0.0 (Full i18n & Quality Leveling)
+ * @description Componente de presentación para visualizar un prompt en la bóveda.
+ * @version 5.0.0 (Creative Genome v4.0 & Data Enrichment)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -20,7 +20,7 @@ import {
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
-import type { RaZPromptsEntry } from "@/shared/lib/schemas/raz-prompts/entry.schema";
+import type { EnrichedRaZPromptsEntry } from "@/shared/lib/actions/raz-prompts";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
@@ -28,7 +28,7 @@ type SesaOptions = NonNullable<Dictionary["promptCreator"]>["sesaOptions"];
 type VaultContent = NonNullable<Dictionary["promptVault"]>;
 
 interface PromptCardProps {
-  prompt: RaZPromptsEntry;
+  prompt: EnrichedRaZPromptsEntry;
   onViewDetails: (promptId: string) => void;
   sesaOptions: SesaOptions;
   content: Pick<VaultContent, "viewDetailsButton" | "noImageYet">;
@@ -40,9 +40,7 @@ export function PromptCard({
   sesaOptions,
   content,
 }: PromptCardProps): React.ReactElement {
-  logger.trace(
-    `[Observabilidad] Renderizando PromptCard para: ${prompt.title}`
-  );
+  logger.trace(`[PromptCard] Renderizando v5.0 para: ${prompt.title}`);
 
   const latestVersion = prompt.versions[prompt.versions.length - 1];
   const formattedDate = new Date(prompt.createdAt).toLocaleDateString();
@@ -71,9 +69,9 @@ export function PromptCard({
       </CardHeader>
       <CardContent className="flex-grow">
         <div className="relative w-full aspect-video rounded-md overflow-hidden bg-muted/20 mb-4">
-          {prompt.imageUrl ? (
+          {prompt.primaryImageUrl ? (
             <Image
-              src={prompt.imageUrl}
+              src={prompt.primaryImageUrl}
               alt={prompt.title}
               fill
               className="object-cover"
@@ -111,4 +109,3 @@ export function PromptCard({
     </Card>
   );
 }
-// app/[locale]/(dev)/raz-prompts/_components/PromptCard.tsx

@@ -1,8 +1,8 @@
-// RUTA: shared/lib/schemas/account/account-forms.schema.ts
+// RUTA: src/shared/lib/schemas/account/account-forms.schema.ts
 /**
  * @file account-forms.schema.ts
  * @description SSoT para los contratos de datos de los formularios de gestión de cuenta.
- * @version 1.0.0
+ * @version 2.0.0 (Elite Type Export Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
@@ -11,8 +11,12 @@ export const UpdateProfileSchema = z.object({
   fullName: z
     .string()
     .min(3, "El nombre completo debe tener al menos 3 caracteres."),
-  // En el futuro, podríamos añadir más campos como 'website', 'bio', etc.
 });
+
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+// Se exporta explícitamente el tipo inferido desde el schema.
+export type UpdateProfileFormData = z.infer<typeof UpdateProfileSchema>;
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 export const UpdatePasswordSchema = z
   .object({
@@ -23,5 +27,6 @@ export const UpdatePasswordSchema = z
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Las contraseñas no coinciden.",
-    path: ["confirmPassword"], // Indica qué campo tiene el error
+    path: ["confirmPassword"],
   });
+// RUTA: src/shared/lib/schemas/account/account-forms.schema.ts

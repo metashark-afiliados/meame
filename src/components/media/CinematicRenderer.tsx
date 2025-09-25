@@ -1,13 +1,11 @@
-// components/media/CinematicRenderer.tsx
+// RUTA: src/components/media/CinematicRenderer.tsx
 /**
  * @file CinematicRenderer.tsx
- * @description Fachada pública para "Aether".
- *              v1.5.0: Soporte para audio espacial 3D.
- * @version 1.5.0
+ * @description Fachada pública para "Aether", ahora con un contrato de API completo para audio.
+ * @version 2.0.0 (API Contract Expansion)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
-
 import React, { useRef, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
@@ -17,24 +15,29 @@ import {
 } from "@/shared/hooks/use-cinematic-renderer";
 import { logger } from "@/shared/lib/logging";
 import { cn } from "@/shared/lib/utils/cn";
-import { Frame } from "@/components/ui/cinematic-controls/Frame";
-import { BrandLogo } from "@/components/ui/cinematic-controls/BrandLogo";
-import { ControlsBar } from "@/components/ui/cinematic-controls/ControlsBar";
+import {
+  Frame,
+  BrandLogo,
+  ControlsBar,
+} from "@/components/ui/cinematic-controls";
 import { VideoPlane } from "./VideoPlane";
 
-interface CinematicRendererComponentProps {
+// --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+interface CinematicRendererProps {
   src: string;
-  audioSrc?: string;
+  audioSrc?: string; // La prop ahora es parte oficial del contrato.
   className?: string;
 }
+// --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
 
 export function CinematicRenderer({
   src,
-  audioSrc,
+  audioSrc, // Se recibe la nueva prop.
   className,
-}: CinematicRendererComponentProps): React.ReactElement {
-  logger.info("[CinematicRenderer] Componente renderizado (v1.5 - Audio 3D).");
-
+}: CinematicRendererProps): React.ReactElement {
+  logger.info(
+    "[CinematicRenderer] Componente renderizado (v2.0 - API Expanded)."
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const handlePlaybackEvent = useCallback((event: PlaybackEvent) => {
     logger.info(`[Aether Telemetry] Evento de Reproducción`, event);
@@ -47,6 +50,18 @@ export function CinematicRenderer({
     onPlaybackEvent: handlePlaybackEvent,
   });
 
+  type ControlsBarProps = Pick<
+    CinematicRendererHook,
+    | "isPlaying"
+    | "togglePlay"
+    | "isMuted"
+    | "toggleMute"
+    | "isFullscreen"
+    | "toggleFullscreen"
+    | "progress"
+    | "onSeek"
+  >;
+
   return (
     <div
       ref={containerRef}
@@ -56,18 +71,16 @@ export function CinematicRenderer({
       )}
     >
       <Canvas>
-        {/* El componente Listener es necesario para que PositionalAudio funcione */}
         <ambientLight intensity={0.2} />
         <directionalLight position={[10, 10, 5]} />
         {hookState.videoTexture && (
           <VideoPlane
             texture={hookState.videoTexture}
             audioRef={hookState.audioRef}
-            audioSrc={audioSrc}
+            audioSrc={audioSrc} // Se pasa la prop al componente de la escena.
           />
         )}
       </Canvas>
-
       <Frame>
         <BrandLogo />
         <ControlsBar {...(hookState as ControlsBarProps)} />
@@ -75,17 +88,3 @@ export function CinematicRenderer({
     </div>
   );
 }
-
-// Sub-tipo para asegurar el contrato de ControlsBar
-type ControlsBarProps = Pick<
-  CinematicRendererHook,
-  | "isPlaying"
-  | "togglePlay"
-  | "isMuted"
-  | "toggleMute"
-  | "isFullscreen"
-  | "toggleFullscreen"
-  | "progress"
-  | "onSeek"
->;
-// components/media/CinematicRenderer.tsx

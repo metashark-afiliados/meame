@@ -2,15 +2,13 @@
 /**
  * @file i18n.handler.ts
  * @description Manejador de middleware para la internacionalización.
- * @version 7.1.0 (Code Hygiene Fix)
+ * @version 7.2.0 (Redundant Import Pruning)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { NextResponse } from "next/server";
-import {
-  supportedLocales,
-  defaultLocale,
-  // type Locale, // <-- IMPORTACIÓN NO UTILIZADA ELIMINADA
-} from "../../i18n/i18n.config";
+// --- [INICIO DE CORRECCIÓN DE HIGIENE DE CÓDIGO] ---
+import { supportedLocales } from "../../i18n/i18n.config";
+// --- [FIN DE CORRECCIÓN DE HIGIENE DE CÓDIGO] ---
 import { getLocaleFromBrowser } from "../../i18n/locale-detector";
 import { getLocaleFromCountry } from "../../i18n/country-locale-map";
 import { type MiddlewareHandler } from "../engine";
@@ -55,7 +53,6 @@ export const i18nHandler: MiddlewareHandler = (req, res) => {
 
   // 4. Detección basada en el navegador.
   const localeFromBrowser = getLocaleFromBrowser(req);
-  // No hay un chequeo explícito aquí, getLocaleFromBrowser siempre devuelve un locale
   logger.info(
     `[i18nHandler] Locale detectado por navegador: ${localeFromBrowser}.`
   );

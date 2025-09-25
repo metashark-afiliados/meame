@@ -1,10 +1,11 @@
-// RUTA: components/ui/index.ts
+// RUTA: src/components/ui/index.ts
 /**
  * @file index.ts (Barrel File)
  * @description SSoT y fachada pública para el módulo de componentes de UI.
- *              v4.0.0 (Skeleton Integration): Se añade la exportación para el
- *              componente Skeleton, restaurando la integridad del build.
- * @version 4.0.0
+ *              v4.1.0 (Casing Integrity Fix): Se corrige la importación de
+ *              Collapsible para que use PascalCase, alineándose con la
+ *              convención de nomenclatura y resolviendo el error de build TS1261.
+ * @version 4.1.0
  * @author RaZ Podestá - MetaShark Tech
  */
 export * from "./Accordion";
@@ -46,4 +47,4 @@ export * from "./ToggleTheme";
 export * from "./Tooltip";
 export * from "./ValidationError";
 export * from "./Skeleton";
-// RUTA: components/ui/index.ts
+// RUTA: src/components/ui/index.ts

@@ -1,9 +1,9 @@
-// RUTA: app/[locale]/(dev)/layout.tsx
+// RUTA: src/app/[locale]/(dev)/layout.tsx
 /**
  * @file layout.tsx
- * @description Layout raíz para el DCC, con una arquitectura de datos
- *              atómica, resiliente y con tipado corregido.
- * @version 8.2.0 (Holistic Elite Compliance & Data Access Fix)
+ * @description Layout raíz para el DCC, con arquitectura de datos atómica,
+ *              resiliente y con rutas de importación soberanas.
+ * @version 9.0.0 (FSD Path Realignment)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -15,13 +15,16 @@ import { logger } from "@/shared/lib/logging";
 import AppProviders from "@/components/layout/AppProviders";
 import DevHeader from "@/components/dev/DevHeader";
 import { Container } from "@/components/ui/Container";
-import { WizardHeader } from "./dev/campaign-suite/_components/WizardHeader";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+// Se corrige la importación para apuntar a la SSoT del componente en la capa de features.
+import { WizardHeader } from "@/components/features/campaign-suite/_components/WizardHeader";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { DeveloperErrorDisplay } from "@/components/dev";
-import { getThemeFragmentsAction } from "./dev/campaign-suite/_actions/getThemeFragments.action";
+import { getThemeFragmentsAction } from "@/shared/lib/actions/campaign-suite/getThemeFragments.action";
 import { DevThemeSwitcher } from "@/components/dev";
 import { loadEdgeJsonAsset } from "@/shared/lib/i18n/i18n.edge";
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
-import type { DiscoveredFragments } from "./dev/campaign-suite/_actions/getThemeFragments.action";
+import type { DiscoveredFragments } from "@/shared/lib/actions/campaign-suite/getThemeFragments.action";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 
 interface DevLayoutProps {
@@ -34,7 +37,7 @@ export default async function DevLayout({
   params: { locale },
 }: DevLayoutProps) {
   logger.info(
-    `[DevLayout] Renderizando layout raíz del DCC v8.2 para locale: [${locale}]`
+    `[DevLayout] Renderizando layout raíz del DCC v9.0 para locale: [${locale}]`
   );
 
   const { dictionary, error } = await getDictionary(locale);
@@ -70,7 +73,7 @@ export default async function DevLayout({
   }
 
   const pathname = headers().get("x-next-pathname") || "";
-  const isCampaignSuite = pathname.includes("/dev/campaign-suite/create");
+  const isCampaignSuite = pathname.includes("/creator/campaign-suite");
 
   const fragmentsResult: ActionResult<DiscoveredFragments> =
     await getThemeFragmentsAction();
@@ -145,9 +148,6 @@ export default async function DevLayout({
     });
   }
 
-  // --- CORRECCIÓN ARQUITECTÓNICA ---
-  // Se extrae el contenido del compositor desde su propia clave soberana en
-  // la raíz del diccionario, alineándose con la nueva estructura de datos.
   const devSwitcherContent = dictionary.suiteStyleComposer;
 
   return (

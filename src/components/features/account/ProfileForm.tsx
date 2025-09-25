@@ -1,4 +1,4 @@
-// Ruta correcta: src/components/features/account/ProfileForm.tsx
+// RUTA: src/components/features/account/ProfileForm.tsx
 /**
  * @file ProfileForm.tsx
  * @description Componente de cliente seguro para el formulario de actualización de perfil.
@@ -47,7 +47,10 @@ interface ProfileFormProps {
   content: Content;
 }
 
-export function ProfileForm({ user, content }: ProfileFormProps): React.ReactElement {
+export function ProfileForm({
+  user,
+  content,
+}: ProfileFormProps): React.ReactElement {
   logger.info("[ProfileForm] Renderizando v2.0 (Elite Leveling).");
   const [isPending, startTransition] = useTransition();
 
@@ -117,4 +120,4 @@ export function ProfileForm({ user, content }: ProfileFormProps): React.ReactEle
     </Card>
   );
 }
-// Ruta correcta: src/components/features/account/ProfileForm.tsx
+// RUTA: src/components/features/account/ProfileForm.tsx

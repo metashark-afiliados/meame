@@ -2,8 +2,9 @@
 /**
  * @file logging.ts
  * @description Aparato SSoT para el logging. Implementación isomórfica sin
- *              dependencias, compatible con todos los entornos de Vercel.
- * @version 12.0.0 (Pino-Free & Universal Compatibility)
+ *              dependencias, compatible con todos los entornos de Vercel y
+ *              con capacidades de tracing de acciones de élite.
+ * @version 13.0.0 (Elite Action Tracing Implementation)
  * @author RaZ Podestá - MetaShark Tech
  */
 
@@ -160,33 +161,57 @@ const developmentLogger: Logger = {
   startTrace: (traceName) => {
     const traceId = `${traceName}-${Math.random().toString(36).substring(2, 9)}`;
     traces.set(traceId, { name: traceName, startTime: performance.now() });
-    developmentLogger.info(`🔗 Trace Start: ${traceId} (${traceName})`);
+    const timestamp = getTimestamp();
+    const logMethod = isBrowser ? console.info : (msg: string, ...args: any[]) => console.info(`[${timestamp}] ${msg}`, ...args);
+    logMethod(
+      isBrowser
+        ? `%c[${timestamp}] %cℹ️ 🔗 Trace Start: ${traceId} (${traceName})`
+        : `ℹ️ 🔗 Trace Start: ${traceId} (${traceName})`,
+      STYLES.timestamp,
+      STYLES.info
+    );
     return traceId;
   },
   traceEvent: (traceId, eventName, context) => {
-    developmentLogger.info(`➡️ [${traceId}] ${eventName}`, context);
+    const timestamp = getTimestamp();
+    const logMethod = isBrowser ? console.log : (msg: string, ...args: any[]) => console.log(`[${timestamp}] ${msg}`, ...args);
+    logMethod(
+      isBrowser
+        ? `%c[${timestamp}] %c➡️  [${traceId}] ${eventName}`
+        : `➡️  [${traceId}] ${eventName}`,
+      STYLES.timestamp,
+      STYLES.trace,
+      ...(context ? [context] : [])
+    );
   },
   endTrace: (traceId, context) => {
     const trace = traces.get(traceId);
     if (trace) {
       const duration = (performance.now() - trace.startTime).toFixed(2);
-      developmentLogger.success(
-        `🏁 Trace End: ${traceId} (${trace.name}) - Total Duration: ${duration}ms`,
-        context
+      const timestamp = getTimestamp();
+      const message = `🏁 Trace End: ${traceId} (${trace.name}) - Total Duration: ${duration}ms`;
+      const logMethod = isBrowser ? console.log : (msg: string, ...args: any[]) => console.log(`[${timestamp}] ${msg}`, ...args);
+      logMethod(
+        isBrowser
+          ? `%c[${timestamp}] %c✅ ${message}`
+          : `✅ ${message}`,
+        STYLES.timestamp,
+        STYLES.success,
+        ...(context ? [context] : [])
       );
       traces.delete(traceId);
     }
   },
 };
 
-// Logger para producción (más simple, sin colores)
+// Logger para producción (sin colores, solo texto)
 const productionLogger: Logger = {
-  startGroup: (label) => console.log(`[GROUP START] ${label}`),
-  endGroup: () => console.log(`[GROUP END]`),
-  success: (message, context) => console.log(`✅ [SUCCESS] ${message}`, context || ""),
-  info: (message, context) => console.info(`ℹ️ [INFO] ${message}`, context || ""),
-  warn: (message, context) => console.warn(`⚠️ [WARN] ${message}`, context || ""),
-  error: (message, context) => console.error(`❌ [ERROR] ${message}`, context || ""),
+  startGroup: (label) => console.log(`[${getTimestamp()}] ▶ GROUP START: ${label}`),
+  endGroup: () => console.log(`[${getTimestamp()}] ◀ GROUP END`),
+  success: (message, context) => console.log(`[${getTimestamp()}] ✅ [SUCCESS] ${message}`, context || ""),
+  info: (message, context) => console.info(`[${getTimestamp()}] ℹ️ [INFO] ${message}`, context || ""),
+  warn: (message, context) => console.warn(`[${getTimestamp()}] ⚠️ [WARN] ${message}`, context || ""),
+  error: (message, context) => console.error(`[${getTimestamp()}] ❌ [ERROR] ${message}`, context || ""),
   trace: () => {}, // Los logs de traza se omiten en producción
   time: () => {},
   timeEnd: () => {},

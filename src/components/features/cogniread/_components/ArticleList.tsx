@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/cogniread/_components/ArticleList.tsx
+// RUTA: src/components/features/cogniread/_components/ArticleList.tsx
 /**
  * @file ArticleList.tsx
  * @description Componente de cliente para mostrar una tabla de artículos de CogniRead.
- * @version 2.0.0 (Interactive Links)
+ * @version 3.0.0 (FSD Alignment & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { DynamicIcon } from "@/components/ui/DynamicIcon";
+import { DynamicIcon } from "@/components/ui";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 import { routes } from "@/shared/lib/navigation";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
@@ -91,4 +91,3 @@ export function ArticleList({ articles, locale }: ArticleListProps) {
     </Table>
   );
 }
-// app/[locale]/(dev)/cogniread/_components/ArticleList.tsx

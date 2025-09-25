@@ -1,11 +1,11 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step0_Identity/Step0.tsx
+// RUTA: src/components/features/campaign-suite/Step0_Identity/Step0.tsx
 /**
  * @file Step0.tsx
  * @description Ensamblador y Cargador de Datos para el Paso 0 de la SDC.
- *              v3.1.0 (Module Resolution Fix): Se refactoriza para usar una
- *              importación directa de la Server Action, resolviendo un error de
- *              dependencia de "server-only".
- * @version 3.1.0
+ *              v3.2.0 (Sovereign Path Restoration): Resuelve el error crítico de
+ *              build 'Module not found' al alinear la importación de la Server Action
+ *              con la SSoT de la arquitectura FSD.
+ * @version 3.2.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -15,8 +15,10 @@ import { toast } from "sonner";
 import { logger } from "@/shared/lib/logging";
 import { Step0Client } from "./Step0Client";
 // --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
-// Se importa la acción específica directamente, evitando el archivo de barril.
-import { getBaseCampaignsAction } from "../../_actions/getBaseCampaigns.action";
+// Se corrige la ruta de importación para apuntar a la SSoT soberana de las
+// Server Actions, utilizando el alias de ruta canónico. Esto resuelve
+// el error de build "Module not found". [2]
+import { getBaseCampaignsAction } from "@/shared/lib/actions/campaign-suite/getBaseCampaigns.action";
 // --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { DynamicIcon } from "@/components/ui";
 import type { StepProps } from "@/shared/lib/types/campaigns/step.types";
@@ -56,4 +58,4 @@ export default function Step0({
 
   return <Step0Client content={content} baseCampaigns={baseCampaigns} />;
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step0_Identity/Step0.tsx
+// RUTA: src/components/features/campaign-suite/Step0_Identity/Step0.tsx

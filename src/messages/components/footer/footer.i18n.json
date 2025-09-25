@@ -39,7 +39,7 @@
       "copyright": "© 2025 Global Fitwell. Tutti i diritti riservati.",
       "disclaimer": "Le informazioni fornite su questo sito sono solo a scopo informativo. I prodotti qui presentati non sono destinati a diagnosticare, trattare, curare o prevenire alcuna malattia.",
       "developerLink": {
-        "text": "Sviluppato da RaZ Podestá - MetaShark Tech",
+        "label": "Sviluppato da RaZ Podestá - MetaShark Tech",
         "href": "https://metashark.tech"
       }
     }
@@ -84,7 +84,7 @@
       "copyright": "© 2025 Global Fitwell. Todos los derechos reservados.",
       "disclaimer": "La información proporcionada en este sitio es solo para fines informativos. Los productos aquí presentados no están destinados a diagnosticar, tratar, curar o prevenir ninguna enfermedad.",
       "developerLink": {
-        "text": "Desarrollado por RaZ Podestá - MetaShark Tech",
+        "label": "Desarrollado por RaZ Podestá - MetaShark Tech",
         "href": "https://metashark.tech"
       }
     }
@@ -129,7 +129,7 @@
       "copyright": "© 2025 Global Fitwell. All rights reserved.",
       "disclaimer": "The information provided on this site is for informational purposes only. The products featured here are not intended to diagnose, treat, cure, or prevent any disease.",
       "developerLink": {
-        "text": "Developed by RaZ Podestá - MetaShark Tech",
+        "label": "Developed by RaZ Podestá - MetaShark Tech",
         "href": "https://metashark.tech"
       }
     }
@@ -174,7 +174,7 @@
       "copyright": "© 2025 Global Fitwell. Todos os direitos reservados.",
       "disclaimer": "As informações fornecidas neste site são apenas para fins informativos. Os produtos aqui apresentados não se destinam a diagnosticar, tratar, curar ou prevenir qualquer doença.",
       "developerLink": {
-        "text": "Desenvolvido por RaZ Podestá - MetaShark Tech",
+        "label": "Desenvolvido por RaZ Podestá - MetaShark Tech",
         "href": "https://metashark.tech"
       }
     }

@@ -1,24 +1,21 @@
-// Ruta correcta: src/components/layout/SectionRenderer.tsx
+// RUTA: src/components/layout/SectionRenderer.tsx
 /**
  * @file SectionRenderer.tsx
- * @description Motor de renderizado de élite del lado del servidor.
- *              v15.0.0 (Definitive Index Signature Fix): Resuelve el error de tipo
- *              TS2538 mediante una aserción de tipo segura, garantizando la correcta
- *              indexación de diccionarios complejos.
- * @version 15.0.0
+ * @description Motor de renderizado de élite. Actúa como un despachador dinámico
+ *              que mapea nombres de sección a sus componentes React reales.
+ * @version 17.0.0 (Holistic Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import * as React from "react";
-import {
-  sectionsConfig,
-  type SectionName,
-} from "@/shared/lib/config/sections.config";
+import { sectionsConfig, type SectionName } from "@/shared/lib/config/sections.config";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { ValidationError } from "@/components/ui/ValidationError";
 import { SectionAnimator } from "./SectionAnimator";
+import * as Sections from "@/components/sections";
 
+// Pilar I: Contrato de tipo soberano y seguro para los componentes de sección.
 type GenericSectionComponent = React.ForwardRefExoticComponent<
   {
     content: Record<string, unknown>;
@@ -26,6 +23,33 @@ type GenericSectionComponent = React.ForwardRefExoticComponent<
     isFocused?: boolean;
   } & React.RefAttributes<HTMLElement>
 >;
+
+// El mapa se alinea 100% con las claves exportadas por `sectionsConfig`.
+const componentMap: Record<SectionName, GenericSectionComponent> = {
+  BenefitsSection: Sections.BenefitsSection,
+  CommunitySection: Sections.CommunitySection,
+  ContactSection: Sections.ContactSection,
+  DoubleScrollingBanner: Sections.DoubleScrollingBanner,
+  FaqAccordion: Sections.FaqAccordion,
+  FeaturedArticlesCarousel: Sections.FeaturedArticlesCarousel,
+  FeaturesSection: Sections.FeaturesSection,
+  GuaranteeSection: Sections.GuaranteeSection,
+  Hero: Sections.Hero,
+  HeroNews: Sections.HeroNews,
+  IngredientAnalysis: Sections.IngredientAnalysis,
+  NewsGrid: Sections.NewsGrid,
+  OrderSection: Sections.OrderSection,
+  PricingSection: Sections.PricingSection,
+  ProductShowcase: Sections.ProductShowcase,
+  ServicesSection: Sections.ServicesSection,
+  SocialProofLogos: Sections.SocialProofLogos,
+  SponsorsSection: Sections.SponsorsSection,
+  TeamSection: Sections.TeamSection,
+  TestimonialCarouselSection: Sections.TestimonialCarouselSection,
+  TestimonialGrid: Sections.TestimonialGrid,
+  TextSection: Sections.TextSection,
+  ThumbnailCarousel: Sections.ThumbnailCarousel,
+};
 
 interface SectionRendererProps {
   sections: { name?: string | undefined }[];
@@ -42,34 +66,25 @@ export function SectionRenderer({
   focusedSection = null,
   sectionRefs,
 }: SectionRendererProps): React.ReactElement {
-  logger.info(
-    "[SectionRenderer v15.0] Ensamblando página (Index Signature Fix)..."
-  );
+  logger.info("[SectionRenderer v17.0] Ensamblando página con despachador dinámico restaurado.");
 
   const renderSection = (section: { name: string }, index: number) => {
     const sectionName = section.name as SectionName;
     const config = sectionsConfig[sectionName];
+    const Component = componentMap[sectionName];
 
-    if (!config) {
-      logger.warn(
-        `[SectionRenderer] Configuración para "${sectionName}" no encontrada.`
-      );
-      return null;
+    if (!config || !Component) {
+      logger.warn(`[SectionRenderer] Configuración o Componente para "${sectionName}" no encontrado.`);
+      return null; // Lógica de retorno restaurada
     }
 
-    const { component, dictionaryKey, schema } = config;
-
-    // --- [INICIO DE CORRECCIÓN DE TIPO TS2538] ---
+    const { dictionaryKey, schema } = config;
     const contentData = (dictionary as Record<string, unknown>)[dictionaryKey];
-    // --- [FIN DE CORRECCIÓN DE TIPO TS2538] ---
-
     const validation = schema.safeParse(contentData);
 
     if (!validation.success) {
-      if (
-        process.env.NODE_ENV === "development" &&
-        dictionary.validationError
-      ) {
+      if (process.env.NODE_ENV === "development" && dictionary.validationError) {
+        // Invocación correcta de ValidationError
         return (
           <ValidationError
             key={`${sectionName}-${index}-error`}
@@ -79,13 +94,11 @@ export function SectionRenderer({
           />
         );
       }
-      logger.error(
-        `[SectionRenderer] Fallo de validación de datos para la sección '${sectionName}'. No se renderizará en producción.`
-      );
-      return null;
+      logger.error(`[SectionRenderer] Fallo de validación para '${sectionName}'. No se renderizará.`);
+      return null; // Lógica de retorno restaurada
     }
 
-    const Component = component as GenericSectionComponent;
+    // Lógica de props restaurada
     const componentProps = {
       content: validation.data,
       locale: locale,
@@ -99,9 +112,7 @@ export function SectionRenderer({
       },
     };
 
-    logger.trace(
-      `[SectionRenderer] Renderizando sección #${index + 1}: ${sectionName}`
-    );
+    logger.trace(`[SectionRenderer] Renderizando sección #${index + 1}: ${sectionName}`);
 
     return <Component key={`${sectionName}-${index}`} {...componentProps} />;
   };
@@ -110,15 +121,12 @@ export function SectionRenderer({
     <SectionAnimator>
       {sections
         .filter((section): section is { name: string } => {
-          const isValid =
-            typeof section.name === "string" && section.name.length > 0;
-          if (!isValid)
-            logger.warn(`[SectionRenderer] Sección inválida omitida.`, {
-              sectionData: section,
-            });
+          const isValid = typeof section.name === "string" && section.name.length > 0;
+          if (!isValid) logger.warn(`[SectionRenderer] Sección inválida omitida.`, { sectionData: section });
           return isValid;
         })
         .map(renderSection)}
     </SectionAnimator>
   );
 }
+// RUTA: src/components/layout/SectionRenderer.tsx

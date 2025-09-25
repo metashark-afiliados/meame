@@ -1,13 +1,13 @@
-// components/sections/CommunitySection.tsx
+// RUTA: src/components/sections/CommunitySection.tsx
 /**
  * @file CommunitySection.tsx
  * @description Componente de sección para invitar a la comunidad.
- *              - v3.1.0 (Build Stability): Se estandarizan las rutas de importación.
- *              - v3.2.0 (Resilience): La prop `content` ahora es opcional.
- * @version 3.2.0
+ * @version 4.0.0 (Polymorphic Button Fix & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
+"use client";
 import React from "react";
+import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { DynamicIcon } from "@/components/ui";
@@ -15,24 +15,20 @@ import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 interface CommunitySectionProps {
-  // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
   content?: Dictionary["communitySection"];
-  // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
 }
 
 export function CommunitySection({
   content,
 }: CommunitySectionProps): React.ReactElement | null {
-  logger.info("[Observabilidad] Renderizando CommunitySection");
+  logger.info("[CommunitySection] Renderizando v4.0 (Polymorphic Button Fix).");
 
-  // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
   if (!content) {
     logger.warn(
-      "[CommunitySection] No se proporcionó contenido. La sección no se renderizará."
+      "[CommunitySection] No se proporcionó contenido. No se renderizará."
     );
     return null;
   }
-  // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
 
   const { iconName, title, description, buttonLabel, buttonHref } = content;
 
@@ -53,13 +49,14 @@ export function CommunitySection({
             {description}
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Button href={buttonHref} size="lg" variant="default">
-              {buttonLabel}
+            {/* --- [INICIO DE REFACTORIZACIÓN POLIMÓRFICA] --- */}
+            <Button asChild size="lg" variant="default">
+              <Link href={buttonHref}>{buttonLabel}</Link>
             </Button>
+            {/* --- [FIN DE REFACTORIZACIÓN POLIMÓRFICA] --- */}
           </div>
         </div>
       </Container>
     </section>
   );
 }
-// components/sections/CommunitySection.tsx

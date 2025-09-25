@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/AssetUploader/_components/AssetUploaderForm.tsx
+// RUTA: src/components/features/campaign-suite/_components/AssetUploaderForm.tsx
 /**
  * @file AssetUploaderForm.tsx
- * @description Componente de presentación puro para la UI del AssetUploader.
- * @version 2.3.0 (Absolute Path Resolution)
+ * @description Componente de presentación puro para la UI del AssetUploader en la SDC.
+ * @version 3.0.0 (FSD Architecture Alignment & Import Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,14 +13,14 @@ import type { DropzoneRootProps, DropzoneInputProps } from "react-dropzone";
 import type { UploadApiResponse } from "cloudinary";
 import { Form, Button, DynamicIcon } from "@/components/ui";
 // --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
-// Se utilizan rutas absolutas para importar los sub-componentes desde su
-// ubicación canónica en el dominio BAVI, resolviendo los errores de módulo.
-import { AssetDropzone } from "@/app/[locale]/(dev)/bavi/_components/AssetUploader/_components/AssetDropzone";
-import { MetadataForm } from "@/app/[locale]/(dev)/bavi/_components/AssetUploader/_components/MetadataForm";
-import { UploadPreview } from "@/app/[locale]/(dev)/bavi/_components/AssetUploader/_components/UploadPreview";
-import { SesaTagsFormGroup } from "@/app/[locale]/(dev)/raz-prompts/_components/SesaTagsFormGroup";
+import {
+  AssetDropzone,
+  MetadataForm,
+  UploadPreview,
+} from "@/components/features/bavi/_components/AssetUploader/_components";
+import { SesaTagsFormGroup } from "@/components/features/raz-prompts/_components/SesaTagsFormGroup";
+import type { AssetUploadMetadata } from "@/shared/lib/schemas/bavi/upload.schema";
 // --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
-import type { AssetUploadMetadata } from "@/shared/lib/bavi/upload.schema";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 type UploaderContent = NonNullable<Dictionary["baviUploader"]>;
@@ -30,7 +30,7 @@ type SesaContent = NonNullable<Dictionary["promptCreator"]>["sesaLabels"] & {
 
 interface AssetUploaderFormProps {
   form: UseFormReturn<AssetUploadMetadata>;
-  onSubmit: () => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isPending: boolean;
   preview: string | null;
   uploadResult: UploadApiResponse | null;
@@ -68,7 +68,13 @@ export function AssetUploaderForm({
         />
         <div className="space-y-6">
           <MetadataForm control={form.control} content={content} />
-          <SesaTagsFormGroup control={form.control} content={sesaContent} />
+          <SesaTagsFormGroup
+            control={form.control}
+            content={{
+              ...sesaContent,
+              options: sesaContent.options,
+            }}
+          />
           <Button
             type="submit"
             disabled={isPending || !preview}
@@ -89,4 +95,3 @@ export function AssetUploaderForm({
     </Form>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/AssetUploader/_components/AssetUploaderForm.tsx

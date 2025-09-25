@@ -1,8 +1,8 @@
-// components/sections/comments/CommentList.tsx
+// RUTA: src/components/sections/comments/CommentList.tsx
 /**
  * @file CommentList.tsx
- * @description Componente de presentación para renderizar una lista de comentarios.
- * @version 1.0.0
+ * @description Componente de presentación para renderizar una lista de comentarios con animación.
+ * @version 2.0.0 (Holistic Elite Leveling & MEA/UX)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,18 +13,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { DynamicIcon } from "@/components/ui";
 import type { Comment } from "@/shared/lib/schemas/community/comment.schema";
 import { logger } from "@/shared/lib/logging";
+import type { CommentSectionContent } from "@/shared/lib/schemas/components/comment-section.schema";
 
 interface CommentListProps {
   comments: Comment[];
+  content: Pick<CommentSectionContent, "emptyState">;
 }
 
-export function CommentList({ comments }: CommentListProps) {
-  logger.trace("[CommentList] Renderizando.");
+export function CommentList({ comments, content }: CommentListProps) {
+  logger.trace("[CommentList] Renderizando v2.0 (Elite & MEA).");
 
   if (comments.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p>Aún no hay comentarios. ¡Sé el primero en participar!</p>
+        <p>{content.emptyState}</p>
       </div>
     );
   }
@@ -65,4 +67,3 @@ export function CommentList({ comments }: CommentListProps) {
     </div>
   );
 }
-// components/sections/comments/CommentList.tsx

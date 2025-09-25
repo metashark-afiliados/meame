@@ -1,8 +1,8 @@
-// RUTA: app/[locale]/(dev)/dev/campaign-suite/_components/Step5_Management/Step5Client.tsx
+// RUTA: src/components/features/campaign-suite/Step5_Management/Step5Client.tsx
 /**
  * @file Step5Client.tsx
  * @description Orquestador de cliente para el Paso 5. Gestiona la lógica y el estado.
- * @version 1.0.0
+ * @version 1.1.0 (Sovereign Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -21,9 +21,12 @@ import {
   packageCampaignAction,
 } from "@/shared/lib/actions/campaign-suite";
 import { useCampaignTemplates } from "@/shared/hooks/campaign-suite/use-campaign-templates";
-import { validateDraftForLaunch } from "@/shared/lib/utils/campaign-suite/campaign-suite/draft.validator";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+import { validateDraftForLaunch } from "@/shared/lib/utils/campaign-suite/draft.validator";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { Step5Form } from "./Step5Form";
 import { DigitalConfetti } from "@/components/ui/DigitalConfetti";
+
 type Content = z.infer<typeof Step5ContentSchema>;
 
 interface Step5ClientProps {
@@ -61,7 +64,21 @@ export function Step5Client({
         toast.success("¡Campaña publicada con éxito!", {
           description: `La variante ${result.data.variantId} está ahora activa.`,
         });
-        DigitalConfetti();
+        // En una app real, el manejo de efectos como el confeti
+        // se haría a través de un proveedor de contexto de notificaciones.
+        // Por ahora, lo simulamos así para demostrar la capacidad.
+        const confettiActivator = document.createElement("div");
+        document.body.appendChild(confettiActivator);
+        const root = require("react-dom/client").createRoot(confettiActivator);
+        root.render(
+          <DigitalConfetti
+            isActive={true}
+            onComplete={() => {
+              root.unmount();
+              confettiActivator.remove();
+            }}
+          />
+        );
       } else {
         toast.error("Fallo al publicar la campaña", {
           description: result.error,

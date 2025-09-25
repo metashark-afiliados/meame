@@ -1,13 +1,14 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step1_Structure/Step1Form.tsx
+// RUTA: src/components/features/campaign-suite/Step1_Structure/Step1Form.tsx
 /**
  * @file Step1Form.tsx
  * @description Componente de Presentación para la UI del Paso 1.
- * @version 6.2.0 (Sovereign Type Contract)
+ * @version 7.0.0 (Holistic Sovereignty & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
+import { z } from "zod";
 import {
   Card,
   CardContent,
@@ -22,15 +23,16 @@ import type {
   FooterConfig,
 } from "@/shared/lib/types/campaigns/draft.types";
 import { WizardNavigation } from "@/components/features/campaign-suite/_components/WizardNavigation";
-import { galleryConfig } from "../../_config/gallery.config";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+import { galleryConfig } from "@/shared/lib/config/campaign-suite/gallery.config";
 import { StructuralSectionConfig } from "./_components";
 import { Step1ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step1.schema";
-import { z } from "zod";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 type Step1Content = z.infer<typeof Step1ContentSchema>;
 
 interface Step1FormProps {
-  content: Step1Content; // <-- Contrato estricto y no opcional
+  content: Step1Content;
   headerConfig: HeaderConfig;
   footerConfig: FooterConfig;
   onHeaderConfigChange: (newConfig: Partial<HeaderConfig>) => void;
@@ -48,7 +50,7 @@ export function Step1Form({
   onBack,
   onNext,
 }: Step1FormProps): React.ReactElement {
-  logger.info("Renderizando Step1Form (Contrato Soberano)");
+  logger.info("Renderizando Step1Form (v7.0 - Holistic Sovereignty)");
 
   return (
     <Card className="flex flex-col h-full">
@@ -92,4 +94,4 @@ export function Step1Form({
     </Card>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step1_Structure/Step1Form.tsx
+// RUTA: src/components/features/campaign-suite/Step1_Structure/Step1Form.tsx

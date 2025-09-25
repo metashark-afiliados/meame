@@ -1,4 +1,3 @@
-// RUTA: tsconfig.json
 {
   "compilerOptions": {
     "target": "es2017",
@@ -23,15 +22,15 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@app/*": ["app/*"],
-      "@components/*": ["components/*"],
+      "@app/*": ["src/app/*"],
+      "@components/*": ["src/components/*"],
       "@content/*": ["content/*"],
-      "@messages/*": ["messages/*"],
+      "@messages/*": ["src/messages/*"],
       "@prompts/*": ["prompts/*"],
       "@scripts/*": ["scripts/*"],
-      "@shared/*": ["shared/*"],
-      "@store/*": ["store/*"],
-      "@types/*": ["types/*"]
+      "@shared/*": ["src/shared/*"],
+      "@store/*": ["src/store/*"],
+      "@types/*": ["src/types/*"]
     }
   },
   "include": [

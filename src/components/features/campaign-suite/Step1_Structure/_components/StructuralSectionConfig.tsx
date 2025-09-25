@@ -1,10 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step1_Structure/_components/StructuralSectionConfig.tsx
+// RUTA: src/components/features/campaign-suite/Step1_Structure/_components/StructuralSectionConfig.tsx
 /**
  * @file StructuralSectionConfig.tsx
  * @description Aparato atómico para un bloque de configuración estructural.
- *              v2.0.0 (i18n Leveling): Ahora consume las descripciones desde el
- *              diccionario i18n para ser completamente internacionalizado.
- * @version 2.0.0
+ * @version 2.1.0 (Sovereign Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,8 +10,11 @@
 import React from "react";
 import { Switch } from "@/components/ui/Switch";
 import { Label } from "@/components/ui/Label";
-import { ComponentGallery } from "../../shared";
-import type { GalleryItem } from "../../../_config/gallery.config";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+import { ComponentGallery } from "@/components/features/campaign-suite/_components/shared";
+import type { GalleryItem } from "@/shared/lib/config/campaign-suite/gallery.config";
+import { logger } from "@/shared/lib/logging";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 interface StructuralSectionConfigProps {
   isEnabled: boolean;
@@ -24,11 +25,9 @@ interface StructuralSectionConfigProps {
   galleryItems: readonly GalleryItem[];
   selectedValue: string | null;
   onSelectionChange: (value: string) => void;
-  // --- [INICIO DE MEJORA I18N] ---
   descriptions: {
     [key: string]: string;
   };
-  // --- [FIN DE MEJORA I18N] ---
 }
 
 export function StructuralSectionConfig({
@@ -40,8 +39,9 @@ export function StructuralSectionConfig({
   galleryItems,
   selectedValue,
   onSelectionChange,
-  descriptions, // <-- Nueva prop
+  descriptions,
 }: StructuralSectionConfigProps): React.ReactElement {
+  logger.trace(`[StructuralSectionConfig] Renderizando para: ${switchLabel}`);
   return (
     <div className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-subtle">
       <div className="flex items-center space-x-3">
@@ -60,11 +60,10 @@ export function StructuralSectionConfig({
             items={galleryItems}
             selectedValue={selectedValue}
             onValueChange={onSelectionChange}
-            descriptions={descriptions} // <-- Pasar descripciones
+            descriptions={descriptions}
           />
         </div>
       )}
     </div>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step1_Structure/_components/StructuralSectionConfig.tsx

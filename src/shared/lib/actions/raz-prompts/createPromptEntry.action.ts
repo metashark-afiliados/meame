@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/raz-prompts/_actions/createPromptEntry.action.ts
+// RUTA: src/shared/lib/actions/raz-prompts/createPromptEntry.action.ts
 /**
  * @file createPromptEntry.action.ts
- * @description Server Action para crear una nueva entrada de prompt en la base de datos, con autenticación de usuario.
- * @version 3.0.0 (Supabase User Integration)
+ * @description Server Action para crear una nueva entrada de prompt en la base de datos.
+ * @version 4.0.0 (Creative Genome v4.0)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -15,7 +15,7 @@ import {
 } from "@/shared/lib/schemas/raz-prompts/entry.schema";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import { logger } from "@/shared/lib/logging";
-import { createServerClient } from "@/shared/lib/supabase/server"; // Importar cliente de Supabase
+import { createServerClient } from "@/shared/lib/supabase/server";
 
 type CreatePromptInput = Pick<
   RaZPromptsEntry,
@@ -25,7 +25,7 @@ type CreatePromptInput = Pick<
 export async function createPromptEntryAction(
   input: CreatePromptInput
 ): Promise<ActionResult<{ promptId: string }>> {
-  const traceId = logger.startTrace("createPromptEntry");
+  const traceId = logger.startTrace("createPromptEntry_v4.0");
   try {
     const supabase = createServerClient();
     const {
@@ -41,20 +41,20 @@ export async function createPromptEntryAction(
 
     const now = new Date().toISOString();
     const newPromptId = createId();
-    const userId = user.id; // Usar el ID de usuario real de Supabase
 
+    // --- MEJORA ARQUITECTÓNICA v4.0 ---
+    // El documento se crea limpio, sin conocimiento de los activos BAVI.
+    // El campo `baviAssetIds` es opcional y no se inicializa aquí.
     const promptDocument: RaZPromptsEntry = {
       ...input,
       aiService: input.tags.ai,
       promptId: newPromptId,
-      userId,
-      status: "pending_generation",
+      userId: user.id,
+      status: "pending_generation", // Estado inicial
       createdAt: now,
       updatedAt: now,
-      baviAssetId: undefined,
-      baviVariantId: undefined,
-      imageUrl: undefined, // Asegurarse de que esté indefinido inicialmente
     };
+    // --- FIN DE MEJORA ---
 
     const validation = RaZPromptsEntrySchema.safeParse(promptDocument);
     if (!validation.success) {
@@ -68,14 +68,10 @@ export async function createPromptEntryAction(
     const db = client.db(process.env.MONGODB_DB_NAME);
     const collection = db.collection<RaZPromptsEntry>("prompts");
 
-    const result = await collection.insertOne(validation.data);
-
-    if (!result.acknowledged) {
-      throw new Error("La inserción en la base de datos no fue confirmada.");
-    }
+    await collection.insertOne(validation.data);
 
     logger.success(
-      `[createPromptEntry] Nuevo prompt creado con ID: ${newPromptId} por usuario: ${userId}`
+      `[createPromptEntry] Nuevo genoma de prompt creado con ID: ${newPromptId} por usuario: ${user.id}`
     );
     logger.endTrace(traceId);
     return { success: true, data: { promptId: newPromptId } };

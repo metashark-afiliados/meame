@@ -1,8 +1,11 @@
-// Ruta correcta: src/components/features/auth/UserNav.tsx
+// RUTA: src/components/features/auth/UserNav.tsx
 /**
  * @file UserNav.tsx
- * @description Componente para mostrar el estado del usuario y las acciones de sesión en el header.
- * @version 2.1.0 (Sovereign Path Restoration)
+ * @description Componente soberano para la UI de sesión del usuario.
+ *              v4.0.0 (Conditional Rendering & Elite Compliance): Ahora consume
+ *              el hook de autenticación para renderizar condicionalmente el menú
+ *              de usuario o un botón de inicio de sesión.
+ * @version 4.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -30,11 +33,11 @@ import type { z } from "zod";
 type Content = z.infer<typeof UserNavContentSchema>;
 
 interface UserNavProps {
-  content: Content;
+  content?: Content;
 }
 
 export function UserNav({ content }: UserNavProps): React.ReactElement {
-  logger.info("[UserNav] Renderizando v2.1 (Sovereign Path Restoration).");
+  logger.info("[UserNav] Renderizando v4.0 (Conditional).");
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const supabase = createClient();
@@ -46,7 +49,14 @@ export function UserNav({ content }: UserNavProps): React.ReactElement {
   };
 
   if (isLoading) {
-    return <Skeleton className="h-10 w-24" />;
+    return <Skeleton className="h-10 w-24 rounded-md" />;
+  }
+
+  if (!content) {
+    logger.error(
+      "[UserNav] Contenido i18n no proporcionado. Renderizado nulo."
+    );
+    return <></>;
   }
 
   if (!user) {

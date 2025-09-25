@@ -1,9 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/shared/VariantInputField.tsx
+// RUTA: src/components/features/campaign-suite/_components/shared/VariantInputField.tsx
 /**
  * @file VariantInputField.tsx
- * @description Componente atómico hiper-especializado para un campo <Input>
- *              dentro de la SDC, encapsulando toda la lógica de react-hook-form.
- * @version 1.0.0
+ * @description Componente atómico hiper-especializado para un campo <Input>.
+ * @version 2.0.0 (Sovereign Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,7 +11,7 @@ import React from "react";
 import type { Control, FieldValues, Path } from "react-hook-form";
 import { FormControl, FormField } from "@/components/ui/Form";
 import { Input } from "@/components/ui/Input";
-import { FormFieldGroup } from "./FormFieldGroup";
+import { FormFieldGroup } from "@/components/forms/FormFieldGroup"; // <-- RUTA CORREGIDA
 
 interface VariantInputFieldProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
@@ -43,4 +42,3 @@ export function VariantInputField<TFieldValues extends FieldValues>({
     />
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/shared/VariantInputField.tsx

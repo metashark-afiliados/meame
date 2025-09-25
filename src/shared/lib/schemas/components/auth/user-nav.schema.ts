@@ -1,14 +1,14 @@
-// Ruta correcta: src/shared/lib/schemas/components/auth/user-nav.schema.ts
+// RUTA: src/shared/lib/schemas/components/auth/user-nav.schema.ts
 /**
  * @file user-nav.schema.ts
- * @description SSoT para el contrato de datos del contenido i18n del componente UserNav.
- * @version 1.0.0
+ * @description SSoT para el contrato de datos del contenido i18n del ecosistema UserNav.
+ * @version 2.0.0 (Login Button Integration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 
 export const UserNavContentSchema = z.object({
-  loginButton: z.string(),
+  loginButton: z.string(), // <-- NUEVA CLAVE
   sessionLabel: z.string(),
   logoutButton: z.string(),
   viewAllNotificationsLink: z.string(),
@@ -20,4 +20,4 @@ export const UserNavContentSchema = z.object({
 export const UserNavLocaleSchema = z.object({
   userNav: UserNavContentSchema.optional(),
 });
-// Ruta correcta: src/shared/lib/schemas/components/auth/user-nav.schema.ts
+

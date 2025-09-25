@@ -1,11 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/LivePreviewCanvas.tsx
+// RUTA: src/components/features/campaign-suite/_components/LivePreviewCanvas.tsx
 /**
  * @file LivePreviewCanvas.tsx
  * @description Lienzo de vista previa en tiempo real (EDVI) de élite.
- *              Renderiza dinámicamente secciones y componentes estructurales
- *              (Header/Footer) con animaciones MEA/UX, y soporta "Modo Enfoque"
- *              sincronizado. Cumple con los 7 Pilares de Calidad.
- * @version 9.1.0 (Type Inference Fix & Elite Compliance)
+ * @version 10.0.0 (Sovereign Path Restoration & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,32 +10,29 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCampaignDraft } from "../_hooks/use-campaign-draft";
-import { usePreviewTheme } from "../_hooks/use-preview-theme";
-import { useFocusStore } from "../_context/FocusContext";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+import { useCampaignDraft } from "@/shared/hooks/campaign-suite/use-campaign-draft";
+import { usePreviewTheme } from "@/shared/hooks/campaign-suite/use-preview-theme";
+import { useFocusStore } from "@/components/features/campaign-suite/_context/FocusContext";
 import { generateCssVariablesFromTheme } from "@/shared/lib/utils/theming/theme-utils";
 import { CampaignThemeProvider } from "@/components/layout/CampaignThemeProvider";
 import { SectionRenderer } from "@/components/layout/SectionRenderer";
-import { buildPreviewDictionary } from "../_utils/preview.utils";
+import { buildPreviewDictionary } from "@/shared/lib/utils/campaign-suite/preview.utils";
+import {
+  mockHeader,
+  mockFooter,
+} from "@/shared/lib/config/campaign-suite/previews.mock-data";
+import { livePreviewComponentMap } from "@/shared/lib/dev/live-previews.config";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { DynamicIcon } from "@/components/ui";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { CampaignDraftState } from "@/shared/lib/types/campaigns/draft.types";
 import { logger } from "@/shared/lib/logging";
-import { livePreviewComponentMap } from "@/shared/lib/dev/live-previews.config";
-import { mockHeader, mockFooter } from "../_config/previews.mock-data";
 
-/**
- * @interface IframeOverlayProps
- * @description Contrato de props para el componente de superposición del iframe.
- */
 interface IframeOverlayProps {
   children: React.ReactNode;
 }
 
-/**
- * @component IframeOverlay
- * @description Componente de UI atómico para mostrar estados (carga, error) sobre el iframe.
- */
 const IframeOverlay = ({ children }: IframeOverlayProps) => (
   <div
     style={{
@@ -59,10 +53,6 @@ const IframeOverlay = ({ children }: IframeOverlayProps) => (
   </div>
 );
 
-/**
- * @interface LivePreviewCanvasProps
- * @description Contrato de props para el componente LivePreviewCanvas.
- */
 interface LivePreviewCanvasProps {
   content: {
     loadingTheme: string;
@@ -71,7 +61,7 @@ interface LivePreviewCanvasProps {
 }
 
 export function LivePreviewCanvas({ content }: LivePreviewCanvasProps) {
-  logger.info("[LivePreviewCanvas] Renderizando v9.1 (Elite Compliance).");
+  logger.info("[LivePreviewCanvas] Renderizando v10.0 (Sovereign Path).");
 
   const draft = useCampaignDraft((state: CampaignDraftState) => state.draft);
   const { theme, isLoading, error } = usePreviewTheme();
@@ -221,4 +211,4 @@ export function LivePreviewCanvas({ content }: LivePreviewCanvasProps) {
     </motion.div>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/LivePreviewCanvas.tsx
+// RUTA: src/components/features/campaign-suite/_components/LivePreviewCanvas.tsx

@@ -1,8 +1,9 @@
 // RUTA: src/components/sections/NewsGrid.tsx
 /**
  * @file NewsGrid.tsx
- * @description Cuadrícula de noticias, ahora data-driven desde CogniRead.
- * @version 7.0.0 (Production-Ready & Elite MEA/UX)
+ * @description Cuadrícula de noticias, ahora data-driven desde CogniRead, con
+ *              seguridad de tipos y rutas de importación soberanas.
+ * @version 7.1.0 (Definitive Build Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,7 +14,9 @@ import { CldImage } from "next-cloudinary";
 import { motion, type Variants } from "framer-motion";
 import { Container, DynamicIcon } from "@/components/ui";
 import { routes } from "@/shared/lib/navigation";
-import type { Locale } from "@/shared/lib/i18n.config";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+import { type Locale } from "@/shared/lib/i18n/i18n.config";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
@@ -44,7 +47,7 @@ export function NewsGrid({
   locale,
   content,
 }: NewsGridProps): React.ReactElement {
-  logger.info("[NewsGrid] Renderizando v7.0 (Production-Ready).");
+  logger.info("[NewsGrid] Renderizando v7.1 (Definitive Build Fix).");
 
   return (
     <section className="py-16 sm:py-24 bg-background">
@@ -63,8 +66,15 @@ export function NewsGrid({
           viewport={{ once: true, amount: 0.1 }}
         >
           {articles.map((article) => {
+            // --- [INICIO DE GUARDIA DE TIPO RESILIENTE] ---
             const articleContent = article.content[locale];
-            if (!articleContent) return null;
+            if (!articleContent) {
+              logger.warn(
+                `[NewsGrid] No se encontró traducción para el locale '${locale}' en el artículo '${article.articleId}'. Se omite el renderizado.`
+              );
+              return null; // Omite este artículo si no hay contenido para el idioma actual.
+            }
+            // --- [FIN DE GUARDIA DE TIPO RESILIENTE] ---
 
             return (
               <motion.div key={article.articleId} variants={cardVariants}>

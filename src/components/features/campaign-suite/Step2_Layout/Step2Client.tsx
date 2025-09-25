@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step2_Layout/Step2Client.tsx
+// RUTA: src/components/features/campaign-suite/Step2_Layout/Step2Client.tsx
 /**
  * @file Step2Client.tsx
  * @description Componente Contenedor de Cliente para el Paso 2 (Layout).
- * @version 2.2.0 (Rules of Hooks & FSD Alignment)
+ * @version 3.0.0 (Hook Contract Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -23,9 +23,7 @@ interface Step2ClientProps {
 }
 
 export function Step2Client({ content }: Step2ClientProps): React.ReactElement {
-  logger.info(
-    "[Step2Client] Renderizando contenedor de lógica (Rules of Hooks Fix)."
-  );
+  logger.info("[Step2Client] Renderizando v3.0 (Hook Contract Restoration).");
 
   const { draft, updateDraft } = useCampaignDraft();
   const { goToNextStep, goToPrevStep } = useWizard();
@@ -41,9 +39,9 @@ export function Step2Client({ content }: Step2ClientProps): React.ReactElement {
 
   const onLayoutChange = (newLayout: LayoutConfigItem[]) => {
     logger.trace("[Step2Client] Layout modificado, actualizando borrador...");
-    updateDraft({
-      layoutConfig: newLayout,
-    });
+    // --- [INICIO DE CORRECCIÓN DE CONTRATO] ---
+    updateDraft({ layoutConfig: newLayout });
+    // --- [FIN DE CORRECCIÓN DE CONTRATO] ---
   };
 
   return (
@@ -56,4 +54,3 @@ export function Step2Client({ content }: Step2ClientProps): React.ReactElement {
     />
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step2_Layout/Step2Client.tsx

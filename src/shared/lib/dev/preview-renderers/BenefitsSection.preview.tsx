@@ -1,9 +1,10 @@
-// shared/lib/dev/preview-renderers/BenefitsSection.preview.tsx
+// RUTA: src/shared/lib/dev/preview-renderers/BenefitsSection.preview.tsx
 /**
  * @file BenefitsSection.preview.tsx
- * @description Renderizador de previsualización atómico, ahora purificado y
- *              desacoplado de la lógica de theming, consumiendo la SSoT de estilos.
- * @version 3.0.0 (Decoupled & Pure)
+ * @description Renderizador de previsualización atómico, purificado y desacoplado,
+ *              ahora con soporte completo para theming de fuentes y colores.
+ *              Cumple con los 7 Pilares de Calidad para renderizadores de servidor.
+ * @version 4.0.0 (Font Theming Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 import * as React from "react";
@@ -17,15 +18,16 @@ export const BenefitsSectionPreview: PreviewRenderer = async (
   locale,
   theme: AssembledTheme
 ): Promise<PreviewRenderResult | null> => {
+  // Pilar III (Observabilidad)
   logger.trace(
-    `[BenefitsSection.preview] Renderizando para locale: ${locale} (v3.0)`
+    `[BenefitsSection.preview] Renderizando para locale: ${locale} (v4.0)`
   );
   const { dictionary } = await getEdgeDictionary(locale);
+  // Pilar I (i18n): Guardia de Resiliencia
   const content = dictionary.benefitsSection;
-
   if (!content) return null;
 
-  // El componente invoca a la SSoT de transformación de estilos.
+  // Pilar II (Theming): Consume la SSoT de estilos
   const styles = getStyleFromTheme(theme);
 
   return {
@@ -37,7 +39,6 @@ export const BenefitsSectionPreview: PreviewRenderer = async (
           height: "100%",
           alignItems: "center",
           padding: "2rem",
-          // Se aplican estilos desde la SSoT.
           backgroundColor: styles.backgroundColor,
           color: styles.color,
           fontFamily: styles.fontFamily,
@@ -57,7 +58,7 @@ export const BenefitsSectionPreview: PreviewRenderer = async (
             style={{
               fontSize: "0.875rem",
               color: styles.primaryColor,
-              fontWeight: "700",
+              fontWeight: 700,
               letterSpacing: "0.05em",
             }}
           >
@@ -66,7 +67,7 @@ export const BenefitsSectionPreview: PreviewRenderer = async (
           <span
             style={{
               fontSize: "2.25rem",
-              fontWeight: "700",
+              fontWeight: 700,
               marginTop: "0.5rem",
             }}
           >
@@ -111,7 +112,7 @@ export const BenefitsSectionPreview: PreviewRenderer = async (
                   marginBottom: "0.75rem",
                 }}
               />
-              <span style={{ fontWeight: "600", fontSize: "0.875rem" }}>
+              <span style={{ fontWeight: 600, fontSize: "0.875rem" }}>
                 {benefit.title}
               </span>
               <span
@@ -132,4 +133,3 @@ export const BenefitsSectionPreview: PreviewRenderer = async (
     height: 675,
   };
 };
-// shared/lib/dev/preview-renderers/BenefitsSection.preview.tsx

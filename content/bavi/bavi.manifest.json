@@ -29,6 +29,146 @@
         }
       },
       "promptId": "prompt-001"
+    },
+    {
+      "assetId": "i-sybl-wellness-insider-01",
+      "provider": "cloudinary",
+      "tags": {
+        "cnt": "lgo"
+      },
+      "variants": [
+        {
+          "versionId": "v1-orig",
+          "publicId": "webvork/logos/wellness-insider-logo_e2ztp3",
+          "state": "orig",
+          "dimensions": {
+            "width": 200,
+            "height": 50
+          }
+        }
+      ],
+      "metadata": {
+        "altText": {
+          "es-ES": "Logo de Wellness Insider"
+        }
+      }
+    },
+    {
+      "assetId": "i-sybl-health-journal-01",
+      "provider": "cloudinary",
+      "tags": {
+        "cnt": "lgo"
+      },
+      "variants": [
+        {
+          "versionId": "v1-orig",
+          "publicId": "webvork/logos/health-journal-logo_wryh8c",
+          "state": "orig",
+          "dimensions": {
+            "width": 200,
+            "height": 50
+          }
+        }
+      ],
+      "metadata": {
+        "altText": {
+          "es-ES": "Logo de The Health Journal"
+        }
+      }
+    },
+    {
+      "assetId": "i-sybl-bio-innovate-01",
+      "provider": "cloudinary",
+      "tags": {
+        "cnt": "lgo"
+      },
+      "variants": [
+        {
+          "versionId": "v1-orig",
+          "publicId": "webvork/logos/bio-innovate-logo_t9f1yq",
+          "state": "orig",
+          "dimensions": {
+            "width": 200,
+            "height": 50
+          }
+        }
+      ],
+      "metadata": {
+        "altText": {
+          "es-ES": "Logo de Bio-Innovate Forum"
+        }
+      }
+    },
+    {
+      "assetId": "i-sybl-nutrition-council-01",
+      "provider": "cloudinary",
+      "tags": {
+        "cnt": "lgo"
+      },
+      "variants": [
+        {
+          "versionId": "v1-orig",
+          "publicId": "webvork/logos/nutrition-council-logo_v4xsmb",
+          "state": "orig",
+          "dimensions": {
+            "width": 200,
+            "height": 50
+          }
+        }
+      ],
+      "metadata": {
+        "altText": {
+          "es-ES": "Logo del Nutrition Council"
+        }
+      }
+    },
+    {
+      "assetId": "i-bkg-login-abstract-01",
+      "provider": "cloudinary",
+      "tags": {
+        "typ": "ui",
+        "sbj": "abs"
+      },
+      "variants": [
+        {
+          "versionId": "v1-orig",
+          "publicId": "webvork/backgrounds/login_bg_abstract_1_sje15x",
+          "state": "orig",
+          "dimensions": {
+            "width": 1920,
+            "height": 1080
+          }
+        }
+      ],
+      "metadata": {
+        "altText": {
+          "es-ES": "Fondo abstracto y tecnológico para la página de login"
+        }
+      }
+    },
+    {
+      "assetId": "i-bkg-hero-abstract-01",
+      "provider": "cloudinary",
+      "tags": {
+        "typ": "ui",
+        "sbj": "abs"
+      },
+      "variants": [
+        {
+          "versionId": "v1-orig",
+          "publicId": "webvork/backgrounds/hero_abstract_wellness_1_qwea45",
+          "state": "orig",
+          "dimensions": {
+            "width": 1920,
+            "height": 1080
+          }
+        }
+      ],
+      "metadata": {
+        "altText": {
+          "es-ES": "Fondo abstracto y tecnológico para la sección hero del portal"
+        }
+      }
     }
   ]
 }

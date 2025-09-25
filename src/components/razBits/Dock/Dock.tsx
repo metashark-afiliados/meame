@@ -1,10 +1,11 @@
-// components/razBits/Dock/Dock.tsx // <-- ¡COMENTARIO CORREGIDO!
+// RUTA: src/components/razBits/Dock/Dock.tsx
 /**
  * @file Dock.tsx
  * @description Componente de UI interactivo tipo "dock" con efectos de magnificación.
- *              - v2.2.0: Corrige el comentario de ruta interno para reflejar la
- *                ubicación real del archivo en el proyecto.
- * @version 2.2.0
+ *              v3.0.0 (Holistic Elite Leveling): Restaurada la integridad de importación
+ *              de schemas, reforzada la seguridad de tipos en `cloneElement` y
+ *              alineado con los 7 Pilares de Calidad.
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  * @see .docs-espejo/components/razBits/Dock/Dock.tsx.md
  */
@@ -32,7 +33,7 @@ import { z } from "zod";
 import { logger } from "@/shared/lib/logging";
 import { DockConfigSchema } from "./dock.schema";
 
-// --- CONTRATOS DE DATOS Y PROPS ---
+// --- SSoT de Contratos de Datos y Props ---
 
 export type DockItemData = {
   icon: React.ReactNode;
@@ -59,13 +60,10 @@ type DockItemInternalProps = {
   magnification: number;
 };
 
-// <<-- MEJORA: Contrato explícito para los hijos del DockItem -->>
-// Esta interfaz define las props que el componente DockItem inyectará en sus hijos.
 interface CommonDockChildProps {
   isHovered?: MotionValue<number>;
 }
 
-// Las interfaces de los hijos ahora extienden el contrato común.
 interface DockLabelProps extends CommonDockChildProps {
   className?: string;
   children: React.ReactNode;
@@ -76,7 +74,7 @@ interface DockIconProps extends CommonDockChildProps {
   children: React.ReactNode;
 }
 
-// --- SUBCOMPONENTES DE PRESENTACIÓN ---
+// --- Subcomponentes de Presentación Puros ---
 
 function DockLabel({
   children,
@@ -171,7 +169,6 @@ function DockItem({
       aria-haspopup="true"
     >
       {Children.map(children, (child) =>
-        // La llamada a cloneElement ahora es 100% type-safe.
         cloneElement(child as React.ReactElement<CommonDockChildProps>, {
           isHovered,
         })
@@ -180,7 +177,7 @@ function DockItem({
   );
 }
 
-// --- COMPONENTE PRINCIPAL ORQUESTADOR ---
+// --- Componente Principal Orquestador ---
 
 export function Dock({
   items,
@@ -188,7 +185,7 @@ export function Dock({
   config,
   spring = { mass: 0.1, stiffness: 150, damping: 12 },
 }: DockProps): React.ReactElement {
-  logger.info("[Observabilidad] Renderizando componente Dock (Naturalizado)"); // Observabilidad actualizada
+  logger.info("[Dock] Renderizando componente naturalizado v3.0.");
 
   const validatedConfig = DockConfigSchema.parse(config || {});
   const { magnification, distance, panelHeight, dockHeight, baseItemSize } =
@@ -247,3 +244,4 @@ export function Dock({
 }
 
 export default Dock;
+// RUTA: src/components/razBits/Dock/Dock.tsx

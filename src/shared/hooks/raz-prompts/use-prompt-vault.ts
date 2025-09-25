@@ -1,8 +1,8 @@
-// Ruta correcta: src/shared/hooks/raz-prompts/use-prompt-vault.ts
+// RUTA: src/shared/hooks/raz-prompts/use-prompt-vault.ts
 /**
  * @file use-prompt-vault.ts
  * @description Hook "cerebro" para la lógica de la Bóveda de Prompts.
- * @version 2.1.0 (Sovereign Path Normalization)
+ * @version 3.0.0 (Creative Genome v4.0)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,14 +13,12 @@ import { logger } from "@/shared/lib/logging";
 import {
   getPromptsAction,
   type GetPromptsInput,
+  type EnrichedRaZPromptsEntry,
 } from "@/shared/lib/actions/raz-prompts";
-import type { RaZPromptsEntry } from "@/shared/lib/schemas/raz-prompts/entry.schema";
 import type { RaZPromptsSesaTags } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
 
 export function usePromptVault() {
-  logger.trace("[Hook:usePromptVault] Inicializando lógica de la bóveda v2.1.");
-
-  const [prompts, setPrompts] = useState<RaZPromptsEntry[]>([]);
+  const [prompts, setPrompts] = useState<EnrichedRaZPromptsEntry[]>([]);
   const [totalPrompts, setTotalPrompts] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,15 +39,14 @@ export function usePromptVault() {
           setPrompts(result.data.prompts);
           setTotalPrompts(result.data.total);
         } else {
-          toast.error("Error al cargar prompts", {
-            description: result.error,
-          });
+          toast.error("Error al cargar prompts", { description: result.error });
+          // Resetea el estado en caso de error para evitar inconsistencias
           setPrompts([]);
           setTotalPrompts(0);
         }
       });
     },
-    [startTransition]
+    [startTransition] // startTransition es una dependencia estable
   );
 
   useEffect(() => {
@@ -61,14 +58,15 @@ export function usePromptVault() {
     });
   }, [fetchPrompts, currentPage, searchQuery, activeFilters]);
 
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-    setCurrentPage(1);
+  const handleSearch = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    setCurrentPage(1); // Resetea la página al buscar
+    // El useEffect se encargará de volver a llamar a fetchPrompts
   }, []);
 
   const handleFilterChange = useCallback(
     (category: keyof RaZPromptsSesaTags, value: string) => {
-      setActiveFilters((prev: Partial<RaZPromptsSesaTags>) => {
+      setActiveFilters((prev) => {
         const newFilters = { ...prev };
         if (value === "all") {
           delete newFilters[category];
@@ -77,7 +75,7 @@ export function usePromptVault() {
         }
         return newFilters;
       });
-      setCurrentPage(1);
+      setCurrentPage(1); // Resetea la página al cambiar el filtro
     },
     []
   );
@@ -94,9 +92,10 @@ export function usePromptVault() {
     currentPage,
     searchQuery,
     totalPages,
+    activeFilters,
+    setSearchQuery,
     handleSearch,
     handleFilterChange,
     handlePageChange,
   };
 }
-// Ruta correcta: src/shared/hooks/raz-prompts/use-prompt-vault.ts

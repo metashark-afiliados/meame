@@ -2,16 +2,14 @@
 /**
  * @file footer.schema.ts
  * @description Define el contrato de datos para el contenido del Footer.
- *              v6.1.0 (Type Export Fix): Exporta los tipos inferidos para
- *              ser consumidos por el componente, resolviendo errores TS2305.
- * @version 6.1.0
+ * @version 6.2.0 (Contract Alignment)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 import { LucideIconNameSchema } from "@/shared/lib/config/lucide-icon-names";
 
 const LinkSchema = z.object({
-  label: z.string(),
+  label: z.string(), // La SSoT define que la clave es 'label'
   href: z.string(),
 });
 
@@ -26,12 +24,9 @@ const LinkColumnSchema = z.object({
   links: z.array(LinkSchema),
 });
 
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
-// Exportar los tipos inferidos para que sean consumibles por otros módulos.
 export type LinkColumn = z.infer<typeof LinkColumnSchema>;
 export type LinkType = z.infer<typeof LinkSchema>;
 export type SocialLink = z.infer<typeof SocialLinkSchema>;
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 export const FooterContentSchema = z.object({
   newsletter: z.object({
@@ -45,7 +40,7 @@ export const FooterContentSchema = z.object({
   socialLinks: z.array(SocialLinkSchema),
   copyright: z.string(),
   disclaimer: z.string(),
-  developerLink: LinkSchema.optional(),
+  developerLink: LinkSchema.optional(), // Espera un objeto con `label` y `href`
 });
 
 export const FooterLocaleSchema = z.object({

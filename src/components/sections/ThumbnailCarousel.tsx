@@ -1,14 +1,15 @@
-// components/sections/ThumbnailCarousel.tsx
+// RUTA: src/components/sections/ThumbnailCarousel.tsx
 /**
  * @file ThumbnailCarousel.tsx
  * @description Un carrusel visual que cicla a través de una serie de imágenes.
- * @version 5.2.0 (Code Hygiene)
+ * @version 5.3.0 (Polymorphic Button Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link"; // <-- Importar Link
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -24,7 +25,7 @@ export function ThumbnailCarousel({
   content,
   interval = 5000,
 }: ThumbnailCarouselProps): React.ReactElement | null {
-  logger.info("[ThumbnailCarousel] Renderizando componente v5.2...");
+  logger.info("[ThumbnailCarousel] Renderizando componente v5.3...");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -82,23 +83,27 @@ export function ThumbnailCarousel({
             )}
           </AnimatePresence>
           <div className="absolute inset-0 bg-foreground/10 flex items-center justify-center transition-opacity duration-300 group-hover:bg-foreground/20">
+            {/* --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] --- */}
             <Button
-              href={affiliateUrl}
+              asChild // Indica al botón que renderice su hijo en lugar de un <button>
               className="p-0 bg-transparent shadow-none hover:scale-110 transition-transform duration-300 focus-visible:ring-0 focus-visible:ring-offset-0"
               aria-label={playButtonAriaLabel}
             >
-              <div className="bg-black/50 rounded-full p-4 sm:p-6 backdrop-blur-sm">
-                <svg
-                  className="w-12 h-12 sm:w-16 sm:h-16 text-foreground"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <title>{playButtonTitle}</title>
-                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"></path>
-                </svg>
-              </div>
+              <Link href={affiliateUrl}>
+                <div className="bg-black/50 rounded-full p-4 sm:p-6 backdrop-blur-sm">
+                  <svg
+                    className="w-12 h-12 sm:w-16 sm:h-16 text-foreground"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                  >
+                    <title>{playButtonTitle}</title>
+                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"></path>
+                  </svg>
+                </div>
+              </Link>
             </Button>
+            {/* --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] --- */}
           </div>
         </div>
       </Container>

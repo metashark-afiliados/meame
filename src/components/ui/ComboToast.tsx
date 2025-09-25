@@ -1,27 +1,29 @@
-// RUTA: app/[locale]/(dev)/dev/campaign-suite/_components/Step2_Composition/_components/ComboToast.tsx
+// RUTA: src/components/ui/ComboToast.tsx
 /**
  * @file ComboToast.tsx
  * @description Componente de UI para la notificación (toast) de Combo Estratégico.
- * @version 1.0.0
+ * @version 2.1.0 (Type-Safe & Elite)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
 import { toast } from "sonner";
-import { DynamicIcon } from "@/components/ui";
+import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import type { StrategicCombo } from "@/shared/lib/config/strategic-combos.config";
 import { Button } from "@/components/ui/Button";
+import { logger } from "@/shared/lib/logging";
 
 interface ComboToastProps {
   combo: StrategicCombo;
 }
 
 function ComboToast({ combo }: ComboToastProps): React.ReactElement {
+  logger.trace(`[ComboToast] Renderizando toast para: ${combo.name}`);
   return (
     <div className="flex items-center gap-4 w-full">
       <DynamicIcon
-        name={combo.icon as any}
+        name={combo.icon} // <-- SEGURO A NIVEL DE TIPO, SIN 'any'
         className="h-10 w-10 text-yellow-400"
       />
       <div className="flex flex-col">
@@ -32,12 +34,8 @@ function ComboToast({ combo }: ComboToastProps): React.ReactElement {
   );
 }
 
-/**
- * @function showComboToast
- * @description Función helper para invocar el toast de combo de forma programática.
- * @param {StrategicCombo} combo - El combo que se ha detectado.
- */
 export function showComboToast(combo: StrategicCombo) {
+  logger.info(`[MEA/UX] Mostrando notificación para el combo: ${combo.name}`);
   toast.custom(
     (t) => (
       <div className="flex items-center gap-2 bg-background border shadow-lg rounded-lg p-4 w-full max-w-sm">
@@ -52,8 +50,6 @@ export function showComboToast(combo: StrategicCombo) {
         </Button>
       </div>
     ),
-    {
-      duration: 5000, // El toast dura 5 segundos
-    }
+    { duration: 5000 }
   );
 }

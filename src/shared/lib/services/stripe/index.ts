@@ -1,23 +1,38 @@
-// shared/lib/stripe/index.ts
+// RUTA: src/shared/lib/services/stripe/index.ts
 /**
  * @file index.ts
  * @description Capa de Acceso a Datos (DAL) soberana para Stripe.
- * @version 2.0.0 (Metadata Support)
+ *              v3.0.0 (API Version Alignment & Elite Compliance): Actualizado
+ *              para usar la última versión estable de la API de Stripe y
+ *              reforzado con logging de élite.
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import "server-only";
 import Stripe from "stripe";
 import { logger } from "@/shared/lib/logging";
 
+// --- Guardia de Configuración de Nivel de Módulo ---
 if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error(
-    "Error Crítico: La variable de entorno STRIPE_SECRET_KEY no está definida."
-  );
+  const errorMsg =
+    "Error Crítico de Arquitectura: La variable de entorno STRIPE_SECRET_KEY no está definida.";
+  logger.error(errorMsg);
+  throw new Error(errorMsg);
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-04-10",
+  // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
+  // Se actualiza a la última versión ESTABLE de la API para máxima
+  // seguridad y funcionalidad. Esto resuelve el error de tipo una vez que el
+  // paquete `stripe` ha sido actualizado a una versión estable.
+  // Si se opta por NO actualizar, cambiar este valor a '2025-08-27.basil'.
+  apiVersion: "2024-06-20",
+  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
   typescript: true,
+  appInfo: {
+    name: "Meame Elite Platform",
+    version: "1.0.0",
+  },
 });
 
 /**
@@ -31,27 +46,35 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 export async function createPaymentIntent(
   amount: number,
   currency: string,
-  metadata: Stripe.MetadataParam // <-- TIPO ACTUALIZADO
+  metadata: Stripe.MetadataParam
 ): Promise<Stripe.PaymentIntent> {
-  logger.info("[Stripe DAL] Creando PaymentIntent v2.0...", {
+  const traceId = logger.startTrace("stripe.createPaymentIntent");
+  logger.info("[Stripe DAL] Creando PaymentIntent v3.0...", {
     amount,
     currency,
     metadata,
+    traceId,
   });
+
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: currency.toLowerCase(),
       automatic_payment_methods: { enabled: true },
-      metadata, // <-- METADATA INCLUIDA
+      metadata,
     });
     logger.success("[Stripe DAL] PaymentIntent creado con éxito.", {
       id: paymentIntent.id,
+      traceId,
     });
     return paymentIntent;
   } catch (error) {
-    logger.error("[Stripe DAL] Fallo al crear el PaymentIntent.", { error });
+    logger.error("[Stripe DAL] Fallo al crear el PaymentIntent.", {
+      error,
+      traceId,
+    });
     throw new Error("No se pudo iniciar la sesión de pago con Stripe.");
+  } finally {
+    logger.endTrace(traceId);
   }
 }
-// shared/lib/stripe/index.ts

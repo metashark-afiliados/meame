@@ -1,16 +1,21 @@
-// Ruta correcta: src/shared/hooks/use-webvork-guid.ts
+// RUTA: src/shared/hooks/use-webvork-guid.ts
 /**
  * @file use-webvork-guid.ts
- * @description Hook Atómico de Efecto para obtener el GUID de Webvork.
- * @version 3.2.0 (Sovereign Path Normalization)
+ * @description Hook Atómico de Efecto para obtener el GUID de Webvork a través
+ *              de un script JSONP inyectado dinámicamente.
+ *              v4.0.0 (Lazy Config Initialization): Refactorizado para adherirse
+ *              al contrato de `getProducerConfig`, garantizando una carga
+ *              segura y diferida de las variables de entorno.
+ * @version 4.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import { useEffect, useRef } from "react";
-import { producerConfig } from "@/shared/lib/config/producer.config";
+import { getProducerConfig } from "@/shared/lib/config/producer.config";
 import { logger } from "@/shared/lib/logging";
 
+// --- SSoT de Tipos y Contratos ---
 type JsonpCallback = () => void;
 
 declare global {
@@ -19,6 +24,11 @@ declare global {
   }
 }
 
+/**
+ * @function setCookie
+ * @description Helper puro para establecer una cookie en el navegador.
+ * @private
+ */
 const setCookie = (name: string, value: string, days: number = 30): void => {
   let expires = "";
   if (days) {
@@ -29,18 +39,23 @@ const setCookie = (name: string, value: string, days: number = 30): void => {
   document.cookie = `${name}=${value || ""}${expires}; path=/`;
 };
 
+// --- Componente de Élite ---
 export function useWebvorkGuid(enabled: boolean): void {
   const hasExecuted = useRef(false);
 
   useEffect(() => {
+    // Guardia de idempotencia y activación.
     if (!enabled || hasExecuted.current) {
       return;
     }
 
-    logger.startGroup("Hook: useWebvorkGuid");
+    logger.startGroup("[useWebvorkGuid] Orquestando inyección de script GUID.");
 
+    // Obtención segura de la configuración.
+    const producerConfig = getProducerConfig();
     const { LANDING_ID, OFFER_ID } = producerConfig;
 
+    // Guardia de configuración.
     if (!LANDING_ID || !OFFER_ID) {
       logger.warn(
         "LANDING_ID o OFFER_ID no configurados. Abortando llamada de GUID."
@@ -54,6 +69,7 @@ export function useWebvorkGuid(enabled: boolean): void {
     const callbackName = "jsonp_callback_" + Math.round(100000 * Math.random());
     const scriptTagId = `script_${callbackName}`;
 
+    // Definimos la función de callback en el objeto window ANTES de inyectar el script.
     window[callbackName] = () => {
       logger.startGroup("Callback: Webvork GUID Recibido");
       try {
@@ -71,6 +87,7 @@ export function useWebvorkGuid(enabled: boolean): void {
       } catch (error) {
         logger.error("Error procesando callback de GUID.", { error });
       } finally {
+        // Limpieza robusta para evitar memory leaks.
         delete window[callbackName];
         const scriptElement = document.getElementById(scriptTagId);
         scriptElement?.remove();
@@ -82,10 +99,10 @@ export function useWebvorkGuid(enabled: boolean): void {
     const scriptTag = document.createElement("script");
     scriptTag.id = scriptTagId;
     scriptTag.src = trackerUrl;
+    scriptTag.async = true;
     document.body.appendChild(scriptTag);
 
     hasExecuted.current = true;
     logger.endGroup();
   }, [enabled]);
 }
-// Ruta correcta: src/shared/hooks/use-webvork-guid.ts

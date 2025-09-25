@@ -1,8 +1,8 @@
-// Ruta correcta: src/components/features/bavi/_components/AssetExplorer.tsx
+// RUTA: src/components/features/bavi/_components/AssetExplorer.tsx
 /**
  * @file AssetExplorer.tsx
  * @description Orquestador de élite para la exploración de activos de BAVI.
- * @version 4.1.0 (Sovereign Hook Import Restoration)
+ * @version 5.0.0 (Sovereign Hook Import Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,7 +13,10 @@ import type { BaviAsset } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 import type { PromptCreatorContentSchema } from "@/shared/lib/schemas/raz-prompts/prompt-creator.i18n.schema";
 import type { z } from "zod";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+// Se corrige la ruta de importación para apuntar a la SSoT soberana del hook.
 import { useAssetExplorerLogic } from "@/shared/hooks/bavi/use-asset-explorer-logic";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { AssetExplorerDisplay } from "./AssetExplorerDisplay";
 
 type CreatorContent = z.infer<typeof PromptCreatorContentSchema>;
@@ -46,7 +49,7 @@ export function AssetExplorer({
   onAssetSelect,
 }: AssetExplorerProps): React.ReactElement {
   logger.info(
-    "[AssetExplorer] Renderizando orquestador (v4.1 - Sovereign Hook Import)."
+    "[AssetExplorer] Renderizando orquestador v5.0 (Sovereign Hook Import)."
   );
 
   const {
@@ -81,4 +84,4 @@ export function AssetExplorer({
     />
   );
 }
-// Ruta correcta: src/components/features/bavi/_components/AssetExplorer.tsx
+// RUTA: src/components/features/bavi/_components/AssetExplorer.tsx

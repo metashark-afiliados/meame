@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/raz-prompts/_actions/linkPromptToBaviAsset.action.ts
+// RUTA: src/shared/lib/actions/raz-prompts/linkPromptToBaviAsset.action.ts
 /**
  * @file linkPromptToBaviAsset.action.ts
- * @description Server Action para vincular un prompt existente a un activo de la BAVI.
- * @version 3.0.0 (FSD Architecture Alignment)
+ * @description Server Action simbiótica para vincular un activo de la BAVI a un genoma de prompt.
+ * @version 4.0.0 (Creative Genome v4.0)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -11,23 +11,27 @@ import { connectToDatabase } from "@/shared/lib/mongodb";
 import type { RaZPromptsEntry } from "@/shared/lib/schemas/raz-prompts/entry.schema";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import { logger } from "@/shared/lib/logging";
+import { createServerClient } from "@/shared/lib/supabase/server";
 
 interface LinkPromptInput {
   promptId: string;
   baviAssetId: string;
-  baviVariantId: string;
-  imageUrl?: string;
 }
 
 export async function linkPromptToBaviAssetAction({
   promptId,
   baviAssetId,
-  baviVariantId,
-  imageUrl,
 }: LinkPromptInput): Promise<ActionResult<{ updatedCount: number }>> {
-  const traceId = logger.startTrace("linkPromptToBaviAsset");
+  const traceId = logger.startTrace("linkPromptToBaviAsset_v4.0");
   try {
-    if (!promptId || !baviAssetId || !baviVariantId) {
+    const supabase = createServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, error: "auth_required" };
+    }
+
+    if (!promptId || !baviAssetId) {
       return { success: false, error: "Faltan IDs para la vinculación." };
     }
 
@@ -35,24 +39,25 @@ export async function linkPromptToBaviAssetAction({
     const db = client.db(process.env.MONGODB_DB_NAME);
     const collection = db.collection<RaZPromptsEntry>("prompts");
 
-    const updateDoc: Partial<RaZPromptsEntry> = {
-      status: "generated",
-      baviAssetId: baviAssetId,
-      baviVariantId: baviVariantId,
-      updatedAt: new Date().toISOString(),
-    };
-
-    if (imageUrl) {
-      updateDoc.imageUrl = imageUrl;
-    }
-
+    // --- MEJORA ARQUITECTÓNICA v4.0 ---
+    // Se utiliza `$addToSet` para añadir el ID del activo al array de forma idempotente.
+    // Se actualiza el `status` y `updatedAt` simultáneamente.
     const result = await collection.updateOne(
-      { promptId: promptId },
-      { $set: updateDoc }
+      { promptId: promptId, userId: user.id }, // Guardia de seguridad: solo el dueño puede vincular.
+      {
+        $set: {
+          status: "generated",
+          updatedAt: new Date().toISOString(),
+        },
+        $addToSet: {
+          baviAssetIds: baviAssetId,
+        },
+      }
     );
+    // --- FIN DE MEJORA ---
 
     if (result.matchedCount === 0) {
-      throw new Error(`No se encontró ningún prompt con el ID: ${promptId}`);
+      throw new Error(`No se encontró un prompt con ID: ${promptId} perteneciente al usuario actual.`);
     }
 
     logger.success(
@@ -73,4 +78,3 @@ export async function linkPromptToBaviAssetAction({
     };
   }
 }
-// app/[locale]/(dev)/raz-prompts/_actions/linkPromptToBaviAsset.action.ts

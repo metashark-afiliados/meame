@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step2_Layout/_components/SectionLibrary.tsx
+// RUTA: src/components/features/campaign-suite/Step2_Layout/_components/SectionLibrary.tsx
 /**
  * @file SectionLibrary.tsx
  * @description Aparato atómico para la biblioteca de secciones disponibles.
- * @version 1.0.0
+ * @version 1.1.0 (Prop Contract Synchronization)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -15,14 +15,11 @@ interface SectionLibraryProps {
   availableSections: { id: string; name: string }[];
   onAddSection: (sectionName: string) => void;
   title: string;
+  emptyLibraryText: string; // <-- PROP AÑADIDA
 }
 
-export function SectionLibrary({
-  availableSections,
-  onAddSection,
-  title,
-}: SectionLibraryProps) {
-  logger.trace("[SectionLibrary] Renderizando biblioteca de secciones.");
+export function SectionLibrary({ availableSections, onAddSection, title, emptyLibraryText }: SectionLibraryProps) {
+  logger.trace("[SectionLibrary] Renderizando biblioteca v1.1 (Prop Contract Synced).");
   return (
     <div className="md:col-span-1 p-4 border rounded-lg bg-muted/20">
       <h3 className="font-semibold mb-4">{title}</h3>
@@ -44,11 +41,11 @@ export function SectionLibrary({
         ))}
         {availableSections.length === 0 && (
           <p className="text-xs text-muted-foreground text-center py-4">
-            Todas las secciones han sido añadidas.
+            {emptyLibraryText}
           </p>
         )}
       </div>
     </div>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step2_Layout/_components/SectionLibrary.tsx
+// RUTA: src/components/features/campaign-suite/Step2_Layout/_components/SectionLibrary.tsx

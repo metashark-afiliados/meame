@@ -1,14 +1,12 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step2_Layout/LayoutBuilder.tsx
+// RUTA: src/components/features/campaign-suite/Step2_Layout/LayoutBuilder.tsx
 /**
  * @file LayoutBuilder.tsx
- * @description Orquestador de lógica y estado para la composición de layouts,
- *              con motor de detección de "Combos Estratégicos" y MEA/UX.
- * @version 4.3.0 (Holistic Regression & Module Resolution Fix)
+ * @description Orquestador de lógica y estado para la composición de layouts.
+ * @version 5.2.0 (Holistic Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-// --- ¡CORRECCIÓN! Se elimina la importación no utilizada de 'useMemo'. ---
 import React, { useState, useEffect, useCallback } from "react";
 import {
   DndContext,
@@ -22,14 +20,18 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates, arrayMove } from "@dnd-kit/sortable";
-import { sectionsConfig } from "@/shared/lib/config/sections.config";
+import {
+  sectionsConfig,
+  type SectionName,
+} from "@/shared/lib/config/sections.config";
 import type { LayoutConfigItem } from "@/shared/lib/types/campaigns/draft.types";
 import { logger } from "@/shared/lib/logging";
 import { LayoutCanvas } from "./_components/LayoutCanvas";
 import { SectionLibrary } from "./_components/SectionLibrary";
 import { DynamicIcon } from "@/components/ui";
-// --- ¡CORRECCIÓN! Se utiliza la ruta relativa robusta. ---
-import { STRATEGIC_COMBOS } from "@/shared/lib/config/campaign-suite/combos.config";
+import { detectStrategicCombos } from "@/shared/lib/utils/campaign-suite/combo.detector";
+import { showComboToast } from "@/components/ui/ComboToast";
+import { strategicCombos } from "@/shared/lib/config/strategic-combos.config"; // <-- IMPORTACIÓN CORREGIDA
 import type { Step2ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step2.schema";
 import type { z } from "zod";
 
@@ -57,42 +59,52 @@ export function LayoutBuilder({
   onLayoutChange,
   content,
 }: LayoutBuilderProps) {
-  logger.info("[LayoutBuilder] Renderizando orquestador de layout (v4.3).");
+  logger.info(
+    "[LayoutBuilder] Renderizando orquestador v5.2 (Holistic Integrity)."
+  );
   const [activeLayout, setActiveLayout] =
     useState<LayoutConfigItem[]>(initialLayout);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [comboSections, setComboSections] = useState(new Set<string>());
 
-  const detectStrategicCombos = useCallback((layout: LayoutConfigItem[]) => {
+  const checkCombos = useCallback((layout: LayoutConfigItem[]) => {
     const layoutNames = layout.map((item) => item.name);
     const newComboSections = new Set<string>();
-    STRATEGIC_COMBOS.forEach((combo: readonly string[]) => {
-      for (let i = 0; i <= layoutNames.length - combo.length; i++) {
-        const subLayout = layoutNames.slice(i, i + combo.length);
-        if (JSON.stringify(subLayout) === JSON.stringify(combo)) {
-          combo.forEach((sectionName: string) =>
+
+    for (const combo of strategicCombos) {
+      for (let i = 0; i <= layoutNames.length - combo.sections.length; i++) {
+        const subLayout = layoutNames.slice(i, i + combo.sections.length);
+        if (JSON.stringify(subLayout) === JSON.stringify(combo.sections)) {
+          // --- TIPO EXPLÍCITO CORREGIDO ---
+          combo.sections.forEach((sectionName: SectionName) =>
             newComboSections.add(sectionName)
           );
         }
       }
-    });
-    setComboSections(newComboSections);
-    if (newComboSections.size > 0) {
-      logger.success("[LayoutBuilder] ¡Combo Estratégico Detectado!", {
-        combo: Array.from(newComboSections),
-      });
     }
+    setComboSections(newComboSections);
   }, []);
 
   useEffect(() => {
-    detectStrategicCombos(activeLayout);
-  }, [activeLayout, detectStrategicCombos]);
+    checkCombos(activeLayout);
+  }, [activeLayout, checkCombos]);
+
+  const handleLayoutUpdate = useCallback(
+    (newLayout: LayoutConfigItem[], changedSection: SectionName) => {
+      setActiveLayout(newLayout);
+      onLayoutChange(newLayout);
+      const detectedCombo = detectStrategicCombos(newLayout, changedSection);
+      if (detectedCombo) {
+        showComboToast(detectedCombo);
+      }
+    },
+    [onLayoutChange]
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
-
   const handleDragStart = (event: DragStartEvent) =>
     setActiveId(event.active.id as string);
 
@@ -105,23 +117,24 @@ export function LayoutBuilder({
       );
       const newIndex = activeLayout.findIndex((item) => item.name === over.id);
       const newLayout = arrayMove(activeLayout, oldIndex, newIndex);
-      setActiveLayout(newLayout);
-      onLayoutChange(newLayout);
+      handleLayoutUpdate(newLayout, newLayout[newIndex].name as SectionName);
     }
   };
 
   const addSection = (sectionName: string) => {
     const newLayout = [...activeLayout, { name: sectionName }];
-    setActiveLayout(newLayout);
-    onLayoutChange(newLayout);
+    handleLayoutUpdate(newLayout, sectionName as SectionName);
   };
 
   const removeSection = (sectionName: string) => {
     const newLayout = activeLayout.filter(
       (section) => section.name !== sectionName
     );
-    setActiveLayout(newLayout);
-    onLayoutChange(newLayout);
+    const lastSection =
+      newLayout.length > 0
+        ? (newLayout[newLayout.length - 1].name as SectionName)
+        : "Hero";
+    handleLayoutUpdate(newLayout, lastSection);
   };
 
   const sectionsInLayout = new Set(activeLayout.map((s) => s.name));
@@ -141,12 +154,14 @@ export function LayoutBuilder({
           availableSections={availableSectionsFiltered}
           onAddSection={addSection}
           title={content.libraryTitle}
+          emptyLibraryText={content.emptyLibraryText}
         />
         <LayoutCanvas
           activeLayout={activeLayout}
           onRemoveSection={removeSection}
           title={content.canvasTitle}
           comboSections={comboSections}
+          emptyCanvasText={content.emptyCanvasText}
         />
       </div>
       <DragOverlay>
@@ -165,4 +180,4 @@ export function LayoutBuilder({
     </DndContext>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step2_Layout/LayoutBuilder.tsx
+// RUTA: src/components/features/campaign-suite/Step2_Layout/LayoutBuilder.tsx

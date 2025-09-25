@@ -1,36 +1,43 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step0_Identity/Step0Form.tsx
+// RUTA: src/components/features/campaign-suite/Step0_Identity/Step0Form.tsx
 /**
  * @file Step0Form.tsx
  * @description Componente de Presentación para el formulario del Paso 0.
- * @version 4.3.0 (Sovereign Type Contract)
+ * @version 5.1.0 (Module Resolution Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
 import type { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { Form } from "@/components/ui/Form";
 import { logger } from "@/shared/lib/logging";
-import type { Step0Data } from "../../_schemas/step0.schema";
-import { CampaignSelectField, VariantInputField } from "../shared";
-import { Step0ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step0.schema";
-import { z } from "zod";
+import {
+  type Step0Data,
+  type Step0ContentSchema,
+} from "@/shared/lib/schemas/campaigns/steps/step0.schema";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+import { CampaignSelectField, VariantInputField } from "../_components/shared";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
+import { WizardNavigation } from "@/components/features/campaign-suite/_components/WizardNavigation";
 
 type Step0Content = z.infer<typeof Step0ContentSchema>;
 
 interface Step0FormProps {
   form: UseFormReturn<Step0Data>;
-  content: Step0Content; // <-- Contrato estricto y no opcional
+  content: Step0Content;
   baseCampaigns: string[];
   onSubmit: (data: Step0Data) => void;
+  onBack: () => void;
+  onNext: () => void;
 }
 
 export function Step0Form({
@@ -38,8 +45,10 @@ export function Step0Form({
   content,
   baseCampaigns,
   onSubmit,
+  onBack,
+  onNext,
 }: Step0FormProps): React.ReactElement {
-  logger.info("Renderizando Step0Form (Presentación Pura - Contrato Soberano)");
+  logger.info("Renderizando Step0Form (v5.1 - Module Resolution Fix)");
 
   return (
     <Card>
@@ -47,9 +56,9 @@ export function Step0Form({
         <CardTitle>{content.title}</CardTitle>
         <CardDescription>{content.description}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <CardContent className="space-y-8">
             <CampaignSelectField
               control={form.control}
               name="baseCampaignId"
@@ -74,13 +83,13 @@ export function Step0Form({
               placeholder={content.seoKeywordsPlaceholder}
               description={content.seoKeywordsDescription}
             />
-            <div className="flex justify-end items-center pt-8 border-t">
-              <Button type="submit">Guardar y Continuar</Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
+          </CardContent>
+          <CardFooter>
+            <WizardNavigation onBack={onBack} onNext={onNext} />
+          </CardFooter>
+        </form>
+      </Form>
     </Card>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step0_Identity/Step0Form.tsx
+// RUTA: src/components/features/campaign-suite/Step0_Identity/Step0Form.tsx

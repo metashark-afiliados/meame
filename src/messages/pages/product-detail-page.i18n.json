@@ -45,6 +45,12 @@
       "stockStatus": {
         "available": "Disponibile ({{count}} in magazzino)",
         "unavailable": "Attualmente non disponibile"
+      },
+      "shareButton": {
+        "buttonLabel": "Condividi",
+        "popoverTitle": "Condividi tramite",
+        "copyLinkAction": "Copia link",
+        "copySuccessToast": "Link copiato negli appunti!"
       }
     }
   },
@@ -94,6 +100,12 @@
       "stockStatus": {
         "available": "Disponible ({{count}} en almacén)",
         "unavailable": "Actualmente no disponible"
+      },
+      "shareButton": {
+        "buttonLabel": "Compartir",
+        "popoverTitle": "Compartir vía",
+        "copyLinkAction": "Copiar enlace",
+        "copySuccessToast": "¡Enlace copiado al portapapeles!"
       }
     }
   },
@@ -143,6 +155,12 @@
       "stockStatus": {
         "available": "Available ({{count}} in stock)",
         "unavailable": "Currently unavailable"
+      },
+      "shareButton": {
+        "buttonLabel": "Share",
+        "popoverTitle": "Share via",
+        "copyLinkAction": "Copy link",
+        "copySuccessToast": "Link copied to clipboard!"
       }
     }
   },
@@ -192,6 +210,12 @@
       "stockStatus": {
         "available": "Disponível ({{count}} em estoque)",
         "unavailable": "Atualmente indisponível"
+      },
+      "shareButton": {
+        "buttonLabel": "Compartilhar",
+        "popoverTitle": "Compartilhar via",
+        "copyLinkAction": "Copiar link",
+        "copySuccessToast": "Link copiado para a área de transferência!"
       }
     }
   }

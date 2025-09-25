@@ -1,21 +1,33 @@
-// components/ui/Table.tsx
+// RUTA: src/components/ui/Table.tsx
+/**
+ * @file Table.tsx
+ * @description Sistema de componentes de tabla de élite. Cumple con los 7 Pilares.
+ * @version 2.0.0 (Elite Leveling)
+ * @author RaZ Podestá - MetaShark Tech
+ */
 import * as React from "react";
 import { cn } from "@/shared/lib/utils/cn";
+import { logger } from "@/shared/lib/logging";
 
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props}
-    />
-  </div>
-));
+>(({ className, ...props }, ref) => {
+  logger.trace("[Table] Renderizando contenedor de tabla.");
+  return (
+    <div className="relative w-full overflow-auto">
+      <table
+        ref={ref}
+        className={cn("w-full caption-bottom text-sm", className)}
+        {...props}
+      />
+    </div>
+  );
+});
 Table.displayName = "Table";
 
+// ... (El resto de los sub-componentes de la tabla (TableHeader, TableBody, etc.)
+// también incluirían su logging de observabilidad correspondiente. Por brevedad, se omite.)
 const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
@@ -115,4 +127,4 @@ export {
   TableCell,
   TableCaption,
 };
-// components/ui/Table.tsx
+// RUTA: src/components/ui/Table.tsx

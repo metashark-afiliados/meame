@@ -1,12 +1,12 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step2_Layout/_components/LayoutCanvas.tsx
+// RUTA: src/components/features/campaign-suite/Step2_Layout/_components/LayoutCanvas.tsx
 /**
  * @file LayoutCanvas.tsx
- * @description Aparato atómico para el lienzo de layout reordenable, ahora con
- *              feedback visual gamificado (MEA/UX) para "Combos Estratégicos".
- * @version 2.0.0 (Strategic Combo Feedback)
+ * @description Aparato atómico para el lienzo de layout reordenable, restaurado y nivelado.
+ * @version 2.2.0 (Code Regression Restoration & Elite Leveling)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
+
 import React from "react";
 import {
   SortableContext,
@@ -16,19 +16,26 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { motion, AnimatePresence } from "framer-motion";
 import type { LayoutConfigItem } from "@/shared/lib/types/campaigns/draft.types";
-import { Button } from "@/components/ui/Button";
-import { DynamicIcon } from "@/components/ui/DynamicIcon";
+import { Button, DynamicIcon } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
 import { cn } from "@/shared/lib/utils/cn";
 
+/**
+ * @interface SortableItemProps
+ * @description Contrato de props para el sub-componente interno SortableItem.
+ */
 interface SortableItemProps {
   id: string;
-  isComboPart: boolean; // Prop para saber si es parte de un combo
-  isLastItem: boolean; // Prop para no renderizar el conector en el último ítem
-  isNextItemInCombo: boolean; // Prop para saber si el siguiente ítem también es del combo
+  isComboPart: boolean;
+  isLastItem: boolean;
+  isNextItemInCombo: boolean;
   onRemove: (id: string) => void;
 }
 
+/**
+ * @component SortableItem
+ * @description Sub-componente de presentación puro que representa un ítem arrastrable.
+ */
 function SortableItem({
   id,
   isComboPart,
@@ -36,6 +43,7 @@ function SortableItem({
   isNextItemInCombo,
   onRemove,
 }: SortableItemProps) {
+  logger.trace(`[SortableItem] Renderizando para: ${id}`);
   const {
     attributes,
     listeners,
@@ -61,7 +69,7 @@ function SortableItem({
       transition={{ duration: 0.25, ease: "easeInOut" }}
       className={cn(
         "relative flex items-center justify-between p-3 border rounded-md bg-background shadow-sm touch-none transition-all duration-300",
-        isComboPart && "border-primary ring-2 ring-primary/50" // Resaltado de ítem en combo
+        isComboPart && "border-primary ring-2 ring-primary/50"
       )}
       {...attributes}
       {...listeners}
@@ -76,8 +84,6 @@ function SortableItem({
       <Button variant="ghost" size="icon" onClick={() => onRemove(id)}>
         <DynamicIcon name="X" className="h-4 w-4 text-destructive" />
       </Button>
-
-      {/* --- MEA/UX: Conector Estratégico --- */}
       {!isLastItem && (
         <div className="absolute left-5 -bottom-3 h-3 w-0.5 bg-border">
           {isNextItemInCombo && (
@@ -96,9 +102,10 @@ function SortableItem({
 
 interface LayoutCanvasProps {
   activeLayout: LayoutConfigItem[];
-  comboSections: Set<string>; // Prop para recibir los combos detectados
+  comboSections: Set<string>;
   onRemoveSection: (sectionName: string) => void;
   title: string;
+  emptyCanvasText: string;
 }
 
 export function LayoutCanvas({
@@ -106,8 +113,9 @@ export function LayoutCanvas({
   comboSections,
   onRemoveSection,
   title,
+  emptyCanvasText,
 }: LayoutCanvasProps) {
-  logger.trace("[LayoutCanvas] Renderizando lienzo de layout (v2.0 - MEA).");
+  logger.trace("[LayoutCanvas] Renderizando lienzo v2.2 (Restored).");
   return (
     <div className="md:col-span-2 p-4 border rounded-lg bg-muted/20 min-h-[400px]">
       <h3 className="font-semibold mb-4">{title}</h3>
@@ -141,7 +149,7 @@ export function LayoutCanvas({
                 animate={{ opacity: 1 }}
                 className="text-sm text-muted-foreground text-center py-10"
               >
-                Arrastra o añade secciones aquí para construir tu layout.
+                {emptyCanvasText}
               </motion.p>
             )}
           </div>
@@ -150,4 +158,4 @@ export function LayoutCanvas({
     </div>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step2_Layout/_components/LayoutCanvas.tsx
+// RUTA: src/components/features/campaign-suite/Step2_Layout/_components/LayoutCanvas.tsx

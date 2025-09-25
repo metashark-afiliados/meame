@@ -1,9 +1,10 @@
-// shared/lib/dev/preview-renderers/StandardFooter.preview.tsx
+// RUTA: src/shared/lib/dev/preview-renderers/StandardHeader.preview.tsx
 /**
- * @file StandardFooter.preview.tsx
- * @description Renderizador de previsualización atómico, purificado y desacoplado.
- *              Consume la utilidad SSoT `getStyleFromTheme` para su estilizado.
- * @version 3.0.0 (Decoupled & Pure)
+ * @file StandardHeader.preview.tsx
+ * @description Renderizador de previsualización atómico, purificado y desacoplado
+ *              para el componente StandardHeader. Consume la SSoT de estilos para
+ *              un theming completo. Cumple con los 7 Pilares de Calidad.
+ * @version 4.0.0 (Module Export Fix & Theming Integration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import * as React from "react";
@@ -13,134 +14,68 @@ import { logger } from "@/shared/lib/logging";
 import { getStyleFromTheme } from "./_utils";
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
 
-export const StandardFooterPreview: PreviewRenderer = async (
+export const StandardHeaderPreview: PreviewRenderer = async (
   locale,
   theme: AssembledTheme
 ): Promise<PreviewRenderResult | null> => {
+  // Pilar III (Observabilidad)
   logger.trace(
-    `[StandardFooter.preview] Renderizando para locale: ${locale} (v3.0)`
+    `[StandardHeader.preview] Renderizando para locale: ${locale} (v4.0)`
   );
   const { dictionary } = await getEdgeDictionary(locale);
-  const content = dictionary.footer;
-
+  // Pilar I (i18n): Guardia de resiliencia
+  const content = dictionary.header;
   if (!content) return null;
 
-  // El componente ahora solo invoca a la SSoT de transformación de estilos.
+  // Pilar II (Theming): Consume la SSoT de transformación de estilos
   const styles = getStyleFromTheme(theme);
 
   return {
     jsx: (
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
           width: "100%",
           height: "100%",
-          // --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "1rem 2rem",
+          backgroundColor: styles.backgroundColor,
+          color: styles.color,
           fontFamily: styles.fontFamily,
-          backgroundColor: styles.mutedBackgroundColor,
-          color: styles.mutedForegroundColor,
           border: `1px solid ${styles.borderColor}`,
-          // --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
           borderRadius: "0.5rem",
-          padding: "2rem",
         }}
       >
-        <div
+        <span
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-            borderBottom: `1px solid ${styles.borderColor}`,
-            paddingBottom: "2rem",
+            fontWeight: "bold",
+            fontSize: "1.125rem",
+            color: styles.primaryColor,
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", width: "33.33%" }}>
-            <span style={{ fontWeight: "600", color: styles.color }}>
-              {content.newsletter.title}
-            </span>
-            <span style={{ fontSize: "0.75rem", marginTop: "0.5rem" }}>
-              {content.newsletter.description}
-            </span>
-            <div style={{ display: "flex", marginTop: "1rem" }}>
-              <div
-                style={{
-                  flexGrow: 1,
-                  backgroundColor: styles.backgroundColor,
-                  height: "2rem",
-                  borderRadius: "0.375rem 0 0 0.375rem",
-                }}
-              />
-              <div
-                style={{
-                  backgroundColor: styles.primaryColor,
-                  color: styles.primaryForegroundColor,
-                  height: "2rem",
-                  padding: "0 1rem",
-                  display: "flex",
-                  alignItems: "center",
-                  fontSize: "0.75rem",
-                  borderRadius: "0 0.375rem 0.375rem 0",
-                }}
-              >
-                {content.newsletter.buttonText}
-              </div>
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: "2rem" }}>
-            {content.linkColumns.map((col) => (
-              <div key={col.title} style={{ display: "flex", flexDirection: "column" }}>
-                <span
-                  style={{
-                    fontWeight: "600",
-                    marginBottom: "0.5rem",
-                    color: styles.color,
-                  }}
-                >
-                  {col.title}
-                </span>
-                {col.links.map((link) => (
-                  <span key={link.label} style={{ fontSize: "0.75rem" }}>
-                    {link.label}
-                  </span>
-                ))}
-              </div>
-            ))}
-          </div>
+          {content.logoAlt}
+        </span>
+        <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.875rem" }}>
+          {content.navLinks.map((link) => (
+            <span key={link.label}>{link.label}</span>
+          ))}
         </div>
         <div
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-            paddingTop: "1rem",
-            fontSize: "0.75rem",
+            backgroundColor: styles.primaryColor,
+            color: styles.primaryForegroundColor,
+            padding: "0.5rem 1rem",
+            borderRadius: "0.375rem",
+            fontSize: "0.875rem",
+            fontWeight: 500,
           }}
         >
-          <span>{content.copyright}</span>
-          <div style={{ display: "flex", gap: "1rem" }}>
-            <div
-              style={{
-                width: "1rem",
-                height: "1rem",
-                borderRadius: "9999px",
-                backgroundColor: styles.mutedBackgroundColor,
-              }}
-            />
-            <div
-              style={{
-                width: "1rem",
-                height: "1rem",
-                borderRadius: "9999px",
-                backgroundColor: styles.mutedBackgroundColor,
-              }}
-            />
-          </div>
+          {content.ctaButton.label}
         </div>
       </div>
     ),
     width: 1200,
-    height: 250,
+    height: 84,
   };
 };
-// shared/lib/dev/preview-renderers/StandardFooter.preview.tsx
