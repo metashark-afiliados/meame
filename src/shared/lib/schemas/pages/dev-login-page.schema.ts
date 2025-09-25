@@ -2,7 +2,7 @@
 /**
  * @file dev-login-page.schema.ts
  * @description SSoT para el contrato de datos i18n del dominio de login del DCC.
- * @version 5.0.0 (Forgot Password & Last Sign-In UI Content)
+ * @version 6.0.0 (Password Visibility Toggle & MEA/UX)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
@@ -23,7 +23,6 @@ export const DevLoginPageContentSchema = z.object({
   backgroundImageAssetId: z
     .string()
     .min(1, "Se requiere un assetId para la imagen de fondo."),
-  // --- [INICIO DE NUEVOS CONTRATOS] ---
   forgotPassword: z.object({
     modalTitle: z.string(),
     modalDescription: z.string(),
@@ -38,7 +37,10 @@ export const DevLoginPageContentSchema = z.object({
     location: z.string().includes("{{location}}"),
     ip: z.string().includes("{{ip}}"),
   }),
-  // --- [FIN DE NUEVOS CONTRATOS] ---
+  // --- [INICIO DE MEJORA DE CONTRATO] ---
+  showPasswordAriaLabel: z.string(),
+  hidePasswordAriaLabel: z.string(),
+  // --- [FIN DE MEJORA DE CONTRATO] ---
 });
 
 export const DevLoginPageLocaleSchema = z.object({

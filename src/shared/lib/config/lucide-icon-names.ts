@@ -1,11 +1,11 @@
-// config/lucide-icon-names.ts
+// RUTA: src/shared/lib/config/lucide-icon-names.ts
 /**
  * @file lucide-icon-names.ts
  * @description Manifiesto de Nombres de Iconos de Lucide y SSoT.
  *              ESTE ARCHIVO ES GENERADO AUTOMÁTICAMENTE. NO LO EDITE MANUALMENTE.
  *              Ejecute 'pnpm gen:icons' para actualizarlo.
  * @author Script de Generación Automática
- * @version 2025-09-17T23:25:06.808Z
+ * @version 2025-09-25T04:11:20.882Z
  */
 import { z } from "zod";
 
@@ -1472,7 +1472,7 @@ export const lucideIconNames = [
   "ZapOff",
   "Zap",
   "ZoomIn",
-  "ZoomOut",
+  "ZoomOut"
 ] as const;
 
 export const LucideIconNameSchema = z.enum(lucideIconNames);

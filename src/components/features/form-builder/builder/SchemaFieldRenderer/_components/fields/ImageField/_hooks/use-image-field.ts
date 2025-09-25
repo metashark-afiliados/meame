@@ -1,27 +1,28 @@
-// RUTA: components/forms/builder/SchemaFieldRenderer/_components/fields/ImageField/_hooks/use-image-field.ts
+// RUTA: src/components/features/form-builder/builder/SchemaFieldRenderer/_components/fields/ImageField/_hooks/use-image-field.ts
 /**
  * @file use-image-field.ts
  * @description Hook "cerebro" puro para la lógica de acciones del ImageField.
- *              v3.2.0 (Module Resolution Fix): Corrige la ruta de importación
- *              de `useCampaignDraft` para alinearse con la SSoT de nomenclatura.
- * @version 3.2.0
+ *              v4.0.0 (Holistic & Sovereign Path Restoration): Se realinean
+ *              todas las importaciones a sus SSoT canónicas según la ACS,
+ *              resolviendo errores críticos de build.
+ * @version 4.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-// --- [INICIO DE CORRECCIÓN DE INTEGRIDAD] ---
-import { useCampaignDraft } from "@/app/[locale]/(dev)/dev/campaign-suite/_hooks/use-campaign-draft";
-// --- [FIN DE CORRECCIÓN DE INTEGRIDAD] ---
-import { saveCampaignAssetAction } from "@/shared/lib/actions/campaign-suite/saveCampaignAsset.action";
+import { useCampaignDraft } from "@/shared/hooks/campaign-suite/use-campaign-draft";
+import { saveCampaignAssetAction } from "@/shared/lib/actions/campaign-suite";
 import type { BaviAsset } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 import type { FieldValues, Path } from "react-hook-form";
+import { logger } from "@/shared/lib/logging";
 
 export function useImageField<TFieldValues extends FieldValues>(
   onValueChange: (field: Path<TFieldValues>, value: unknown) => void,
   fieldName: Path<TFieldValues>
 ) {
+  logger.trace("[useImageField] Inicializando hook v4.0 (Sovereign Paths).");
   const { draft } = useCampaignDraft();
   const [isUploading, setIsUploading] = useState(false);
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
@@ -30,7 +31,7 @@ export function useImageField<TFieldValues extends FieldValues>(
     async (formData: FormData) => {
       if (!draft.baseCampaignId || !draft.draftId) {
         toast.error("Error de contexto", {
-          description: "ID de borrador no encontrado.",
+          description: "ID de borrador no encontrado. Guarda el Paso 0.",
         });
         return;
       }
@@ -59,12 +60,15 @@ export function useImageField<TFieldValues extends FieldValues>(
 
   const handleAssetSelected = useCallback(
     (asset: BaviAsset) => {
-      const publicId = asset.variants[0]?.publicId;
-      if (!publicId) {
-        toast.error("Activo inválido");
+      const primaryVariant = asset.variants.find((v) => v.state === "orig");
+      if (!primaryVariant?.publicId) {
+        toast.error("Activo inválido", {
+          description:
+            "El activo seleccionado no tiene una variante principal válida.",
+        });
         return;
       }
-      const imageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${publicId}`;
+      const imageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${primaryVariant.publicId}`;
       onValueChange(fieldName, imageUrl);
       setIsSelectorOpen(false);
       toast.success(`Activo "${asset.assetId}" seleccionado.`);

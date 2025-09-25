@@ -1,4 +1,4 @@
-// shared/lib/resend/index.ts
+// RUTA: src/shared/lib/services/resend/index.ts
 /**
  * @file index.ts
  * @description Capa de Acceso a Datos (DAL) soberana para Resend.
@@ -13,7 +13,7 @@ import { logger } from "@/shared/lib/logging";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import type React from "react";
 
-// --- Guardias de Configuración ---
+// --- Pilar VI: Guardia de Configuración a Nivel de Módulo ---
 if (!process.env.RESEND_API_KEY) {
   throw new Error(
     "Error Crítico de Arquitectura: La variable de entorno RESEND_API_KEY no está definida."
@@ -43,7 +43,10 @@ export async function sendEmail(
   reactElement: React.ReactElement
 ): Promise<ActionResult<{ emailId: string }>> {
   const traceId = logger.startTrace("resendDal.sendEmail");
-  logger.info(`[Resend DAL] Intentando enviar email a: ${to}`, { subject });
+  logger.info(`[Resend DAL] Intentando enviar email a: ${to}`, {
+    subject,
+    traceId,
+  });
 
   try {
     const { data, error } = await resend.emails.send({
@@ -54,7 +57,6 @@ export async function sendEmail(
     });
 
     if (error) {
-      // Si la API de Resend devuelve un error controlado.
       logger.error("[Resend DAL] La API de Resend devolvió un error.", {
         error,
         traceId,
@@ -63,7 +65,6 @@ export async function sendEmail(
     }
 
     if (!data?.id) {
-      // Caso improbable, pero es una guardia de seguridad.
       throw new Error("La API de Resend no devolvió un ID de email.");
     }
 
@@ -72,7 +73,6 @@ export async function sendEmail(
     });
     return { success: true, data: { emailId: data.id } };
   } catch (error) {
-    // Para errores de red o excepciones inesperadas.
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
     logger.error("[Resend DAL] Fallo crítico al intentar enviar el email.", {
@@ -87,4 +87,3 @@ export async function sendEmail(
     logger.endTrace(traceId);
   }
 }
-// shared/lib/resend/index.ts

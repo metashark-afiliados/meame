@@ -1,22 +1,34 @@
-// Ruta correcta: src/shared/lib/commerce/cart.ts
+// RUTA: src/shared/lib/commerce/cart.ts
 /**
  * @file cart.ts
  * @description Capa de datos del lado del servidor para obtener el carrito.
- * @version 2.2.0 (Architectural Realignment)
+ *              Actúa como un orquestador que consume la DAL de Shopify.
+ * @version 3.0.0 (Holistic Elite Leveling)
  * @author RaZ Podestá - MetaShark Tech
  */
 import "server-only";
 import { cookies } from "next/headers";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { getShopifyCart } from "@/shared/lib/shopify";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import type { Cart } from "@/shared/lib/shopify/types";
+import { logger } from "@/shared/lib/logging";
 
+/**
+ * @function getCart
+ * @description Obtiene el carrito del usuario actual basándose en la cookie 'cartId'.
+ *              Si no hay cookie, devuelve undefined.
+ * @returns {Promise<Cart | undefined>} El objeto del carrito o undefined.
+ */
 export async function getCart(): Promise<Cart | undefined> {
+  logger.trace("[Commerce/cart] Obteniendo carrito desde la cookie...");
   const cartId = cookies().get("cartId")?.value;
+
   if (!cartId) {
+    logger.trace("[Commerce/cart] No se encontró 'cartId' en las cookies.");
     return undefined;
   }
+
+  logger.trace(
+    `[Commerce/cart] Se encontró 'cartId': ${cartId}. Invocando la DAL de Shopify.`
+  );
   return getShopifyCart(cartId);
 }
-// Ruta correcta: src/shared/lib/commerce/cart.ts

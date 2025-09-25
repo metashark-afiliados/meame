@@ -4,12 +4,14 @@
  * @description Orquestador de UI para autenticación, inyectado con MEA/UX de élite.
  *              Gestiona la vista (login/registro) y renderiza el formulario
  *              correspondiente con animaciones y efecto 3D.
- * @version 2.0.0 (MEA/UX Injection)
+ *              v2.1.0 (Syntax Integrity Restoration): Corrige un error crítico de
+ *              importación que rompía el build.
+ * @version 2.1.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import React, "useState" from "react";
+import React, { useState } from "react"; // <-- CORRECCIÓN APLICADA AQUÍ
 import { AnimatePresence, motion } from "framer-motion";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { LoginForm } from "./_components/LoginForm";
@@ -28,7 +30,15 @@ export function AuthForm({ content, locale }: AuthFormProps) {
   const [view, setView] = useState<"login" | "signup">("login");
 
   return (
-    <TiltCard options={{ max: 5, scale: 1.01, speed: 500, glare: true, "max-glare": 0.1 }}>
+    <TiltCard
+      options={{
+        max: 5,
+        scale: 1.01,
+        speed: 500,
+        glare: true,
+        "max-glare": 0.1,
+      }}
+    >
       <AnimatePresence mode="wait">
         <motion.div
           key={view}

@@ -1,21 +1,14 @@
 // scripts/diagnostics/_utils.ts
 /**
  * @file _utils.ts
- * @description Utilidad compartida para cargar y validar el entorno para scripts de diagnóstico.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description Helper de utilidad compartido para los scripts de diagnóstico.
+ * @author Raz Podestá - MetaShark Tech
+ * @version 2.0.0 (ESM Import Fix)
  */
 import chalk from "chalk";
-import dotenv from "dotenv";
-import path from "path";
+import * as dotenv from "dotenv";
+import * as path from "path";
 
-/**
- * @function loadEnvironment
- * @description Carga las variables desde .env.local y valida la existencia de un
- *              conjunto de claves requeridas.
- * @param {string[]} requiredKeys - Un array de claves que deben existir en process.env.
- * @throws {Error} Si alguna de las claves requeridas no está definida.
- */
 export function loadEnvironment(requiredKeys: string[]): void {
   dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
@@ -31,4 +24,3 @@ export function loadEnvironment(requiredKeys: string[]): void {
     process.exit(1);
   }
 }
-// scripts/diagnostics/_utils.ts

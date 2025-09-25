@@ -1,13 +1,17 @@
-// RUTA: shared/lib/schemas/entities/product.schema.ts
+// RUTA: src/shared/lib/schemas/entities/product.schema.ts
 /**
  * @file product.schema.ts
- * @description SSoT para el contrato de datos de la entidad Producto v2.0.
- *              Esta versión introduce sub-schemas para Opciones y Variantes,
- *              estableciendo un contrato robusto para productos complejos.
- * @version 2.0.0
+ * @description SSoT para el contrato de datos de la entidad Producto v2.1.
+ *              Esta versión añade el campo 'description' para una representación
+ *              completa de los datos del producto.
+ * @version 2.1.0
  * @author RaZ Podestá - MetaShark Tech
  */
+import "server-only";
 import { z } from "zod";
+import { logger } from "@/shared/lib/logging";
+
+logger.trace("[Schema] Definiendo contrato para la entidad Producto v2.1.");
 
 const InventorySchema = z.object({
   total: z.number().int().min(0),
@@ -35,29 +39,17 @@ const TargetProfileSchema = z.object({
   ageRange: z.string().optional(),
 });
 
-/**
- * @const ProductOptionSchema
- * @description Define una opción configurable de un producto (ej. "Color", "Talla").
- */
 export const ProductOptionSchema = z.object({
   id: z.string(),
   name: z.string(),
   values: z.array(z.string()),
 });
 
-/**
- * @const SelectedOptionSchema
- * @description Define una opción específica seleccionada para una variante.
- */
 export const SelectedOptionSchema = z.object({
   name: z.string(),
   value: z.string(),
 });
 
-/**
- * @const ProductVariantSchema
- * @description Define una variante específica de un producto (una combinación de opciones).
- */
 export const ProductVariantSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -69,13 +61,13 @@ export const ProductVariantSchema = z.object({
   }),
 });
 
-/**
- * @description El schema principal y soberano para la entidad Producto.
- */
 export const ProductSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   slug: z.string().min(1),
+  // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+  description: z.string().optional(), // La descripción ahora es parte del contrato.
+  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
   price: z.number().positive(),
   currency: z.string().length(3).default("EUR"),
   isBestseller: z.boolean().optional(),

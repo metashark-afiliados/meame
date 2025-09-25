@@ -1,10 +1,9 @@
-// RUTA: app/[locale]/(dev)/raz-prompts/_components/PromptCreatorForm.tsx
+// RUTA: src/components/features/raz-prompts/_components/PromptCreatorForm.tsx
 /**
  * @file PromptCreatorForm.tsx
  * @description Orquestador de presentación puro y de élite para el formulario
- *              de creación de prompts. Compone aparatos atómicos para una
- *              arquitectura soberana y de responsabilidad única.
- * @version 4.0.0 (Atomic Architecture & MEA/UX)
+ *              de creación de prompts.
+ * @version 5.0.0 (Atomic Refactoring)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -30,14 +29,14 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui";
+import { FormFieldGroup } from "@/components/forms/FormFieldGroup";
 import { SesaTagsFormGroup } from "./SesaTagsFormGroup";
-import { ParameterSelectorsGroup } from "./ParameterSelectorsGroup"; // <-- NUEVA IMPORTACIÓN
+import { ParameterSelectorsGroup } from "./ParameterSelectorsGroup";
 import type { CreatePromptFormData } from "@/shared/hooks/raz-prompts/use-prompt-creator";
 import type { PromptCreatorContentSchema } from "@/shared/lib/schemas/raz-prompts/prompt-creator.i18n.schema";
 import type { z } from "zod";
 import { logger } from "@/shared/lib/logging";
 
-// --- SSoT de Tipos y Animaciones ---
 type Content = z.infer<typeof PromptCreatorContentSchema>;
 
 interface PromptCreatorFormProps {
@@ -57,7 +56,6 @@ const fieldVariants: Variants = {
   visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } },
 };
 
-// --- Componente de Élite ---
 export function PromptCreatorForm({
   form,
   onSubmit,
@@ -65,7 +63,7 @@ export function PromptCreatorForm({
   content,
 }: PromptCreatorFormProps) {
   logger.trace(
-    "[PromptCreatorForm] Renderizando orquestador de formulario v4.0."
+    "[PromptCreatorForm] Renderizando orquestador de formulario v5.0."
   );
   return (
     <Card>
@@ -82,6 +80,7 @@ export function PromptCreatorForm({
             initial="hidden"
             animate="visible"
           >
+            {/* ... otros FormField ... */}
             <motion.div variants={fieldVariants}>
               <FormField
                 control={form.control}
@@ -141,24 +140,26 @@ export function PromptCreatorForm({
               />
             </motion.div>
 
+            {/* --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] --- */}
             <motion.div variants={fieldVariants}>
-              <SesaTagsFormGroup
-                control={form.control}
-                content={{
-                  ...content.sesaLabels,
-                  options: content.sesaOptions,
-                }}
-              />
+              <FormFieldGroup label={content.tagsGroupLabel}>
+                <SesaTagsFormGroup
+                  control={form.control}
+                  content={{
+                    ...content.sesaLabels,
+                    options: content.sesaOptions,
+                  }}
+                />
+              </FormFieldGroup>
             </motion.div>
+            {/* --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] --- */}
 
-            {/* --- INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA --- */}
             <motion.div variants={fieldVariants}>
               <ParameterSelectorsGroup
                 control={form.control}
                 content={content}
               />
             </motion.div>
-            {/* --- FIN DE REFACTORIZACIÓN ARQUITECTÓNICA --- */}
 
             <motion.div variants={fieldVariants}>
               <FormField

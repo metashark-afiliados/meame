@@ -2,7 +2,7 @@
 /**
  * @file index.ts (Barrel File)
  * @description Fachada pública para las Server Actions del dominio CogniRead.
- * @version 1.0.0
+ * @version 2.0.0 (Cache Engine Actions)
  * @author RaZ Podestá - MetaShark Tech
  */
 export * from "./createOrUpdateArticle.action";
@@ -12,3 +12,5 @@ export * from "./getArticleBySlug.action";
 export * from "./getCommentsByArticleId.action";
 export * from "./getPublishedArticles.action";
 export * from "./postComment.action";
+export * from "./getArticlesIndex.action";
+export * from "./getArticlesByIds.action";

@@ -4,7 +4,7 @@
  * @description Componente de presentación puro y de élite para la Bóveda de Prompts.
  *              Este aparato es 100% data-driven y no tiene conocimiento de la
  *              lógica de estado, cumpliendo con la máxima atomización.
- * @version 1.0.0
+ * @version 2.0.0 (API Contract Alignment)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -23,8 +23,8 @@ import { VaultFilters } from "./VaultFilters";
 import { VaultPagination } from "./VaultPagination";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { usePromptVault } from "@/shared/hooks/raz-prompts/use-prompt-vault";
+import { logger } from "@/shared/lib/logging";
 
-// --- SSoT de Tipos y Animaciones ---
 type HookState = ReturnType<typeof usePromptVault>;
 interface PromptVaultDisplayProps extends HookState {
   onViewDetails: (promptId: string) => void;
@@ -44,7 +44,6 @@ const sectionVariants: Variants = {
   },
 };
 
-// --- Componente de Presentación Puro ---
 export function PromptVaultDisplay({
   prompts,
   isPending,
@@ -60,6 +59,9 @@ export function PromptVaultDisplay({
   content,
   vaultContent,
 }: PromptVaultDisplayProps): React.ReactElement {
+  logger.trace(
+    "[PromptVaultDisplay] Renderizando componente de presentación v2.0."
+  );
   return (
     <motion.div
       variants={sectionVariants}
@@ -102,4 +104,3 @@ export function PromptVaultDisplay({
     </motion.div>
   );
 }
-// RUTA: src/components/features/raz-prompts/_components/PromptVaultDisplay.tsx

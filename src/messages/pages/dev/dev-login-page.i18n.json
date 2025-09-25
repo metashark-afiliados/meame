@@ -14,6 +14,8 @@
       "signUpLink": "Registrati",
       "footerHtml": "Questa è un'area di accesso riservata per sviluppatori e amministratori.",
       "backgroundImageAssetId": "i-bkg-login-abstract-01",
+      "showPasswordAriaLabel": "Mostra password",
+      "hidePasswordAriaLabel": "Nascondi password",
       "forgotPassword": {
         "modalTitle": "Recupera la tua Password",
         "modalDescription": "Inserisci il tuo indirizzo email e ti invieremo un link per reimpostare la tua password.",
@@ -45,6 +47,8 @@
       "signUpLink": "Regístrate",
       "footerHtml": "Esta es una zona de acceso restringido para desarrolladores y administradores.",
       "backgroundImageAssetId": "i-bkg-login-abstract-01",
+      "showPasswordAriaLabel": "Mostrar contraseña",
+      "hidePasswordAriaLabel": "Ocultar contraseña",
       "forgotPassword": {
         "modalTitle": "Recupera tu Contraseña",
         "modalDescription": "Introduce tu dirección de email y te enviaremos un enlace para restablecer tu contraseña.",
@@ -76,6 +80,8 @@
       "signUpLink": "Sign Up",
       "footerHtml": "This is a restricted access area for developers and administrators.",
       "backgroundImageAssetId": "i-bkg-login-abstract-01",
+      "showPasswordAriaLabel": "Show password",
+      "hidePasswordAriaLabel": "Hide password",
       "forgotPassword": {
         "modalTitle": "Recover Your Password",
         "modalDescription": "Enter your email address and we will send you a link to reset your password.",
@@ -107,6 +113,8 @@
       "signUpLink": "Cadastre-se",
       "footerHtml": "Esta é uma área de acesso restrito para desenvolvedores e administradores.",
       "backgroundImageAssetId": "i-bkg-login-abstract-01",
+      "showPasswordAriaLabel": "Mostrar senha",
+      "hidePasswordAriaLabel": "Ocultar senha",
       "forgotPassword": {
         "modalTitle": "Recupere sua Senha",
         "modalDescription": "Digite seu endereço de e-mail e enviaremos um link para redefinir sua senha.",

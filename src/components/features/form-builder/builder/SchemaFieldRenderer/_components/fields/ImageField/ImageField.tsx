@@ -1,8 +1,8 @@
-// components/forms/builder/SchemaFieldRenderer/_components/fields/ImageField/ImageField.tsx
+// RUTA: src/components/features/form-builder/builder/SchemaFieldRenderer/_components/fields/ImageField/ImageField.tsx
 /**
  * @file ImageField.tsx
  * @description Componente de campo de imagen de élite, como un Client Component soberano.
- * @version 9.1.0 (Module Resolution Fix)
+ * @version 10.0.0 (Holistic & Sovereign Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,21 +12,19 @@ import type { FieldValues } from "react-hook-form";
 import { usePathname } from "next/navigation";
 import { logger } from "@/shared/lib/logging";
 import { getCurrentLocaleFromPathname } from "@/shared/lib/utils/i18n/i18n.utils";
-import { getBaviI18nContentAction } from "@/app/[locale]/(dev)/bavi/_actions";
-import type { BaviI18nContent } from "@/app/[locale]/(dev)/bavi/_actions";
+import { getBaviI18nContentAction, type BaviI18nContent } from "@/shared/lib/actions/bavi";
 import type { FieldComponentProps } from "../../../_types/field.types";
 import { useImageField } from "./_hooks/use-image-field";
 import { ImagePreview, ImageFieldActions } from "./_components";
 import { AssetSelectorModal } from "@/components/features/bavi/_components/AssetSelectorModal";
-// --- [INICIO DE CORRECCIÓN DE RUTA] ---
 import { Skeleton } from "@/components/ui";
-// --- [FIN DE CORRECCIÓN DE RUTA] ---
 
 export function ImageField<TFieldValues extends FieldValues>({
   field,
   onValueChange,
   fieldName,
 }: FieldComponentProps<TFieldValues>) {
+  logger.info("[ImageField] Renderizando v10.0 (Sovereign Paths).");
   const [i18nContent, setI18nContent] = useState<BaviI18nContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
@@ -39,7 +37,7 @@ export function ImageField<TFieldValues extends FieldValues>({
       if (result.success) {
         setI18nContent(result.data);
       } else {
-        logger.error("[ImageField] No se pudo cargar el contenido i18n.", {
+        logger.error("[ImageField] No se pudo cargar el contenido i18n para la BAVI.", {
           error: result.error,
         });
       }
@@ -104,4 +102,3 @@ export function ImageField<TFieldValues extends FieldValues>({
     </div>
   );
 }
-// components/forms/builder/SchemaFieldRenderer/_components/fields/ImageField/ImageField.tsx

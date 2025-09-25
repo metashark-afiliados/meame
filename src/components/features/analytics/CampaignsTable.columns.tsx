@@ -2,9 +2,10 @@
 /**
  * @file CampaignsTable.columns.tsx
  * @description SSoT para las definiciones de las columnas de la tabla de analíticas.
- *              v5.0.0 (Holistic Elite Leveling): Resuelve todos los errores de tipo,
- *              SSoT y Reglas de Hooks. Ahora es 100% type-safe e internacionalizado.
- * @version 5.0.0
+ *              v6.0.0 (Icon SSoT Compliance): Se corrige el nombre del icono de
+ *              acciones a 'Ellipsis' para alinearse con el manifiesto de iconos
+ *              soberano (lucide-icon-names.ts), resolviendo un error de tipo TS2820.
+ * @version 6.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -34,10 +35,8 @@ interface ActionsCellProps {
   };
 }
 
-// Componente atómico para la celda de acciones que puede usar hooks.
-// Definido a nivel de módulo para cumplir con las Reglas de los Hooks.
 const ActionsCell = ({ row, content }: ActionsCellProps) => {
-  logger.trace("[ActionsCell] Renderizando celda de acciones.");
+  logger.trace("[ActionsCell] Renderizando celda de acciones v6.0.");
   const campaign = row.original;
   const pathname = usePathname();
   const locale = getCurrentLocaleFromPathname(pathname);
@@ -47,7 +46,10 @@ const ActionsCell = ({ row, content }: ActionsCellProps) => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
           <span className="sr-only">Abrir menú</span>
-          <DynamicIcon name="MoreHorizontal" className="h-4 w-4" />
+          {/* --- [INICIO DE REFACTORIZACIÓN DE SSoT] --- */}
+          {/* Se reemplaza "MoreHorizontal" por el icono canónico "Ellipsis". */}
+          <DynamicIcon name="Ellipsis" className="h-4 w-4" />
+          {/* --- [FIN DE REFACTORIZACIÓN DE SSoT] --- */}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -62,7 +64,6 @@ const ActionsCell = ({ row, content }: ActionsCellProps) => {
   );
 };
 
-// Función de fábrica para generar las columnas, ahora recibe el contenido i18n.
 export const getAnalyticsColumns = (
   content: ActionsCellProps["content"]
 ): ColumnDef<CampaignAnalyticsData>[] => [
@@ -88,4 +89,3 @@ export const getAnalyticsColumns = (
     cell: ({ row }) => <ActionsCell row={row} content={content} />,
   },
 ];
-// RUTA: src/components/features/analytics/CampaignsTable.columns.tsx

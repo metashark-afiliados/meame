@@ -1,0 +1,243 @@
+{
+  "indexes": [
+    {
+      "table": "notifications",
+      "index_name": "notifications_pkey"
+    },
+    {
+      "table": "profiles",
+      "index_name": "profiles_pkey"
+    },
+    {
+      "table": "profiles",
+      "index_name": "profiles_user_id_key"
+    }
+  ],
+  "triggers": [
+    {
+      "event": "UPDATE",
+      "table": "profiles",
+      "timing": "BEFORE",
+      "trigger_name": "on_profile_update"
+    }
+  ],
+  "extensions": [
+    {
+      "name": "plpgsql",
+      "version": "1.0"
+    },
+    {
+      "name": "pg_stat_statements",
+      "version": "1.11"
+    },
+    {
+      "name": "uuid-ossp",
+      "version": "1.1"
+    },
+    {
+      "name": "pgcrypto",
+      "version": "1.3"
+    },
+    {
+      "name": "supabase_vault",
+      "version": "0.3.1"
+    },
+    {
+      "name": "pg_graphql",
+      "version": "1.5.11"
+    }
+  ],
+  "rls_policies": [
+    {
+      "table": "notifications",
+      "command": "UPDATE",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Los usuarios pueden marcar sus notificaciones como leídas"
+    },
+    {
+      "table": "notifications",
+      "command": "SELECT",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Los usuarios pueden ver sus propias notificaciones"
+    },
+    {
+      "table": "profiles",
+      "command": "UPDATE",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Users can update their own profile."
+    },
+    {
+      "table": "profiles",
+      "command": "INSERT",
+      "definition": null,
+      "policy_name": "Users can insert their own profile."
+    },
+    {
+      "table": "profiles",
+      "command": "SELECT",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Users can view their own profile."
+    }
+  ],
+  "schema_columns": [
+    {
+      "type": "uuid",
+      "table": "notifications",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "notifications",
+      "column": "user_id"
+    },
+    {
+      "type": "boolean",
+      "table": "notifications",
+      "column": "is_read"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "notifications",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "profiles",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "profiles",
+      "column": "user_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "profiles",
+      "column": "updated_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "profiles",
+      "column": "last_sign_in_at"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "last_sign_in_location"
+    },
+    {
+      "type": "text",
+      "table": "notifications",
+      "column": "type"
+    },
+    {
+      "type": "text",
+      "table": "notifications",
+      "column": "message"
+    },
+    {
+      "type": "text",
+      "table": "notifications",
+      "column": "link"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "full_name"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "avatar_url"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "last_sign_in_ip"
+    }
+  ],
+  "table_constraints": [
+    {
+      "type": "PRIMARY KEY",
+      "table": "notifications",
+      "constraint_name": "notifications_pkey"
+    },
+    {
+      "type": "CHECK",
+      "table": "notifications",
+      "constraint_name": "notifications_type_check"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "notifications",
+      "constraint_name": "notifications_user_id_fkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "profiles",
+      "constraint_name": "profiles_pkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "profiles",
+      "constraint_name": "profiles_user_id_fkey"
+    },
+    {
+      "type": "UNIQUE",
+      "table": "profiles",
+      "constraint_name": "profiles_user_id_key"
+    },
+    {
+      "type": "CHECK",
+      "table": "notifications",
+      "constraint_name": "2200_21804_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "notifications",
+      "constraint_name": "2200_21804_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "notifications",
+      "constraint_name": "2200_21804_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "notifications",
+      "constraint_name": "2200_21804_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "profiles",
+      "constraint_name": "2200_21735_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "profiles",
+      "constraint_name": "2200_21735_2_not_null"
+    }
+  ],
+  "functions_and_procedures": [
+    {
+      "name": "handle_profile_update",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "update_user_last_sign_in",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "sync_last_sign_in",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "get_content_diagnostics",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "get_system_diagnostics",
+      "type": "FUNCTION"
+    }
+  ]
+}

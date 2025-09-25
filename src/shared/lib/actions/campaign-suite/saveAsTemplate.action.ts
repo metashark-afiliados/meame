@@ -1,8 +1,8 @@
-// Ruta correcta: src/shared/lib/actions/campaign-suite/saveAsTemplate.action.ts
+// RUTA: src/shared/lib/actions/campaign-suite/saveAsTemplate.action.ts
 /**
  * @file saveAsTemplate.action.ts
  * @description Server Action para persistir un borrador de campaña como una plantilla reutilizable.
- * @version 2.1.0 (Holistic Path & Type Safety Restoration)
+ * @version 2.2.0 (Holistic Contract & Type Safety Alignment)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -29,8 +29,8 @@ export async function saveAsTemplateAction(
   name: string,
   description: string
 ): Promise<ActionResult<{ templateId: string }>> {
-  const traceId = logger.startTrace("saveAsTemplateAction_v2.1");
-  logger.info("[Action] Guardando borrador como plantilla v2.1...", {
+  const traceId = logger.startTrace("saveAsTemplateAction_v2.2");
+  logger.info("[Action] Guardando borrador como plantilla v2.2...", {
     name,
     draftId: draft.draftId,
   });
@@ -57,18 +57,22 @@ export async function saveAsTemplateAction(
       return { success: false, error: "El borrador contiene datos corruptos." };
     }
 
-    const now = new Date().toISOString();
+    const now = new Date();
     const templateDocument: CampaignTemplate = {
       id: createId(),
       name: inputValidation.data.name,
-      description: inputValidation.data.description || undefined, // Asigna undefined si está vacío
-      createdAt: new Date(now),
-      draftData: draftValidation.data,
+      description: inputValidation.data.description || undefined,
+      createdAt: now,
+      // --- [INICIO DE CORRECCIÓN DE CONTRATO] ---
+      // El campo 'sourceCampaignId' ahora es parte del contrato y se puebla correctamente.
       sourceCampaignId: draft.baseCampaignId || "unknown",
+      // --- [FIN DE CORRECCIÓN DE CONTRATO] ---
+      draftData: draftValidation.data,
     };
 
     const finalValidation = CampaignTemplateSchema.safeParse(templateDocument);
     if (!finalValidation.success) {
+      // Esta es una guardia de seguridad interna, no debería fallar si la lógica es correcta.
       throw new Error(
         `El documento de plantilla final no superó la validación: ${finalValidation.error.message}`
       );
@@ -100,4 +104,3 @@ export async function saveAsTemplateAction(
     logger.endTrace(traceId);
   }
 }
-// Ruta correcta: src/shared/lib/actions/campaign-suite/saveAsTemplate.action.ts

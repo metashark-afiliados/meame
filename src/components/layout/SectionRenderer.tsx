@@ -3,11 +3,14 @@
  * @file SectionRenderer.tsx
  * @description Motor de renderizado de élite. Actúa como un despachador dinámico
  *              que mapea nombres de sección a sus componentes React reales.
- * @version 17.0.0 (Holistic Integrity Restoration)
+ * @version 18.0.0 (Union Type Contract & Holistic Integrity)
  * @author RaZ Podestá - MetaShark Tech
  */
 import * as React from "react";
-import { sectionsConfig, type SectionName } from "@/shared/lib/config/sections.config";
+import {
+  sectionsConfig,
+  type SectionName,
+} from "@/shared/lib/config/sections.config";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
@@ -15,17 +18,25 @@ import { ValidationError } from "@/components/ui/ValidationError";
 import { SectionAnimator } from "./SectionAnimator";
 import * as Sections from "@/components/sections";
 
-// Pilar I: Contrato de tipo soberano y seguro para los componentes de sección.
-type GenericSectionComponent = React.ForwardRefExoticComponent<
-  {
-    content: Record<string, unknown>;
-    locale: Locale;
-    isFocused?: boolean;
-  } & React.RefAttributes<HTMLElement>
->;
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: CONTRATO DE UNIÓN] ---
+// Se define un contrato de props genérico que todos los componentes deben satisfacer.
+type GenericSectionProps = {
+  content: any; // La validación real la hace Zod en tiempo de ejecución.
+  locale: Locale;
+  isFocused?: boolean;
+};
 
-// El mapa se alinea 100% con las claves exportadas por `sectionsConfig`.
+// Se define un tipo de unión que acepta tanto componentes de función simples
+// como componentes que utilizan React.forwardRef.
+type GenericSectionComponent =
+  | React.FunctionComponent<GenericSectionProps>
+  | React.ForwardRefExoticComponent<
+      GenericSectionProps & React.RefAttributes<HTMLElement>
+    >;
+
+// El mapa de componentes ahora se valida contra este nuevo tipo de unión robusto.
 const componentMap: Record<SectionName, GenericSectionComponent> = {
+  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
   BenefitsSection: Sections.BenefitsSection,
   CommunitySection: Sections.CommunitySection,
   ContactSection: Sections.ContactSection,
@@ -41,6 +52,7 @@ const componentMap: Record<SectionName, GenericSectionComponent> = {
   OrderSection: Sections.OrderSection,
   PricingSection: Sections.PricingSection,
   ProductShowcase: Sections.ProductShowcase,
+  ScrollingBanner: Sections.ScrollingBanner, // <-- PROPIEDAD AÑADIDA
   ServicesSection: Sections.ServicesSection,
   SocialProofLogos: Sections.SocialProofLogos,
   SponsorsSection: Sections.SponsorsSection,
@@ -49,6 +61,8 @@ const componentMap: Record<SectionName, GenericSectionComponent> = {
   TestimonialGrid: Sections.TestimonialGrid,
   TextSection: Sections.TextSection,
   ThumbnailCarousel: Sections.ThumbnailCarousel,
+  ArticleBody: Sections.ArticleBody,
+  CommentSection: Sections.CommentSection,
 };
 
 interface SectionRendererProps {
@@ -66,7 +80,9 @@ export function SectionRenderer({
   focusedSection = null,
   sectionRefs,
 }: SectionRendererProps): React.ReactElement {
-  logger.info("[SectionRenderer v17.0] Ensamblando página con despachador dinámico restaurado.");
+  logger.info(
+    "[SectionRenderer v18.0] Ensamblando página con contrato de unión."
+  );
 
   const renderSection = (section: { name: string }, index: number) => {
     const sectionName = section.name as SectionName;
@@ -74,8 +90,10 @@ export function SectionRenderer({
     const Component = componentMap[sectionName];
 
     if (!config || !Component) {
-      logger.warn(`[SectionRenderer] Configuración o Componente para "${sectionName}" no encontrado.`);
-      return null; // Lógica de retorno restaurada
+      logger.warn(
+        `[SectionRenderer] Configuración o Componente para "${sectionName}" no encontrado.`
+      );
+      return null;
     }
 
     const { dictionaryKey, schema } = config;
@@ -83,8 +101,10 @@ export function SectionRenderer({
     const validation = schema.safeParse(contentData);
 
     if (!validation.success) {
-      if (process.env.NODE_ENV === "development" && dictionary.validationError) {
-        // Invocación correcta de ValidationError
+      if (
+        process.env.NODE_ENV === "development" &&
+        dictionary.validationError
+      ) {
         return (
           <ValidationError
             key={`${sectionName}-${index}-error`}
@@ -94,11 +114,12 @@ export function SectionRenderer({
           />
         );
       }
-      logger.error(`[SectionRenderer] Fallo de validación para '${sectionName}'. No se renderizará.`);
-      return null; // Lógica de retorno restaurada
+      logger.error(
+        `[SectionRenderer] Fallo de validación para '${sectionName}'. No se renderizará.`
+      );
+      return null;
     }
 
-    // Lógica de props restaurada
     const componentProps = {
       content: validation.data,
       locale: locale,
@@ -112,7 +133,9 @@ export function SectionRenderer({
       },
     };
 
-    logger.trace(`[SectionRenderer] Renderizando sección #${index + 1}: ${sectionName}`);
+    logger.trace(
+      `[SectionRenderer] Renderizando sección #${index + 1}: ${sectionName}`
+    );
 
     return <Component key={`${sectionName}-${index}`} {...componentProps} />;
   };
@@ -121,12 +144,15 @@ export function SectionRenderer({
     <SectionAnimator>
       {sections
         .filter((section): section is { name: string } => {
-          const isValid = typeof section.name === "string" && section.name.length > 0;
-          if (!isValid) logger.warn(`[SectionRenderer] Sección inválida omitida.`, { sectionData: section });
+          const isValid =
+            typeof section.name === "string" && section.name.length > 0;
+          if (!isValid)
+            logger.warn(`[SectionRenderer] Sección inválida omitida.`, {
+              sectionData: section,
+            });
           return isValid;
         })
         .map(renderSection)}
     </SectionAnimator>
   );
 }
-// RUTA: src/components/layout/SectionRenderer.tsx

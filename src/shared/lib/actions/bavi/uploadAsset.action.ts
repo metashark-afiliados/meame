@@ -2,8 +2,8 @@
 /**
  * @file uploadAsset.action.ts
  * @description Server Action orquestadora para la ingesta completa de activos,
- *              ahora instrumentada con tracing de élite.
- * @version 6.0.0 (Elite Action Tracing)
+ *              ahora instrumentada con tracing de élite y contrato de API corregido.
+ * @version 6.1.0 (API Contract Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -25,13 +25,14 @@ cloudinary.config({
 export async function uploadAssetAction(
   formData: FormData
 ): Promise<ActionResult<UploadApiResponse>> {
-  const traceId = logger.startTrace("uploadAssetOrchestration");
+  const traceId = logger.startTrace("uploadAssetOrchestration_v6.1");
   try {
     const file = formData.get("file") as File;
     const metadataString = formData.get("metadata") as string;
 
-    if (!file || !metadataString)
-      return { success: false, error: "Datos incompletos." };
+    if (!file || !metadataString) {
+      return { success: false, error: "Datos de subida incompletos." };
+    }
 
     const metadata = assetUploadMetadataSchema.parse(
       JSON.parse(metadataString)
@@ -59,9 +60,7 @@ export async function uploadAssetAction(
           .end(buffer);
       }
     );
-    logger.traceEvent(traceId, "Subida a Cloudinary exitosa.", {
-      public_id: cloudinaryResponse.public_id,
-    });
+    logger.traceEvent(traceId, "Subida a Cloudinary exitosa.");
 
     const manifestResult = await addAssetToManifestsAction(
       metadata,
@@ -71,12 +70,16 @@ export async function uploadAssetAction(
     logger.traceEvent(traceId, "Manifiestos de BAVI actualizados.");
 
     if (metadata.promptId) {
+      logger.traceEvent(traceId, "Iniciando vinculación con RaZPrompts...");
+      // --- [INICIO DE CORRECCIÓN DE CONTRATO] ---
+      // La llamada ahora incluye baviVariantId, cumpliendo el nuevo contrato.
       const linkResult = await linkPromptToBaviAssetAction({
         promptId: metadata.promptId,
         baviAssetId: metadata.assetId,
-        baviVariantId: "v1-orig", // Asumimos la primera versión
+        baviVariantId: "v1-orig", // Asumimos la primera versión como la canónica
         imageUrl: cloudinaryResponse.secure_url,
       });
+      // --- [FIN DE CORRECCIÓN DE CONTRATO] ---
       if (!linkResult.success) return linkResult;
       logger.traceEvent(traceId, "Vínculo con RaZPrompts completado.");
     }
@@ -88,8 +91,12 @@ export async function uploadAssetAction(
       error instanceof Error ? error.message : "Error desconocido.";
     logger.error("[uploadAssetAction] Fallo en la orquestación.", {
       error: errorMessage,
+      traceId,
     });
     logger.endTrace(traceId, { error: errorMessage });
-    return { success: false, error: "Fallo el proceso de ingesta del activo." };
+    return {
+      success: false,
+      error: "Fallo el proceso de ingesta del activo.",
+    };
   }
 }

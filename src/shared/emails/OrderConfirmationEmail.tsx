@@ -80,5 +80,3 @@ export function OrderConfirmationEmail({
     </Html>
   );
 }
-// RUTA: src/shared/emails/OrderConfirmationEmail.tsx
-

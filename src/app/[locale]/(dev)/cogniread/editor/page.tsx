@@ -2,9 +2,10 @@
 /**
  * @file page.tsx
  * @description Página "Shell" de servidor para el editor de artículos de CogniRead.
- *              v3.0.0 (Full i18n & FSD Compliance): Se alinea con la arquitectura
- *              FSD, resuelve errores de importación y se internacionaliza por completo.
- * @version 3.0.0
+ *              v4.0.0 (Holistic & i18n Data Fetching): Orquesta la obtención de
+ *              todos los datos de servidor (artículo y diccionario) y los
+ *              pasa de forma segura a su componente de cliente.
+ * @version 4.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -16,12 +17,8 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { DeveloperErrorDisplay } from "@/components/dev";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
-// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-// Se corrige la ruta de importación para apuntar a la SSoT de las actions.
 import { getArticleByIdAction } from "@/shared/lib/actions/cogniread";
-// Se importa el componente de cliente desde su nueva ubicación FSD canónica.
 import { ArticleEditorClient } from "@/components/features/cogniread/editor/ArticleEditorClient";
-// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
 interface ArticleEditorPageProps {
   params: { locale: Locale };
@@ -29,14 +26,14 @@ interface ArticleEditorPageProps {
 }
 
 export default async function ArticleEditorPage({
-  params: { locale }, // 'locale' ahora se usa para getDictionary
+  params: { locale },
   searchParams,
 }: ArticleEditorPageProps) {
   const { id } = searchParams;
   const isEditing = !!id;
 
   logger.info(
-    `[ArticleEditorPage] Renderizando v3.0. Modo: ${isEditing ? `Edición (ID: ${id})` : "Creación"}`
+    `[ArticleEditorPage] Renderizando v4.0. Modo: ${isEditing ? `Edición (ID: ${id})` : "Creación"}`
   );
 
   // Carga de datos en paralelo para máxima eficiencia
@@ -73,7 +70,8 @@ export default async function ArticleEditorPage({
     if (articleResult.success) {
       initialArticleData = articleResult.data.article;
       if (!initialArticleData) {
-        fetchError = pageContent.articleNotFoundError;
+        fetchError =
+          pageContent.articleNotFoundError || "Artículo no encontrado."; // Fallback
       }
     } else {
       fetchError = articleResult.error;

@@ -3,7 +3,7 @@
  * @file page.tsx
  * @description Página principal del Developer Command Center (DCC), que actúa como
  *              un portal a las herramientas de desarrollo de élite.
- * @version 5.0.0 (Holistic Path, Type & Hygiene Correction)
+ * @version 7.0.0 (Definitive Route Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -39,7 +39,7 @@ interface DevDashboardPageProps {
 export default async function DevDashboardPage({
   params: { locale },
 }: DevDashboardPageProps) {
-  logger.info(`[DevDashboardPage] Renderizando v5.0 para locale: ${locale}`);
+  logger.info(`[DevDashboardPage] Renderizando v7.0 para locale: ${locale}`);
 
   const { dictionary, error } = await getDictionary(locale);
   const content = dictionary.devDashboardPage;
@@ -62,11 +62,10 @@ export default async function DevDashboardPage({
   const tools: DevTool[] = [
     {
       key: "campaignDesignSuite",
-      // --- [INICIO DE CORRECCIÓN DE RUTA] ---
-      // Se utiliza la clave correcta del objeto `routes`. La ruta ahora apunta
-      // a la página del creador, no al antiguo dev/campaign-suite.
-      href: routes.creatorCampaignSuiteByStepId.path({ locale }),
-      // --- [FIN DE CORRECCIÓN DE RUTA] ---
+      // --- [INICIO DE CORRECCIÓN DEFINITIVA] ---
+      // Se utiliza la clave canónica 'creatorCampaignSuite' de la SSoT.
+      href: routes.creatorCampaignSuite.path({ locale }),
+      // --- [FIN DE CORRECCIÓN DEFINITIVA] ---
       icon: "LayoutTemplate",
     },
     {
@@ -92,10 +91,7 @@ export default async function DevDashboardPage({
       <Container className="py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {tools.map((tool) => (
-            // --- [INICIO DE CORRECCIÓN DE TIPO] ---
-            // Se convierte explícitamente a String para satisfacer el contrato de la prop 'key'.
             <Link href={tool.href} key={String(tool.key)} className="group">
-              // --- [FIN DE CORRECCIÓN DE TIPO] ---
               <Card className="h-full transition-all duration-300 group-hover:border-primary group-hover:shadow-lg group-hover:-translate-y-1">
                 <CardHeader className="flex-row items-center gap-4">
                   <DynamicIcon

@@ -1,11 +1,11 @@
-// Ruta correcta: src/shared/lib/shopify/index.ts
+// RUTA: src/shared/lib/shopify/index.ts
 /**
  * @file index.ts
  * @description Capa de Acceso a Datos (DAL) de élite para la API de Shopify.
  *              Esta es la SSoT para toda la comunicación de bajo nivel con la
  *              API GraphQL de Shopify. Transforma los datos crudos de la API
  *              a nuestros contratos de datos soberanos.
- * @version 6.0.0 (Architectural Realignment & Elite Compliance)
+ * @version 6.2.0 (Contract Alignment & Elite Compliance)
  * @author razstore (original), RaZ Podestá - MetaShark Tech (adaptación y nivelación)
  */
 import "server-only";
@@ -70,9 +70,7 @@ async function shopifyFetch<T>({
       cache,
       next: { tags: [TAGS.products, TAGS.cart] },
     });
-
     const body = await result.json();
-
     if (body.errors) {
       throw body.errors[0];
     }
@@ -106,9 +104,12 @@ const reshapeShopifyProduct = (product: ShopifyProduct): Product => {
     id: rest.id,
     name: rest.title,
     slug: rest.handle,
+    // --- [INICIO DE CORRECCIÓN DE CONTRATO] ---
+    description: rest.description, // La propiedad 'description' ahora se mapea correctamente.
+    // --- [FIN DE CORRECCIÓN DE CONTRATO] ---
     price: parseFloat(rest.priceRange.minVariantPrice.amount),
     currency: rest.priceRange.minVariantPrice.currencyCode,
-    imageUrl: rest.featuredImage?.url,
+    imageUrl: rest.featuredImage?.url ?? "/placeholder.jpg",
     isBestseller: rest.tags.includes("bestseller"),
     inventory: {
       total: 100,
@@ -211,4 +212,3 @@ export async function getShopifyCart(
   if (!res.body.data.cart) return undefined;
   return reshapeCart(res.body.data.cart);
 }
-// Ruta correcta: src/shared/lib/shopify/index.ts

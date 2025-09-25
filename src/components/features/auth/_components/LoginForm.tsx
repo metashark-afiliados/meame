@@ -2,8 +2,9 @@
 /**
  * @file LoginForm.tsx
  * @description Componente de presentación puro para el formulario de login.
- *              Ahora orquesta el modal de recuperación de contraseña.
- * @version 3.0.0 (Forgot Password Flow & MEA/UX)
+ *              v4.0.0 (Password Visibility & MEA/UX): Implementa el conmutador de
+ *              visibilidad de contraseña con una animación de élite.
+ * @version 4.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { motion, type Variants } from "framer-motion";
+import { motion, type Variants, AnimatePresence } from "framer-motion";
 import {
   Card,
   CardContent,
@@ -68,10 +69,11 @@ const fieldVariants: Variants = {
 };
 
 export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
-  logger.info("[LoginForm] Renderizando v3.0 (Forgot Password Flow).");
+  logger.info("[LoginForm] Renderizando v4.0 (Password Visibility).");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // --- [INICIO DE MEJORA] ---
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(LoginSchema),
@@ -148,11 +150,43 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
                         </button>
                       </div>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder={content.passwordPlaceholder}
-                          {...field}
-                        />
+                        {/* --- [INICIO DE REFACTORIZACIÓN MEA/UX] --- */}
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder={content.passwordPlaceholder}
+                            className="pr-10"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute inset-y-0 right-0 h-full px-3 text-muted-foreground"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            aria-label={
+                              showPassword
+                                ? content.hidePasswordAriaLabel
+                                : content.showPasswordAriaLabel
+                            }
+                          >
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={showPassword ? "eye-off" : "eye"}
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.5 }}
+                                transition={{ duration: 0.15 }}
+                              >
+                                <DynamicIcon
+                                  name={showPassword ? "EyeOff" : "Eye"}
+                                  className="h-4 w-4"
+                                />
+                              </motion.div>
+                            </AnimatePresence>
+                          </Button>
+                        </div>
+                        {/* --- [FIN DE REFACTORIZACIÓN MEA/UX] --- */}
                       </FormControl>
                       <FormMessage />
                     </FormItem>

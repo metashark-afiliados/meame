@@ -45,7 +45,7 @@ export function CinematicRenderer({
 
   const hookState = useCinematicRenderer({
     src,
-    audioSrc,
+    audioSrc, // Se pasa la prop al hook.
     containerRef,
     onPlaybackEvent: handlePlaybackEvent,
   });

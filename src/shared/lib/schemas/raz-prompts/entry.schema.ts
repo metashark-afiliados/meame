@@ -2,7 +2,7 @@
 /**
  * @file entry.schema.ts
  * @description Schema ensamblador y SSoT para una entrada completa en RaZPrompts.
- * @version 4.0.0 (Creative Genome)
+ * @version 4.1.0 (Variant ID Linkage)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
@@ -22,11 +22,21 @@ export const RaZPromptsEntrySchema = z.object({
   // --- Versiones (El Historial Genético) ---
   versions: z.array(PromptVersionSchema).min(1),
 
-  // --- VÍNCULO ARQUITECTÓNICO CLAVE (MEJORA v4.0) ---
+  // --- VÍNCULOS ARQUITECTÓNICOS CLAVE ---
   baviAssetIds: z
     .array(z.string())
     .optional()
-    .describe("Array de IDs de activos en BAVI generados a partir de este prompt."),
+    .describe(
+      "Array de IDs de activos en BAVI generados a partir de este prompt."
+    ),
+  // --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+  baviVariantId: z
+    .string()
+    .optional()
+    .describe(
+      "El ID de la variante específica en BAVI que representa este prompt."
+    ),
+  // --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
   // --- Sistema de Descubrimiento ---
   aiService: z.string(),
