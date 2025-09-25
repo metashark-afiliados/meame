@@ -1,8 +1,8 @@
-// Ruta correcta: src/components/features/dev-tools/SuiteStyleComposer/types.ts
+// RUTA: src/components/features/dev-tools/SuiteStyleComposer/types.ts
 /**
  * @file types.ts
  * @description SSoT para los contratos de tipos compartidos del ecosistema SuiteStyleComposer.
- * @version 2.0.0 (Sovereign Path & Contract Restoration)
+ * @version 1.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";

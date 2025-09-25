@@ -1,31 +1,58 @@
-// RUTA: app/[locale]/account/page.tsx
+// RUTA: src/app/[locale]/account/page.tsx
 /**
  * @file page.tsx
  * @description Página de Gestión de Cuenta del Usuario.
- * @version 1.0.0
+ * @version 2.0.0 (Holistic Elite Leveling & i18n Contract Sync)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
+import { getDictionary } from "@/shared/lib/i18n/i18n";
+import { type Locale } from "@/shared/lib/i18n/i18n.config";
+import { createServerClient } from "@/shared/lib/supabase/server";
 import { ProfileForm } from "@/components/features/account/ProfileForm";
 import { PasswordForm } from "@/components/features/account/PasswordForm";
 import { DeleteAccountZone } from "@/components/features/account/DeleteAccountZone";
+import { logger } from "@/shared/lib/logging";
+import { DeveloperErrorDisplay } from "@/components/dev";
 
-export default async function AccountPage(): Promise<React.ReactElement> {
-  const cookieStore = cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { get: (name) => cookieStore.get(name)?.value } }
-  );
+interface AccountPageProps {
+  params: { locale: Locale };
+}
 
+export default async function AccountPage({
+  params: { locale },
+}: AccountPageProps): Promise<React.ReactElement> {
+  logger.info("[AccountPage] Renderizando v2.0 (Elite).");
+
+  const supabase = createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   if (!user) {
-    redirect("/login");
+    redirect(`/${locale}/login`);
+  }
+
+  // Obtenemos el diccionario.
+  const { dictionary, error: dictError } = await getDictionary(locale);
+  const content = dictionary.profileForm;
+
+  // Guardia de Resiliencia
+  if (dictError || !content) {
+    const errorMessage =
+      "Fallo al cargar el contenido i18n para la página de cuenta.";
+    logger.error(`[AccountPage] ${errorMessage}`, { error: dictError });
+    if (process.env.NODE_ENV === "production") return notFound();
+    return (
+      <DeveloperErrorDisplay
+        context="AccountPage"
+        errorMessage={errorMessage}
+        errorDetails={
+          dictError || "La clave 'profileForm' falta en el diccionario."
+        }
+      />
+    );
   }
 
   return (
@@ -41,7 +68,8 @@ export default async function AccountPage(): Promise<React.ReactElement> {
       </header>
 
       <div className="space-y-12">
-        <ProfileForm user={user} />
+        {/* Se pasa la prop 'content' requerida */}
+        <ProfileForm user={user} content={content} />
         <PasswordForm />
         <DeleteAccountZone />
       </div>

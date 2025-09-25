@@ -1,8 +1,8 @@
 // RUTA: src/components/features/campaign-suite/Step0_Identity/Step0Client.tsx
 /**
  * @file Step0Client.tsx
- * @description Componente Contenedor de Cliente para el Paso 0, con flujo de UX gamificado.
- * @version 4.0.0 (Holistic Integrity Restoration)
+ * @description Componente Contenedor de Cliente para el Paso 0. Consume los stores atómicos.
+ * @version 5.0.0 (Atomic State Consumption)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { z } from "zod";
 import { logger } from "@/shared/lib/logging";
 import {
@@ -18,11 +18,12 @@ import {
   type Step0Data,
   type Step0ContentSchema,
 } from "@/shared/lib/schemas/campaigns/steps/step0.schema";
-import { useCampaignDraft } from "@/shared/hooks/campaign-suite/use-campaign-draft";
 import { useWizard } from "@/components/features/campaign-suite/_context/WizardContext";
 import { Step0Form } from "./Step0Form";
 import { PassportStamp } from "@/components/ui/PassportStamp";
 import { Card, CardContent } from "@/components/ui/Card";
+import { useDraftMetadataStore } from "@/shared/hooks/campaign-suite/use-draft-metadata.store";
+import { useStep0IdentityStore } from "@/shared/hooks/campaign-suite/use-step0-identity.store";
 
 type Step0Content = z.infer<typeof Step0ContentSchema>;
 
@@ -35,9 +36,17 @@ export function Step0Client({
   content,
   baseCampaigns,
 }: Step0ClientProps): React.ReactElement {
-  logger.info("Renderizando Step0Client (v4.0 - Holistic Integrity)");
+  logger.info("Renderizando Step0Client (v5.0 - Atomic State).");
 
-  const { draft, updateDraft } = useCampaignDraft();
+  const {
+    baseCampaignId,
+    variantName,
+    seoKeywords,
+    setMetadata,
+    completeStep,
+  } = useDraftMetadataStore();
+  const { affiliateNetwork, affiliateUrl, setStep0Data } =
+    useStep0IdentityStore();
   const { goToNextStep, goToPrevStep } = useWizard();
   const [submissionState, setSubmissionState] = useState<
     "form" | "stamping" | "complete"
@@ -46,19 +55,17 @@ export function Step0Client({
   const form = useForm<Step0Data>({
     resolver: zodResolver(step0Schema),
     defaultValues: {
-      baseCampaignId: draft.baseCampaignId ?? baseCampaigns[0] ?? "",
-      variantName: draft.variantName ?? "Test Variant",
-      seoKeywords: draft.seoKeywords ?? "test, keywords, for, seo",
-      affiliateNetwork: draft.affiliateNetwork ?? "webvork",
-      affiliateUrl: draft.affiliateUrl ?? "https://example.com/offer/123",
+      baseCampaignId: baseCampaignId ?? baseCampaigns[0] ?? "",
+      variantName: variantName ?? "",
+      seoKeywords: seoKeywords ?? "",
+      affiliateNetwork: affiliateNetwork ?? "webvork",
+      affiliateUrl: affiliateUrl ?? "",
     },
   });
 
   useEffect(() => {
     if (submissionState === "stamping") {
-      const timer = setTimeout(() => {
-        setSubmissionState("complete");
-      }, 2000);
+      const timer = setTimeout(() => setSubmissionState("complete"), 2000);
       return () => clearTimeout(timer);
     }
     if (submissionState === "complete") {
@@ -76,19 +83,35 @@ export function Step0Client({
   }
 
   const onSubmit = (data: Step0Data) => {
-    logger.startGroup("[Step0Client] Procesando envío de formulario...");
-    updateDraft(data);
+    logger.startGroup(
+      "[Step0Client] Procesando envío de formulario atómico..."
+    );
+
+    setMetadata({
+      baseCampaignId: data.baseCampaignId,
+      variantName: data.variantName,
+      seoKeywords: data.seoKeywords,
+    });
+
+    setStep0Data({
+      affiliateNetwork: data.affiliateNetwork,
+      affiliateUrl: data.affiliateUrl,
+    });
+
+    completeStep(0);
+
     logger.success(
-      "[Step0Client] Borrador actualizado. Iniciando animación de sello."
+      "[Step0Client] Stores atómicos actualizados. Iniciando animación MEA/UX."
     );
     setSubmissionState("stamping");
     logger.endGroup();
   };
 
-  const animationVariants = {
+  const animationVariants: Variants = {
     initial: { opacity: 0, scale: 0.95 },
     animate: { opacity: 1, scale: 1 },
     exit: { opacity: 0, scale: 0.95 },
+    transition: { duration: 0.3, ease: "easeInOut" },
   };
 
   return (
@@ -107,7 +130,7 @@ export function Step0Client({
             baseCampaigns={baseCampaigns}
             onSubmit={onSubmit}
             onBack={goToPrevStep}
-            onNext={goToNextStep}
+            onNext={form.handleSubmit(onSubmit)}
           />
         </motion.div>
       )}

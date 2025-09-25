@@ -2,7 +2,7 @@
 /**
  * @file ForgotPasswordForm.tsx
  * @description Componente de cliente puro para el formulario modal de recuperación de contraseña.
- * @version 1.0.0
+ * @version 1.1.0 (Code Hygiene Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -11,7 +11,7 @@ import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+// Se elimina la importación no utilizada de 'motion'
 import {
   DialogHeader,
   DialogTitle,
@@ -52,7 +52,7 @@ export function ForgotPasswordForm({
   onSuccess,
   onCancel,
 }: ForgotPasswordFormProps) {
-  logger.info("[ForgotPasswordForm] Renderizando v1.0.");
+  logger.info("[ForgotPasswordForm] Renderizando v1.1.");
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<ForgotPasswordFormData>({
@@ -84,7 +84,11 @@ export function ForgotPasswordForm({
         <DialogDescription>{content.modalDescription}</DialogDescription>
       </DialogHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+        <form
+          id="forgot-password-form" // Se añade un ID para que el botón del footer pueda referenciarlo
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4 py-4"
+        >
           <FormField
             control={form.control}
             name="email"
@@ -92,11 +96,7 @@ export function ForgotPasswordForm({
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="tu@ejemplo.com"
-                    {...field}
-                  />
+                  <Input type="email" placeholder="tu@ejemplo.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -110,7 +110,7 @@ export function ForgotPasswordForm({
         </Button>
         <Button
           type="submit"
-          form="forgot-password-form"
+          form="forgot-password-form" // El botón ahora está asociado al formulario
           onClick={form.handleSubmit(onSubmit)}
           disabled={isPending}
         >

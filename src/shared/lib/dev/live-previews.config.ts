@@ -1,4 +1,4 @@
-// Ruta correcta: src/shared/lib/dev/live-previews.config.ts
+// RUTA: src/shared/lib/dev/live-previews.config.ts
 /**
  * @file live-previews.config.ts
  * @description SSoT y registro de componentes para el renderizado en vivo en el EDVI.
@@ -21,6 +21,7 @@ logger.trace(
 // Este mapa es la SSoT para el Entorno de Diseño Visual Integrado (EDVI).
 // Mapea un string de identificación a un COMPONENTE REACT REAL que puede ser
 // renderizado en el lienzo de previsualización en vivo.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const livePreviewComponentMap: Record<string, ComponentType<any>> = {
   // Componentes Estructurales
   StandardHeader: Header,
@@ -52,4 +53,4 @@ export const livePreviewComponentMap: Record<string, ComponentType<any>> = {
   TextSection: Sections.TextSection,
   ThumbnailCarousel: Sections.ThumbnailCarousel,
 };
-// Ruta correcta: src/shared/lib/dev/live-previews.config.ts
+// RUTA: src/shared/lib/dev/live-previews.config.ts

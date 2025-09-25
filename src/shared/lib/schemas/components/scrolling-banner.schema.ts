@@ -1,8 +1,9 @@
-// shared/lib/schemas/components/scrolling-banner.schema.ts
+// RUTA: src/shared/lib/schemas/components/scrolling-banner.schema.ts
 /**
  * @file scrolling-banner.schema.ts
- * @description SSoT para el contrato de datos del componente ScrollingBanner.
- * @version 3.0.0 (Architectural Decoupling)
+ * @description SSoT para el contrato de datos del componente ScrollingBanner,
+ *              restaurado a su integridad arquitectónica y mejorado.
+ * @version 4.0.0 (Architectural Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
@@ -12,7 +13,7 @@ import { z } from "zod";
  * @description La SSoT para la ESTRUCTURA del contenido de la sección.
  */
 export const ScrollingBannerContentSchema = z.object({
-  message: z.string(),
+  message: z.string().min(1, "El mensaje del banner no puede estar vacío."),
 });
 
 /**
@@ -25,7 +26,8 @@ export const ScrollingBannerLocaleSchema = z.object({
 
 /**
  * @const ScrollingBannerI18nSchema
- * @description Valida la estructura completa del archivo .i18n.json.
+ * @description Valida la estructura completa del archivo .i18n.json, manteniendo
+ *              la compatibilidad con el sistema de ensamblaje de i18n.
  */
 export const ScrollingBannerI18nSchema = z.object({
   "es-ES": ScrollingBannerLocaleSchema,

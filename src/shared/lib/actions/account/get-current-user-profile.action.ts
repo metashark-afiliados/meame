@@ -2,8 +2,9 @@
 /**
  * @file get-current-user-profile.action.ts
  * @description Server Action soberana para obtener los datos del perfil del
- *              usuario actualmente autenticado desde la tabla `public.profiles`.
- * @version 1.0.0
+ *              usuario actualmente autenticado. v2.0.0 (Resilient Query):
+ *              Modificada para manejar duplicados de perfiles en la DB.
+ * @version 2.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -12,7 +13,6 @@ import { createServerClient } from "@/shared/lib/supabase/server";
 import { logger } from "@/shared/lib/logging";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 
-// Definimos un tipo para el payload de datos del perfil que nos interesa.
 export type UserProfileData = {
   full_name: string | null;
   last_sign_in_at: string | null;
@@ -23,7 +23,7 @@ export type UserProfileData = {
 export async function getCurrentUserProfile_Action(): Promise<
   ActionResult<UserProfileData | null>
 > {
-  const traceId = logger.startTrace("getCurrentUserProfile_Action");
+  const traceId = logger.startTrace("getCurrentUserProfile_Action_v2.0");
   logger.info("[Profile Action] Solicitando perfil del usuario actual...");
 
   try {
@@ -35,28 +35,31 @@ export async function getCurrentUserProfile_Action(): Promise<
     if (!user) {
       logger.warn("[Profile Action] No hay usuario autenticado.");
       logger.endTrace(traceId);
-      // No es un error, simplemente no hay sesión.
       return { success: true, data: null };
     }
 
-    const { data: profile, error } = await supabase
+    const { data: profiles, error } = await supabase
       .from("profiles")
       .select(
         "full_name, last_sign_in_at, last_sign_in_ip, last_sign_in_location"
       )
-      .eq("user_id", user.id)
-      .single(); // .single() asegura que obtenemos un objeto o null, no un array.
+      .eq("user_id", user.id);
 
     if (error) {
       logger.error(
         "[Profile Action] Error al consultar la tabla de perfiles.",
-        {
-          userId: user.id,
-          error: error.message,
-        }
+        { userId: user.id, error: error.message }
       );
       throw new Error(error.message);
     }
+
+    if (profiles && profiles.length > 1) {
+      logger.warn(
+        `[Profile Action] ¡Violación de integridad de datos detectada! Se encontraron ${profiles.length} perfiles para el usuario ${user.id}. Se devolverá solo el primero.`
+      );
+    }
+
+    const profile = profiles && profiles.length > 0 ? profiles[0] : null;
 
     logger.success("[Profile Action] Perfil de usuario obtenido con éxito.", {
       userId: user.id,

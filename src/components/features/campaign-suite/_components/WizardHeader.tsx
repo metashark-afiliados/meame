@@ -1,10 +1,8 @@
-// Ruta correcta: src/components/features/campaign-suite/_components/WizardHeader.tsx
+// RUTA: src/components/features/campaign-suite/_components/WizardHeader.tsx
 /**
  * @file WizardHeader.tsx
- * @description Header de la SDC, ahora con indicador de estado de sincronización.
- *              v3.0.0 (Holistic Integrity Restoration): Resuelve errores críticos
- *              de resolución de módulo y de seguridad de tipos.
- * @version 3.0.0
+ * @description Header de la SDC, ahora alineado con la arquitectura de estado atómico.
+ * @version 4.0.0 (Atomic State Alignment & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,21 +10,20 @@
 import React, { useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ProgressContext } from "../_context/ProgressContext";
-import { useCampaignDraft } from "@/shared/hooks/campaign-suite/use-campaign-draft";
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+// Se importan los nuevos stores atómicos soberanos. El hook obsoleto se elimina.
+import { useCampaignDraftContext } from "@/shared/hooks/campaign-suite/use-campaign-draft-context.store";
+import { useDraftMetadataStore } from "@/shared/hooks/campaign-suite/use-draft-metadata.store";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import { ProgressStepper } from "./ProgressStepper";
 import { DynamicIcon } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
-import type { CampaignDraftState } from "@/shared/lib/types/campaigns/draft.types";
 
 const SyncStatusIndicator = () => {
-  // --- [INICIO DE CORRECCIÓN DE TIPO] ---
-  const isSyncing = useCampaignDraft(
-    (state: CampaignDraftState) => state.isSyncing
-  );
-  const updatedAt = useCampaignDraft(
-    (state: CampaignDraftState) => state.draft.updatedAt
-  );
-  // --- [FIN DE CORRECCIÓN DE TIPO] ---
+  // Se consume el estado desde los stores atómicos correspondientes.
+  const isSyncing = useCampaignDraftContext((state) => state.isSyncing);
+  const updatedAt = useDraftMetadataStore((state) => state.updatedAt);
+
   const lastSavedTime = new Date(updatedAt).toLocaleTimeString();
 
   return (
@@ -86,4 +83,3 @@ export function WizardHeader(): React.ReactElement | null {
     </div>
   );
 }
-// Ruta correcta: src/components/features/campaign-suite/_components/WizardHeader.tsx

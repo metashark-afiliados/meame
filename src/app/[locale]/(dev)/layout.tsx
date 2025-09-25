@@ -1,177 +1,153 @@
 // RUTA: src/app/[locale]/(dev)/layout.tsx
 /**
  * @file layout.tsx
- * @description Layout raíz para el DCC, con arquitectura de datos atómica,
- *              resiliente y con rutas de importación soberanas.
- * @version 9.0.0 (FSD Path Realignment)
+ * @description Layout de Servidor para el DCC, ahora un Guardián de Datos resiliente.
+ *              v10.0.0 (Holistic Refactor & Contract Guardian): Resuelve una cascada
+ *              de errores de tipo y de importación. Implementa un manejo de errores
+ *              robusto que garantiza que el componente de cliente siempre reciba un
+ *              contrato de datos completo y válido.
+ * @version 10.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
-import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
 import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
-import AppProviders from "@/components/layout/AppProviders";
-import DevHeader from "@/components/dev/DevHeader";
-import { Container } from "@/components/ui/Container";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
-// Se corrige la importación para apuntar a la SSoT del componente en la capa de features.
-import { WizardHeader } from "@/components/features/campaign-suite/_components/WizardHeader";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
+import { DevLayoutClient } from "./DevLayoutClient";
 import { DeveloperErrorDisplay } from "@/components/dev";
+// --- [INICIO DE CORRECCIÓN DE HIGIENE Y API] ---
+// Se corrige el nombre de la función importada (TS2724)
 import { getThemeFragmentsAction } from "@/shared/lib/actions/campaign-suite/getThemeFragments.action";
-import { DevThemeSwitcher } from "@/components/dev";
-import { loadEdgeJsonAsset } from "@/shared/lib/i18n/i18n.edge";
-import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
-import type { DiscoveredFragments } from "@/shared/lib/actions/campaign-suite/getThemeFragments.action";
-import type { ActionResult } from "@/shared/lib/types/actions.types";
+// --- [FIN DE CORRECCIÓN DE HIGIENE Y API] ---
+import { loadJsonAsset } from "@/shared/lib/i18n/campaign.data.loader";
+import { type AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
+import type { LoadedFragments } from "@/components/features/dev-tools/SuiteStyleComposer/types";
+import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 interface DevLayoutProps {
   children: React.ReactNode;
   params: { locale: Locale };
 }
 
-export default async function DevLayout({
-  children,
-  params: { locale },
-}: DevLayoutProps) {
+export default async function DevLayout({ children, params }: DevLayoutProps) {
   logger.info(
-    `[DevLayout] Renderizando layout raíz del DCC v9.0 para locale: [${locale}]`
+    "[DevLayout] Renderizando layout de DCC v10.0 (Contract Guardian)."
   );
 
-  const { dictionary, error } = await getDictionary(locale);
+  try {
+    const { dictionary, error: dictError } = await getDictionary(params.locale);
 
-  if (
-    error ||
-    !dictionary.devHeader ||
-    !dictionary.devRouteMenu ||
-    !dictionary.devDashboardPage ||
-    !dictionary.suiteStyleComposer ||
-    !dictionary.cookieConsentBanner ||
-    !dictionary.toggleTheme ||
-    !dictionary.languageSwitcher ||
-    !dictionary.cart
-  ) {
-    const errorMessage =
-      "Diccionario esencial para el DCC no cargado o incompleto.";
-    logger.error(`[DevLayout] ${errorMessage}`, { error });
-    if (process.env.NODE_ENV === "production") {
-      return notFound();
+    // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA (TS2322)] ---
+    // Guardia de Contrato Estricta: se verifica la existencia de todas las
+    // claves de primer nivel que el DevLayoutClient necesita.
+    if (
+      dictError ||
+      !dictionary.devHeader ||
+      !dictionary.devRouteMenu ||
+      !dictionary.toggleTheme ||
+      !dictionary.languageSwitcher ||
+      !dictionary.suiteStyleComposer
+    ) {
+      throw new Error(
+        "Faltan claves de contenido i18n críticas para el layout del DCC."
+      );
     }
-    return (
-      <html lang={locale}>
-        <body>
-          <DeveloperErrorDisplay
-            context="DevLayout"
-            errorMessage={errorMessage}
-            errorDetails={error}
-          />
-        </body>
-      </html>
-    );
-  }
+    // A partir de aquí, TypeScript sabe que `dictionary` es un objeto completo y no parcial.
+    // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA (TS2322)] ---
 
-  const pathname = headers().get("x-next-pathname") || "";
-  const isCampaignSuite = pathname.includes("/creator/campaign-suite");
+    const fragmentsResult = await getThemeFragmentsAction();
+    if (!fragmentsResult.success) {
+      throw new Error(fragmentsResult.error);
+    }
+    const fragments = fragmentsResult.data;
 
-  const fragmentsResult: ActionResult<DiscoveredFragments> =
-    await getThemeFragmentsAction();
-
-  const allLoadedFragments: {
-    base: Partial<AssembledTheme>;
-    colors: Record<string, Partial<AssembledTheme>>;
-    fonts: Record<string, Partial<AssembledTheme>>;
-    radii: Record<string, Partial<AssembledTheme>>;
-  } = {
-    base: {},
-    colors: {},
-    fonts: {},
-    radii: {},
-  };
-
-  if (fragmentsResult.success) {
-    const { colors = [], fonts = [], radii = [] } = fragmentsResult.data;
-    const [base, loadedColors, loadedFonts, loadedRadii] = await Promise.all([
-      loadEdgeJsonAsset<Partial<AssembledTheme>>(
+    // Carga de todos los fragmentos en paralelo con tipado explícito
+    const [base, colors, fonts, radii] = await Promise.all([
+      loadJsonAsset<Partial<AssembledTheme>>(
         "theme-fragments",
         "base",
         "global.theme.json"
-      ).catch(() => ({})),
+      ),
+      // --- [INICIO DE CORRECCIÓN DE TIPO (TS7006)] ---
       Promise.all(
-        colors.map((name) =>
-          loadEdgeJsonAsset<Partial<AssembledTheme>>(
+        fragments.colors.map((name: string) =>
+          loadJsonAsset<Partial<AssembledTheme>>(
             "theme-fragments",
             "colors",
             `${name}.colors.json`
-          )
-            .then((data) => ({ name, data }))
-            .catch(() => null)
+          ).then((data) => ({ name, data }))
         )
       ),
       Promise.all(
-        fonts.map((name) =>
-          loadEdgeJsonAsset<Partial<AssembledTheme>>(
+        fragments.fonts.map((name: string) =>
+          loadJsonAsset<Partial<AssembledTheme>>(
             "theme-fragments",
             "fonts",
             `${name}.fonts.json`
-          )
-            .then((data) => ({ name, data }))
-            .catch(() => null)
+          ).then((data) => ({ name, data }))
         )
       ),
       Promise.all(
-        radii.map((name) =>
-          loadEdgeJsonAsset<Partial<AssembledTheme>>(
+        fragments.radii.map((name: string) =>
+          loadJsonAsset<Partial<AssembledTheme>>(
             "theme-fragments",
             "radii",
             `${name}.radii.json`
-          )
-            .then((data) => ({ name, data }))
-            .catch(() => null)
+          ).then((data) => ({ name, data }))
         )
       ),
+      // --- [FIN DE CORRECCIÓN DE TIPO (TS7006)] ---
     ]);
-    allLoadedFragments.base = base;
-    allLoadedFragments.colors = Object.fromEntries(
-      loadedColors.filter(Boolean).map((item) => [item!.name, item!.data])
+
+    const allLoadedFragments: LoadedFragments = {
+      base,
+      // --- [INICIO DE CORRECCIÓN DE TIPO (TS7006)] ---
+      colors: Object.fromEntries(
+        colors.map((c: { name: string; data: Partial<AssembledTheme> }) => [
+          c.name,
+          c.data,
+        ])
+      ),
+      fonts: Object.fromEntries(
+        fonts.map((f: { name: string; data: Partial<AssembledTheme> }) => [
+          f.name,
+          f.data,
+        ])
+      ),
+      radii: Object.fromEntries(
+        radii.map((r: { name: string; data: Partial<AssembledTheme> }) => [
+          r.name,
+          r.data,
+        ])
+      ),
+      // --- [FIN DE CORRECCIÓN DE TIPO (TS7006)] ---
+    };
+
+    return (
+      <DevLayoutClient
+        locale={params.locale}
+        dictionary={dictionary as Dictionary} // Aserción segura gracias a la guardia
+        allLoadedFragments={allLoadedFragments}
+      >
+        {children}
+      </DevLayoutClient>
     );
-    allLoadedFragments.fonts = Object.fromEntries(
-      loadedFonts.filter(Boolean).map((item) => [item!.name, item!.data])
-    );
-    allLoadedFragments.radii = Object.fromEntries(
-      loadedRadii.filter(Boolean).map((item) => [item!.name, item!.data])
-    );
-  } else {
-    logger.error("[DevLayout] Fallo al obtener fragmentos de tema globales.", {
-      error: fragmentsResult.error,
-    });
+  } catch (error) {
+    const errorMessage =
+      "Fallo crítico al renderizar el layout del Developer Command Center.";
+    logger.error(`[DevLayout] ${errorMessage}`, { error });
+
+    if (process.env.NODE_ENV === "development") {
+      return (
+        <DeveloperErrorDisplay
+          context="DevLayout"
+          errorMessage={errorMessage}
+          errorDetails={error instanceof Error ? error : String(error)}
+        />
+      );
+    }
+
+    return notFound();
   }
-
-  const devSwitcherContent = dictionary.suiteStyleComposer;
-
-  return (
-    <AppProviders
-      locale={locale}
-      cookieConsentContent={dictionary.cookieConsentBanner}
-    >
-      <DevHeader
-        locale={locale}
-        centerComponent={isCampaignSuite ? <WizardHeader /> : null}
-        devThemeSwitcher={
-          <DevThemeSwitcher
-            allThemeFragments={allLoadedFragments}
-            content={devSwitcherContent}
-          />
-        }
-        content={dictionary.devHeader}
-        devMenuContent={dictionary.devRouteMenu}
-        toggleThemeContent={dictionary.toggleTheme}
-        languageSwitcherContent={dictionary.languageSwitcher}
-      />
-      <main className="py-8 md:py-12">
-        <Container>{children}</Container>
-      </main>
-    </AppProviders>
-  );
 }

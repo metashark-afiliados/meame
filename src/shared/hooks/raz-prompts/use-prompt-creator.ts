@@ -2,7 +2,7 @@
 /**
  * @file use-prompt-creator.ts
  * @description Hook "cerebro" para la lógica de creación de prompts.
- * @version 4.0.0 (Creative Genome v4.0)
+ * @version 5.0.0 (Code Hygiene & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -17,7 +17,6 @@ import {
   RaZPromptsSesaTagsSchema,
   PromptParametersSchema,
 } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
-import { logger } from "@/shared/lib/logging";
 
 export const CreatePromptFormSchema = z.object({
   title: z.string().min(3, "El título es requerido."),
@@ -87,3 +86,4 @@ export function usePromptCreator() {
 
   return { form, onSubmit, isPending };
 }
+// RUTA: src/shared/hooks/raz-prompts/use-prompt-creator.ts

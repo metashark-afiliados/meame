@@ -12,7 +12,7 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { CldImage } from "next-cloudinary";
 import type { Metadata } from "next";
-import { i18n, type Locale } from "@/shared/lib/i18n/i18n.config";
+import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ArticleBody, CommentSection } from "@/components/sections";
@@ -21,7 +21,7 @@ import { SectionAnimator } from "@/components/layout/SectionAnimator";
 import {
   getArticleBySlugAction,
   getPublishedArticlesAction,
-} from "../../(dev)/cogniread/_actions";
+} from "@/shared/lib/actions/cogniread";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 
 /**

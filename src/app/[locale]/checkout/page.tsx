@@ -1,4 +1,4 @@
-// app/[locale]/checkout/page.tsx
+// RUTA: src/app/[locale]/checkout/page.tsx
 /**
  * @file page.tsx
  * @description Página de checkout. Obtiene el client_secret en el servidor
@@ -12,8 +12,8 @@ import React, { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { Container, Skeleton } from "@/components/ui";
-import { createCheckoutSessionAction } from "@/shared/lib/commerce/actions/checkout.action.ts";
-import { CheckoutForm } from "@/components/forms/CheckoutForm";
+import { createCheckoutSessionAction } from "@/shared/lib/actions/commerce/checkout.action.ts";
+import { CheckoutForm } from "@/components/features/commerce/CheckoutForm";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -28,7 +28,8 @@ export default function CheckoutPage() {
       if (result.success && result.data.clientSecret) {
         setClientSecret(result.data.clientSecret);
       } else {
-        // Manejar el error
+        // Manejar el error, por ejemplo, mostrando un toast o redirigiendo.
+        console.error("Failed to create checkout session:", result.error);
       }
     };
     fetchClientSecret();
@@ -54,5 +55,4 @@ export default function CheckoutPage() {
     </Container>
   );
 }
-// app/[locale]/checkout/page.tsx
-
+// RUTA: src/app/[locale]/checkout/page.tsx

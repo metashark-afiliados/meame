@@ -17,12 +17,6 @@ export interface ChecklistItem {
   helpText: string;
 }
 
-/**
- * @function validateDraftForLaunch
- * @description Valida un borrador de campaña contra una serie de reglas de negocio.
- * @param {CampaignDraft} draft - El estado completo del borrador.
- * @returns {ChecklistItem[]} Un array de ítems del checklist con su estado de completitud.
- */
 export function validateDraftForLaunch(draft: CampaignDraft): ChecklistItem[] {
   logger.trace("[DraftValidator] Ejecutando checklist de pre-lanzamiento...");
   const checklist: ChecklistItem[] = [];

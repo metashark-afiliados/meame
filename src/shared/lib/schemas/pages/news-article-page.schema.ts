@@ -1,4 +1,4 @@
-// lib/schemas/pages/news-article-page.schema.ts
+// RUTA: src/shared/lib/schemas/pages/news-article-page.schema.ts
 /**
  * @file news-article-page.schema.ts
  * @description SSoT para el contrato de datos del contenido i18n de una
@@ -17,7 +17,7 @@ export const NewsArticlePageContentSchema = z.object({
   title: z.string(),
   subtitle: z.string(),
   author: z.string(),
-  publishedDate: z.string(), // Mantener como string para i18n
+  publishedDate: z.string(),
   readTime: z.number().positive(),
   category: z.string(),
   featuredImageUrl: z.string().startsWith("/"),
@@ -41,4 +41,4 @@ export const NewsArticlePageLocaleSchema = z.record(
 export type NewsArticlePageContent = z.infer<
   typeof NewsArticlePageContentSchema
 >;
-// lib/schemas/pages/news-article-page.schema.ts
+// RUTA: src/shared/lib/schemas/pages/news-article-page.schema.ts

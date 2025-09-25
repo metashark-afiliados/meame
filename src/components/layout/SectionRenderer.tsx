@@ -1,9 +1,10 @@
 // RUTA: src/components/layout/SectionRenderer.tsx
 /**
  * @file SectionRenderer.tsx
- * @description Motor de renderizado de élite. Actúa como un despachador dinámico
- *              que mapea nombres de sección a sus componentes React reales.
- * @version 18.0.0 (Union Type Contract & Holistic Integrity)
+ * @description Motor de renderizado de élite y Guardián de Contratos.
+ *              Despacha dinámicamente componentes de sección, validando sus
+ *              datos en tiempo de ejecución contra la SSoT de configuración.
+ * @version 17.0.0 (Data Contract Guardian Architecture)
  * @author RaZ Podestá - MetaShark Tech
  */
 import * as React from "react";
@@ -16,54 +17,6 @@ import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { ValidationError } from "@/components/ui/ValidationError";
 import { SectionAnimator } from "./SectionAnimator";
-import * as Sections from "@/components/sections";
-
-// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: CONTRATO DE UNIÓN] ---
-// Se define un contrato de props genérico que todos los componentes deben satisfacer.
-type GenericSectionProps = {
-  content: any; // La validación real la hace Zod en tiempo de ejecución.
-  locale: Locale;
-  isFocused?: boolean;
-};
-
-// Se define un tipo de unión que acepta tanto componentes de función simples
-// como componentes que utilizan React.forwardRef.
-type GenericSectionComponent =
-  | React.FunctionComponent<GenericSectionProps>
-  | React.ForwardRefExoticComponent<
-      GenericSectionProps & React.RefAttributes<HTMLElement>
-    >;
-
-// El mapa de componentes ahora se valida contra este nuevo tipo de unión robusto.
-const componentMap: Record<SectionName, GenericSectionComponent> = {
-  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
-  BenefitsSection: Sections.BenefitsSection,
-  CommunitySection: Sections.CommunitySection,
-  ContactSection: Sections.ContactSection,
-  DoubleScrollingBanner: Sections.DoubleScrollingBanner,
-  FaqAccordion: Sections.FaqAccordion,
-  FeaturedArticlesCarousel: Sections.FeaturedArticlesCarousel,
-  FeaturesSection: Sections.FeaturesSection,
-  GuaranteeSection: Sections.GuaranteeSection,
-  Hero: Sections.Hero,
-  HeroNews: Sections.HeroNews,
-  IngredientAnalysis: Sections.IngredientAnalysis,
-  NewsGrid: Sections.NewsGrid,
-  OrderSection: Sections.OrderSection,
-  PricingSection: Sections.PricingSection,
-  ProductShowcase: Sections.ProductShowcase,
-  ScrollingBanner: Sections.ScrollingBanner, // <-- PROPIEDAD AÑADIDA
-  ServicesSection: Sections.ServicesSection,
-  SocialProofLogos: Sections.SocialProofLogos,
-  SponsorsSection: Sections.SponsorsSection,
-  TeamSection: Sections.TeamSection,
-  TestimonialCarouselSection: Sections.TestimonialCarouselSection,
-  TestimonialGrid: Sections.TestimonialGrid,
-  TextSection: Sections.TextSection,
-  ThumbnailCarousel: Sections.ThumbnailCarousel,
-  ArticleBody: Sections.ArticleBody,
-  CommentSection: Sections.CommentSection,
-};
 
 interface SectionRendererProps {
   sections: { name?: string | undefined }[];
@@ -81,78 +34,75 @@ export function SectionRenderer({
   sectionRefs,
 }: SectionRendererProps): React.ReactElement {
   logger.info(
-    "[SectionRenderer v18.0] Ensamblando página con contrato de unión."
+    "[SectionRenderer v17.0] Ensamblando página como Guardián de Contratos."
   );
-
-  const renderSection = (section: { name: string }, index: number) => {
-    const sectionName = section.name as SectionName;
-    const config = sectionsConfig[sectionName];
-    const Component = componentMap[sectionName];
-
-    if (!config || !Component) {
-      logger.warn(
-        `[SectionRenderer] Configuración o Componente para "${sectionName}" no encontrado.`
-      );
-      return null;
-    }
-
-    const { dictionaryKey, schema } = config;
-    const contentData = (dictionary as Record<string, unknown>)[dictionaryKey];
-    const validation = schema.safeParse(contentData);
-
-    if (!validation.success) {
-      if (
-        process.env.NODE_ENV === "development" &&
-        dictionary.validationError
-      ) {
-        return (
-          <ValidationError
-            key={`${sectionName}-${index}-error`}
-            sectionName={sectionName}
-            error={validation.error}
-            content={dictionary.validationError}
-          />
-        );
-      }
-      logger.error(
-        `[SectionRenderer] Fallo de validación para '${sectionName}'. No se renderizará.`
-      );
-      return null;
-    }
-
-    const componentProps = {
-      content: validation.data,
-      locale: locale,
-      isFocused: sectionName === focusedSection,
-      ref: (el: HTMLElement | null) => {
-        if (sectionRefs && el) {
-          sectionRefs.current[sectionName] = el;
-        } else if (sectionRefs) {
-          delete sectionRefs.current[sectionName];
-        }
-      },
-    };
-
-    logger.trace(
-      `[SectionRenderer] Renderizando sección #${index + 1}: ${sectionName}`
-    );
-
-    return <Component key={`${sectionName}-${index}`} {...componentProps} />;
-  };
 
   return (
     <SectionAnimator>
-      {sections
-        .filter((section): section is { name: string } => {
-          const isValid =
-            typeof section.name === "string" && section.name.length > 0;
-          if (!isValid)
-            logger.warn(`[SectionRenderer] Sección inválida omitida.`, {
-              sectionData: section,
-            });
-          return isValid;
-        })
-        .map(renderSection)}
+      {sections.map((section, index) => {
+        // Guardia de resiliencia para datos de layout malformados
+        if (!section || !section.name) {
+          logger.warn(
+            `[SectionRenderer] Sección en el índice ${index} es inválida y será omitida.`
+          );
+          return null;
+        }
+
+        const sectionName = section.name as SectionName;
+        const config = sectionsConfig[sectionName];
+
+        // Guardia de resiliencia para componentes no registrados
+        if (!config) {
+          logger.warn(
+            `[SectionRenderer] Configuración para "${sectionName}" no encontrada en sections.config.ts.`
+          );
+          return null;
+        }
+
+        const { component: Component, dictionaryKey, schema } = config;
+        const contentData = (dictionary as Record<string, unknown>)[
+          dictionaryKey
+        ];
+        const validation = schema.safeParse(contentData);
+
+        // Guardia de Contrato de Datos con feedback de desarrollo de élite (MEA/DX)
+        if (!validation.success) {
+          if (
+            process.env.NODE_ENV === "development" &&
+            dictionary.validationError
+          ) {
+            return (
+              <ValidationError
+                key={`${sectionName}-${index}-error`}
+                sectionName={sectionName}
+                error={validation.error}
+                content={dictionary.validationError}
+              />
+            );
+          }
+          logger.error(
+            `[SectionRenderer] Fallo de validación para '${sectionName}'. No se renderizará en producción.`
+          );
+          return null;
+        }
+
+        const componentProps = {
+          content: validation.data,
+          locale: locale,
+          isFocused: sectionName === focusedSection,
+          ref: (el: HTMLElement | null) => {
+            if (sectionRefs && el) {
+              sectionRefs.current[sectionName] = el;
+            } else if (sectionRefs) {
+              delete sectionRefs.current[sectionName];
+            }
+          },
+        };
+
+        return (
+          <Component key={`${sectionName}-${index}`} {...componentProps} />
+        );
+      })}
     </SectionAnimator>
   );
 }

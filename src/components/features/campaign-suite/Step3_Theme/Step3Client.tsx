@@ -1,27 +1,29 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/Step3Client.tsx
+// RUTA: src/components/features/campaign-suite/Step3_Theme/Step3Client.tsx
 /**
  * @file Step3Client.tsx
- * @description Contenedor de Cliente para el Paso 3, ahora orquestando el
- *              lanzamiento del Compositor de Temas.
- * @version 5.0.0 (Theme Composer Integration)
+ * @description Contenedor de Cliente para el Paso 3. Orquesta el Compositor
+ *              de Temas y consume los stores de tema y metadata atómicos.
+ * @version 6.0.0 (Atomic State Consumption & Holistic Leveling)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { useCampaignDraft } from "@/shared/hooks/campaign-suite/use-campaign-draft";
-import type { ThemeConfig } from "@/shared/lib/types/campaigns/draft.types";
 import { logger } from "@/shared/lib/logging";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import type { DiscoveredFragments } from "@/shared/lib/actions/campaign-suite/getThemeFragments.action";
-import { Step3Form } from "./Step3Form";
-import { useWizard } from "@/components/features/campaign-suite/_context/WizardContext";
-import { ThemeComposerModal } from "./_components/ThemeComposerModal";
+import type { ThemeConfig } from "@/shared/lib/types/campaigns/draft.types";
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
+import { useWizard } from "@/components/features/campaign-suite/_context/WizardContext";
+import { useStep3ThemeStore } from "@/shared/hooks/campaign-suite/use-step3-theme.store";
+import { useDraftMetadataStore } from "@/shared/hooks/campaign-suite/use-draft-metadata.store";
+import { Step3Form } from "./Step3Form";
+import { ThemeComposerModal } from "./_components/ThemeComposerModal";
 import { DynamicIcon } from "@/components/ui";
 import type { z } from "zod";
 import type { Step3ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step3.schema";
+import { loadJsonAsset } from "@/shared/lib/i18n/campaign.data.loader";
 
 type Step3Content = z.infer<typeof Step3ContentSchema>;
 
@@ -41,10 +43,12 @@ export function Step3Client({
   content,
   fragmentsResult,
 }: Step3ClientProps): React.ReactElement {
-  logger.info("[Step3Client] Renderizando v5.0 (Theme Composer Integration).");
+  logger.info("Renderizando Step3Client (v6.0 - Atomic State).");
 
-  const { draft, updateDraft } = useCampaignDraft();
+  const { themeConfig, updateThemeConfig } = useStep3ThemeStore();
+  const { completeStep } = useDraftMetadataStore();
   const { goToNextStep, goToPrevStep } = useWizard();
+
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [loadedFragments, setLoadedFragments] =
     useState<LoadedFragments | null>(null);
@@ -54,42 +58,46 @@ export function Step3Client({
     const loadAllFragments = async () => {
       if (!fragmentsResult.success) {
         toast.error("Error Crítico", {
-          description: "No se pudieron descubrir los fragmentos de tema.",
+          description:
+            fragmentsResult.error ||
+            "No se pudieron descubrir los fragmentos de tema.",
         });
         setIsLoadingFragments(false);
         return;
       }
 
       try {
-        const fetchFragment = async (
-          path: string
-        ): Promise<Partial<AssembledTheme>> => {
-          const response = await fetch(path);
-          if (!response.ok) return {};
-          return await response.json();
-        };
-
         const [base, colors, fonts, radii] = await Promise.all([
-          fetchFragment("/theme-fragments/base/global.theme.json"),
+          loadJsonAsset<Partial<AssembledTheme>>(
+            "theme-fragments",
+            "base",
+            "global.theme.json"
+          ),
           Promise.all(
             fragmentsResult.data.colors.map((name) =>
-              fetchFragment(`/theme-fragments/colors/${name}.colors.json`).then(
-                (data) => ({ name, data })
-              )
+              loadJsonAsset<Partial<AssembledTheme>>(
+                "theme-fragments",
+                "colors",
+                `${name}.colors.json`
+              ).then((data) => ({ name, data }))
             )
           ),
           Promise.all(
             fragmentsResult.data.fonts.map((name) =>
-              fetchFragment(`/theme-fragments/fonts/${name}.fonts.json`).then(
-                (data) => ({ name, data })
-              )
+              loadJsonAsset<Partial<AssembledTheme>>(
+                "theme-fragments",
+                "fonts",
+                `${name}.fonts.json`
+              ).then((data) => ({ name, data }))
             )
           ),
           Promise.all(
             fragmentsResult.data.radii.map((name) =>
-              fetchFragment(`/theme-fragments/radii/${name}.radii.json`).then(
-                (data) => ({ name, data })
-              )
+              loadJsonAsset<Partial<AssembledTheme>>(
+                "theme-fragments",
+                "radii",
+                `${name}.radii.json`
+              ).then((data) => ({ name, data }))
             )
           ),
         ]);
@@ -109,10 +117,6 @@ export function Step3Client({
     };
     loadAllFragments();
   }, [fragmentsResult]);
-
-  const onThemeConfigChange = (newConfig: Partial<ThemeConfig>) => {
-    updateDraft({ themeConfig: { ...draft.themeConfig, ...newConfig } });
-  };
 
   if (!content) {
     logger.error("[Step3Client] El contenido para el Paso 3 es indefinido.");
@@ -135,13 +139,23 @@ export function Step3Client({
     );
   }
 
+  const handleThemeConfigChange = (newConfig: Partial<ThemeConfig>) => {
+    updateThemeConfig(newConfig);
+  };
+
+  const handleNext = () => {
+    logger.info("[Step3Client] El usuario avanza al Paso 4.");
+    completeStep(3);
+    goToNextStep();
+  };
+
   return (
     <>
       <Step3Form
         content={content}
-        themeConfig={draft.themeConfig}
+        themeConfig={themeConfig}
         onBack={goToPrevStep}
-        onNext={goToNextStep}
+        onNext={handleNext}
         onLaunchComposer={() => setIsComposerOpen(true)}
       />
 
@@ -150,12 +164,11 @@ export function Step3Client({
           isOpen={isComposerOpen}
           onClose={() => setIsComposerOpen(false)}
           fragments={loadedFragments}
-          currentConfig={draft.themeConfig}
-          onSave={onThemeConfigChange}
+          currentConfig={themeConfig}
+          onSave={handleThemeConfigChange}
           content={content}
         />
       )}
     </>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/Step3Client.tsx

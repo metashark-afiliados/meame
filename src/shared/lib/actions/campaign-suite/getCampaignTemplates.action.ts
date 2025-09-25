@@ -2,19 +2,14 @@
 /**
  * @file getCampaignTemplates.action.ts
  * @description Server Action para obtener todas las plantillas de campaña disponibles.
- * @version 1.0.0
+ * @version 1.1.0 (Code Hygiene)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
 
 import { logger } from "@/shared/lib/logging";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
-import {
-  CampaignTemplateSchema,
-  type CampaignTemplate,
-} from "@/shared/lib/schemas/campaigns/template.schema";
-// Asumimos que tenemos un cliente de base de datos configurado.
-// import { db } from "@/shared/lib/db";
+import type { CampaignTemplate } from "@/shared/lib/schemas/campaigns/template.schema";
 
 // Datos mockeados para desarrollo hasta que la conexión a la BD esté activa.
 const MOCK_TEMPLATES: CampaignTemplate[] = [
@@ -27,15 +22,6 @@ export async function getCampaignTemplatesAction(): Promise<
   logger.info("[Action] Solicitando lista de plantillas de campaña...");
 
   try {
-    // Lógica real de base de datos (ej. MongoDB)
-    // const templatesFromDb = await db.collection('campaign_templates').find().toArray();
-    // const validation = z.array(CampaignTemplateSchema).safeParse(templatesFromDb);
-    // if (!validation.success) {
-    //   throw new Error("Los datos de las plantillas en la BD están corruptos.");
-    // }
-    // logger.success(`Se recuperaron ${validation.data.length} plantillas.`);
-    // return { success: true, data: validation.data };
-
     // Lógica con datos mockeados para desarrollo
     await new Promise((resolve) => setTimeout(resolve, 750)); // Simular latencia de red
     logger.success(
@@ -55,3 +41,4 @@ export async function getCampaignTemplatesAction(): Promise<
     };
   }
 }
+// RUTA: shared/lib/actions/campaign-suite/getCampaignTemplates.action.ts

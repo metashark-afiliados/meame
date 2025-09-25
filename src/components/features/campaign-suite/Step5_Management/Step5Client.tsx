@@ -1,31 +1,31 @@
 // RUTA: src/components/features/campaign-suite/Step5_Management/Step5Client.tsx
 /**
  * @file Step5Client.tsx
- * @description Orquestador de cliente para el Paso 5. Gestiona la lógica y el estado.
- * @version 1.1.0 (Sovereign Path Restoration)
+ * @description Orquestador de cliente para el Paso 5. Ensambla el borrador
+ *              final a partir de los stores atómicos y gestiona el ciclo de vida.
+ * @version 3.0.0 (Functional Activation & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React, { useMemo } from "react";
-import { toast } from "sonner";
-import { logger } from "@/shared/lib/logging";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import type { z } from "zod";
 import type { Step5ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step5.schema";
-import { useCampaignDraft } from "@/shared/hooks/campaign-suite/use-campaign-draft";
-import { useCampaignLifecycle } from "@/shared/hooks/campaign-suite/use-campaign-lifecycle";
 import { useWizard } from "@/components/features/campaign-suite/_context/WizardContext";
-import {
-  publishCampaignAction,
-  packageCampaignAction,
-} from "@/shared/lib/actions/campaign-suite";
+import { useCampaignLifecycle } from "@/shared/hooks/campaign-suite/use-campaign-lifecycle";
 import { useCampaignTemplates } from "@/shared/hooks/campaign-suite/use-campaign-templates";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+import { useCelebrationStore } from "@/shared/lib/stores/use-celebration.store";
 import { validateDraftForLaunch } from "@/shared/lib/utils/campaign-suite/draft.validator";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { Step5Form } from "./Step5Form";
 import { DigitalConfetti } from "@/components/ui/DigitalConfetti";
+import { useDraftMetadataStore } from "@/shared/hooks/campaign-suite/use-draft-metadata.store";
+import { useStep0IdentityStore } from "@/shared/hooks/campaign-suite/use-step0-identity.store";
+import { useStep1StructureStore } from "@/shared/hooks/campaign-suite/use-step1-structure.store";
+import { useStep2LayoutStore } from "@/shared/hooks/campaign-suite/use-step2-layout.store";
+import { useStep3ThemeStore } from "@/shared/hooks/campaign-suite/use-step3-theme.store";
+import { useStep4ContentStore } from "@/shared/hooks/campaign-suite/use-step4-content.store";
+import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
 
 type Content = z.infer<typeof Step5ContentSchema>;
 
@@ -38,91 +38,75 @@ export function Step5Client({
   locale,
   stepContent,
 }: Step5ClientProps): React.ReactElement {
-  const { draft } = useCampaignDraft();
+  const metadata = useDraftMetadataStore();
+  const identity = useStep0IdentityStore();
+  const structure = useStep1StructureStore();
+  const layout = useStep2LayoutStore();
+  const theme = useStep3ThemeStore();
+  const content = useStep4ContentStore();
+  const { isCelebrating, endCelebration } = useCelebrationStore();
+
   const { goToPrevStep } = useWizard();
+
+  const assembledDraft = useMemo(
+    (): CampaignDraft => ({
+      draftId: metadata.draftId,
+      baseCampaignId: metadata.baseCampaignId,
+      variantName: metadata.variantName,
+      seoKeywords: metadata.seoKeywords,
+      completedSteps: metadata.completedSteps,
+      updatedAt: metadata.updatedAt,
+      affiliateNetwork: identity.affiliateNetwork,
+      affiliateUrl: identity.affiliateUrl,
+      headerConfig: structure.headerConfig,
+      footerConfig: structure.footerConfig,
+      layoutConfig: layout.layoutConfig,
+      themeConfig: theme.themeConfig,
+      contentData: content.contentData,
+      step: 5,
+    }),
+    [metadata, identity, structure, layout, theme, content]
+  );
+
   const {
+    onPublish,
+    onPackage,
     onDelete,
     isPublishing,
-    startPublishTransition,
     isPackaging,
-    startPackageTransition,
     isDeleting,
-  } = useCampaignLifecycle(locale);
-  const { onSaveAsTemplate, isSavingTemplate } = useCampaignTemplates();
+  } = useCampaignLifecycle(locale, assembledDraft);
 
-  const checklistItems = useMemo(() => validateDraftForLaunch(draft), [draft]);
+  const { onSaveAsTemplate, isSavingTemplate } =
+    useCampaignTemplates(assembledDraft);
+
+  const checklistItems = useMemo(
+    () => validateDraftForLaunch(assembledDraft),
+    [assembledDraft]
+  );
   const isLaunchReady = useMemo(
     () => checklistItems.every((item) => item.isCompleted),
     [checklistItems]
   );
 
-  const onPublish = () => {
-    logger.info("[Step5Client] Iniciando transición de publicación.");
-    startPublishTransition(async () => {
-      const result = await publishCampaignAction(draft);
-      if (result.success) {
-        toast.success("¡Campaña publicada con éxito!", {
-          description: `La variante ${result.data.variantId} está ahora activa.`,
-        });
-        // En una app real, el manejo de efectos como el confeti
-        // se haría a través de un proveedor de contexto de notificaciones.
-        // Por ahora, lo simulamos así para demostrar la capacidad.
-        const confettiActivator = document.createElement("div");
-        document.body.appendChild(confettiActivator);
-        const root = require("react-dom/client").createRoot(confettiActivator);
-        root.render(
-          <DigitalConfetti
-            isActive={true}
-            onComplete={() => {
-              root.unmount();
-              confettiActivator.remove();
-            }}
-          />
-        );
-      } else {
-        toast.error("Fallo al publicar la campaña", {
-          description: result.error,
-        });
-      }
-    });
-  };
-
-  const onPackage = () => {
-    logger.info("[Step5Client] Iniciando transición de empaquetado.");
-    startPackageTransition(async () => {
-      const result = await packageCampaignAction(draft);
-      if (result.success) {
-        toast.success("¡Paquete .zip generado con éxito!", {
-          description: "La descarga comenzará en breve.",
-          action: {
-            label: "Descargar Ahora",
-            onClick: () => window.open(result.data.downloadUrl, "_blank"),
-          },
-        });
-        window.open(result.data.downloadUrl, "_blank");
-      } else {
-        toast.error("Fallo al generar el paquete", {
-          description: result.error,
-        });
-      }
-    });
-  };
-
   return (
-    <Step5Form
-      draft={draft}
-      checklistItems={checklistItems}
-      content={stepContent}
-      onBack={goToPrevStep}
-      onPublish={onPublish}
-      onPackage={onPackage}
-      onConfirmDelete={onDelete}
-      onSaveAsTemplate={onSaveAsTemplate}
-      isPublishing={isPublishing}
-      isPackaging={isPackaging}
-      isDeleting={isDeleting}
-      isSavingTemplate={isSavingTemplate}
-      isLaunchReady={isLaunchReady}
-    />
+    <>
+      <Step5Form
+        draft={assembledDraft}
+        checklistItems={checklistItems}
+        content={stepContent}
+        onBack={goToPrevStep}
+        onPublish={onPublish}
+        onPackage={onPackage}
+        onConfirmDelete={onDelete}
+        onSaveAsTemplate={onSaveAsTemplate}
+        isPublishing={isPublishing}
+        isPackaging={isPackaging}
+        isDeleting={isDeleting}
+        isSavingTemplate={isSavingTemplate}
+        isLaunchReady={isLaunchReady}
+      />
+      <DigitalConfetti isActive={isCelebrating} onComplete={endCelebration} />
+    </>
   );
 }

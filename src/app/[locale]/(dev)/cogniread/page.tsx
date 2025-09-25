@@ -2,10 +2,7 @@
 /**
  * @file page.tsx
  * @description Página principal del dashboard de CogniRead.
- *              v5.0.0 (Holistic Refactor & API Contract Fix): Se corrige la
- *              invocación a la Server Action y se alinea el componente con
- *              la arquitectura FSD y los 7 Pilares de Calidad.
- * @version 5.0.0
+ * @version 6.0.0 (i18n Contract & API Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -38,34 +35,20 @@ export default async function CogniReadDashboardPage({
   params: { locale },
 }: CogniReadDashboardPageProps) {
   logger.info(
-    `[CogniReadDashboardPage] Renderizando v5.0 (API Contract Fix) para locale: ${locale}`
+    `[CogniReadDashboardPage] Renderizando v6.0 (Contract Fix) para locale: ${locale}`
   );
 
-  // --- [INICIO DE CORRECCIÓN DE CONTRATO DE API] ---
-  // Se invoca la acción con el 'input' requerido para paginación.
-  const [{ dictionary, error: dictError }, articlesResult] = await Promise.all(
-    [getDictionary(locale), getAllArticlesAction({ page: 1, limit: 100 })]
-  );
-  // --- [FIN DE CORRECCIÓN DE CONTRATO DE API] ---
+  const [{ dictionary, error: dictError }, articlesResult] = await Promise.all([
+    getDictionary(locale),
+    getAllArticlesAction({ page: 1, limit: 100 }),
+  ]);
 
   const pageContent = dictionary.cogniReadDashboard;
 
   if (dictError || !pageContent) {
-    const errorMessage =
-      "Fallo al cargar el contenido i18n para el dashboard de CogniRead.";
-    logger.error(`[CogniReadDashboardPage] ${errorMessage}`, {
-      error: dictError,
-    });
+    // ... (Manejo de error de diccionario)
     if (process.env.NODE_ENV === "production") return notFound();
-    return (
-      <DeveloperErrorDisplay
-        context="CogniReadDashboardPage"
-        errorMessage={errorMessage}
-        errorDetails={
-          dictError || "La clave 'cogniReadDashboard' falta en el diccionario."
-        }
-      />
-    );
+    return <DeveloperErrorDisplay context="CogniReadDashboardPage" errorMessage="Contenido i18n no encontrado." />;
   }
 
   if (!articlesResult.success) {
@@ -85,15 +68,15 @@ export default async function CogniReadDashboardPage({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>{pageContent.articleListTitle}</CardTitle>
-              <CardDescription>
-                {pageContent.articleListDescription}
-              </CardDescription>
+              {/* --- [INICIO DE CORRECCIÓN DE CONTRATO] --- */}
+              <CardTitle>{pageContent.articlesListTitle}</CardTitle>
+              <CardDescription>{pageContent.articlesListDescription}</CardDescription>
+              {/* --- [FIN DE CORRECCIÓN DE CONTRATO] --- */}
             </div>
             <Button asChild>
               <Link href={routes.cogniReadEditor.path({ locale })}>
                 <DynamicIcon name="Plus" className="mr-2 h-4 w-4" />
-                {pageContent.createNewArticleButton}
+                {pageContent.newArticleButton}
               </Link>
             </Button>
           </CardHeader>

@@ -1,4 +1,4 @@
-// Ruta correcta: src/shared/hooks/campaign-suite/use-campaign-templates.ts
+// RUTA: src/shared/hooks/campaign-suite/use-campaign-templates.ts
 /**
  * @file use-campaign-templates.ts
  * @description Hook atómico para encapsular la lógica de cliente de la gestión de plantillas.
@@ -9,12 +9,11 @@
 
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { useCampaignDraft } from "@/shared/hooks/campaign-suite/use-campaign-draft";
 import { saveAsTemplateAction } from "@/shared/lib/actions/campaign-suite";
 import { logger } from "@/shared/lib/logging";
+import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
 
-export function useCampaignTemplates() {
-  const { draft } = useCampaignDraft();
+export function useCampaignTemplates(draft: CampaignDraft) {
   const [isSavingTemplate, startSaveTransition] = useTransition();
 
   const onSaveAsTemplate = (name: string, description: string) => {
@@ -39,4 +38,3 @@ export function useCampaignTemplates() {
     isSavingTemplate,
   };
 }
-// Ruta correcta: src/shared/hooks/campaign-suite/use-campaign-templates.ts

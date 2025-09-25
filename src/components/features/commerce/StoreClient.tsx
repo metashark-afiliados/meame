@@ -2,9 +2,8 @@
 /**
  * @file StoreClient.tsx
  * @description Componente "cerebro" del lado del cliente para la página de la tienda.
- *              Gestiona el estado de los filtros y la lógica de interacción,
- *              recibiendo los datos pre-cargados desde su "shell" de servidor.
- * @version 1.0.0
+ *              Gestiona el estado de los filtros y la lógica de interacción.
+ * @version 3.0.0 (Definitive Build Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -50,6 +49,15 @@ export function StoreClient({
       ),
     [initialProducts]
   );
+
+  // Guardia de resiliencia para el contenido
+  if (!content.storePage) {
+    return (
+      <Container className="py-16">
+        <p>Error: Falta el contenido de la página de la tienda.</p>
+      </Container>
+    );
+  }
 
   return (
     <>

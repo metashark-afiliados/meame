@@ -1,8 +1,10 @@
-// RUTA: src/shared/lib/actions/notifications/send-order-confirmation.action.ts
+// RUTA: src/shared/lib/actions/notifications/send-order-confirmation.action.tsx
 /**
- * @file send-order-confirmation.action.ts
+ * @file send-order-confirmation.action.tsx
  * @description Server Action atómica para el envío de correos de confirmación de pedido.
- * @version 2.0.0 (Elite & Holistically Correct)
+ *              v2.0.0 (Elite & Holistically Correct): Refactorizado a .tsx para
+ *              soportar el renderizado de componentes React Email.
+ * @version 2.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -50,7 +52,7 @@ export async function sendOrderConfirmationEmailAction(
     const emailContent = dictionary.orderConfirmationEmail;
     const subject = emailContent.previewText.replace("{{orderId}}", orderId);
 
-    // 3. Renderizar el componente de React Email con la sintaxis correcta JSX.
+    // 3. Renderizar el componente de React Email.
     const emailComponent = (
       <OrderConfirmationEmail
         content={emailContent}
@@ -72,3 +74,4 @@ export async function sendOrderConfirmationEmailAction(
     logger.endTrace(traceId);
   }
 }
+// RUTA: src/shared/lib/actions/notifications/send-order-confirmation.action.tsx

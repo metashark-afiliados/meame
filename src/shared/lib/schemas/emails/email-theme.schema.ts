@@ -9,7 +9,10 @@
 import { z } from "zod";
 
 // Define un objeto de estilo de React como un record genérico para máxima flexibilidad.
-const EmailStyleSchema = z.record(z.string(), z.union([z.string(), z.number()]));
+const EmailStyleSchema = z.record(
+  z.string(),
+  z.union([z.string(), z.number()])
+);
 
 // Define el contrato completo para un tema de correo electrónico.
 export const EmailThemeSchema = z.object({

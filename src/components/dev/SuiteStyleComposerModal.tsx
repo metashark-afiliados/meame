@@ -1,13 +1,13 @@
-// Ruta correcta: src/components/dev/SuiteStyleComposerModal.tsx
+// RUTA: src/components/dev/SuiteStyleComposerModal.tsx
 /**
  * @file SuiteStyleComposerModal.tsx
  * @description Orquestador modal para la composición de temas.
- * @version 6.0.0 (Holistic Integrity & FSD Alignment)
+ * @version 8.0.0 (Full Implementation & Type Safety)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
@@ -17,42 +17,22 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui";
-import { logger } from "@/shared/lib/logging";
 import { useSuiteStyleComposer } from "@/components/features/dev-tools/SuiteStyleComposer/use-suite-style-composer";
+import {
+  ComposerHeader,
+  ComposerFooter,
+  SuiteColorsTab,
+  SuiteTypographyTab,
+  SuiteGeometryTab,
+} from "@/components/features/dev-tools/SuiteStyleComposer";
 import type {
   SuiteThemeConfig,
   LoadedFragments,
 } from "@/components/features/dev-tools/SuiteStyleComposer/types";
-import { ComposerHeader } from "@/components/features/dev-tools/SuiteStyleComposer/ComposerHeader";
-import { ComposerFooter } from "@/components/features/dev-tools/SuiteStyleComposer/ComposerFooter";
-import { SuiteColorsTab } from "@/components/features/dev-tools/SuiteStyleComposer/SuiteColorsTab";
-import { SuiteTypographyTab } from "@/components/features/dev-tools/SuiteStyleComposer/SuiteTypographyTab";
-import { SuiteGeometryTab } from "@/components/features/dev-tools/SuiteStyleComposer/SuiteGeometryTab";
+import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
-interface ModalContent {
-  composerTitle: string;
-  composerDescription: string;
-  composerColorsTab: string;
-  composerTypographyTab: string;
-  composerGeometryTab: string;
-  composerSaveButton: string;
-  composerCancelButton: string;
-  selectThemeLabel: string;
-  selectFontLabel: string;
-  selectRadiusLabel: string;
-  defaultPresetName: string;
-  colorFilterPlaceholder: string;
-  fontFilterPlaceholder: string;
-  radiusFilterPlaceholder: string;
-  fontSizeLabel: string;
-  fontWeightLabel: string;
-  lineHeightLabel: string;
-  letterSpacingLabel: string;
-  borderRadiusLabel: string;
-  borderWidthLabel: string;
-  baseSpacingUnitLabel: string;
-  inputHeightLabel: string;
-}
+// Contrato de tipo explícito para el contenido i18n
+type ComposerContent = NonNullable<Dictionary["suiteStyleComposer"]>;
 
 interface SuiteStyleComposerModalProps {
   isOpen: boolean;
@@ -60,7 +40,7 @@ interface SuiteStyleComposerModalProps {
   allThemeFragments: LoadedFragments;
   currentSuiteConfig: SuiteThemeConfig;
   onSave: (newConfig: SuiteThemeConfig) => void;
-  content: ModalContent;
+  content: ComposerContent;
 }
 
 export function SuiteStyleComposerModal({
@@ -70,29 +50,14 @@ export function SuiteStyleComposerModal({
   currentSuiteConfig,
   onSave,
   content,
-}: SuiteStyleComposerModalProps): React.ReactElement {
-  logger.info(
-    "[SuiteStyleComposerModal] Renderizando v6.0 (Holistic Integrity & FSD Alignment)"
-  );
-
-  const {
-    localSuiteConfig,
-    handleConfigUpdate,
-    handleGranularChange,
-    clearPreview,
-  } = useSuiteStyleComposer({
-    initialConfig: currentSuiteConfig,
-    allThemeFragments,
-  });
-
-  useEffect(() => {
-    if (isOpen) {
-      handleConfigUpdate(currentSuiteConfig);
-    }
-  }, [isOpen, currentSuiteConfig, handleConfigUpdate]);
+}: SuiteStyleComposerModalProps) {
+  const { localSuiteConfig, handleConfigUpdate, clearPreview } =
+    useSuiteStyleComposer({
+      initialConfig: currentSuiteConfig,
+      allThemeFragments,
+    });
 
   const handleSave = () => {
-    clearPreview();
     onSave(localSuiteConfig);
     onClose();
   };
@@ -106,23 +71,21 @@ export function SuiteStyleComposerModal({
     <AnimatePresence>
       {isOpen && (
         <Dialog open={isOpen} onOpenChange={handleCancel}>
-          <DialogContent
-            className="max-w-6xl h-[90vh] flex flex-col p-0"
-            asChild
-          >
+          <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="flex flex-col h-full"
             >
               <ComposerHeader
                 title={content.composerTitle}
                 description={content.composerDescription}
               />
-              <div className="flex-grow overflow-y-auto px-6">
+              <div className="flex-grow overflow-y-auto">
                 <Tabs defaultValue="colors" className="w-full">
-                  <TabsList>
+                  <TabsList className="mx-6">
                     <TabsTrigger value="colors">
                       {content.composerColorsTab}
                     </TabsTrigger>
@@ -133,58 +96,45 @@ export function SuiteStyleComposerModal({
                       {content.composerGeometryTab}
                     </TabsTrigger>
                   </TabsList>
-                  <TabsContent value="colors" className="mt-4">
+                  <TabsContent value="colors">
                     <SuiteColorsTab
                       allThemeFragments={allThemeFragments}
                       selectedColorPreset={localSuiteConfig.colorPreset || ""}
-                      onColorPresetChange={(value: string) =>
+                      onColorPresetChange={(value) =>
                         handleConfigUpdate({ colorPreset: value })
                       }
                       content={{
                         selectThemeLabel: content.selectThemeLabel,
-                        colorFilterPlaceholder: content.colorFilterPlaceholder,
                         defaultPresetName: content.defaultPresetName,
                       }}
                     />
                   </TabsContent>
-                  <TabsContent value="typography" className="mt-4">
+                  <TabsContent value="typography">
                     <SuiteTypographyTab
                       allThemeFragments={allThemeFragments}
                       selectedFontPreset={localSuiteConfig.fontPreset || ""}
-                      granularFonts={localSuiteConfig.granularFonts || {}}
-                      onFontPresetChange={(value: string) =>
+                      onFontPresetChange={(value) =>
                         handleConfigUpdate({ fontPreset: value })
                       }
-                      onGranularChange={handleGranularChange}
                       content={{
                         selectFontLabel: content.selectFontLabel,
                         fontFilterPlaceholder: content.fontFilterPlaceholder,
                         defaultPresetName: content.defaultPresetName,
-                        fontSizeLabel: content.fontSizeLabel,
-                        fontWeightLabel: content.fontWeightLabel,
-                        lineHeightLabel: content.lineHeightLabel,
-                        letterSpacingLabel: content.letterSpacingLabel,
                       }}
                     />
                   </TabsContent>
-                  <TabsContent value="geometry" className="mt-4">
+                  <TabsContent value="geometry">
                     <SuiteGeometryTab
                       allThemeFragments={allThemeFragments}
                       selectedRadiusPreset={localSuiteConfig.radiusPreset || ""}
-                      granularGeometry={localSuiteConfig.granularGeometry || {}}
-                      onRadiusPresetChange={(value: string) =>
+                      onRadiusPresetChange={(value) =>
                         handleConfigUpdate({ radiusPreset: value })
                       }
-                      onGranularChange={handleGranularChange}
                       content={{
                         selectRadiusLabel: content.selectRadiusLabel,
                         radiusFilterPlaceholder:
                           content.radiusFilterPlaceholder,
                         defaultPresetName: content.defaultPresetName,
-                        borderRadiusLabel: content.borderRadiusLabel,
-                        borderWidthLabel: content.borderWidthLabel,
-                        baseSpacingUnitLabel: content.baseSpacingUnitLabel,
-                        inputHeightLabel: content.inputHeightLabel,
                       }}
                     />
                   </TabsContent>

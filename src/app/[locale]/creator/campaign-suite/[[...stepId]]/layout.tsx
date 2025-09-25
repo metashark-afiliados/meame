@@ -1,63 +1,51 @@
-// RUTA: app/[locale]/creator/campaign-suite/[[...stepId]]/layout.tsx
+// RUTA: src/app/[locale]/creator/campaign-suite/[[...stepId]]/layout.tsx
 /**
  * @file layout.tsx
- * @description Layout orquestador para la SDC, que ahora gestiona el flujo de
- *              selección de plantillas.
- * @version 2.0.0 (Template Browser Integration)
+ * @description Layout orquestador para la SDC. Ensambla el Wizard alrededor de la
+ *              página del paso actual.
+ * @version 4.0.0 (Holistic Refactor & Contract Sync)
  * @author RaZ Podestá - MetaShark Tech
  */
-"use client"; // Este layout ahora debe ser un Client Component para gestionar el estado
-
-import React, { useState } from "react";
-import { logger } from "@/shared/lib/logging";
+import React from "react";
 import { CampaignSuiteWizard } from "@/components/features/campaign-suite/CampaignSuiteWizard";
-import { TemplateBrowser } from "@/components/features/campaign-suite/TemplateBrowser/TemplateBrowser";
-import { useCampaignDraftStore } from "@/shared/lib/stores/campaign-draft.store";
-import type { CampaignTemplate } from "@/shared/lib/schemas/campaigns/template.schema";
+import { getDictionary } from "@/shared/lib/i18n/get-dictionary";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
+import { logger } from "@/shared/lib/logging";
+import { DeveloperErrorDisplay } from "@/components/dev";
+import { notFound } from "next/navigation";
 
 interface CampaignSuiteLayoutProps {
   children: React.ReactNode;
   params: { locale: Locale };
 }
 
-export default function CampaignSuiteLayout({
-  children, // children (page.tsx) ya no es necesario aquí, pero lo mantenemos por consistencia
-  params,
-}: CampaignSuiteLayoutProps): React.ReactElement {
-  // Utilizamos un estado local para controlar si el proceso ha comenzado.
-  const [isStarted, setIsStarted] = useState(false);
-  const { applyTemplate, resetDraft } = useCampaignDraftStore();
+export default async function CampaignSuiteLayout({
+  children,
+  params: { locale },
+}: CampaignSuiteLayoutProps) {
+  logger.info(`[SDC Layout] Ensamblando Wizard para locale: ${locale} (v4.0)`);
 
-  const handleSelectTemplate = (template: CampaignTemplate) => {
-    logger.info(
-      "[Layout] Plantilla seleccionada. Aplicando y comenzando asistente."
-    );
-    applyTemplate(template.draftData);
-    setIsStarted(true);
-  };
+  const { dictionary, error } = await getDictionary(locale);
+  const pageContent = dictionary.campaignSuitePage;
 
-  const handleStartFromScratch = () => {
-    logger.info(
-      "[Layout] Empezando desde cero. Reiniciando borrador y comenzando asistente."
-    );
-    resetDraft(); // Asegura que empezamos con un borrador limpio.
-    setIsStarted(true);
-  };
-
-  // El estado `isHydratedFromTemplate` de Zustand podría usarse aquí también,
-  // pero un estado local es más simple para este control de flujo.
-
-  if (!isStarted) {
+  if (error || !pageContent) {
+    const errorMessage = "Fallo al cargar el contenido i18n para la SDC.";
+    logger.error(`[SDC Layout] ${errorMessage}`, { error });
+    if (process.env.NODE_ENV === "production") return notFound();
     return (
-      <TemplateBrowser
-        onTemplateSelect={handleSelectTemplate}
-        onStartFromScratch={handleStartFromScratch}
+      <DeveloperErrorDisplay
+        context="CampaignSuiteLayout"
+        errorMessage={errorMessage}
+        errorDetails={
+          error || "La clave 'campaignSuitePage' falta en el diccionario."
+        }
       />
     );
   }
 
-  // Una vez que se ha iniciado el proceso, renderizamos el asistente.
-  // El 'children' (page.tsx) es renderizado dentro del Wizard.
-  return <main>{children}</main>; // El page.tsx renderizará el Wizard
+  return (
+    <CampaignSuiteWizard locale={locale} content={pageContent}>
+      {children}
+    </CampaignSuiteWizard>
+  );
 }

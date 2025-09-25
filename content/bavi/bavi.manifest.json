@@ -4,10 +4,11 @@
       "assetId": "i-prv-standard-header-01",
       "provider": "cloudinary",
       "tags": {
-        "thm": "dev",
-        "cnt": "ui",
-        "ori": "lsc",
-        "sty": "pht"
+        "ai": "ideo",
+        "sty": "pht",
+        "fmt": "16x9",
+        "typ": "ui",
+        "sbj": "abs"
       },
       "variants": [
         {
@@ -34,7 +35,8 @@
       "assetId": "i-sybl-wellness-insider-01",
       "provider": "cloudinary",
       "tags": {
-        "cnt": "lgo"
+        "typ": "ui",
+        "sbj": "lgo"
       },
       "variants": [
         {
@@ -57,7 +59,8 @@
       "assetId": "i-sybl-health-journal-01",
       "provider": "cloudinary",
       "tags": {
-        "cnt": "lgo"
+        "typ": "ui",
+        "sbj": "lgo"
       },
       "variants": [
         {
@@ -80,7 +83,8 @@
       "assetId": "i-sybl-bio-innovate-01",
       "provider": "cloudinary",
       "tags": {
-        "cnt": "lgo"
+        "typ": "ui",
+        "sbj": "lgo"
       },
       "variants": [
         {
@@ -103,7 +107,8 @@
       "assetId": "i-sybl-nutrition-council-01",
       "provider": "cloudinary",
       "tags": {
-        "cnt": "lgo"
+        "typ": "ui",
+        "sbj": "lgo"
       },
       "variants": [
         {

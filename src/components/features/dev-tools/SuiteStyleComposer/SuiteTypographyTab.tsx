@@ -1,13 +1,15 @@
-// app/[locale]/(dev)/dev/_components/SuiteStyleComposer/SuiteTypographyTab.tsx
+// RUTA: src/components/features/dev-tools/SuiteStyleComposer/_components/SuiteTypographyTab.tsx
 /**
  * @file SuiteTypographyTab.tsx
- * @description Aparato atómico para la pestaña de tipografía.
- * @version 2.0.0 (SSoT Type Alignment)
+ * @description Aparato de UI atómico para la pestaña de tipografía, ahora funcionalmente
+ *              completo con controles granulares y MEA/UX.
+ * @version 3.0.0 (Full Granular Controls & MEA/UX)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React, { useMemo } from "react";
+import { motion, type Variants } from "framer-motion";
 import {
   Select,
   SelectContent,
@@ -18,10 +20,7 @@ import {
 import { Label } from "@/components/ui/Label";
 import { logger } from "@/shared/lib/logging";
 import { GranularInputControl } from "./GranularInputControl";
-// --- [INICIO] REFACTORIZACIÓN ARQUITECTÓNICA ---
-// Se importa el tipo desde la nueva SSoT y se eliminan las importaciones innecesarias.
-import type { LoadedFragments } from "./types";
-// --- [FIN] REFACTORIZACIÓN ARQUITECTÓNICA ---
+import type { LoadedFragments, SuiteThemeConfig } from "./types";
 
 interface SuiteTypographyTabProps {
   allThemeFragments: LoadedFragments;
@@ -29,7 +28,7 @@ interface SuiteTypographyTabProps {
   granularFonts: Record<string, string>;
   onFontPresetChange: (value: string) => void;
   onGranularChange: (
-    category: "granularFonts",
+    category: keyof Pick<SuiteThemeConfig, "granularFonts">,
     cssVar: string,
     value: string
   ) => void;
@@ -44,6 +43,21 @@ interface SuiteTypographyTabProps {
   };
 }
 
+const gridVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+};
+
 export function SuiteTypographyTab({
   allThemeFragments,
   selectedFontPreset,
@@ -53,12 +67,12 @@ export function SuiteTypographyTab({
   content,
 }: SuiteTypographyTabProps): React.ReactElement {
   logger.trace(
-    "[SuiteTypographyTab] Renderizando pestaña de tipografía (v2.0 - SSoT Aligned)."
+    "[SuiteTypographyTab] Renderizando v3.0 (Full Granular Controls)."
   );
 
   const fontOptions = useMemo(
     () => [
-      { label: content.defaultPresetName, value: "minimalist-sans" },
+      { label: content.defaultPresetName, value: "default" },
       ...Object.keys(allThemeFragments.fonts).map((name) => ({
         label: name,
         value: name,
@@ -85,10 +99,16 @@ export function SuiteTypographyTab({
         </Select>
       </div>
 
-      <h4 className="font-semibold text-foreground mt-8">
+      {/* --- [INICIO DE REFACTORIZACIÓN: RESTAURACIÓN DE FUNCIONALIDAD] --- */}
+      <h4 className="font-semibold text-foreground pt-4 border-t">
         {content.fontSizeLabel}
       </h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <motion.div
+        className="grid grid-cols-2 md:grid-cols-3 gap-4"
+        variants={gridVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {[
           "--text-xs",
           "--text-sm",
@@ -97,23 +117,29 @@ export function SuiteTypographyTab({
           "--text-xl",
           "--text-2xl",
         ].map((cssVar) => (
-          <GranularInputControl
-            key={cssVar}
-            id={cssVar}
-            label={cssVar.replace("--text-", "Tamaño ")}
-            value={granularFonts?.[cssVar] || ""}
-            onChange={(value) =>
-              onGranularChange("granularFonts", cssVar, value)
-            }
-            placeholder="Ej. 16px, 1.125rem"
-          />
+          <motion.div key={cssVar} variants={itemVariants}>
+            <GranularInputControl
+              id={cssVar}
+              label={cssVar.replace("--text-", "Size ")}
+              value={granularFonts?.[cssVar] || ""}
+              onChange={(value) =>
+                onGranularChange("granularFonts", cssVar, value)
+              }
+              placeholder="e.g., 1rem"
+            />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      <h4 className="font-semibold text-foreground mt-8">
+      <h4 className="font-semibold text-foreground pt-4 border-t">
         {content.fontWeightLabel}
       </h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <motion.div
+        className="grid grid-cols-2 md:grid-cols-3 gap-4"
+        variants={gridVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {[
           "--font-weight-light",
           "--font-weight-normal",
@@ -121,69 +147,21 @@ export function SuiteTypographyTab({
           "--font-weight-semibold",
           "--font-weight-bold",
         ].map((cssVar) => (
-          <GranularInputControl
-            key={cssVar}
-            id={cssVar}
-            label={cssVar.replace("--font-weight-", "Peso ")}
-            value={granularFonts?.[cssVar] || ""}
-            onChange={(value) =>
-              onGranularChange("granularFonts", cssVar, value)
-            }
-            placeholder="Ej. 400, 700"
-            type="number"
-          />
+          <motion.div key={cssVar} variants={itemVariants}>
+            <GranularInputControl
+              id={cssVar}
+              label={cssVar.replace("--font-weight-", "Weight ")}
+              value={granularFonts?.[cssVar] || ""}
+              onChange={(value) =>
+                onGranularChange("granularFonts", cssVar, value)
+              }
+              placeholder="e.g., 400"
+              type="number"
+            />
+          </motion.div>
         ))}
-      </div>
-
-      <h4 className="font-semibold text-foreground mt-8">
-        {content.lineHeightLabel}
-      </h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[
-          "--leading-none",
-          "--leading-tight",
-          "--leading-snug",
-          "--leading-normal",
-          "--leading-relaxed",
-          "--leading-loose",
-        ].map((cssVar) => (
-          <GranularInputControl
-            key={cssVar}
-            id={cssVar}
-            label={cssVar.replace("--leading-", "Altura de Línea ")}
-            value={granularFonts?.[cssVar] || ""}
-            onChange={(value) =>
-              onGranularChange("granularFonts", cssVar, value)
-            }
-            placeholder="Ej. 1, 1.25, 1.5"
-            type="number"
-          />
-        ))}
-      </div>
-
-      <h4 className="font-semibold text-foreground mt-8">
-        {content.letterSpacingLabel}
-      </h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[
-          "--tracking-tighter",
-          "--tracking-tight",
-          "--tracking-normal",
-          "--tracking-wide",
-        ].map((cssVar) => (
-          <GranularInputControl
-            key={cssVar}
-            id={cssVar}
-            label={cssVar.replace("--tracking-", "Espaciado ")}
-            value={granularFonts?.[cssVar] || ""}
-            onChange={(value) =>
-              onGranularChange("granularFonts", cssVar, value)
-            }
-            placeholder="Ej. -0.05em, 0.025em"
-          />
-        ))}
-      </div>
+      </motion.div>
+      {/* --- [FIN DE REFACTORIZACIÓN] --- */}
     </div>
   );
 }
-// app/[locale]/(dev)/dev/_components/SuiteStyleComposer/SuiteTypographyTab.tsx

@@ -1,7 +1,7 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/Step3Form.tsx
+// RUTA: src/components/features/campaign-suite/Step3_Theme/Step3Form.tsx
 /**
  * @file Step3Form.tsx
- * @description Orquestador de presentación para el Paso 3.
+ * @description Orquestador de presentación puro para el Paso 3.
  *              v6.0.0 (Theme Composer Integration): Refactorizado para lanzar el
  *              modal del Compositor de Temas en lugar de mostrar selectores estáticos.
  * @version 6.0.0
@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { logger } from "@/shared/lib/logging";
@@ -32,7 +33,7 @@ interface Step3FormProps {
   themeConfig: ThemeConfig;
   onBack: () => void;
   onNext: () => void;
-  onLaunchComposer: () => void; // Nueva prop para abrir el modal
+  onLaunchComposer: () => void;
 }
 
 export function Step3Form({
@@ -51,36 +52,41 @@ export function Step3Form({
         <CardDescription>{content.description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-10">
-        {/* Resumen del Tema Actual */}
         <div className="space-y-4 p-6 border rounded-lg bg-muted/20">
           <h3 className="font-semibold text-lg text-foreground">Tema Activo</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
             <p>
               <strong>{content.colorsLabel}:</strong>{" "}
-              {themeConfig.colorPreset || "Por defecto"}
+              <span className="font-mono text-primary">
+                {themeConfig.colorPreset || "Default"}
+              </span>
             </p>
             <p>
               <strong>{content.fontsLabel}:</strong>{" "}
-              {themeConfig.fontPreset || "Por defecto"}
+              <span className="font-mono text-primary">
+                {themeConfig.fontPreset || "Default"}
+              </span>
             </p>
             <p>
               <strong>{content.radiiLabel}:</strong>{" "}
-              {themeConfig.radiusPreset || "Por defecto"}
+              <span className="font-mono text-primary">
+                {themeConfig.radiusPreset || "Default"}
+              </span>
             </p>
           </div>
-          <Button variant="outline" onClick={onLaunchComposer}>
+          <Button variant="outline" onClick={onLaunchComposer} className="mt-4">
             <DynamicIcon name="Palette" className="mr-2 h-4 w-4" />
             {content.composerTitle}
           </Button>
         </div>
-
+      </CardContent>
+      <CardFooter>
         <WizardNavigation
           onBack={onBack}
           onNext={onNext}
           nextButtonText={content.nextButtonText}
         />
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/Step3Form.tsx

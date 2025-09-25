@@ -63,12 +63,17 @@ export async function POST(req: Request) {
     switch (event.type) {
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        logger.traceEvent(traceId, `Procesando pago exitoso: ${paymentIntent.id}`);
+        logger.traceEvent(
+          traceId,
+          `Procesando pago exitoso: ${paymentIntent.id}`
+        );
 
         // 1. Obtener y validar metadatos críticos
         const cartId = paymentIntent.metadata.cartId;
         if (!cartId) {
-          throw new Error(`PaymentIntent ${paymentIntent.id} no tiene un cartId en la metadata.`);
+          throw new Error(
+            `PaymentIntent ${paymentIntent.id} no tiene un cartId en la metadata.`
+          );
         }
         logger.traceEvent(traceId, `Carrito asociado: ${cartId}`);
 
@@ -111,7 +116,10 @@ export async function POST(req: Request) {
         const collection = db.collection<Order>("orders");
         await collection.insertOne(validatedOrder);
 
-        logger.success(`[Stripe Webhook] Orden ${validatedOrder.orderId} persistida en la base de datos.`, { traceId });
+        logger.success(
+          `[Stripe Webhook] Orden ${validatedOrder.orderId} persistida en la base de datos.`,
+          { traceId }
+        );
 
         // 6. Despachar efectos secundarios (Notificación por correo)
         const emailResult = await sendOrderConfirmationEmailAction({
@@ -127,21 +135,31 @@ export async function POST(req: Request) {
         if (!emailResult.success) {
           // Es un error importante, pero no debe hacer que el webhook falle,
           // ya que el pago y el pedido SÍ se procesaron.
-          logger.error("[Stripe Webhook] Orden persistida pero falló el envío del email de confirmación.", {
-            orderId: validatedOrder.orderId,
-            error: emailResult.error,
-            traceId
-          });
+          logger.error(
+            "[Stripe Webhook] Orden persistida pero falló el envío del email de confirmación.",
+            {
+              orderId: validatedOrder.orderId,
+              error: emailResult.error,
+              traceId,
+            }
+          );
         } else {
-          logger.traceEvent(traceId, "Email de confirmación despachado con éxito.");
+          logger.traceEvent(
+            traceId,
+            "Email de confirmación despachado con éxito."
+          );
         }
         break;
       }
       default:
-        logger.trace(`[Stripe Webhook] Evento no manejado de tipo: ${event.type}`, { traceId });
+        logger.trace(
+          `[Stripe Webhook] Evento no manejado de tipo: ${event.type}`,
+          { traceId }
+        );
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
     logger.error("[Stripe Webhook] Error inesperado al procesar el evento.", {
       eventType: event.type,
       error: errorMessage,

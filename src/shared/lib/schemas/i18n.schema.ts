@@ -2,22 +2,18 @@
 /**
  * @file i18n.schema.ts
  * @description Aparato ensamblador y SSoT para el contrato del diccionario i18n.
- *              v32.0.0 (Holistic Assembly): Ensambla todos los schemas de contenido
- *              soberanos del ecosistema en un único contrato de validación maestro.
- * @version 32.0.0
+ *              v33.0.0 (Holistic Assembly & Hygiene): Ensambla todos los schemas
+ *              de contenido soberanos del ecosistema en un único contrato de validación maestro.
+ * @version 33.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
-
-// --- Importaciones de Schemas Atómicos (Agrupados por Dominio) ---
 
 // [DOMINIO GLOBAL Y PORTAL]
 import { GlobalsLocaleSchema } from "./globals.schema";
 import { StorePageLocaleSchema } from "./pages/store-page.schema";
 import { TextPageContentSchema } from "./pages/text-page.schema";
 import { NotFoundPageLocaleSchema } from "./pages/not-found-page.schema";
-import { NewsArticlePageLocaleSchema } from "./pages/news-article-page.schema";
-import { ProductDetailPageLocaleSchema } from "./pages/product-detail-page.schema";
 
 // [DOMINIO DCC - PÁGINAS]
 import { DevDashboardLocaleSchema } from "./pages/dev-dashboard.schema";
@@ -89,7 +85,6 @@ import { DockLocaleSchema } from "./components/razBits/Dock/dock.schema";
 import { LightRaysLocaleSchema } from "./components/razBits/LightRays/light-rays.schema";
 import { MagicBentoLocaleSchema } from "./components/razBits/MagicBento/magic-bento.schema";
 
-// El schema base ensambla todas las formas de los schemas atómicos.
 const baseSchema = z.object({
   ...GlobalsLocaleSchema.shape,
   ...StorePageLocaleSchema.shape,
@@ -162,7 +157,6 @@ const baseSchema = z.object({
   ...OrderConfirmationEmailLocaleSchema.shape,
 });
 
-// El schema final permite claves adicionales para contenido dinámico (slugs).
 export const i18nSchema = baseSchema.passthrough();
 
 export type Dictionary = z.infer<typeof i18nSchema>;

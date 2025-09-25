@@ -1,36 +1,18 @@
 // RUTA: src/app/[locale]/(dev)/dev/page.tsx
 /**
  * @file page.tsx
- * @description Página principal del Developer Command Center (DCC), que actúa como
- *              un portal a las herramientas de desarrollo de élite.
- * @version 7.0.0 (Definitive Route Fix)
+ * @description Server Component "Shell" para la página de inicio del DCC.
+ *              Obtiene datos y los delega al componente de cliente.
+ * @version 9.0.0 (Server Shell Pattern Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
 import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
-import { routes } from "@/shared/lib/navigation";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { DeveloperErrorDisplay } from "@/components/dev";
-import {
-  Container,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  DynamicIcon,
-} from "@/components/ui";
-import { type LucideIconName } from "@/shared/lib/config/lucide-icon-names";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
-
-interface DevTool {
-  key: keyof NonNullable<NonNullable<Dictionary["devDashboardPage"]>["tools"]>;
-  href: string;
-  icon: LucideIconName;
-}
+import { DevDashboardClient } from "./_components/DevDashboardClient";
 
 interface DevDashboardPageProps {
   params: { locale: Locale };
@@ -39,14 +21,14 @@ interface DevDashboardPageProps {
 export default async function DevDashboardPage({
   params: { locale },
 }: DevDashboardPageProps) {
-  logger.info(`[DevDashboardPage] Renderizando v7.0 para locale: ${locale}`);
+  logger.info(`[DevDashboardPage Shell] Obteniendo datos para locale: ${locale}`);
 
   const { dictionary, error } = await getDictionary(locale);
   const content = dictionary.devDashboardPage;
 
   if (error || !content) {
     const errorMessage = "Fallo al cargar el contenido i18n para el DCC.";
-    logger.error(`[DevDashboardPage] ${errorMessage}`, { error });
+    logger.error(`[DevDashboardPage Shell] ${errorMessage}`, { error });
     if (process.env.NODE_ENV === "production") return notFound();
     return (
       <DeveloperErrorDisplay
@@ -59,57 +41,5 @@ export default async function DevDashboardPage({
     );
   }
 
-  const tools: DevTool[] = [
-    {
-      key: "campaignDesignSuite",
-      // --- [INICIO DE CORRECCIÓN DEFINITIVA] ---
-      // Se utiliza la clave canónica 'creatorCampaignSuite' de la SSoT.
-      href: routes.creatorCampaignSuite.path({ locale }),
-      // --- [FIN DE CORRECCIÓN DEFINITIVA] ---
-      icon: "LayoutTemplate",
-    },
-    {
-      key: "bavi",
-      href: routes.bavi.path({ locale }),
-      icon: "LibraryBig",
-    },
-    {
-      key: "razPrompts",
-      href: routes.razPrompts.path({ locale }),
-      icon: "BrainCircuit",
-    },
-    {
-      key: "resilienceShowcase",
-      href: routes.devTestPage.path({ locale }),
-      icon: "ShieldCheck",
-    },
-  ];
-
-  return (
-    <>
-      <PageHeader content={content.pageHeader} />
-      <Container className="py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tools.map((tool) => (
-            <Link href={tool.href} key={String(tool.key)} className="group">
-              <Card className="h-full transition-all duration-300 group-hover:border-primary group-hover:shadow-lg group-hover:-translate-y-1">
-                <CardHeader className="flex-row items-center gap-4">
-                  <DynamicIcon
-                    name={tool.icon}
-                    className="h-8 w-8 text-primary"
-                  />
-                  <div>
-                    <CardTitle>{content.tools[tool.key].name}</CardTitle>
-                    <CardDescription className="mt-1">
-                      {content.tools[tool.key].description}
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </Container>
-    </>
-  );
+  return <DevDashboardClient content={content} locale={locale} />;
 }

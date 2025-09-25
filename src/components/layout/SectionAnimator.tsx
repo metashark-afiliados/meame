@@ -1,4 +1,4 @@
-// RUTA: components/layout/SectionAnimator.tsx
+// RUTA: src/components/layout/SectionAnimator.tsx
 /**
  * @file SectionAnimator.tsx
  * @description Componente de cliente que orquesta la animación en cascada (stagger)

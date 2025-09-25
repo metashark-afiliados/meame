@@ -1,10 +1,8 @@
-// store/useCartStore.ts
+// RUTA: src/shared/lib/stores/useCartStore.ts
 /**
  * @file useCartStore.ts
  * @description Hook de Zustand y SSoT para el estado global del carrito de compras.
- *              v2.0.0 (Atomic Refactor): Se extrae la lógica de cálculo de totales
- *              a un hook selector `useCartTotals` para una mejor separación de conceptos.
- * @version 2.0.0
+ * @version 3.0.0 (Server-State Hydration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { create } from "zustand";
@@ -18,6 +16,7 @@ export interface CartItem extends Product {
 
 interface CartState {
   items: CartItem[];
+  initialize: (items: CartItem[]) => void;
   addItem: (product: Product, quantity?: number) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -28,6 +27,10 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      initialize: (items) => {
+        // Esta acción solo se debe llamar una vez para establecer el estado inicial.
+        set({ items });
+      },
       addItem: (product, quantity = 1) => {
         const { items } = get();
         const existingItem = items.find((item) => item.id === product.id);
@@ -78,13 +81,6 @@ export const useCartStore = create<CartState>()(
   )
 );
 
-/**
- * @hook useCartTotals
- * @description Hook selector atómico para calcular los totales del carrito.
- *              Optimiza el rendimiento al solo re-renderizar componentes
- *              que dependen de los totales cuando los `items` cambian.
- * @returns {{ cartCount: number, cartTotal: number }}
- */
 export const useCartTotals = () => {
   const items = useCartStore((state) => state.items);
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
@@ -94,4 +90,3 @@ export const useCartTotals = () => {
   );
   return { cartCount, cartTotal };
 };
-// store/useCartStore.ts
