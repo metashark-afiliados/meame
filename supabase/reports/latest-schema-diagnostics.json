@@ -5,6 +5,18 @@
       "index_name": "notifications_pkey"
     },
     {
+      "table": "campaign_templates",
+      "index_name": "campaign_templates_pkey"
+    },
+    {
+      "table": "bavi_assets",
+      "index_name": "bavi_assets_pkey"
+    },
+    {
+      "table": "bavi_variants",
+      "index_name": "bavi_variants_pkey"
+    },
+    {
       "table": "profiles",
       "index_name": "profiles_pkey"
     },
@@ -19,6 +31,12 @@
       "table": "profiles",
       "timing": "BEFORE",
       "trigger_name": "on_profile_update"
+    },
+    {
+      "event": "UPDATE",
+      "table": "campaign_templates",
+      "timing": "BEFORE",
+      "trigger_name": "on_template_update"
     }
   ],
   "extensions": [
@@ -61,6 +79,36 @@
       "policy_name": "Los usuarios pueden ver sus propias notificaciones"
     },
     {
+      "table": "campaign_templates",
+      "command": "ALL",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Los miembros pueden gestionar plantillas."
+    },
+    {
+      "table": "bavi_assets",
+      "command": "ALL",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Los propietarios pueden gestionar sus activos"
+    },
+    {
+      "table": "bavi_assets",
+      "command": "SELECT",
+      "definition": "true",
+      "policy_name": "Permitir acceso de lectura pública a los activos"
+    },
+    {
+      "table": "bavi_variants",
+      "command": "ALL",
+      "definition": "(auth.uid() = ( SELECT bavi_assets.user_id\n   FROM bavi_assets\n  WHERE (bavi_assets.asset_id = bavi_variants.asset_id)))",
+      "policy_name": "Los propietarios pueden gestionar sus variantes"
+    },
+    {
+      "table": "bavi_variants",
+      "command": "SELECT",
+      "definition": "true",
+      "policy_name": "Permitir acceso de lectura pública a las variantes"
+    },
+    {
       "table": "profiles",
       "command": "UPDATE",
       "definition": "(auth.uid() = user_id)",
@@ -91,13 +139,68 @@
       "column": "user_id"
     },
     {
-      "type": "boolean",
-      "table": "notifications",
-      "column": "is_read"
+      "type": "uuid",
+      "table": "campaign_templates",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "campaign_templates",
+      "column": "user_id"
+    },
+    {
+      "type": "jsonb",
+      "table": "campaign_templates",
+      "column": "draft_data"
     },
     {
       "type": "timestamp with time zone",
-      "table": "notifications",
+      "table": "campaign_templates",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "campaign_templates",
+      "column": "updated_at"
+    },
+    {
+      "type": "jsonb",
+      "table": "bavi_assets",
+      "column": "tags"
+    },
+    {
+      "type": "jsonb",
+      "table": "bavi_assets",
+      "column": "metadata"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "bavi_assets",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "bavi_assets",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "bavi_assets",
+      "column": "user_id"
+    },
+    {
+      "type": "integer",
+      "table": "bavi_variants",
+      "column": "width"
+    },
+    {
+      "type": "integer",
+      "table": "bavi_variants",
+      "column": "height"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "bavi_variants",
       "column": "created_at"
     },
     {
@@ -121,9 +224,14 @@
       "column": "last_sign_in_at"
     },
     {
-      "type": "text",
-      "table": "profiles",
-      "column": "last_sign_in_location"
+      "type": "boolean",
+      "table": "notifications",
+      "column": "is_read"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "notifications",
+      "column": "created_at"
     },
     {
       "type": "text",
@@ -143,6 +251,11 @@
     {
       "type": "text",
       "table": "profiles",
+      "column": "last_sign_in_location"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
       "column": "full_name"
     },
     {
@@ -154,6 +267,56 @@
       "type": "text",
       "table": "profiles",
       "column": "last_sign_in_ip"
+    },
+    {
+      "type": "text",
+      "table": "campaign_templates",
+      "column": "name"
+    },
+    {
+      "type": "text",
+      "table": "campaign_templates",
+      "column": "description"
+    },
+    {
+      "type": "text",
+      "table": "campaign_templates",
+      "column": "source_campaign_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_variants",
+      "column": "variant_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_variants",
+      "column": "asset_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_variants",
+      "column": "public_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_assets",
+      "column": "asset_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_assets",
+      "column": "provider"
+    },
+    {
+      "type": "text",
+      "table": "bavi_assets",
+      "column": "prompt_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_variants",
+      "column": "state"
     }
   ],
   "table_constraints": [
@@ -171,6 +334,41 @@
       "type": "FOREIGN KEY",
       "table": "notifications",
       "constraint_name": "notifications_user_id_fkey"
+    },
+    {
+      "type": "CHECK",
+      "table": "campaign_templates",
+      "constraint_name": "campaign_templates_name_check"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "campaign_templates",
+      "constraint_name": "campaign_templates_pkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "campaign_templates",
+      "constraint_name": "campaign_templates_user_id_fkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "bavi_assets",
+      "constraint_name": "bavi_assets_pkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "bavi_assets",
+      "constraint_name": "bavi_assets_user_id_fkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "bavi_variants",
+      "constraint_name": "bavi_variants_asset_id_fkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "bavi_variants",
+      "constraint_name": "bavi_variants_pkey"
     },
     {
       "type": "PRIMARY KEY",
@@ -209,6 +407,76 @@
     },
     {
       "type": "CHECK",
+      "table": "campaign_templates",
+      "constraint_name": "2200_24326_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "campaign_templates",
+      "constraint_name": "2200_24326_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "campaign_templates",
+      "constraint_name": "2200_24326_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "campaign_templates",
+      "constraint_name": "2200_24326_6_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "campaign_templates",
+      "constraint_name": "2200_24326_7_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_assets",
+      "constraint_name": "2200_23176_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_assets",
+      "constraint_name": "2200_23176_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_assets",
+      "constraint_name": "2200_23176_8_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_variants",
+      "constraint_name": "2200_23186_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_variants",
+      "constraint_name": "2200_23186_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_variants",
+      "constraint_name": "2200_23186_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_variants",
+      "constraint_name": "2200_23186_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_variants",
+      "constraint_name": "2200_23186_5_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_variants",
+      "constraint_name": "2200_23186_6_not_null"
+    },
+    {
+      "type": "CHECK",
       "table": "profiles",
       "constraint_name": "2200_21735_1_not_null"
     },
@@ -220,6 +488,10 @@
   ],
   "functions_and_procedures": [
     {
+      "name": "handle_template_update",
+      "type": "FUNCTION"
+    },
+    {
       "name": "handle_profile_update",
       "type": "FUNCTION"
     },
@@ -229,6 +501,10 @@
     },
     {
       "name": "sync_last_sign_in",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "handle_new_user",
       "type": "FUNCTION"
     },
     {

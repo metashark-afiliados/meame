@@ -63,7 +63,9 @@ export function HeroClient({ content, backgroundImageUrl }: HeroClientProps) {
       id="hero"
       className="relative bg-background pt-8 pb-16 text-center overflow-hidden bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: backgroundImageUrl ? `url(${backgroundImageUrl})` : "none",
+        backgroundImage: backgroundImageUrl
+          ? `url(${backgroundImageUrl})`
+          : "none",
       }}
       aria-labelledby="hero-title"
     >

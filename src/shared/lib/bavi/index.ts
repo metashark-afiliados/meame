@@ -8,4 +8,3 @@
 import "server-only";
 
 export * from "./manifest.queries";
-

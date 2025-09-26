@@ -27,12 +27,16 @@ export async function getArticleByIdAction(
     const article = await collection.findOne({ articleId });
 
     if (!article) {
-      logger.warn(`[CogniReadAction] No se encontró artículo para el ID: ${articleId}`);
+      logger.warn(
+        `[CogniReadAction] No se encontró artículo para el ID: ${articleId}`
+      );
       return { success: true, data: { article: null } };
     }
 
     const validatedArticle = CogniReadArticleSchema.parse(article);
-    logger.success(`[CogniReadAction] Artículo encontrado para el ID: ${articleId}`);
+    logger.success(
+      `[CogniReadAction] Artículo encontrado para el ID: ${articleId}`
+    );
     logger.endTrace(traceId);
 
     return { success: true, data: { article: validatedArticle } };

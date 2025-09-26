@@ -34,6 +34,6 @@ export * from "./TextSection";
 export * from "./ThumbnailCarousel";
 export * from "./ArticleBody";
 export * from "./CommentSection";
-export * from "./ScrollingBanner"; 
+export * from "./ScrollingBanner";
 // Los componentes especializados como ProductGrid, ProductFilters, etc.,
 // ya no se exportan desde aquí para mantener una alta cohesión del módulo.

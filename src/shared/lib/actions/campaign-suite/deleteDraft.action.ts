@@ -1,9 +1,9 @@
-// app/[locale]/(dev)/dev/campaign-suite/_actions/deleteDraft.action.ts
+// RUTA: src/shared/lib/actions/campaign-suite/deleteDraft.action.ts
 /**
  * @file deleteDraft.action.ts
  * @description Server Action soberana y de élite para eliminar de forma segura
  *              un borrador de campaña de la base de datos MongoDB.
- * @version 1.0.0
+ * @version 2.0.0 (Production-Ready User Context)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -11,30 +11,33 @@
 import { z } from "zod";
 import { logger } from "@/shared/lib/logging";
 import { connectToDatabase } from "@/shared/lib/mongodb";
+import { createServerClient } from "@/shared/lib/supabase/server"; // <-- IMPORTACIÓN CLAVE
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import type { CampaignDraftDb } from "@/shared/lib/schemas/campaigns/draft.schema";
 
-// En un sistema de producción, este ID vendría de la sesión de Supabase.
-const MOCK_USER_ID = "user__metashark_dev";
-
-/**
- * @function deleteDraftAction
- * @description Elimina un único documento de borrador de la colección `campaign_drafts`
- *              que coincida con el draftId y el userId.
- * @param {string} draftId - El ID del borrador a eliminar (debe ser un CUID2 válido).
- * @returns {Promise<ActionResult<{ deletedCount: number }>>} El resultado de la operación.
- */
 export async function deleteDraftAction(
   draftId: string
 ): Promise<ActionResult<{ deletedCount: number }>> {
-  const traceId = logger.startTrace("deleteDraftAction");
+  const traceId = logger.startTrace("deleteDraftAction_v2.0");
+  const supabase = createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // --- GUARDIA DE SEGURIDAD SOBERANA ---
+  if (!user) {
+    logger.warn("[Action] Intento no autorizado de eliminar borrador.", {
+      traceId,
+    });
+    return { success: false, error: "Acción no autorizada." };
+  }
+
   logger.warn(`[Action] Petición para eliminar borrador de DB: ${draftId}`, {
     traceId,
-    userId: MOCK_USER_ID,
+    userId: user.id, // <-- LOGGING VERBOSO
   });
 
   try {
-    // 1. Validar la entrada (Guardia de Seguridad de Tipos)
     const validation = z.string().cuid2().safeParse(draftId);
     if (!validation.success) {
       logger.error("[Action] El ID de borrador proporcionado es inválido.", {
@@ -46,18 +49,17 @@ export async function deleteDraftAction(
     }
     const validDraftId = validation.data;
 
-    // 2. Conectar a la Base de Datos y obtener la colección
     const client = await connectToDatabase();
     const db = client.db(process.env.MONGODB_DB_NAME);
     const collection = db.collection<CampaignDraftDb>("campaign_drafts");
 
-    // 3. Ejecutar la operación de eliminación segura
+    // --- LÓGICA DE PRODUCCIÓN ---
+    // La consulta ahora es segura y contextual al usuario.
     const result = await collection.deleteOne({
       draftId: validDraftId,
-      userId: MOCK_USER_ID, // Guardia de Seguridad de Contexto
+      userId: user.id,
     });
 
-    // 4. Observabilidad del Resultado
     if (result.deletedCount > 0) {
       logger.success(
         "[Action] Borrador eliminado exitosamente de la base de datos.",
@@ -65,8 +67,8 @@ export async function deleteDraftAction(
       );
     } else {
       logger.warn(
-        "[Action] No se encontró ningún borrador para eliminar en la DB que coincida con los criterios.",
-        { draftId: validDraftId, userId: MOCK_USER_ID, traceId }
+        "[Action] No se encontró ningún borrador para eliminar que coincida con los criterios.",
+        { draftId: validDraftId, userId: user.id, traceId }
       );
     }
 
@@ -83,8 +85,6 @@ export async function deleteDraftAction(
       error: "No se pudo completar la eliminación en la base de datos.",
     };
   } finally {
-    // 5. Limpieza y Finalización del Trace
     logger.endTrace(traceId);
   }
 }
-// app/[locale]/(dev)/dev/campaign-suite/_actions/deleteDraft.action.ts

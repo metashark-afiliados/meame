@@ -12,7 +12,9 @@ import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types"; /
 import { logger } from "@/shared/lib/logging"; // Importa el logger
 
 // --- INICIO DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
-logger.trace("[ssg/engine/types.ts] Módulo de tipos del motor SSG cargado y listo para usar.");
+logger.trace(
+  "[ssg/engine/types.ts] Módulo de tipos del motor SSG cargado y listo para usar."
+);
 // --- FIN DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
 
 /**
@@ -22,9 +24,9 @@ logger.trace("[ssg/engine/types.ts] Módulo de tipos del motor SSG cargado y lis
  */
 export interface BuildContext {
   draft: CampaignDraft;
-  tempDir: string;  // Directorio temporal principal para el build
+  tempDir: string; // Directorio temporal principal para el build
   buildDir: string; // Directorio de salida de Next.js (`/out`)
-  zipPath: string;  // Ruta final del archivo .zip
+  zipPath: string; // Ruta final del archivo .zip
 }
 
 /**

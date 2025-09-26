@@ -75,6 +75,8 @@ export function PromptVaultDisplay({
           <CardDescription>{vaultContent.description}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: CONTRATO CUMPLIDO] --- */}
+          {/* Ahora pasamos todas las props requeridas por el nuevo contrato de VaultFilters. */}
           <VaultFilters
             searchQuery={searchQuery}
             activeFilters={activeFilters}
@@ -85,6 +87,7 @@ export function PromptVaultDisplay({
             sesaOptions={content.sesaOptions}
             isPending={isPending}
           />
+          {/* --- [FIN DE REFACTORIZACIÓN DE ÉLITE] --- */}
           <PromptGrid
             prompts={prompts}
             isLoading={isPending && prompts.length === 0}

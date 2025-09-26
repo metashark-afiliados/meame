@@ -44,7 +44,7 @@ export async function getDevDictionary(locale: Locale): Promise<{
     const assembledDictionary = allI18nContents.contents.reduce(
       (acc: Partial<Dictionary>, moduleContent: I18nFileContent) => {
         const contentForLocale = moduleContent[locale];
-        return { ...acc, ...(contentForLocale as Partial<Dictionary> || {}) };
+        return { ...acc, ...((contentForLocale as Partial<Dictionary>) || {}) };
       },
       {} as Partial<Dictionary>
     );

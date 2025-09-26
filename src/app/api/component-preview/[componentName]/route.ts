@@ -1,8 +1,8 @@
-// app/api/component-preview/[componentName]/route.ts
+// RUTA: src/app/api/component-preview/[componentName]/route.ts
 /**
  * @file route.ts
  * @description Endpoint de API para generar vistas previas de componentes.
- *              v3.2.0 (Definitive Build Fix): Resuelve el error de parseo de JSX
+ * @version 3.2.0 (Definitive Build Fix): Resuelve el error de parseo de JSX
  *              invocando el componente de error con React.createElement.
  * @version 3.2.0
  * @author RaZ Podestá - MetaShark Tech
@@ -32,4 +32,3 @@ export async function GET(
     height,
   });
 }
-// app/api/component-preview/[componentName]/route.ts

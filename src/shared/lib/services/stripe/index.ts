@@ -22,11 +22,10 @@ if (!process.env.STRIPE_SECRET_KEY) {
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
-  // Se actualiza a la última versión ESTABLE de la API para máxima
-  // seguridad y funcionalidad. Esto resuelve el error de tipo una vez que el
-  // paquete `stripe` ha sido actualizado a una versión estable.
-  // Si se opta por NO actualizar, cambiar este valor a '2025-08-27.basil'.
-  apiVersion: "2024-06-20",
+  // Se actualiza a la versión de API requerida por el SDK v18.5.0 instalado.
+  // Esto resuelve el error de tipo TS2322.
+  // RECOMENDACIÓN: Actualizar el paquete 'stripe' a una versión estable.
+  apiVersion: "2025-08-27.basil",
   // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
   typescript: true,
   appInfo: {

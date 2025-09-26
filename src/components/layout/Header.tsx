@@ -1,8 +1,9 @@
 // RUTA: src/components/layout/Header.tsx
 /**
  * @file Header.tsx
- * @description Componente de cabecera principal, ahora con contratos de contenido atómicos.
- * @version 31.0.0 (Atomic Content Contracts)
+ * @description Componente de cabecera principal, ahora con un contrato de
+ *              contenido atómico y soberano.
+ * @version 32.0.0 (Atomic Content Contract & MEA/UX)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -21,65 +22,70 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { CartTrigger } from "./CartTrigger";
 import { CartSheet } from "./CartSheet";
 import { UserNav } from "@/components/features/auth/UserNav";
-import { NotificationBell } from "@/components/features/notifications/NotificationBell";
+import { NotificationBell } from "@/components/features/notifications/NotificationBell/NotificationBell";
 import { routes } from "@/shared/lib/navigation";
+import { DeveloperErrorDisplay } from "@/components/dev";
 
-// --- SSoT de Contratos de Datos ---
-type HeaderContent = NonNullable<Dictionary["header"]>;
-type ToggleThemeContent = NonNullable<Dictionary["toggleTheme"]>;
-type LanguageSwitcherContent = NonNullable<Dictionary["languageSwitcher"]>;
-type CartContent = NonNullable<Dictionary["cart"]>;
-type UserNavContent = NonNullable<Dictionary["userNav"]>;
-type NotificationBellContent = NonNullable<Dictionary["notificationBell"]>;
-
+// --- SSoT del Nuevo Contrato de Contenido Unificado ---
+interface HeaderContentBundle {
+  header: NonNullable<Dictionary["header"]>;
+  toggleTheme: NonNullable<Dictionary["toggleTheme"]>;
+  languageSwitcher: NonNullable<Dictionary["languageSwitcher"]>;
+  cart: NonNullable<Dictionary["cart"]>;
+  userNav: NonNullable<Dictionary["userNav"]>;
+  notificationBell: NonNullable<Dictionary["notificationBell"]>;
+}
 interface HeaderProps {
-  content?: HeaderContent;
-  toggleThemeContent?: ToggleThemeContent;
-  languageSwitcherContent?: LanguageSwitcherContent;
-  cartContent?: CartContent;
-  userNavContent?: UserNavContent;
-  notificationBellContent?: NotificationBellContent;
+  content: HeaderContentBundle;
   currentLocale: Locale;
   supportedLocales: readonly string[];
 }
 
-// --- SSoT de Animaciones (MEA/UX) ---
 const headerVariants: Variants = {
   hidden: { y: -20, opacity: 0 },
   visible: {
     y: 0,
     opacity: 1,
-    transition: {
-      duration: 0.5,
-      ease: [0.22, 1, 0.36, 1],
-    },
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
   },
 };
 
 export default function Header({
   content,
-  toggleThemeContent,
-  languageSwitcherContent,
-  cartContent,
-  userNavContent,
-  notificationBellContent,
   currentLocale,
   supportedLocales,
 }: HeaderProps): React.ReactElement {
-  logger.info("[Header] Renderizando v31.0 (Atomic Content Contracts).");
+  logger.info("[Header] Renderizando v32.0 (Atomic Contract).");
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // --- Guardia de Resiliencia ---
-  if (!content) {
-    logger.error(
-      "[Header] Contenido principal no proporcionado. Renderizando un estado de error seguro."
-    );
+  // --- Guardia de Resiliencia Robusta ---
+  const {
+    header,
+    toggleTheme,
+    languageSwitcher,
+    cart,
+    userNav,
+    notificationBell,
+  } = content;
+
+  if (
+    !header ||
+    !toggleTheme ||
+    !languageSwitcher ||
+    !cart ||
+    !userNav ||
+    !notificationBell
+  ) {
+    const errorMsg = "El paquete de contenido para el Header está incompleto.";
+    logger.error(`[Header] ${errorMsg}`, { receivedContent: content });
     return (
-      <header className="h-16 border-b border-destructive bg-destructive/10" />
+      <DeveloperErrorDisplay
+        context="Header"
+        errorMessage={errorMsg}
+        errorDetails="Una o más claves raíz (header, toggleTheme, etc.) faltan en la prop 'content'."
+      />
     );
   }
-
-  const { logoUrl, logoAlt, navLinks } = content;
 
   return (
     <>
@@ -92,11 +98,11 @@ export default function Header({
         <Link
           href={routes.home.path({ locale: currentLocale })}
           className="mr-6 flex items-center"
-          aria-label={logoAlt}
+          aria-label={header.logoAlt}
         >
           <Image
-            src={logoUrl}
-            alt={logoAlt}
+            src={header.logoUrl}
+            alt={header.logoAlt}
             width={150}
             height={28}
             className="h-7 w-auto"
@@ -107,50 +113,38 @@ export default function Header({
           className="hidden md:flex md:items-center md:gap-6 text-sm font-medium"
           aria-label="Navegación Principal"
         >
-          {navLinks.map((route: NavLink) => (
-            <Link
-              key={route.href}
-              href={`/${currentLocale}${route.href}`.replace("//", "/")}
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
-            >
-              {route.label}
-            </Link>
+          {header.navLinks.map((route: NavLink) => (
+            <motion.div key={route.href} whileHover={{ y: -2 }}>
+              <Link
+                href={`/${currentLocale}${route.href}`.replace("//", "/")}
+                className="transition-colors hover:text-primary text-foreground/60"
+              >
+                {route.label}
+              </Link>
+            </motion.div>
           ))}
         </nav>
 
         <div className="flex items-center gap-2 ml-auto">
-          {toggleThemeContent && <ToggleTheme content={toggleThemeContent} />}
-          {languageSwitcherContent && (
-            <LanguageSwitcher
-              currentLocale={currentLocale}
-              supportedLocales={supportedLocales}
-              content={languageSwitcherContent}
-            />
-          )}
+          <ToggleTheme content={toggleTheme} />
+          <LanguageSwitcher
+            currentLocale={currentLocale}
+            supportedLocales={supportedLocales}
+            content={languageSwitcher}
+          />
           <Separator orientation="vertical" className="h-6 mx-2" />
-          {cartContent && (
-            <CartTrigger
-              onClick={() => setIsCartOpen(true)}
-              content={cartContent}
-            />
-          )}
-
-          {notificationBellContent && (
-            <NotificationBell content={notificationBellContent} />
-          )}
-          {userNavContent && <UserNav content={userNavContent} />}
+          <CartTrigger onClick={() => setIsCartOpen(true)} content={cart} />
+          <NotificationBell content={notificationBell} />
+          <UserNav content={userNav} />
         </div>
       </motion.header>
 
-      {cartContent && (
-        <CartSheet
-          isOpen={isCartOpen}
-          onOpenChange={setIsCartOpen}
-          content={cartContent}
-          locale={currentLocale}
-        />
-      )}
+      <CartSheet
+        isOpen={isCartOpen}
+        onOpenChange={setIsCartOpen}
+        content={cart}
+        locale={currentLocale}
+      />
     </>
   );
 }
-// RUTA: src/components/layout/Header.tsx

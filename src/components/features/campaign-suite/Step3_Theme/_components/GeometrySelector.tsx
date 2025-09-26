@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/_components/GeometrySelector.tsx
+// RUTA: src/components/features/campaign-suite/Step3_Theme/_components/GeometrySelector.tsx
 /**
  * @file GeometrySelector.tsx
  * @description Aparato de UI atómico y de élite para la selección visual de estilos de geometría.
- * @version 1.0.0
+ * @version 1.1.0 (Architectural Realignment)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,10 +13,6 @@ import { cn } from "@/shared/lib/utils/cn";
 import { DynamicIcon } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
 
-/**
- * @interface Geometry
- * @description Contrato de datos para una única configuración de geometría.
- */
 interface Geometry {
   name: string;
   geometry?: {
@@ -24,10 +20,6 @@ interface Geometry {
   };
 }
 
-/**
- * @interface GeometrySelectorProps
- * @description Contrato de props para el componente GeometrySelector.
- */
 interface GeometrySelectorProps {
   geometries: Geometry[];
   selectedGeometryName: string | null;
@@ -58,7 +50,6 @@ export function GeometrySelector({
         </div>
       )}
       {geometries.map((geometry) => {
-        // Guardia de resiliencia
         const radiusValue = geometry.geometry?.["--radius"] || "0rem";
         return (
           <motion.div
@@ -105,4 +96,3 @@ export function GeometrySelector({
     </div>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/_components/GeometrySelector.tsx

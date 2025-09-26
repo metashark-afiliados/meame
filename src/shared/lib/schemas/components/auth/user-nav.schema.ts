@@ -20,4 +20,3 @@ export const UserNavContentSchema = z.object({
 export const UserNavLocaleSchema = z.object({
   userNav: UserNavContentSchema.optional(),
 });
-

@@ -1,8 +1,8 @@
-// RUTA: app/[locale]/(dev)/nos3/page.tsx
+// RUTA: src/app/[locale]/(dev)/nos3/page.tsx
 /**
  * @file page.tsx
- * @description Página de índice para el explorador de sesiones de `Nos3`, ahora internacionalizada.
- * @version 2.0.0 (Full i18n Compliance)
+ * @description Página de índice para el explorador de sesiones de `Nos3`.
+ * @version 3.0.0 (Sovereign Path Restoration & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -10,9 +10,12 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Container, Card, CardContent } from "@/components/ui";
 import { DeveloperErrorDisplay } from "@/components/dev";
 import { logger } from "@/shared/lib/logging";
-import { listSessionsAction } from "./_actions/list-sessions.action";
-import { SessionListClient } from "./_components";
-import { getDictionary } from "@/shared/lib/i18n/i18n"; // Importar getDictionary
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+// Se utilizan los alias de ruta soberanos para importar desde las SSoT canónicas.
+import { listSessionsAction } from "@/shared/lib/actions/nos3";
+import { SessionListClient } from "@/components/features/nos3/_components";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+import { getDictionary } from "@/shared/lib/i18n/i18n";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { notFound } from "next/navigation";
 
@@ -24,7 +27,7 @@ export default async function Nos3ListPage({
   params: { locale },
 }: Nos3ListPageProps) {
   logger.info(
-    "[Nos3ListPage] Renderizando página de índice de sesiones v2.0 (Full i18n)."
+    "[Nos3ListPage] Renderizando página de índice de sesiones v3.0 (Sovereign Paths)."
   );
 
   const [{ dictionary, error: dictError }, sessionsResult] = await Promise.all([
@@ -64,7 +67,7 @@ export default async function Nos3ListPage({
 
   return (
     <>
-      <PageHeader content={pageContent.pageHeader} /> {/* Consume i18n */}
+      <PageHeader content={pageContent.pageHeader} />
       <Container className="py-8">
         <Card>
           <CardContent className="pt-6">
@@ -76,7 +79,7 @@ export default async function Nos3ListPage({
                 emptyStateTitle: pageContent.emptyStateTitle,
                 emptyStateDescription: pageContent.emptyStateDescription,
               }}
-              locale={locale} // Pasar locale para formato de fecha
+              locale={locale}
             />
           </CardContent>
         </Card>

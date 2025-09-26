@@ -1,12 +1,18 @@
-// app/[locale]/(dev)/dev/campaign-suite/_hooks/index.ts
+// RUTA: src/shared/hooks/campaign-suite/index.ts
 /**
  * @file index.ts (Barrel File)
- * @description Fachada pública para los hooks de la Suite de Diseño de Campañas.
- *              v1.1.0 (Naming Convention Fix): Se actualizan todas las
- *              exportaciones para alinearse con la convención de nomenclatura
- *              'kebab-case', resolviendo errores de build.
- * @version 1.1.0
+ * @description Fachada pública para los hooks soberanos de la SDC.
+ * @version 1.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
-
-export * from "./use-campaign-draft";
+export * from "./use-campaign-draft-context.store";
+export * from "./use-draft-metadata.store";
+export * from "./use-step0-identity.store";
+export * from "./use-step1-structure.store";
+export * from "./use-step2-layout.store";
+export * from "./use-step3-theme.store";
+export * from "./use-step4-content.store";
+export * from "./use-step5-management.store";
+export * from "./use-campaign-lifecycle";
+export * from "./use-campaign-templates";
+export * from "./use-preview-theme";

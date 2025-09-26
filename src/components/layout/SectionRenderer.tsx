@@ -2,9 +2,7 @@
 /**
  * @file SectionRenderer.tsx
  * @description Motor de renderizado de élite y Guardián de Contratos.
- *              Despacha dinámicamente componentes de sección, validando sus
- *              datos en tiempo de ejecución contra la SSoT de configuración.
- * @version 17.0.0 (Data Contract Guardian Architecture)
+ * @version 19.0.0 (Definitive Type-Safe Solution)
  * @author RaZ Podestá - MetaShark Tech
  */
 import * as React from "react";
@@ -17,6 +15,7 @@ import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { ValidationError } from "@/components/ui/ValidationError";
 import { SectionAnimator } from "./SectionAnimator";
+import type { z } from "zod"; // Importar z para inferencia de tipo
 
 interface SectionRendererProps {
   sections: { name?: string | undefined }[];
@@ -34,13 +33,12 @@ export function SectionRenderer({
   sectionRefs,
 }: SectionRendererProps): React.ReactElement {
   logger.info(
-    "[SectionRenderer v17.0] Ensamblando página como Guardián de Contratos."
+    "[SectionRenderer v19.0] Ensamblando página con seguridad de tipos definitiva."
   );
 
   return (
     <SectionAnimator>
       {sections.map((section, index) => {
-        // Guardia de resiliencia para datos de layout malformados
         if (!section || !section.name) {
           logger.warn(
             `[SectionRenderer] Sección en el índice ${index} es inválida y será omitida.`
@@ -51,10 +49,9 @@ export function SectionRenderer({
         const sectionName = section.name as SectionName;
         const config = sectionsConfig[sectionName];
 
-        // Guardia de resiliencia para componentes no registrados
         if (!config) {
           logger.warn(
-            `[SectionRenderer] Configuración para "${sectionName}" no encontrada en sections.config.ts.`
+            `[SectionRenderer] Configuración para "${sectionName}" no encontrada.`
           );
           return null;
         }
@@ -65,7 +62,6 @@ export function SectionRenderer({
         ];
         const validation = schema.safeParse(contentData);
 
-        // Guardia de Contrato de Datos con feedback de desarrollo de élite (MEA/DX)
         if (!validation.success) {
           if (
             process.env.NODE_ENV === "development" &&
@@ -81,27 +77,31 @@ export function SectionRenderer({
             );
           }
           logger.error(
-            `[SectionRenderer] Fallo de validación para '${sectionName}'. No se renderizará en producción.`
+            `[SectionRenderer] Fallo de validación para '${sectionName}'. No se renderizará.`
           );
           return null;
         }
 
-        const componentProps = {
-          content: validation.data,
-          locale: locale,
-          isFocused: sectionName === focusedSection,
-          ref: (el: HTMLElement | null) => {
-            if (sectionRefs && el) {
-              sectionRefs.current[sectionName] = el;
-            } else if (sectionRefs) {
-              delete sectionRefs.current[sectionName];
-            }
-          },
-        };
-
+        // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: SEGURIDAD DE TIPOS ABSOLUTA] ---
+        // Se pasa cada prop individualmente. La prop 'content' recibe una aserción
+        // de tipo explícita y segura, basada en la inferencia del schema
+        // que acabamos de validar. Esto elimina 'any' y satisface a ESLint.
         return (
-          <Component key={`${sectionName}-${index}`} {...componentProps} />
+          <Component
+            key={`${sectionName}-${index}`}
+            content={validation.data as z.infer<typeof schema>}
+            locale={locale}
+            isFocused={sectionName === focusedSection}
+            ref={(el: HTMLElement | null) => {
+              if (sectionRefs && el) {
+                sectionRefs.current[sectionName] = el;
+              } else if (sectionRefs) {
+                delete sectionRefs.current[sectionName];
+              }
+            }}
+          />
         );
+        // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
       })}
     </SectionAnimator>
   );

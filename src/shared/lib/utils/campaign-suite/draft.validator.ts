@@ -76,8 +76,8 @@ export function validateDraftForLaunch(draft: CampaignDraft): ChecklistItem[] {
   });
 
   logger.trace("[DraftValidator] Checklist completado.", {
-    completed: checklist.filter(c => c.isCompleted).length,
-    total: checklist.length
+    completed: checklist.filter((c) => c.isCompleted).length,
+    total: checklist.length,
   });
   return checklist;
 }

@@ -33,7 +33,11 @@ export function packageDirectory(
   traceId?: string
 ): Promise<void> {
   const currentTraceId = traceId || logger.startTrace("packageDirectory"); // Usa el traceId proporcionado o inicia uno nuevo
-  logger.info("[Zipper] Iniciando compresión de directorio...", { sourceDir, outPath, traceId: currentTraceId });
+  logger.info("[Zipper] Iniciando compresión de directorio...", {
+    sourceDir,
+    outPath,
+    traceId: currentTraceId,
+  });
 
   const output = fs.createWriteStream(outPath);
   const archive = archiver("zip", { zlib: { level: 9 } }); // Máxima compresión
@@ -50,7 +54,10 @@ export function packageDirectory(
     });
 
     archive.on("error", (err) => {
-      logger.error("[Zipper] Error durante el archivado .zip.", { err, traceId: currentTraceId });
+      logger.error("[Zipper] Error durante el archivado .zip.", {
+        err,
+        traceId: currentTraceId,
+      });
       if (!traceId) logger.endTrace(currentTraceId, { error: err.message }); // Finaliza y añade contexto de error
       reject(err);
     });

@@ -15,7 +15,7 @@
       "affiliateNetworkPlaceholder": "Seleziona una rete...",
       "affiliateUrlLabel": "URL Affiliato Base",
       "affiliateUrlPlaceholder": "Incolla qui il link della tua offerta",
-      "passportStampLabel": "Passaporto Campagna Creato!"
+      "passportStampLabel": "Passaporto Approvato"
     }
   },
   "es-ES": {
@@ -34,7 +34,7 @@
       "affiliateNetworkPlaceholder": "Selecciona una red...",
       "affiliateUrlLabel": "URL de Afiliado Base",
       "affiliateUrlPlaceholder": "Pega aquí el enlace de tu oferta",
-      "passportStampLabel": "¡Pasaporte de Campaña Creado!"
+      "passportStampLabel": "Pasaporte Aprobado"
     }
   },
   "en-US": {
@@ -53,7 +53,7 @@
       "affiliateNetworkPlaceholder": "Select a network...",
       "affiliateUrlLabel": "Base Affiliate URL",
       "affiliateUrlPlaceholder": "Paste your offer link here",
-      "passportStampLabel": "Campaign Passport Created!"
+      "passportStampLabel": "Passport Approved"
     }
   },
   "pt-BR": {
@@ -67,12 +67,12 @@
       "variantNamePlaceholder": "Ex: 'Vitalidade', 'Foco Científico'",
       "seoKeywordsLabel": "Palavras-chave de SEO",
       "seoKeywordsPlaceholder": "Ex: 'bem-estar, energia, natural'",
-      "seoKeywordsDescription": "Separadas por vírgulas. Serão usadas para gerar a URL.",
+      "keywordsDescription": "Separadas por vírgulas. Serão usadas para gerar a URL.",
       "affiliateNetworkLabel": "Rede de Afiliados",
       "affiliateNetworkPlaceholder": "Selecione uma rede...",
       "affiliateUrlLabel": "URL de Afiliado Base",
       "affiliateUrlPlaceholder": "Cole o link da sua oferta aqui",
-      "passportStampLabel": "Passaporte da Campanha Criado!"
+      "passportStampLabel": "Passaporte Aprovado"
     }
   }
 }

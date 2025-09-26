@@ -1,11 +1,11 @@
-// RUTA: app/[locale]/(dev)/dev/test-page/page.tsx
-
+// RUTA: src/app/[locale]/(dev)/test-page/page.tsx
 /**
  * @file page.tsx
- * @description Página de servidor para la Vitrina de Resiliencia. Orquesta la
- *              carga de todos los datos necesarios (diccionarios, temas, componentes)
- *              y los pasa al componente de cliente para su renderizado interactivo.
- * @version 9.0.0 (Holistic Refactor & MEA Prep)
+ * @description Página de servidor para la Vitrina de Resiliencia.
+ *              v10.0.0 (Sovereign Path Restoration): Se corrige la ruta de
+ *              importación de 'theme-utils' para alinearla con la ACS y
+ *              restaurar la integridad del build.
+ * @version 10.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -16,8 +16,8 @@ import {
 } from "@/shared/lib/i18n/campaign.i18n";
 import {
   getAllCampaignsAndVariants,
-  type CampaignVariantInfo, // <-- TIPO IMPORTADO
-} from "@/shared/lib/dev/campaign-utils"; // <-- RUTA CORREGIDA
+  type CampaignVariantInfo,
+} from "@/shared/lib/dev/campaign-utils"; // CORREGIDO
 import { loadJsonAsset } from "@/shared/lib/i18n/campaign.data.loader";
 import {
   AssembledThemeSchema,
@@ -29,10 +29,13 @@ import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import TestPageClient from "./_components/TestPageClient";
 import { ZodError } from "zod";
 import { deepMerge } from "@/shared/lib/utils";
-import { parseThemeNetString } from "@/shared/lib/theming/theme-utils"; // <-- RUTA CORREGIDA
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+// La ruta ahora apunta a la ubicación canónica dentro de 'utils'.
+import { parseThemeNetString } from "@/shared/lib/utils/theming/theme-utils";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import { netTracePrefixToPathMap } from "@/shared/lib/config/theming.config";
-import type { AvailableTheme } from "./_types/themes.types";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import type { AvailableTheme } from "@/shared/lib/types/test-page/themes.types"; // CORREGIDO
+import { DeveloperErrorDisplay } from "@/components/dev"; // CORREGIDO
 
 interface DevTestPageProps {
   params: { locale: Locale };
@@ -42,7 +45,7 @@ export default async function DevTestPage({
   params: { locale },
 }: DevTestPageProps): Promise<React.ReactElement> {
   logger.startGroup(
-    "Vitrina de Componentes v9.0: Fase de Carga de Datos (Servidor)"
+    "Vitrina de Componentes v10.0: Fase de Carga de Datos (Servidor)"
   );
   let validationError: ZodError | Error | null = null;
   try {
@@ -66,9 +69,7 @@ export default async function DevTestPage({
       "global.theme.json"
     );
     const themePromises = campaignVariants.map(
-      // --- [INICIO DE CORRECCIÓN DE TIPO] ---
       async (variantInfo: CampaignVariantInfo) => {
-        // --- [FIN DE CORRECCIÓN DE TIPO] ---
         try {
           const { variant } = await resolveCampaignVariant(
             variantInfo.campaignId,

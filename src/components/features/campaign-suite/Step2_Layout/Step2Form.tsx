@@ -8,7 +8,14 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
 import type { LayoutConfigItem } from "@/shared/lib/types/campaigns/draft.types";
 import { LayoutBuilder } from "./LayoutBuilder";
@@ -33,7 +40,9 @@ export function Step2Form({
   onBack,
   onNext,
 }: Step2FormProps): React.ReactElement {
-  logger.info("[Step2Form] Renderizando formulario de presentación puro (v6.0).");
+  logger.info(
+    "[Step2Form] Renderizando formulario de presentación puro (v6.0)."
+  );
 
   return (
     <Card>

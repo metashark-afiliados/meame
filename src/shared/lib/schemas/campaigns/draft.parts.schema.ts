@@ -1,12 +1,16 @@
-// lib/schemas/campaigns/draft.parts.schema.ts
+// RUTA: src/shared/lib/schemas/campaigns/draft.parts.schema.ts
 /**
  * @file draft.parts.schema.ts
  * @description SSoT para los schemas atómicos que componen un CampaignDraft.
- * @version 1.0.0
+ *              v2.0.0 (Type-Safe Overrides): Se erradica el uso de 'any' en
+ *              themeOverrides, reemplazándolo con el AssembledThemeSchema para
+ *              una seguridad de tipos absoluta.
+ * @version 2.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 import { supportedLocales } from "@/shared/lib/i18n/i18n.config";
+import { AssembledThemeSchema } from "@/shared/lib/schemas/theming/assembled-theme.schema";
 
 export const HeaderConfigSchema = z.object({
   useHeader: z.boolean(),
@@ -25,7 +29,8 @@ export const ThemeConfigSchema = z.object({
   colorPreset: z.string().nullable(),
   fontPreset: z.string().nullable(),
   radiusPreset: z.string().nullable(),
-  themeOverrides: z.record(z.any()).optional(),
+  // --- REFACTORIZACIÓN DE ÉLITE: 'any' ERRADICADO ---
+  themeOverrides: AssembledThemeSchema.optional(),
 });
 
 const LocaleContentSchema = z.record(z.string(), z.unknown());

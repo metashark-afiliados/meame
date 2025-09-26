@@ -2,7 +2,7 @@
 /**
  * @file CommentSectionClient.tsx
  * @description Componente "cerebro" para la sección de comentarios interactiva.
- * @version 2.0.0 (FSD Alignment & Elite Compliance)
+ * @version 2.1.0 (Correct Data Flow)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import type { Comment } from "@/shared/lib/schemas/community/comment.schema";
 import { CommentList } from "./CommentList";
 import { CommentForm } from "./CommentForm";
-import { postCommentAction } from "@/shared/lib/actions/cogniread"; // <-- RUTA CORREGIDA
+import { postCommentAction } from "@/shared/lib/actions/cogniread";
 import { logger } from "@/shared/lib/logging";
 import type { CommentSectionContent } from "@/shared/lib/schemas/components/comment-section.schema";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
@@ -39,7 +39,7 @@ export function CommentSectionClient({
   content,
   locale,
 }: CommentSectionClientProps) {
-  logger.info("[CommentSectionClient] Renderizando v2.0 (FSD Aligned).");
+  logger.info("[CommentSectionClient] Renderizando v2.1 (Correct Data Flow).");
 
   const [comments, setComments] = useState(initialComments);
   const [isPending, startTransition] = useTransition();
@@ -77,7 +77,7 @@ export function CommentSectionClient({
         content={content.form}
         locale={locale}
       />
-      <CommentList comments={comments} content={content} />
+      <CommentList comments={comments} content={content.list} />
     </div>
   );
 }

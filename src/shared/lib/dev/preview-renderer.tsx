@@ -1,47 +1,43 @@
-// shared/lib/dev/preview-renderers/_utils.ts
+// RUTA: src/shared/lib/dev/preview-renderer.tsx
 /**
- * @file _utils.ts
- * @description SSoT para la transformación de datos de tema a estilos en línea.
- *              v3.0.0 (Holistic Transformation): Ahora gestiona la transformación
- *              completa del tema, incluyendo colores y tipografía, para un
- *              cumplimiento estricto del principio DRY.
- * @version 3.0.0
+ * @file preview-renderer.tsx
+ * @description Motor de renderizado soberano para las vistas previas de componentes.
+ * @version 1.0.0 (Reconstruction from scratch)
  * @author RaZ Podestá - MetaShark Tech
  */
+import "server-only";
+import * as React from "react";
+import { previewRenderers } from "@/shared/lib/dev/preview-renderers";
+import { defaultLocale } from "@/shared/lib/i18n/i18n.config";
+import { deepMerge } from "@/shared/lib/utils";
+import { loadJsonAsset } from "@/shared/lib/i18n/campaign.data.loader";
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
+import { AssembledThemeSchema } from "@/shared/lib/schemas/theming/assembled-theme.schema";
 import { logger } from "@/shared/lib/logging";
 
-/**
- * @function getStyleFromTheme
- * @description Traduce un objeto de tema semántico a un objeto de estilo en línea
- *              compatible con el motor de renderizado de @vercel/og (Satori).
- *              Es resiliente a fragmentos de tema incompletos.
- * @param theme El objeto de tema ensamblado, que puede ser parcial.
- * @returns Un objeto con claves de estilo listas para ser usadas.
- */
-export function getStyleFromTheme(theme: Partial<AssembledTheme>) {
-  logger.trace("[Preview Utils] Mapeando tema a estilos en línea (v3.0)...");
-
-  const colors = theme.colors ?? {};
-  const geometry = theme.geometry ?? {};
-  const fonts = theme.fonts ?? {};
-
-  return {
-    backgroundColor: `hsl(${colors.background || "0 0% 100%"})`,
-    color: `hsl(${colors.foreground || "0 0% 3.9%"})`,
-    borderColor: `hsl(${geometry["--border"] || "0 0% 89.8%"})`,
-    primaryColor: `hsl(${colors.primary || "24.6 95% 53.1%"})`,
-    primaryForegroundColor: `hsl(${
-      colors.primaryForeground || "60 9.1% 97.8%"
-    })`,
-    mutedBackgroundColor: `hsl(${colors.muted || "60 4.8% 95.9%"})`,
-    mutedForegroundColor: `hsl(${colors.mutedForeground || "25 5.3% 44.7%"})`,
-    accentColor: `hsl(${colors.accent || "60 4.8% 95.9%"})`,
-    accentForegroundColor: `hsl(${colors.accentForeground || "24 9.8% 10%"})`,
-    // --- [INICIO DE MEJORA ARQUITECTÓNICA] ---
-    // La lógica de la fuente ahora reside aquí, en su SSoT.
-    fontFamily: fonts.sans || '"Inter", sans-serif',
-    // --- [FIN DE MEJORA ARQUITECTÓNICA] ---
-  };
+async function assembleDefaultTheme(): Promise<AssembledTheme> {
+  try {
+    const [base, colors, fonts, radii] = await Promise.all([
+      loadJsonAsset<Partial<AssembledTheme>>("theme-fragments", "base", "global.theme.json"),
+      loadJsonAsset<Partial<AssembledTheme>>("theme-fragments", "colors", "razstore-minimalist.colors.json"),
+      loadJsonAsset<Partial<AssembledTheme>>("theme-fragments", "fonts", "razstore-minimalist.fonts.json"),
+      loadJsonAsset<Partial<AssembledTheme>>("theme-fragments", "radii", "razstore-minimalist.radii.json"),
+    ]);
+    const finalTheme = deepMerge(deepMerge(deepMerge(base, colors), fonts), radii);
+    return AssembledThemeSchema.parse(finalTheme);
+  } catch (error) {
+    logger.error("[PreviewRenderer] No se pudo ensamblar el tema por defecto.", { error });
+    // Devuelve un objeto de tema vacío como fallback
+    return AssembledThemeSchema.parse({});
+  }
 }
-// shared/lib/dev/preview-renderers/_utils.ts
+
+export async function renderPreviewComponent(componentName: string) {
+  const renderer = previewRenderers[componentName];
+  if (!renderer) {
+    logger.warn(`[PreviewRenderer] No se encontró un renderizador para: ${componentName}`);
+    return null;
+  }
+  const theme = await assembleDefaultTheme();
+  return renderer(defaultLocale, theme);
+}

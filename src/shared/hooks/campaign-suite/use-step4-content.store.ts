@@ -22,8 +22,6 @@ interface Step4Actions {
     field: string,
     value: unknown
   ) => void;
-  // Acción para hidratar el store desde la BD.
-  hydrateContent: (data: ContentData) => void;
   resetContent: () => void;
 }
 
@@ -36,27 +34,18 @@ export const useStep4ContentStore = create<Step4State & Step4Actions>()(
     (set, get) => ({
       ...initialState,
       setSectionContent: (sectionName, locale, field, value) => {
-        logger.trace(`[Step4Store] Actualizando contenido para ${sectionName}.${locale}.${field}`);
-
-        // Usamos structuredClone para una copia profunda segura y moderna.
+        logger.trace(
+          `[Step4Store] Actualizando contenido para ${sectionName}.${locale}.${field}`
+        );
         const newContentData = structuredClone(get().contentData);
-
-        // Se asegura de que las estructuras anidadas existan antes de asignar.
         if (!newContentData[sectionName]) {
           newContentData[sectionName] = {};
         }
         if (!newContentData[sectionName][locale]) {
           newContentData[sectionName][locale] = {};
         }
-
         newContentData[sectionName][locale]![field] = value;
-
         set({ contentData: newContentData });
-        // Aquí se notificaría al store orquestador para el debounce de guardado.
-      },
-      hydrateContent: (data) => {
-        logger.info("[Step4Store] Hidratando store con datos de la base de datos.");
-        set({ contentData: data });
       },
       resetContent: () => {
         logger.warn("[Step4Store] Reiniciando los datos de contenido.");
@@ -64,7 +53,7 @@ export const useStep4ContentStore = create<Step4State & Step4Actions>()(
       },
     }),
     {
-      name: "campaign-draft-step4-content", // Clave de persistencia granular
+      name: "campaign-draft-step4-content",
       storage: createJSONStorage(() => localStorage),
     }
   )

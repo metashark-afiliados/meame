@@ -21,7 +21,11 @@ import {
   TabsTrigger,
 } from "@/components/ui";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
-import { StudyDnaTab, ContentTab, EcosystemTab } from "./tabs";
+import {
+  StudyDnaTab,
+  ContentTab,
+  EcosystemTab,
+} from "@/app/[locale]/(dev)/cogniread/editor/_components/tabs";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 type EditorContent = NonNullable<Dictionary["cogniReadEditor"]>;

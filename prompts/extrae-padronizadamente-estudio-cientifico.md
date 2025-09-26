@@ -5,14 +5,15 @@ Aparato 1 (MODIFICADO/RELLENADO): prompts/extrae-padronizadamente-estudio-cienti
 code
 Markdown
 // prompts/extrae-padronizadamente-estudio-cientifico.md
-/**
- * @file extrae-padronizadamente-estudio-cientifico.md
- * @description PROMPT MAESTRO: Directrices para la IA para extraer y estandarizar
- *              información clave de un estudio científico en un formato estructurado,
- *              alineado con el `StudyDnaSchema` de CogniRead.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
- */
+/\*\*
+
+- @file extrae-padronizadamente-estudio-cientifico.md
+- @description PROMPT MAESTRO: Directrices para la IA para extraer y estandarizar
+-              información clave de un estudio científico en un formato estructurado,
+-              alineado con el `StudyDnaSchema` de CogniRead.
+- @version 1.0.0
+- @author RaZ Podestá - MetaShark Tech
+  \*/
 
 # PROMPT MAESTRO: Extracción Estandarizada de Estudios Científicos para CogniRead
 
@@ -22,11 +23,11 @@ Markdown
 
 ## Directrices para la Extracción (Prioridad: Precisión y Coherencia con el Schema)
 
-Debes procesar el estudio científico y rellenar *todos* los campos del siguiente `StudyDnaSchema`. Si un campo no puede ser determinado o no aplica, déjalo como una cadena vacía `""` o un array vacío `[]` (según el tipo), **pero no lo omitas**.
+Debes procesar el estudio científico y rellenar _todos_ los campos del siguiente `StudyDnaSchema`. Si un campo no puede ser determinado o no aplica, déjalo como una cadena vacía `""` o un array vacío `[]` (según el tipo), **pero no lo omitas**.
 
 ### `StudyDnaSchema` (Estructura de Salida JSON Mandatoria):
 
-```typescript
+````typescript
 // Modelo de referencia (NO DEBE SER REPLICADO EN EL OUTPUT FINAL, solo para tu entendimiento)
 import { z } from "zod";
 
@@ -204,3 +205,4 @@ JSON
 }
 ---
 
+````

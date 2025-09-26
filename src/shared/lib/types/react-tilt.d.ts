@@ -12,7 +12,9 @@ import { logger } from "@/shared/lib/logging"; // Importa el logger
 import { Component, HTMLProps } from "react";
 
 // --- INICIO DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
-logger.trace("[react-tilt.d.ts] Módulo de declaración de tipos 'react-tilt' cargado y listo para usar.");
+logger.trace(
+  "[react-tilt.d.ts] Módulo de declaración de tipos 'react-tilt' cargado y listo para usar."
+);
 // --- FIN DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
 
 declare module "react-tilt" {

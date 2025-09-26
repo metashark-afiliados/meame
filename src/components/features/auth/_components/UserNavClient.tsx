@@ -52,7 +52,7 @@ export function UserNavClient({
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast.info("Has cerrado sesión.");
-    router.refresh();
+    router.refresh(); // Invalida la caché del servidor
     router.push(`/${locale}/login`);
   };
 
@@ -81,7 +81,7 @@ export function UserNavClient({
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {userNavContent.sessionLabel}
+              {profile?.full_name || userNavContent.sessionLabel}
             </p>
             <p className="text-xs leading-none text-muted-foreground truncate">
               {user.email}
@@ -90,14 +90,24 @@ export function UserNavClient({
         </DropdownMenuLabel>
 
         {profile && (
-            <>
-                <DropdownMenuSeparator />
-                <LastSignInInfo profile={profile} content={loginContent.lastSignIn} locale={locale} />
-            </>
+          <>
+            <DropdownMenuSeparator />
+            <LastSignInInfo
+              profile={profile}
+              content={loginContent.lastSignIn}
+              locale={locale}
+            />
+          </>
         )}
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+        <DropdownMenuItem asChild>
+          <Link href={`/${locale}/account`}>Mi Cuenta</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={handleLogout}
+          className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive-foreground"
+        >
           {userNavContent.logoutButton}
         </DropdownMenuItem>
       </DropdownMenuContent>

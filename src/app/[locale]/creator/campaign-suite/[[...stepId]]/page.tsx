@@ -11,7 +11,7 @@ import { logger } from "@/shared/lib/logging";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { StepClientWrapper } from "@/components/features/campaign-suite/_components";
 import { stepsConfig } from "@/shared/lib/config/campaign-suite/wizard.config";
-import { getDictionary } from "@/shared/lib/i18n/get-dictionary";
+import { getDictionary } from "@/shared/lib/i18n/i18n"; // <-- RUTA CORREGIDA
 
 interface CampaignStepPageProps {
   params: { locale: Locale; stepId?: string[] };
@@ -20,8 +20,7 @@ interface CampaignStepPageProps {
 export default async function CampaignStepPage({
   params: { locale, stepId },
 }: CampaignStepPageProps) {
-  const currentStepId =
-    stepId && stepId[0] ? parseInt(stepId[0], 10) : 0;
+  const currentStepId = stepId && stepId[0] ? parseInt(stepId[0], 10) : 0;
   const stepConfig = stepsConfig.find((s) => s.id === currentStepId);
 
   if (!stepConfig) {
@@ -29,7 +28,7 @@ export default async function CampaignStepPage({
     return notFound();
   }
 
-  const dictionary = await getDictionary(locale);
+  const { dictionary } = await getDictionary(locale);
   const stepContent = dictionary[stepConfig.i18nKey];
 
   if (!stepContent) {

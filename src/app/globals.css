@@ -64,7 +64,9 @@
   /* --- Tokens Granulares de Tipografía y Geometría --- */
   --font-sans: var(--font-inter);
   --font-serif: var(--font-poppins);
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -94,10 +96,38 @@
 /* ==========================================================================
    3. Definición de Keyframes
    ========================================================================== */
-@keyframes accordion-down { from { height: 0; } to { height: var(--radix-accordion-content-height); } }
-@keyframes accordion-up { from { height: var(--radix-accordion-content-height); } to { height: 0; } }
-@keyframes collapsible-down { from { height: 0; } to { height: var(--radix-collapsible-content-height); } }
-@keyframes collapsible-up { from { height: var(--radix-collapsible-content-height); } to { height: 0; } }
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+@keyframes collapsible-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
+}
+@keyframes collapsible-up {
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
 
 /* ==========================================================================
    4. @layer base: Estilos Globales, Resets y Valores por Defecto
@@ -166,18 +196,36 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     text-wrap: balance;
     font-family: var(--font-serif, var(--font-sans));
     font-weight: var(--font-weight-bold);
     letter-spacing: var(--tracking-tight);
   }
 
-  h1 { font-size: var(--text-2xl); line-height: var(--leading-tight); }
-  h2 { font-size: var(--text-xl); line-height: var(--leading-snug); }
-  h3 { font-size: var(--text-lg); line-height: var(--leading-snug); }
+  h1 {
+    font-size: var(--text-2xl);
+    line-height: var(--leading-tight);
+  }
+  h2 {
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+  }
+  h3 {
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
+  }
 
-  button, a, input, select, textarea {
+  button,
+  a,
+  input,
+  select,
+  textarea {
     @apply transition-all duration-200 ease-in-out;
   }
 

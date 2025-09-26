@@ -11,7 +11,9 @@
 import { logger } from "@/shared/lib/logging"; // Importa el logger
 
 // --- INICIO DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
-logger.trace("[actions.types.ts] Módulo de tipos de acciones cargado y listo para usar.");
+logger.trace(
+  "[actions.types.ts] Módulo de tipos de acciones cargado y listo para usar."
+);
 // --- FIN DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
 
 /**

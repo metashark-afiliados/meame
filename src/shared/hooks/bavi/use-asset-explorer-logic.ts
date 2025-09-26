@@ -1,13 +1,15 @@
-// Ruta correcta: src/shared/hooks/bavi/use-asset-explorer-logic.ts
+// RUTA: src/shared/hooks/bavi/use-asset-explorer-logic.ts
 /**
  * @file use-asset-explorer-logic.ts
- * @description Hook de lógica de élite para el AssetExplorer.
- * @version 2.1.0 (Sovereign Path Normalization)
+ * @description Hook de lógica de élite para el AssetExplorer, ahora conectado
+ *              a la Server Action de producción de Supabase.
+ * @version 3.0.0 (Production Data Fetching)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import { useState, useEffect, useTransition, useCallback } from "react";
+import { toast } from "sonner";
 import { logger } from "@/shared/lib/logging";
 import {
   getBaviAssetsAction,
@@ -16,26 +18,7 @@ import {
 import type { BaviAsset } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 import type { RaZPromptsSesaTags } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
 
-interface AssetExplorerLogicReturn {
-  assets: BaviAsset[];
-  totalAssets: number;
-  isPending: boolean;
-  currentPage: number;
-  searchQuery: string;
-  activeFilters: Partial<RaZPromptsSesaTags>;
-  totalPages: number;
-  setSearchQuery: (query: string) => void;
-  handleSearch: (e: React.FormEvent) => void;
-  handleFilterChange: (
-    category: keyof RaZPromptsSesaTags,
-    value: string
-  ) => void;
-  handlePageChange: (page: number) => void;
-}
-
-export function useAssetExplorerLogic(): AssetExplorerLogicReturn {
-  logger.trace("[useAssetExplorerLogic] Inicializando hook de lógica.");
-
+export function useAssetExplorerLogic() {
   const [assets, setAssets] = useState<BaviAsset[]>([]);
   const [totalAssets, setTotalAssets] = useState(0);
   const [isPending, startTransition] = useTransition();
@@ -44,36 +27,40 @@ export function useAssetExplorerLogic(): AssetExplorerLogicReturn {
   const [activeFilters, setActiveFilters] = useState<
     Partial<RaZPromptsSesaTags>
   >({});
-  const limit = 10;
+  const limit = 9; // Podría ser configurable en el futuro
 
-  const fetchAssets = useCallback(async (input: GetBaviAssetsInput) => {
-    startTransition(async () => {
-      logger.trace("[useAssetExplorerLogic] Iniciando fetch de activos...", {
-        input,
+  const fetchAssets = useCallback(
+    (input: GetBaviAssetsInput) => {
+      startTransition(async () => {
+        const result = await getBaviAssetsAction(input);
+        if (result.success) {
+          setAssets(result.data.assets);
+          setTotalAssets(result.data.total);
+        } else {
+          toast.error("Error al cargar activos", {
+            description: result.error,
+          });
+          setAssets([]);
+          setTotalAssets(0);
+        }
       });
-      const result = await getBaviAssetsAction(input);
-      if (result.success) {
-        setAssets(result.data.assets);
-        setTotalAssets(result.data.total);
-        logger.success("[useAssetExplorerLogic] Activos cargados con éxito.");
-      } else {
-        logger.error("[useAssetExplorerLogic] Fallo al cargar activos.", {
-          error: result.error,
-        });
-        setAssets([]);
-        setTotalAssets(0);
-      }
-    });
-  }, []);
+    },
+    [] // No hay dependencias, startTransition es estable
+  );
 
   useEffect(() => {
+    logger.trace("[AssetExplorer Logic] Disparando fetch de activos...", {
+      page: currentPage,
+      query: searchQuery,
+      filters: activeFilters,
+    });
     fetchAssets({
       page: currentPage,
       limit,
       query: searchQuery,
       tags: activeFilters,
     });
-  }, [fetchAssets, currentPage, searchQuery, activeFilters]);
+  }, [fetchAssets, currentPage, searchQuery, activeFilters, limit]);
 
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +91,6 @@ export function useAssetExplorerLogic(): AssetExplorerLogicReturn {
 
   return {
     assets,
-    totalAssets,
     isPending,
     currentPage,
     searchQuery,
@@ -116,4 +102,3 @@ export function useAssetExplorerLogic(): AssetExplorerLogicReturn {
     handlePageChange,
   };
 }
-// Ruta correcta: src/shared/hooks/bavi/use-asset-explorer-logic.ts

@@ -60,9 +60,12 @@ export async function getArticlesByIdsAction(
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[getArticlesByIdsAction] Fallo al obtener artículos por IDs.", {
-      error: errorMessage,
-    });
+    logger.error(
+      "[getArticlesByIdsAction] Fallo al obtener artículos por IDs.",
+      {
+        error: errorMessage,
+      }
+    );
     logger.endTrace(traceId);
     return {
       success: false,

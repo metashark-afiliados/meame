@@ -1,8 +1,10 @@
-// RUTA: src/components/features/dev-tools/SuiteStyleComposer/_components/SuiteColorsTab.tsx
+// RUTA: src/components/features/dev-tools/SuiteStyleComposer/SuiteColorsTab.tsx
 /**
  * @file SuiteColorsTab.tsx
  * @description Aparato atómico para la selección visual de paletas de colores.
- * @version 3.0.0 (Type & Path Integrity Restoration)
+ *              v3.0.0 (Type & Path Integrity Restoration): Se restaura la
+ *              integridad de los tipos y las rutas de importación.
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,14 +15,19 @@ import { cn } from "@/shared/lib/utils";
 import type { LoadedFragments } from "../types";
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
 
+// --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+interface ContentProps {
+  selectThemeLabel: string;
+  defaultPresetName: string;
+  colorFilterPlaceholder: string; // <-- Propiedad añadida al contrato
+}
+// --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
+
 interface SuiteColorsTabProps {
   allThemeFragments: LoadedFragments;
   selectedColorPreset: string;
   onColorPresetChange: (value: string) => void;
-  content: {
-    selectThemeLabel: string;
-    defaultPresetName: string;
-  };
+  content: ContentProps; // <-- El tipo ahora es explícito y correcto
 }
 
 const PaletteSwatch = ({ color }: { color?: string }) => (
@@ -36,7 +43,6 @@ export function SuiteColorsTab({
   onColorPresetChange,
   content,
 }: SuiteColorsTabProps) {
-  // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: ASERCIÓN DE TIPO] ---
   const palettes = (
     Object.entries(allThemeFragments.colors) as [
       string,
@@ -46,7 +52,6 @@ export function SuiteColorsTab({
     name,
     colors: data.colors ?? {},
   }));
-  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
   return (
     <div className="p-4">

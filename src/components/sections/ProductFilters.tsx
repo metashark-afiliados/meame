@@ -124,7 +124,10 @@ export function ProductFilters({
               id="stock-switch"
               checked={filtersState.inStockOnly}
               onCheckedChange={(checked) =>
-                onFilterChange((prev: ProductFiltersState) => ({ ...prev, inStockOnly: checked }))
+                onFilterChange((prev: ProductFiltersState) => ({
+                  ...prev,
+                  inStockOnly: checked,
+                }))
               }
             />
             <Label htmlFor="stock-switch" className="text-sm cursor-pointer">

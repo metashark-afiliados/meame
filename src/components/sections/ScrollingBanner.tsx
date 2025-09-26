@@ -47,7 +47,8 @@ export const ScrollingBanner = forwardRef<HTMLElement, ScrollingBannerProps>(
         variants={sectionVariants}
         className={cn(
           "py-3 bg-primary text-primary-foreground",
-          isFocused && "ring-2 ring-primary ring-offset-4 ring-offset-background"
+          isFocused &&
+            "ring-2 ring-primary ring-offset-4 ring-offset-background"
         )}
         role="alert"
       >

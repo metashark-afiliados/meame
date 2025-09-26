@@ -24,15 +24,23 @@ export async function packageCampaignAction(
   draft: CampaignDraft
 ): Promise<ActionResult<{ downloadUrl: string }>> {
   if (!draft.draftId) {
-    return { success: false, error: "El borrador debe tener un ID para ser empaquetado." };
+    return {
+      success: false,
+      error: "El borrador debe tener un ID para ser empaquetado.",
+    };
   }
 
   const traceId = logger.startTrace(`packageCampaign:${draft.draftId}`);
-  logger.info(`[Action] Iniciando orquestación de empaquetado v5.0 para draft: ${draft.draftId}`);
+  logger.info(
+    `[Action] Iniciando orquestación de empaquetado v5.0 para draft: ${draft.draftId}`
+  );
 
   const draftValidation = CampaignDraftDataSchema.safeParse(draft);
   if (!draftValidation.success) {
-    logger.error("[Action] El borrador a empaquetar es inválido.", { errors: draftValidation.error.flatten(), traceId });
+    logger.error("[Action] El borrador a empaquetar es inválido.", {
+      errors: draftValidation.error.flatten(),
+      traceId,
+    });
     return { success: false, error: "El borrador contiene datos corruptos." };
   }
 
@@ -56,18 +64,30 @@ export async function packageCampaignAction(
 
     // 4. Subir el artefacto final.
     const zipBuffer = await fs.readFile(buildContext.zipPath);
-    const blob = await put(`campaign-packages/${path.basename(buildContext.zipPath)}`, zipBuffer, { access: "public" });
+    const blob = await put(
+      `campaign-packages/${path.basename(buildContext.zipPath)}`,
+      zipBuffer,
+      { access: "public" }
+    );
 
-    logger.success(`[Action] Artefacto subido a Vercel Blob. URL: ${blob.url}`, { traceId });
+    logger.success(
+      `[Action] Artefacto subido a Vercel Blob. URL: ${blob.url}`,
+      { traceId }
+    );
     return { success: true, data: { downloadUrl: blob.url } };
-
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[Action] Fallo crítico en la orquestación del empaquetado.", { error: errorMessage, traceId });
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("[Action] Fallo crítico en la orquestación del empaquetado.", {
+      error: errorMessage,
+      traceId,
+    });
     return { success: false, error: "No se pudo generar el paquete." };
   } finally {
     // 5. Limpieza final.
-    await fs.rm(buildContext.tempDir, { recursive: true, force: true }).catch(() => {});
+    await fs
+      .rm(buildContext.tempDir, { recursive: true, force: true })
+      .catch(() => {});
     await fs.unlink(buildContext.zipPath).catch(() => {});
     logger.endTrace(traceId);
   }

@@ -2,21 +2,25 @@
 /**
  * @file seed-articles.ts
  * @description Script de "siembra" para poblar la colección de artículos de CogniRead.
- *              v2.1.0 (Module Resolution Fix): Se corrige la sintaxis de importación
- *              del módulo 'path' para cumplir con la configuración de `tsconfig.scripts.json`.
- * @version 2.1.0
+ *              v3.0.0 (Holistic Build Integrity Restoration): Resuelve una cascada de
+ *              errores de sintaxis, resolución de módulos y rutas de importación para
+ *              garantizar la compatibilidad total con el entorno de ejecución de scripts.
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import { promises as fs } from "fs";
-import path from "path"; // <-- CORRECCIÓN APLICADA AQUÍ
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
+// Se corrige la sintaxis de importación de módulos y las rutas de los alias.
+import * as path from "path";
 import chalk from "chalk";
 import { createId } from "@paralleldrive/cuid2";
-import { connectToDatabase } from "@/shared/lib/mongodb";
+import { connectToDatabase } from "../../src/shared/lib/mongodb";
 import {
   CogniReadArticleSchema,
   type CogniReadArticle,
-} from "@/shared/lib/schemas/cogniread/article.schema";
-import { logger } from "@/shared/lib/logging";
+} from "../../src/shared/lib/schemas/cogniread/article.schema";
+import { logger } from "../../src/shared/lib/logging";
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
 // --- Lógica de Base de Datos (replicada desde la Server Action) ---
 async function createOrUpdateArticle(
@@ -66,7 +70,7 @@ async function createOrUpdateArticle(
 
 async function seedArticles() {
   logger.startGroup(
-    "🌱 Iniciando siembra de DB CogniRead (v2.1 - Module Fix)..."
+    "🌱 Iniciando siembra de DB CogniRead (v3.0 - Build Integrity)..."
   );
 
   try {

@@ -2,7 +2,7 @@
 /**
  * @file SuiteStyleComposerModal.tsx
  * @description Orquestador modal para la composición de temas.
- * @version 8.0.0 (Full Implementation & Type Safety)
+ * @version 12.0.0 (Sovereign Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -17,6 +17,8 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui";
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+// Se actualizan las importaciones para apuntar a la SSoT canónica en la capa de features.
 import { useSuiteStyleComposer } from "@/components/features/dev-tools/SuiteStyleComposer/use-suite-style-composer";
 import {
   ComposerHeader,
@@ -24,15 +26,17 @@ import {
   SuiteColorsTab,
   SuiteTypographyTab,
   SuiteGeometryTab,
-} from "@/components/features/dev-tools/SuiteStyleComposer";
+} from "@/components/features/dev-tools/SuiteStyleComposer/_components";
 import type {
   SuiteThemeConfig,
   LoadedFragments,
 } from "@/components/features/dev-tools/SuiteStyleComposer/types";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+import { SuiteStyleComposerContentSchema } from "@/shared/lib/schemas/components/dev/suite-style-composer.schema";
+import type { z } from "zod";
+import { logger } from "@/shared/lib/logging";
 
-// Contrato de tipo explícito para el contenido i18n
-type ComposerContent = NonNullable<Dictionary["suiteStyleComposer"]>;
+type ComposerContent = z.infer<typeof SuiteStyleComposerContentSchema>;
 
 interface SuiteStyleComposerModalProps {
   isOpen: boolean;
@@ -51,11 +55,19 @@ export function SuiteStyleComposerModal({
   onSave,
   content,
 }: SuiteStyleComposerModalProps) {
-  const { localSuiteConfig, handleConfigUpdate, clearPreview } =
-    useSuiteStyleComposer({
-      initialConfig: currentSuiteConfig,
-      allThemeFragments,
-    });
+  logger.info(
+    "[SuiteStyleComposerModal] Renderizando v12.0 (Sovereign Path Restoration)."
+  );
+
+  const {
+    localSuiteConfig,
+    handlePresetChange,
+    handleGranularChange,
+    clearPreview,
+  } = useSuiteStyleComposer({
+    initialConfig: currentSuiteConfig,
+    allThemeFragments,
+  });
 
   const handleSave = () => {
     onSave(localSuiteConfig);
@@ -100,12 +112,13 @@ export function SuiteStyleComposerModal({
                     <SuiteColorsTab
                       allThemeFragments={allThemeFragments}
                       selectedColorPreset={localSuiteConfig.colorPreset || ""}
-                      onColorPresetChange={(value) =>
-                        handleConfigUpdate({ colorPreset: value })
+                      onColorPresetChange={(value: string) =>
+                        handlePresetChange("colorPreset", value)
                       }
                       content={{
                         selectThemeLabel: content.selectThemeLabel,
                         defaultPresetName: content.defaultPresetName,
+                        colorFilterPlaceholder: content.colorFilterPlaceholder,
                       }}
                     />
                   </TabsContent>
@@ -113,13 +126,19 @@ export function SuiteStyleComposerModal({
                     <SuiteTypographyTab
                       allThemeFragments={allThemeFragments}
                       selectedFontPreset={localSuiteConfig.fontPreset || ""}
-                      onFontPresetChange={(value) =>
-                        handleConfigUpdate({ fontPreset: value })
+                      granularFonts={localSuiteConfig.granularFonts || {}}
+                      onFontPresetChange={(value: string) =>
+                        handlePresetChange("fontPreset", value)
                       }
+                      onGranularChange={handleGranularChange}
                       content={{
                         selectFontLabel: content.selectFontLabel,
                         fontFilterPlaceholder: content.fontFilterPlaceholder,
                         defaultPresetName: content.defaultPresetName,
+                        fontSizeLabel: content.fontSizeLabel,
+                        fontWeightLabel: content.fontWeightLabel,
+                        lineHeightLabel: content.lineHeightLabel,
+                        letterSpacingLabel: content.letterSpacingLabel,
                       }}
                     />
                   </TabsContent>
@@ -127,14 +146,20 @@ export function SuiteStyleComposerModal({
                     <SuiteGeometryTab
                       allThemeFragments={allThemeFragments}
                       selectedRadiusPreset={localSuiteConfig.radiusPreset || ""}
-                      onRadiusPresetChange={(value) =>
-                        handleConfigUpdate({ radiusPreset: value })
+                      granularGeometry={localSuiteConfig.granularGeometry || {}}
+                      onRadiusPresetChange={(value: string) =>
+                        handlePresetChange("radiusPreset", value)
                       }
+                      onGranularChange={handleGranularChange}
                       content={{
                         selectRadiusLabel: content.selectRadiusLabel,
                         radiusFilterPlaceholder:
                           content.radiusFilterPlaceholder,
                         defaultPresetName: content.defaultPresetName,
+                        borderRadiusLabel: content.borderRadiusLabel,
+                        borderWidthLabel: content.borderWidthLabel,
+                        baseSpacingUnitLabel: content.baseSpacingUnitLabel,
+                        inputHeightLabel: content.inputHeightLabel,
                       }}
                     />
                   </TabsContent>

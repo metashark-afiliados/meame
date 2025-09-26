@@ -3,7 +3,7 @@
  * @file campaign.build-pipeline.ts
  * @description SSoT para la definición de la "receta" de un build de campaña.
  *              Este módulo es una función pura que configura un pipeline de build.
- * @version 1.0.0
+ * @version 2.0.0 (Type-Safe Task Contract)
  * @author RaZ Podestá - MetaShark Tech
  */
 import "server-only";
@@ -33,7 +33,12 @@ export function defineCampaignBuildPipeline(
   pipeline
     .addTask({
       name: "Setup Directories",
-      execute: async (ctx) => fs.mkdir(ctx.tempDir, { recursive: true }),
+      // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
+      // Se utiliza un cuerpo de bloque para asegurar un retorno `void`.
+      execute: async (ctx) => {
+        await fs.mkdir(ctx.tempDir, { recursive: true });
+      },
+      // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
     })
     .addTask({
       name: "Generate package.json",

@@ -1,10 +1,10 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/Step3.tsx
+// RUTA: src/components/features/campaign-suite/Step3_Theme/Step3.tsx
 /**
  * @file Step3.tsx
- * @description Ensamblador de Servidor para el Paso 3 de la SDC (Tema).
- * @version 3.0.0 (Holistic Type Alignment): Se alinea con la nueva
- *              arquitectura de props "envueltas".
- * @version 3.0.0
+ * @description Ensamblador de Servidor para el Paso 3. Actúa como un cargador
+ *              de datos de producción, obteniendo todos los fragmentos de tema
+ *              necesarios y pasándolos al cliente.
+ * @version 4.0.0 (Production Data Fetching)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -22,11 +22,11 @@ export default async function Step3({
 }: StepProps<{ step3: Content }>): Promise<React.ReactElement> {
   const content = rawContent.step3;
   logger.info(
-    "[Step3 Ensamblador] Obteniendo datos de servidor para el Paso 3..."
+    "[Step3 Ensamblador] Obteniendo datos de producción para el Paso 3..."
   );
 
+  // Lógica de producción: Se obtienen los nombres de los fragmentos en el servidor.
   const fragmentsResult = await getThemeFragmentsAction();
 
   return <Step3Client content={content} fragmentsResult={fragmentsResult} />;
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/Step3.tsx

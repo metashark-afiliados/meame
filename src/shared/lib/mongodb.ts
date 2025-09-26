@@ -1,12 +1,15 @@
-// lib/mongodb.ts
+// RUTA: src/shared/lib/mongodb.ts
 /**
  * @file mongodb.ts
  * @description SSoT para la conexión a la base de datos de MongoDB.
- * @version 2.2.0 (Definitive Type Safety): Se añade una guardia explícita
- *              dentro de la función de conexión para una seguridad de tipos
- *              absoluta y a prueba de fallos.
+ *              v3.0.0 (Server-Only Enforcement): Se añade la directiva "server-only"
+ *              para forzar a nivel de build que este módulo nunca sea importado
+ *              en un componente de cliente, resolviendo el error crítico de "net".
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
+import "server-only"; // <-- ¡DIRECTIVA ARQUITECTÓNICA DE ÉLITE!
+
 import { MongoClient } from "mongodb";
 import { logger } from "@/shared/lib/logging";
 
@@ -32,15 +35,11 @@ export async function connectToDatabase(): Promise<MongoClient> {
     return cachedClientPromise;
   }
 
-  // --- [INICIO DE CORRECCIÓN DE SEGURIDAD DE TIPOS] ---
-  // Esta guardia, aunque parezca redundante, es crucial para el análisis de
-  // flujo de control de TypeScript dentro de esta función específica.
   if (!MONGODB_URI) {
     throw new Error(
       "MONGODB_URI no está disponible en el entorno de ejecución."
     );
   }
-  // --- [FIN DE CORRECCIÓN DE SEGURIDAD DE TIPOS] ---
 
   logger.info(
     "[MongoDB] Creando nueva conexión de cliente a la base de datos..."
@@ -62,4 +61,3 @@ export async function connectToDatabase(): Promise<MongoClient> {
 
   return cachedClientPromise;
 }
-// lib/mongodb.ts

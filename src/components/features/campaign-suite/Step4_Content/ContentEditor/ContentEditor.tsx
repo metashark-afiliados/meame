@@ -8,7 +8,11 @@
  */
 "use client";
 import React from "react";
-import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion, AnimatePresence } from "framer-motion";
 import type { LayoutConfigItem } from "@/shared/lib/types/campaigns/draft.types";
@@ -24,8 +28,21 @@ interface SortableItemProps {
   onRemove: (id: string) => void;
 }
 
-function SortableItem({ id, isComboPart, isLastItem, isNextItemInCombo, onRemove }: SortableItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+function SortableItem({
+  id,
+  isComboPart,
+  isLastItem,
+  isNextItemInCombo,
+  onRemove,
+}: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -41,12 +58,18 @@ function SortableItem({ id, isComboPart, isLastItem, isNextItemInCombo, onRemove
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -50 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className={cn("relative flex items-center justify-between p-3 border rounded-md bg-background shadow-sm touch-none transition-all duration-300", isComboPart && "border-primary ring-2 ring-primary/50")}
+      className={cn(
+        "relative flex items-center justify-between p-3 border rounded-md bg-background shadow-sm touch-none transition-all duration-300",
+        isComboPart && "border-primary ring-2 ring-primary/50"
+      )}
       {...attributes}
       {...listeners}
     >
       <div className="flex items-center gap-2">
-        <DynamicIcon name="GripVertical" className="h-5 w-5 text-muted-foreground cursor-grab" />
+        <DynamicIcon
+          name="GripVertical"
+          className="h-5 w-5 text-muted-foreground cursor-grab"
+        />
         <span className="font-medium">{id}</span>
       </div>
       <Button variant="ghost" size="icon" onClick={() => onRemove(id)}>
@@ -76,18 +99,30 @@ interface LayoutCanvasProps {
   emptyCanvasText: string;
 }
 
-export function LayoutCanvas({ activeLayout, comboSections, onRemoveSection, title, emptyCanvasText }: LayoutCanvasProps) {
+export function LayoutCanvas({
+  activeLayout,
+  comboSections,
+  onRemoveSection,
+  title,
+  emptyCanvasText,
+}: LayoutCanvasProps) {
   logger.trace("[LayoutCanvas] Renderizando lienzo de layout (v2.0 - MEA).");
   return (
     <div className="md:col-span-2 p-4 border rounded-lg bg-muted/20 min-h-[400px]">
       <h3 className="font-semibold mb-4">{title}</h3>
       <AnimatePresence>
-        <SortableContext items={activeLayout.map((item) => item.name)} strategy={verticalListSortingStrategy}>
+        <SortableContext
+          items={activeLayout.map((item) => item.name)}
+          strategy={verticalListSortingStrategy}
+        >
           <div className="space-y-4">
             {activeLayout.length > 0 ? (
               activeLayout.map((item, index) => {
                 const isComboPart = comboSections.has(item.name);
-                const isNextItemInCombo = isComboPart && index < activeLayout.length - 1 && comboSections.has(activeLayout[index + 1].name);
+                const isNextItemInCombo =
+                  isComboPart &&
+                  index < activeLayout.length - 1 &&
+                  comboSections.has(activeLayout[index + 1].name);
                 return (
                   <SortableItem
                     key={item.name}
@@ -100,7 +135,11 @@ export function LayoutCanvas({ activeLayout, comboSections, onRemoveSection, tit
                 );
               })
             ) : (
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-muted-foreground text-center py-10">
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-sm text-muted-foreground text-center py-10"
+              >
                 {emptyCanvasText}
               </motion.p>
             )}

@@ -47,8 +47,7 @@ export function LastSignInInfo({
     }
   );
 
-  const location =
-    profile.last_sign_in_location || "Ubicación desconocida";
+  const location = profile.last_sign_in_location || "Ubicación desconocida";
   const ip = profile.last_sign_in_ip || "No registrada";
 
   return (

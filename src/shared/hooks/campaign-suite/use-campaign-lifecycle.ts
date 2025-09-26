@@ -12,7 +12,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCampaignDraftStore } from "@/shared/lib/stores/campaign-draft.store";
 import { routes } from "@/shared/lib/navigation";
-import { publishCampaignAction, packageCampaignAction } from "@/shared/lib/actions/campaign-suite";
+import {
+  publishCampaignAction,
+  packageCampaignAction,
+} from "@/shared/lib/actions/campaign-suite";
 import { deleteDraftAction } from "@/shared/lib/actions/campaign-suite/deleteDraft.action";
 import { useCelebrationStore } from "@/shared/lib/stores/use-celebration.store";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
@@ -31,7 +34,9 @@ export function useCampaignLifecycle(locale: Locale, draft: CampaignDraft) {
       const result = await publishCampaignAction(draft);
       if (result.success) {
         celebrate();
-        toast.success("¡Campaña Publicada!", { description: `La variante con ID ${result.data.variantId} está ahora en vivo.` });
+        toast.success("¡Campaña Publicada!", {
+          description: `La variante con ID ${result.data.variantId} está ahora en vivo.`,
+        });
       } else {
         toast.error("Fallo en la Publicación", { description: result.error });
       }
@@ -39,11 +44,13 @@ export function useCampaignLifecycle(locale: Locale, draft: CampaignDraft) {
   };
 
   const onPackage = () => {
-     startPackageTransition(async () => {
+    startPackageTransition(async () => {
       const result = await packageCampaignAction(draft);
       if (result.success) {
-        toast.info("Descarga iniciada", { description: "Tu paquete .zip se está descargando."});
-        window.open(result.data.downloadUrl, '_blank');
+        toast.info("Descarga iniciada", {
+          description: "Tu paquete .zip se está descargando.",
+        });
+        window.open(result.data.downloadUrl, "_blank");
       } else {
         toast.error("Fallo en el Empaquetado", { description: result.error });
       }

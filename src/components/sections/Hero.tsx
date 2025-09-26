@@ -13,7 +13,10 @@ import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { getBaviManifest } from "@/shared/lib/bavi"; // <-- Importación corregida
 import { DeveloperErrorDisplay } from "@/components/dev";
 import { HeroClient } from "./HeroClient";
-import type { BaviAsset, BaviVariant } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
+import type {
+  BaviAsset,
+  BaviVariant,
+} from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 
 type HeroContent = NonNullable<Dictionary["hero"]>;
 
@@ -39,12 +42,16 @@ export async function Hero({
       const asset = baviManifest.assets.find(
         (a: BaviAsset) => a.assetId === content.backgroundImageAssetId
       );
-      const publicId = asset?.variants.find((v: BaviVariant) => v.state === "orig")?.publicId;
+      const publicId = asset?.variants.find(
+        (v: BaviVariant) => v.state === "orig"
+      )?.publicId;
 
       if (publicId) {
         backgroundImageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,w_1920/${publicId}`;
       } else {
-        logger.warn(`[Hero Shell] Asset ID '${content.backgroundImageAssetId}' no encontrado en la BAVI.`);
+        logger.warn(
+          `[Hero Shell] Asset ID '${content.backgroundImageAssetId}' no encontrado en la BAVI.`
+        );
       }
     } catch (error) {
       logger.error("[Hero Shell] Fallo al cargar datos de BAVI.", { error });
@@ -60,5 +67,7 @@ export async function Hero({
     }
   }
 
-  return <HeroClient content={content} backgroundImageUrl={backgroundImageUrl} />;
+  return (
+    <HeroClient content={content} backgroundImageUrl={backgroundImageUrl} />
+  );
 }

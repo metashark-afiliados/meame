@@ -1,8 +1,11 @@
 // RUTA: src/components/features/campaign-suite/_components/StepClientWrapper.tsx
 /**
  * @file StepClientWrapper.tsx
- * @description Ensamblador y Despachador de Pasos dinámico para la SDC.
- * @version 13.0.0 (Dynamic Step Dispatcher & Build Stability)
+ * @description Despachador de Pasos 100% dinámico y Guardián de Contratos.
+ *              Lee la SSoT de `wizard.config.ts` para obtener el componente y su
+ *              schema, valida el contenido en tiempo de ejecución y renderiza el
+ *              paso correspondiente con seguridad de tipos absoluta.
+ * @version 15.0.0 (Config-Driven & Type-Safe Dispatcher)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,50 +15,55 @@ import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { logger } from "@/shared/lib/logging";
 import { stepsConfig } from "@/shared/lib/config/campaign-suite/wizard.config";
-import type { StepProps } from "@/shared/lib/types/campaigns/step.types";
-import { Step0 } from "../Step0_Identity";
-import { Step1 } from "../Step1_Structure";
-import { Step2 } from "../Step2_Layout";
-import { Step3 } from "../Step3_Theme";
-import { Step4 } from "../Step4_Content";
-import { Step5 } from "../Step5_Management";
-
-// Mapa que asocia el ID del paso con su componente React.
-const stepComponentMap: Record<number, React.ComponentType<StepProps<any>>> = {
-  0: Step0,
-  1: Step1,
-  2: Step2,
-  3: Step3,
-  4: Step4,
-  5: Step5,
-};
+import { DeveloperErrorDisplay } from "@/components/dev";
 
 interface StepClientWrapperProps {
-  stepContent: object;
+  stepContent: unknown; // La prop es 'unknown' para forzar una validación explícita.
 }
 
 export function StepClientWrapper({
   stepContent,
 }: StepClientWrapperProps): React.ReactElement {
-  logger.info("Renderizando StepClientWrapper v13.0 (Dynamic Dispatcher)");
+  logger.info(
+    "[StepClientWrapper] Renderizando v15.0 (Config-Driven Dispatcher)."
+  );
 
   const searchParams = useSearchParams();
   const currentStepId = parseInt(searchParams.get("step") || "0", 10);
 
-  const StepComponent = stepComponentMap[currentStepId];
+  const stepConfig = stepsConfig.find((s) => s.id === currentStepId);
 
-  if (!StepComponent) {
-    const errorMessage = `Componente no encontrado para el paso ${currentStepId}.`;
+  if (!stepConfig) {
+    const errorMessage = `Configuración no encontrada para el paso ${currentStepId}.`;
     logger.error(`[StepClientWrapper] ${errorMessage}`);
     return (
-      <div className="text-destructive text-center p-8">{errorMessage}</div>
+      <DeveloperErrorDisplay
+        context="StepClientWrapper"
+        errorMessage={errorMessage}
+        errorDetails="Verifica que el ID del paso en la URL es válido y que existe una entrada correspondiente en 'wizard.config.ts'."
+      />
     );
   }
 
-  const stepConfig = stepsConfig.find(s => s.id === currentStepId);
-  logger.success(
-    `[StepClientWrapper] Despachando al componente para el paso ${currentStepId}: ${stepConfig?.titleKey}`
-  );
+  // Se obtiene el componente y su schema de validación directamente de la SSoT.
+  const { component: StepComponent, schema } = stepConfig;
+
+  // Se valida el contenido contra el schema del paso actual. Esto es nuestro guardián de tipos.
+  const validation = schema.safeParse(stepContent);
+
+  if (!validation.success) {
+    const errorMessage = `Los datos de contenido para el paso ${currentStepId} (${stepConfig.i18nKey}) no cumplen con el contrato de Zod.`;
+    logger.error(`[StepClientWrapper] ${errorMessage}`, {
+      error: validation.error.flatten(),
+    });
+    return (
+      <DeveloperErrorDisplay
+        context="StepClientWrapper"
+        errorMessage={errorMessage}
+        errorDetails={validation.error}
+      />
+    );
+  }
 
   return (
     <AnimatePresence mode="wait">
@@ -66,7 +74,8 @@ export function StepClientWrapper({
         exit={{ opacity: 0, x: -20 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
-        <StepComponent content={stepContent} />
+        {/* Se pasa el contenido ya validado y con el tipo correcto al componente del paso. */}
+        <StepComponent content={validation.data} />
       </motion.div>
     </AnimatePresence>
   );

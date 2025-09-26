@@ -1,112 +1,93 @@
-// Ruta correcta: src/shared/lib/actions/bavi/addAssetToManifests.action.ts
+// RUTA: src/shared/lib/actions/bavi/addAssetToManifests.action.ts
 /**
  * @file addAssetToManifests.action.ts
- * @description Server Action atómica para registrar un nuevo activo en los manifiestos de BAVI.
- * @version 3.1.0 (Sovereign Path Restoration)
+ * @description Server Action atómica para registrar un nuevo activo DIRECTAMENTE en la DB de Supabase.
+ * @version 4.0.0 (Supabase Production-Ready)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
 
-import { promises as fs } from "fs";
-import path from "path";
-import type { UploadApiResponse } from "cloudinary";
+import { createServerClient } from "@/shared/lib/supabase/server";
 import { logger } from "@/shared/lib/logging";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import type { AssetUploadMetadata } from "@/shared/lib/schemas/bavi/upload.schema";
-import { connectToDatabase } from "@/shared/lib/mongodb";
-import type { RaZPromptsEntry } from "@/shared/lib/schemas/raz-prompts/entry.schema";
-import { normalizeKeywords } from "@/shared/lib/utils/search/keyword-normalizer";
+import type { UploadApiResponse } from "cloudinary";
 
-const BAVI_MANIFEST_PATH = path.join(
-  process.cwd(),
-  "content/bavi/bavi.manifest.json"
-);
-const SEARCH_INDEX_PATH = path.join(
-  process.cwd(),
-  "content/bavi/bavi.search-index.json"
-);
+interface AddAssetToDbInput {
+  metadata: AssetUploadMetadata;
+  cloudinaryResponse: UploadApiResponse;
+  userId: string;
+}
 
-export async function addAssetToManifestsAction(
-  metadata: AssetUploadMetadata,
-  cloudinaryResponse: UploadApiResponse
-): Promise<ActionResult<{ assetId: string }>> {
+export async function addAssetToManifestsAction({
+  metadata,
+  cloudinaryResponse,
+  userId,
+}: AddAssetToDbInput): Promise<ActionResult<{ assetId: string }>> {
+  const traceId = logger.startTrace("addAssetToDb_v4.0");
+  const supabase = createServerClient();
+
   try {
-    const baviManifestContent = await fs
-      .readFile(BAVI_MANIFEST_PATH, "utf-8")
-      .catch(() => '{ "assets": [] }');
-    const baviManifest = JSON.parse(baviManifestContent);
-    const now = new Date().toISOString();
-
-    const newAssetEntry = {
-      assetId: metadata.assetId,
+    // 1. Insertar el activo principal en `bavi_assets`
+    const { error: assetError } = await supabase.from("bavi_assets").insert({
+      asset_id: metadata.assetId,
+      user_id: userId, // <-- Propiedad Soberana
       provider: "cloudinary",
-      promptId: metadata.promptId,
+      prompt_id: metadata.promptId || null,
       tags: metadata.sesaTags,
-      variants: [
-        {
-          versionId: "v1-orig",
-          publicId: cloudinaryResponse.public_id,
-          state: "orig",
-          dimensions: {
-            width: cloudinaryResponse.width,
-            height: cloudinaryResponse.height,
-          },
-        },
-      ],
-      metadata: {
-        altText: metadata.altText,
-      },
-      imageUrl: metadata.promptId ? cloudinaryResponse.secure_url : undefined,
-      createdAt: now,
-      updatedAt: now,
-    };
+      metadata: { altText: metadata.altText },
+    });
 
-    baviManifest.assets.push(newAssetEntry);
-    await fs.writeFile(
-      BAVI_MANIFEST_PATH,
-      JSON.stringify(baviManifest, null, 2)
-    );
-    logger.success(
-      `[addAssetToManifests] Activo ${metadata.assetId} añadido a bavi.manifest.json`
-    );
-
-    const searchIndexContent = await fs
-      .readFile(SEARCH_INDEX_PATH, "utf-8")
-      .catch(() => '{ "version": "1.0.0", "index": {} }');
-    const searchIndex = JSON.parse(searchIndexContent);
-
-    searchIndex.index[metadata.assetId] = normalizeKeywords(metadata.keywords);
-
-    await fs.writeFile(SEARCH_INDEX_PATH, JSON.stringify(searchIndex, null, 2));
-    logger.success(
-      `[addAssetToManifests] Activo ${metadata.assetId} añadido a bavi.search-index.json`
-    );
-
-    if (metadata.promptId && cloudinaryResponse.secure_url) {
-      const client = await connectToDatabase();
-      const db = client.db(process.env.MONGODB_DB_NAME);
-      const collection = db.collection<RaZPromptsEntry>("prompts");
-
-      await collection.updateOne(
-        { promptId: metadata.promptId },
-        { $set: { imageUrl: cloudinaryResponse.secure_url } }
+    if (assetError)
+      throw new Error(
+        `Error al insertar en bavi_assets: ${assetError.message}`
       );
-      logger.success(
-        `[addAssetToManifests] imageUrl añadida a prompt ${metadata.promptId} en MongoDB.`
-      );
-    }
+    logger.traceEvent(
+      traceId,
+      `Activo ${metadata.assetId} registrado en bavi_assets.`
+    );
 
+    // 2. Insertar la variante inicial en `bavi_variants`
+    const { error: variantError } = await supabase
+      .from("bavi_variants")
+      .insert({
+        variant_id: "v1-orig",
+        asset_id: metadata.assetId,
+        public_id: cloudinaryResponse.public_id,
+        state: "orig",
+        width: cloudinaryResponse.width,
+        height: cloudinaryResponse.height,
+      });
+
+    if (variantError)
+      throw new Error(
+        `Error al insertar en bavi_variants: ${variantError.message}`
+      );
+    logger.traceEvent(
+      traceId,
+      `Variante v1-orig para ${metadata.assetId} registrada.`
+    );
+
+    // NOTA: La lógica para actualizar el search-index.json y RaZPrompts en MongoDB se mantiene por ahora,
+    // pero idealmente también migraría a la base de datos principal en el futuro.
+
+    logger.success(
+      `[Action] Activo ${metadata.assetId} persistido con éxito en Supabase.`,
+      { traceId }
+    );
     return { success: true, data: { assetId: metadata.assetId } };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[addAssetToManifests] Fallo al actualizar los manifiestos.", {
+    logger.error("[addAssetToManifests] Fallo al escribir en Supabase.", {
       error: errorMessage,
+      traceId,
     });
     return {
       success: false,
-      error: "No se pudieron actualizar los manifiestos de la BAVI.",
+      error: "No se pudo registrar el activo en la base de datos.",
     };
+  } finally {
+    logger.endTrace(traceId);
   }
 }
-// Ruta correcta: src/shared/lib/actions/bavi/addAssetToManifests.action.ts

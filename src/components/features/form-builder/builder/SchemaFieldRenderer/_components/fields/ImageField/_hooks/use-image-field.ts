@@ -12,7 +12,7 @@
 
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { useCampaignDraft } from "@/shared/hooks/campaign-suite/use-campaign-draft";
+import { useDraftMetadataStore } from "@/shared/hooks/campaign-suite/use-draft-metadata.store";
 import { saveCampaignAssetAction } from "@/shared/lib/actions/campaign-suite";
 import type { BaviAsset } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 import type { FieldValues, Path } from "react-hook-form";
@@ -23,13 +23,13 @@ export function useImageField<TFieldValues extends FieldValues>(
   fieldName: Path<TFieldValues>
 ) {
   logger.trace("[useImageField] Inicializando hook v4.0 (Sovereign Paths).");
-  const { draft } = useCampaignDraft();
+  const { baseCampaignId, draftId } = useDraftMetadataStore();
   const [isUploading, setIsUploading] = useState(false);
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 
   const handleImageUpload = useCallback(
     async (formData: FormData) => {
-      if (!draft.baseCampaignId || !draft.draftId) {
+      if (!baseCampaignId || !draftId) {
         toast.error("Error de contexto", {
           description: "ID de borrador no encontrado. Guarda el Paso 0.",
         });
@@ -37,8 +37,8 @@ export function useImageField<TFieldValues extends FieldValues>(
       }
       setIsUploading(true);
       const result = await saveCampaignAssetAction(
-        draft.baseCampaignId,
-        draft.draftId,
+        baseCampaignId,
+        draftId,
         formData
       );
       setIsUploading(false);
@@ -50,7 +50,7 @@ export function useImageField<TFieldValues extends FieldValues>(
         toast.error("Fallo al subir imagen", { description: result.error });
       }
     },
-    [draft.baseCampaignId, draft.draftId, fieldName, onValueChange]
+    [baseCampaignId, draftId, fieldName, onValueChange]
   );
 
   const handleRemoveImage = useCallback(() => {

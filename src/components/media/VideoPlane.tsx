@@ -1,9 +1,9 @@
-// components/media/VideoPlane.tsx
+// RUTA: src/components/media/VideoPlane.tsx
 /**
  * @file VideoPlane.tsx
  * @description Componente de escena para mostrar una textura de vídeo y alojar
  *              el audio posicional 3D.
- * @version 2.0.0
+ * @version 2.0.0 (Conditional Audio)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -24,7 +24,6 @@ export function VideoPlane({ texture, audioRef, audioSrc }: VideoPlaneProps) {
   const videoAspect = texture.image.videoWidth / texture.image.videoHeight;
   const viewportAspect = size.width / size.height;
 
-  // Calcula la escala para ajustarse al viewport sin distorsión (letterboxing/pillarboxing)
   const scaleX = videoAspect > viewportAspect ? viewportAspect : videoAspect;
   const scaleY =
     videoAspect > viewportAspect ? viewportAspect / videoAspect : 1;
@@ -33,10 +32,9 @@ export function VideoPlane({ texture, audioRef, audioSrc }: VideoPlaneProps) {
     <mesh scale={[scaleX, scaleY, 1]}>
       <planeGeometry args={[1, 1]} />
       <meshBasicMaterial map={texture} toneMapped={false} />
-      {/* --- INICIO DE INTEGRACIÓN DE AUDIO 3D --- */}
+      {/* --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: RENDERIZADO CONDICIONAL] --- */}
       {audioSrc && <PositionalAudio ref={audioRef} url={audioSrc} />}
-      {/* --- FIN DE INTEGRACIÓN DE AUDIO 3D --- */}
+      {/* --- [FIN DE REFACTORIZACIÓN DE ÉLITE] --- */}
     </mesh>
   );
 }
-// components/media/VideoPlane.tsx

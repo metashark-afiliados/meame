@@ -28,7 +28,10 @@ export function detectStrategicCombos(
     (section: LayoutConfigItem) => section.name
   );
 
-  logger.trace("[ComboDetector] Verificando combos estratégicos...", { lastAdded: newSection, layout: currentSectionNames });
+  logger.trace("[ComboDetector] Verificando combos estratégicos...", {
+    lastAdded: newSection,
+    layout: currentSectionNames,
+  });
 
   for (const combo of strategicCombos) {
     if (combo.sections[combo.sections.length - 1] !== newSection) {

@@ -26,16 +26,22 @@ export async function sendOrderConfirmationEmailAction(
   payload: OrderConfirmationPayload
 ): Promise<ActionResult<{ emailId: string }>> {
   const traceId = logger.startTrace("sendOrderConfirmationEmailAction_v2.0");
-  logger.info("[Notification Action] Iniciando envío de confirmación de pedido.", { traceId });
+  logger.info(
+    "[Notification Action] Iniciando envío de confirmación de pedido.",
+    { traceId }
+  );
 
   try {
     // 1. Validar el payload de entrada contra su contrato estricto.
     const validation = OrderConfirmationPayloadSchema.safeParse(payload);
     if (!validation.success) {
-      logger.error("[Notification Action] Payload de confirmación de pedido inválido.", {
-        errors: validation.error.flatten(),
-        traceId,
-      });
+      logger.error(
+        "[Notification Action] Payload de confirmación de pedido inválido.",
+        {
+          errors: validation.error.flatten(),
+          traceId,
+        }
+      );
       return { success: false, error: "Datos para el email inválidos." };
     }
     const { to, orderId, totalAmount, items } = validation.data;
@@ -65,11 +71,17 @@ export async function sendOrderConfirmationEmailAction(
 
     // 4. Delegar el envío a la capa de servicio.
     return await sendEmail(to, subject, emailComponent);
-
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[Notification Action] Fallo crítico al enviar correo de confirmación.", { error: errorMessage, traceId });
-    return { success: false, error: "No se pudo procesar el envío del correo." };
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error(
+      "[Notification Action] Fallo crítico al enviar correo de confirmación.",
+      { error: errorMessage, traceId }
+    );
+    return {
+      success: false,
+      error: "No se pudo procesar el envío del correo.",
+    };
   } finally {
     logger.endTrace(traceId);
   }

@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/_components/ThemeComposerModal.tsx
+// RUTA: src/components/features/campaign-suite/Step3_Theme/_components/ThemeComposerModal.tsx
 /**
  * @file ThemeComposerModal.tsx
  * @description Orquestador modal para la composición visual de temas con previsualización en tiempo real.
- * @version 1.0.0
+ * @version 1.1.0 (Architectural Realignment)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -76,7 +76,7 @@ export function ThemeComposerModal({
 
   useEffect(() => {
     if (!isOpen) {
-      setPreviewTheme(null); // Limpia la previsualización al cerrar
+      setPreviewTheme(null);
     }
   }, [isOpen, setPreviewTheme]);
 
@@ -232,4 +232,3 @@ export function ThemeComposerModal({
     </Dialog>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/_components/ThemeComposerModal.tsx

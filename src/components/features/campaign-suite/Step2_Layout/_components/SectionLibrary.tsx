@@ -18,8 +18,15 @@ interface SectionLibraryProps {
   emptyLibraryText: string; // <-- PROP AÑADIDA
 }
 
-export function SectionLibrary({ availableSections, onAddSection, title, emptyLibraryText }: SectionLibraryProps) {
-  logger.trace("[SectionLibrary] Renderizando biblioteca v1.1 (Prop Contract Synced).");
+export function SectionLibrary({
+  availableSections,
+  onAddSection,
+  title,
+  emptyLibraryText,
+}: SectionLibraryProps) {
+  logger.trace(
+    "[SectionLibrary] Renderizando biblioteca v1.1 (Prop Contract Synced)."
+  );
   return (
     <div className="md:col-span-1 p-4 border rounded-lg bg-muted/20">
       <h3 className="font-semibold mb-4">{title}</h3>

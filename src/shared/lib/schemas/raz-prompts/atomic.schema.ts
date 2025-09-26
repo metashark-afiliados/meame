@@ -2,7 +2,7 @@
 /**
  * @file atomic.schema.ts
  * @description SSoT para los schemas atómicos y reutilizables del ecosistema RaZPrompts.
- * @version 2.0.0 (Ideogram Parameters Expanded)
+ * @version 2.1.0 (Flexible SESA Regex)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
@@ -53,9 +53,12 @@ export const PromptParametersSchema = z.object({
 export const RaZPromptsSesaTagsSchema = z.object({
   ai: z.string().regex(/^[a-z]{2,4}$/, "Código de IA inválido"),
   sty: z.string().regex(/^[a-z]{3}$/, "Código de Estilo inválido"),
-  fmt: z.string(),
-  typ: z.string().regex(/^[a-z]{3}$/, "Código de Tipo inválido"),
-  sbj: z.string().regex(/^[a-z]{3}$/, "Código de Sujeto inválido"),
+  fmt: z.string(), // fmt puede ser "16x9", por lo que no lleva regex de solo letras.
+  // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
+  // Se flexibiliza la validación para permitir códigos de 2 a 4 caracteres.
+  typ: z.string().regex(/^[a-z]{2,4}$/, "Código de Tipo inválido"),
+  sbj: z.string().regex(/^[a-z]{3,4}$/, "Código de Sujeto inválido"),
+  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 });
 
 export type RaZPromptsSesaTags = z.infer<typeof RaZPromptsSesaTagsSchema>;

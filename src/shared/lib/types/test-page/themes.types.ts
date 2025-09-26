@@ -13,7 +13,9 @@ import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-them
 import { logger } from "@/shared/lib/logging"; // Importa el logger
 
 // --- INICIO DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
-logger.trace("[themes.types.ts] Módulo de tipos de temas de página de prueba cargado y listo para usar.");
+logger.trace(
+  "[themes.types.ts] Módulo de tipos de temas de página de prueba cargado y listo para usar."
+);
 // --- FIN DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
 
 export interface AvailableTheme {

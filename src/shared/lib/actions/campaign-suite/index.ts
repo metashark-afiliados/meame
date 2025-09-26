@@ -1,10 +1,11 @@
-// app/[locale]/(dev)/dev/campaign-suite/_actions/index.ts
+// RUTA: src/shared/lib/actions/campaign-suite/index.ts
 /**
  * @file index.ts (Barrel File)
  * @description Fachada pública para las Server Actions de la SDC.
- *              v2.0.0 (Template System Sync): Se añaden las exportaciones para
- *              las nuevas acciones de gestión de plantillas.
- * @version 2.0.0
+ *              v3.0.0 (Holistic Export & Production Readiness): Se añaden las
+ *              exportaciones para las acciones de ciclo de vida del borrador
+ *              basadas en la base de datos.
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 
@@ -15,5 +16,7 @@ export * from "./packageCampaign.action";
 export * from "./getBaseCampaigns.action";
 export * from "./saveAsTemplate.action";
 export * from "./loadTemplate.action";
-export * from "./getTemplates.action";
-// app/[locale]/(dev)/dev/campaign-suite/_actions/index.ts
+export * from "./getTemplates.action"; // Mantenido por si es usado en otro lugar
+export * from "./getCampaignTemplates.action"; // <-- EXPORTACIÓN RESTAURADA
+export * from "./draft.actions"; // <-- NUEVA EXPORTACIÓN HOLÍSTICA
+export * from "./deleteDraft.action"; // <-- NUEVA EXPORTACIÓN HOLÍSTICA

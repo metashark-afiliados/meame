@@ -12,7 +12,10 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { logger } from "@/shared/lib/logging";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
-import { UpdateProfileSchema, UpdatePasswordSchema } from "@/shared/lib/schemas/account/account-forms.schema";
+import {
+  UpdateProfileSchema,
+  UpdatePasswordSchema,
+} from "@/shared/lib/schemas/account/account-forms.schema";
 
 async function getSupabaseServerClient() {
   const cookieStore = cookies();
@@ -27,13 +30,20 @@ export async function updateUserProfileAction(
   formData: FormData
 ): Promise<ActionResult<null>> {
   const supabase = await getSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Acción no autorizada." };
 
   const formValues = { fullName: formData.get("fullName") };
   const validation = UpdateProfileSchema.safeParse(formValues);
   if (!validation.success) {
-    return { success: false, error: validation.error.flatten().fieldErrors.fullName?.[0] || "Datos inválidos." };
+    return {
+      success: false,
+      error:
+        validation.error.flatten().fieldErrors.fullName?.[0] ||
+        "Datos inválidos.",
+    };
   }
 
   const { error } = await supabase.auth.updateUser({
@@ -41,7 +51,10 @@ export async function updateUserProfileAction(
   });
 
   if (error) {
-    logger.error("Fallo al actualizar el perfil.", { userId: user.id, error: error.message });
+    logger.error("Fallo al actualizar el perfil.", {
+      userId: user.id,
+      error: error.message,
+    });
     return { success: false, error: "No se pudo actualizar el perfil." };
   }
 
@@ -53,7 +66,9 @@ export async function updateUserPasswordAction(
   formData: FormData
 ): Promise<ActionResult<null>> {
   const supabase = await getSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Acción no autorizada." };
 
   const formValues = {
@@ -63,7 +78,10 @@ export async function updateUserPasswordAction(
   const validation = UpdatePasswordSchema.safeParse(formValues);
   if (!validation.success) {
     const fieldErrors = validation.error.flatten().fieldErrors;
-    const errorMessage = fieldErrors.newPassword?.[0] || fieldErrors.confirmPassword?.[0] || "Datos inválidos.";
+    const errorMessage =
+      fieldErrors.newPassword?.[0] ||
+      fieldErrors.confirmPassword?.[0] ||
+      "Datos inválidos.";
     return { success: false, error: errorMessage };
   }
 
@@ -72,7 +90,10 @@ export async function updateUserPasswordAction(
   });
 
   if (error) {
-    logger.error("Fallo al actualizar la contraseña.", { userId: user.id, error: error.message });
+    logger.error("Fallo al actualizar la contraseña.", {
+      userId: user.id,
+      error: error.message,
+    });
     return { success: false, error: "No se pudo actualizar la contraseña." };
   }
 
@@ -80,18 +101,22 @@ export async function updateUserPasswordAction(
 }
 
 export async function deleteUserAccountAction(): Promise<ActionResult<null>> {
-    const supabase = await getSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { success: false, error: "Acción no autorizada." };
+  const supabase = await getSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Acción no autorizada." };
 
-    // En un escenario de producción, esto DEBE ser una llamada a una Edge Function
-    // que maneje la eliminación en cascada de todos los datos del usuario.
-    // const { error } = await supabase.rpc('delete_user_account');
+  // En un escenario de producción, esto DEBE ser una llamada a una Edge Function
+  // que maneje la eliminación en cascada de todos los datos del usuario.
+  // const { error } = await supabase.rpc('delete_user_account');
 
-    // Por ahora, simularemos el éxito.
-    logger.warn("Se ha iniciado la eliminación de la cuenta para el usuario.", { userId: user.id });
+  // Por ahora, simularemos el éxito.
+  logger.warn("Se ha iniciado la eliminación de la cuenta para el usuario.", {
+    userId: user.id,
+  });
 
-    // Aquí también se invalidaría la sesión del usuario.
+  // Aquí también se invalidaría la sesión del usuario.
 
-    return { success: true, data: null };
+  return { success: true, data: null };
 }

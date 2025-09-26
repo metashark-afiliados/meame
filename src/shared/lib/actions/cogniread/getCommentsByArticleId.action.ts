@@ -8,7 +8,10 @@
 "use server";
 
 import { connectToDatabase } from "@/shared/lib/mongodb";
-import { CommentSchema, type Comment } from "@/shared/lib/schemas/community/comment.schema";
+import {
+  CommentSchema,
+  type Comment,
+} from "@/shared/lib/schemas/community/comment.schema";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import { logger } from "@/shared/lib/logging";
 import { z } from "zod";
@@ -40,10 +43,13 @@ export async function getCommentsByArticleIdAction(
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[getCommentsByArticleIdAction] Fallo al obtener comentarios.", {
-      articleId,
-      error: errorMessage,
-    });
+    logger.error(
+      "[getCommentsByArticleIdAction] Fallo al obtener comentarios.",
+      {
+        articleId,
+        error: errorMessage,
+      }
+    );
     logger.endTrace(traceId);
     return {
       success: false,

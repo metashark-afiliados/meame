@@ -1,4 +1,4 @@
-// RUTA: components/features/campaign-suite/TemplateBrowser/index.ts (NUEVO)
+// RUTA: src/components/features/campaign-suite/TemplateBrowser/index.ts
 /**
  * @file index.ts (Barrel File)
  * @description Fachada pública para el módulo TemplateBrowser.
@@ -6,4 +6,3 @@
  * @author RaZ Podestá - MetaShark Tech
  */
 export * from "./TemplateBrowser";
-

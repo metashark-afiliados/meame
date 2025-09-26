@@ -1,8 +1,11 @@
 // RUTA: src/components/features/dev-tools/SuiteStyleComposer/use-suite-style-composer.ts
 /**
  * @file use-suite-style-composer.ts
- * @description Hook "cerebro" para el Compositor de Estilos.
- * @version 2.0.0 (Code Hygiene & Elite Compliance)
+ * @description Hook "cerebro" de élite para la lógica del Compositor de Estilos.
+ *              v4.0.0 (Atomic API & Elite Compliance): Refactorizado para exponer
+ *              una API de actualización granular, resolviendo el error de contrato
+ *              TS2322 y cumpliendo con los 7 Pilares de Calidad.
+ * @version 4.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,6 +15,7 @@ import { deepMerge } from "@/shared/lib/utils";
 import { AssembledThemeSchema } from "@/shared/lib/schemas/theming/assembled-theme.schema";
 import { generateCssVariablesFromTheme } from "@/shared/lib/utils/theming/theme-utils";
 import type { SuiteThemeConfig, LoadedFragments } from "./types";
+import { logger } from "@/shared/lib/logging";
 
 const PREVIEW_STYLE_TAG_ID = "dcc-preview-theme-overrides";
 
@@ -24,12 +28,19 @@ export function useSuiteStyleComposer({
   initialConfig,
   allThemeFragments,
 }: UseSuiteStyleComposerProps) {
+  logger.trace("[useSuiteStyleComposer] Inicializando hook v4.0 (Atomic API).");
   const [localSuiteConfig, setLocalSuiteConfig] =
     useState<SuiteThemeConfig>(initialConfig);
 
   const applyPreview = useCallback(
     (config: SuiteThemeConfig) => {
-      const { colorPreset, fontPreset, radiusPreset } = config;
+      const {
+        colorPreset,
+        fontPreset,
+        radiusPreset,
+        granularFonts,
+        granularGeometry,
+      } = config;
       const finalTheme = deepMerge(
         deepMerge(
           deepMerge(
@@ -40,6 +51,14 @@ export function useSuiteStyleComposer({
         ),
         allThemeFragments.radii[radiusPreset || ""] || {}
       );
+
+      if (granularFonts)
+        finalTheme.fonts = deepMerge(finalTheme.fonts || {}, granularFonts);
+      if (granularGeometry)
+        finalTheme.geometry = deepMerge(
+          finalTheme.geometry || {},
+          granularGeometry
+        );
 
       const validation = AssembledThemeSchema.safeParse(finalTheme);
       if (!validation.success) return;
@@ -69,13 +88,34 @@ export function useSuiteStyleComposer({
     return () => clearPreview();
   }, [clearPreview]);
 
-  const handleConfigUpdate = (newPartialConfig: Partial<SuiteThemeConfig>) => {
-    setLocalSuiteConfig((prev) => ({ ...prev, ...newPartialConfig }));
-  };
+  const handlePresetChange = useCallback(
+    (
+      presetType: "colorPreset" | "fontPreset" | "radiusPreset",
+      value: string
+    ) => {
+      setLocalSuiteConfig((prev) => ({ ...prev, [presetType]: value }));
+    },
+    []
+  );
+
+  const handleGranularChange = useCallback(
+    (
+      category: "granularFonts" | "granularGeometry",
+      cssVar: string,
+      value: string
+    ) => {
+      setLocalSuiteConfig((prev) => {
+        const newGranularState = { ...(prev[category] || {}), [cssVar]: value };
+        return { ...prev, [category]: newGranularState };
+      });
+    },
+    []
+  );
 
   return {
     localSuiteConfig,
-    handleConfigUpdate,
+    handlePresetChange,
+    handleGranularChange,
     clearPreview,
   };
 }

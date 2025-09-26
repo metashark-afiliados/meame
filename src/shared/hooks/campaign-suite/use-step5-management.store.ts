@@ -27,7 +27,10 @@ export const useStep5ManagementStore = create<Step5State & Step5Actions>()(
   (set) => ({
     ...initialState,
     setTemplateDetails: (details) => {
-      logger.trace("[Step5Store] Actualizando detalles de la plantilla.", details);
+      logger.trace(
+        "[Step5Store] Actualizando detalles de la plantilla.",
+        details
+      );
       set((state) => ({ ...state, ...details }));
     },
     reset: () => {

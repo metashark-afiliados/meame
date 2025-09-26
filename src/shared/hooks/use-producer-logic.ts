@@ -50,7 +50,10 @@ export function useProducerLogic(): void {
     ];
 
     eventListeners.forEach((event) =>
-      window.addEventListener(event, handleInteraction, { once: true, passive: true })
+      window.addEventListener(event, handleInteraction, {
+        once: true,
+        passive: true,
+      })
     );
 
     return () =>

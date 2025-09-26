@@ -2,7 +2,7 @@
 /**
  * @file use-aether-telemetry.ts
  * @description Hook atómico para la telemetría de eventos de reproducción.
- * @version 1.0.0
+ * @version 2.0.0 (Sovereign Type Import)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -11,14 +11,12 @@ import { useState, useEffect, useCallback } from "react";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { logger } from "@/shared/lib/logging";
 import type { VideoTexture } from "three";
-
-export type PlaybackEventType = "play" | "pause" | "seek" | "ended" | "volumechange";
-export interface PlaybackEvent {
-  type: PlaybackEventType;
-  timestamp: number;
-  duration: number;
-  visitorId: string;
-}
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: IMPORTACIÓN SOBERANA] ---
+import type {
+  PlaybackEvent,
+  PlaybackEventType,
+} from "../use-cinematic-renderer";
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
 export function useAetherTelemetry(
   videoTexture: VideoTexture,
@@ -33,7 +31,9 @@ export function useAetherTelemetry(
         const result = await fp.get();
         setVisitorId(result.visitorId);
       } catch (error) {
-        logger.error("[Fingerprint] Fallo al generar el ID de visitante.", { error });
+        logger.error("[Fingerprint] Fallo al generar el ID de visitante.", {
+          error,
+        });
       }
     };
     getVisitorId();

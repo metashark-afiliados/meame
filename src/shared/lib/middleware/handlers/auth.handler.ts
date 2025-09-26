@@ -35,20 +35,19 @@ export const authHandler: MiddlewareHandler = async (req, res) => {
     const loginUrl = new URL(routes.login.path({ locale }), req.url);
     loginUrl.searchParams.set("redirectedFrom", pathname);
 
-    logger.warn(
-      `[AuthHandler] ACCESO NO AUTORIZADO a ruta protegida.`,
-      {
-        path: pathname,
-        ip: ip,
-        redirectTo: loginUrl.pathname,
-      }
-    );
+    logger.warn(`[AuthHandler] ACCESO NO AUTORIZADO a ruta protegida.`, {
+      path: pathname,
+      ip: ip,
+      redirectTo: loginUrl.pathname,
+    });
 
     return NextResponse.redirect(loginUrl);
   }
 
   if (user && isProtectedRoute) {
-    logger.trace(`[AuthHandler] Acceso autorizado para ${user.email} a ${pathname}.`);
+    logger.trace(
+      `[AuthHandler] Acceso autorizado para ${user.email} a ${pathname}.`
+    );
   }
 
   return res;

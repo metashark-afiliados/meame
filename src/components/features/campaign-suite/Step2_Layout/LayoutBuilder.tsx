@@ -31,7 +31,7 @@ import { SectionLibrary } from "./_components/SectionLibrary";
 import { DynamicIcon } from "@/components/ui";
 import { detectStrategicCombos } from "@/shared/lib/utils/campaign-suite/combo.detector";
 import { showComboToast } from "@/components/ui/ComboToast";
-import { strategicCombos } from "@/shared/lib/config/strategic-combos.config"; // <-- IMPORTACIÓN CORREGIDA
+import { strategicCombos } from "@/shared/lib/config/strategic-combos.config";
 import type { Step2ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step2.schema";
 import type { z } from "zod";
 
@@ -75,7 +75,6 @@ export function LayoutBuilder({
       for (let i = 0; i <= layoutNames.length - combo.sections.length; i++) {
         const subLayout = layoutNames.slice(i, i + combo.sections.length);
         if (JSON.stringify(subLayout) === JSON.stringify(combo.sections)) {
-          // --- TIPO EXPLÍCITO CORREGIDO ---
           combo.sections.forEach((sectionName: SectionName) =>
             newComboSections.add(sectionName)
           );
@@ -180,4 +179,3 @@ export function LayoutBuilder({
     </DndContext>
   );
 }
-// RUTA: src/components/features/campaign-suite/Step2_Layout/LayoutBuilder.tsx

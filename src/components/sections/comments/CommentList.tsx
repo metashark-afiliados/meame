@@ -2,7 +2,7 @@
 /**
  * @file CommentList.tsx
  * @description Componente de presentación para renderizar una lista de comentarios con animación.
- * @version 2.0.0 (Holistic Elite Leveling & MEA/UX)
+ * @version 2.1.0 (Decoupled Contract & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,15 +13,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { DynamicIcon } from "@/components/ui";
 import type { Comment } from "@/shared/lib/schemas/community/comment.schema";
 import { logger } from "@/shared/lib/logging";
-import type { CommentSectionContent } from "@/shared/lib/schemas/components/comment-section.schema";
 
+// --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
 interface CommentListProps {
   comments: Comment[];
-  content: Pick<CommentSectionContent, "emptyState">;
+  content: {
+    emptyState: string;
+  };
 }
+// --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
 
 export function CommentList({ comments, content }: CommentListProps) {
-  logger.trace("[CommentList] Renderizando v2.0 (Elite & MEA).");
+  logger.trace("[CommentList] Renderizando v2.1 (Decoupled Contract).");
 
   if (comments.length === 0) {
     return (
@@ -52,7 +55,9 @@ export function CommentList({ comments, content }: CommentListProps) {
             </Avatar>
             <div className="flex-1">
               <div className="flex items-center space-x-2">
-                <p className="text-sm font-semibold text-foreground">{comment.authorName}</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {comment.authorName}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {new Date(comment.createdAt).toLocaleString()}
                 </p>

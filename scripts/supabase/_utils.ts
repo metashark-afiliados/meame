@@ -1,17 +1,27 @@
-// scripts/supabase/_utils.ts
-import chalk from "chalk";
-import dotenv from "dotenv";
-import path from "path";
-
+// RUTA: scripts/supabase/_utils.ts
 /**
  * @file _utils.ts
- * @description Helper de utilidad compartido para los scripts de Supabase.
- *              Ha sido refactorizado a un estándar de élite para validar las
- *              variables de entorno canónicas, asegurando que las herramientas
- *              de diagnóstico y mantenimiento funcionen en un entorno local
- *              consistente con la nueva arquitectura de configuración.
- * @author Raz Podestá - MetaShark Tech
- * @version 3.0.0
+ * @description Helper de utilidad soberano para los scripts de Supabase.
+ *              v4.0.0 (Module Resolution & Elite Compliance): Refactorizado para
+ *              utilizar importaciones de espacio de nombres, resolviendo los errores
+ *              TS1192 y TS1259 bajo la configuración "NodeNext". Cumple con los
+ *              7 Pilares de Calidad.
+ * @version 4.0.0
+ * @author RaZ Podestá - MetaShark Tech
+ */
+import chalk from "chalk";
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
+// Se utiliza la importación de espacio de nombres para ser compatible con módulos CJS
+// bajo la configuración "moduleResolution": "NodeNext".
+import * as dotenv from "dotenv";
+import * as path from "path";
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
+
+/**
+ * @function loadEnvironment
+ * @description Carga y valida las variables de entorno desde el archivo .env.local.
+ *              Lanza un error crítico si faltan las variables requeridas.
+ * @returns {void}
  */
 export function loadEnvironment(): void {
   const envFile = ".env.local";
@@ -38,15 +48,10 @@ export function loadEnvironment(): void {
     throw new Error(`No se pudo cargar el archivo de entorno: ${envFile}.`);
   }
 
-  // --- INICIO DE REFACTORIZACIÓN: Alineación con SSoT Canónica ---
-  // Se validan las claves estándar que deben existir en .env.local para que los
-  // scripts funcionen correctamente en un entorno de desarrollo.
   const requiredVars = [
     "NEXT_PUBLIC_SUPABASE_URL",
     "SUPABASE_SERVICE_ROLE_KEY",
-    "SUPABASE_DB_URL_DIRECT",
   ];
-  // --- FIN DE REFACTORIZACIÓN ---
 
   const missingVars = requiredVars.filter((v) => !process.env[v]);
 
@@ -71,19 +76,3 @@ export function loadEnvironment(): void {
 
   console.log(chalk.green("✅ Variables de entorno cargadas y validadas."));
 }
-
-/**
- * =====================================================================
- *                           MEJORA CONTINUA
- * =====================================================================
- *
- * @subsection Melhorias Adicionadas
- * 1. **Sincronización con SSoT de Configuración**: ((Implementada)) El helper ahora valida la existencia de las variables de entorno estándar (`NEXT_PUBLIC_SUPABASE_URL`, etc.), alineándose con el nuevo `.env.example` y garantizando que los scripts de utilidad (como `diag:all`) funcionen correctamente en un entorno de desarrollo local.
- * 2. **Cero Regresiones**: ((Implementada)) La lógica de carga de `dotenv` se ha mantenido, asegurando la funcionalidad base.
- *
- * @subsection Melhorias Futuras
- * 1. **Validación de Formato**: ((Vigente)) El helper podría ser mejorado para no solo verificar la existencia de las variables, sino también su formato (ej. que la URL de Supabase sea una URL válida) para una detección de errores más proactiva.
- *
- * =====================================================================
- */
-// scripts/supabase/_utils.ts

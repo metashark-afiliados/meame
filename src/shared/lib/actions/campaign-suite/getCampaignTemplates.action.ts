@@ -1,44 +1,68 @@
 // RUTA: shared/lib/actions/campaign-suite/getCampaignTemplates.action.ts
 /**
  * @file getCampaignTemplates.action.ts
- * @description Server Action para obtener todas las plantillas de campaña disponibles.
- * @version 1.1.0 (Code Hygiene)
+ * @description Server Action de producción para obtener las plantillas de un usuario.
+ * @version 2.0.0 (Supabase Production Ready)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
 
+import { createServerClient } from "@/shared/lib/supabase/server";
 import { logger } from "@/shared/lib/logging";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
-import type { CampaignTemplate } from "@/shared/lib/schemas/campaigns/template.schema";
-
-// Datos mockeados para desarrollo hasta que la conexión a la BD esté activa.
-const MOCK_TEMPLATES: CampaignTemplate[] = [
-  /* ... (datos de plantillas mockeadas) ... */
-];
+import {
+  CampaignTemplateSchema,
+  type CampaignTemplate,
+} from "@/shared/lib/schemas/campaigns/template.schema";
 
 export async function getCampaignTemplatesAction(): Promise<
   ActionResult<CampaignTemplate[]>
 > {
-  logger.info("[Action] Solicitando lista de plantillas de campaña...");
+  const traceId = logger.startTrace("getCampaignTemplates_v2.0");
+  const supabase = createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    logger.warn("[Action] Intento no autorizado de obtener plantillas.", {
+      traceId,
+    });
+    return { success: false, error: "auth_required" };
+  }
+
+  logger.info(`[Action] Solicitando plantillas para el usuario: ${user.id}`);
 
   try {
-    // Lógica con datos mockeados para desarrollo
-    await new Promise((resolve) => setTimeout(resolve, 750)); // Simular latencia de red
+    const { data: templates, error } = await supabase
+      .from("campaign_templates")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    // Validamos la respuesta de la DB contra nuestro schema de Zod
+    const validatedTemplates = CampaignTemplateSchema.array().parse(templates);
+
     logger.success(
-      `Se recuperaron ${MOCK_TEMPLATES.length} plantillas (mock).`
+      `Se recuperaron ${validatedTemplates.length} plantillas para el usuario.`,
+      { traceId }
     );
-    return { success: true, data: MOCK_TEMPLATES };
+    return { success: true, data: validatedTemplates };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error(
-      "Fallo crítico durante la obtención de plantillas de campaña.",
-      { error: errorMessage }
-    );
+    logger.error("Fallo crítico durante la obtención de plantillas.", {
+      error: errorMessage,
+      traceId,
+    });
     return {
       success: false,
       error: `No se pudieron cargar las plantillas: ${errorMessage}`,
     };
+  } finally {
+    logger.endTrace(traceId);
   }
 }
-// RUTA: shared/lib/actions/campaign-suite/getCampaignTemplates.action.ts

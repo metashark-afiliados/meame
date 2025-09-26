@@ -160,4 +160,3 @@ const baseSchema = z.object({
 export const i18nSchema = baseSchema.passthrough();
 
 export type Dictionary = z.infer<typeof i18nSchema>;
-// RUTA: src/shared/lib/schemas/i18n.schema.ts

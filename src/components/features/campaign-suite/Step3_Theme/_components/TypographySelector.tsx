@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/_components/TypographySelector.tsx
+// RUTA: src/components/features/campaign-suite/Step3_Theme/_components/PaletteSelector.tsx
 /**
- * @file TypographySelector.tsx
- * @description Aparato de UI atómico y de élite para la selección visual de tipografías.
- * @version 1.0.0
+ * @file PaletteSelector.tsx
+ * @description Aparato de UI atómico y de élite para la selección visual de paletas de colores.
+ * @version 1.1.0 (Architectural Realignment)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -14,107 +14,82 @@ import { DynamicIcon } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
 
 /**
- * @interface Typography
- * @description Contrato de datos para una única combinación de tipografías.
+ * @interface Palette
+ * @description Contrato de datos para una única paleta de colores.
  */
-interface Typography {
+interface Palette {
   name: string;
-  fonts?: {
-    sans?: string;
-    serif?: string;
+  colors?: {
+    primary?: string;
+    secondary?: string;
+    accent?: string;
+    background?: string;
+    foreground?: string;
   };
 }
 
-/**
- * @interface TypographySelectorProps
- * @description Contrato de props para el componente TypographySelector.
- */
-interface TypographySelectorProps {
-  typographies: Typography[];
-  selectedTypographyName: string | null;
-  onSelect: (typographyName: string) => void;
-  onPreview: (typography: Typography | null) => void;
+interface PaletteSelectorProps {
+  palettes: Palette[];
+  selectedPaletteName: string | null;
+  onSelect: (paletteName: string) => void;
+  onPreview: (palette: Palette | null) => void;
   onCreate: () => void;
-  emptyPlaceholder: string;
-  createNewFontSetButton: string;
+  createNewPaletteButton: string;
 }
 
-export function TypographySelector({
-  typographies,
-  selectedTypographyName,
+const PaletteSwatch = ({ color }: { color: string }) => (
+  <div className="h-full w-full" style={{ backgroundColor: `hsl(${color})` }} />
+);
+
+export function PaletteSelector({
+  palettes,
+  selectedPaletteName,
   onSelect,
   onPreview,
   onCreate,
-  emptyPlaceholder,
-  createNewFontSetButton,
-}: TypographySelectorProps): React.ReactElement {
-  logger.trace("[TypographySelector] Renderizando selector de tipografía.");
-
+  createNewPaletteButton,
+}: PaletteSelectorProps) {
+  logger.trace("[PaletteSelector] Renderizando selector visual de paletas.");
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {typographies.length === 0 && (
-        <div className="lg:col-span-3 text-center py-8 text-muted-foreground">
-          <DynamicIcon name="Type" className="h-10 w-10 mx-auto mb-3" />
-          <p>{emptyPlaceholder}</p>
-        </div>
-      )}
-      {typographies.map((typography) => {
-        const fonts = typography.fonts ?? {};
+      {palettes.map((palette) => {
+        const colors = palette.colors ?? {};
         return (
           <motion.div
-            key={typography.name}
+            key={palette.name}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.2 }}
-            onMouseEnter={() => onPreview(typography)}
+            onMouseEnter={() => onPreview(palette)}
             onMouseLeave={() => onPreview(null)}
-            onClick={() => onSelect(typography.name)}
+            onClick={() => onSelect(palette.name)}
             className={cn(
-              "cursor-pointer rounded-lg border-2 p-4 transition-all duration-200 hover:scale-105 hover:shadow-xl",
-              selectedTypographyName === typography.name
+              "cursor-pointer rounded-lg border-2 p-2 transition-all duration-200 hover:scale-105 hover:shadow-xl",
+              selectedPaletteName === palette.name
                 ? "border-primary ring-2 ring-primary/50"
                 : "border-muted/50"
             )}
           >
-            <div className="h-20 w-full flex flex-col items-center justify-center rounded-md bg-muted/20 p-2">
-              {fonts.sans && (
-                <p
-                  className="text-lg font-bold text-foreground overflow-hidden whitespace-nowrap"
-                  style={{ fontFamily: fonts.sans.split(",")[0] }}
-                >
-                  {typography.name}
-                </p>
-              )}
-              {fonts.serif && (
-                <p
-                  className="text-sm italic text-muted-foreground overflow-hidden whitespace-nowrap"
-                  style={{ fontFamily: fonts.serif.split(",")[0] }}
-                >
-                  Serif Example
-                </p>
-              )}
-              {!fonts.sans && !fonts.serif && (
-                <p className="text-sm text-muted-foreground">No Preview</p>
-              )}
+            <div className="h-20 w-full flex overflow-hidden rounded-md">
+              <PaletteSwatch color={colors.primary ?? "0 0% 100%"} />
+              <PaletteSwatch color={colors.secondary ?? "0 0% 100%"} />
+              <PaletteSwatch color={colors.accent ?? "0 0% 100%"} />
+              <PaletteSwatch color={colors.background ?? "0 0% 100%"} />
+              <PaletteSwatch color={colors.foreground ?? "0 0% 0%"} />
             </div>
             <p className="mt-2 text-center text-sm font-semibold text-foreground">
-              {typography.name}
+              {palette.name}
             </p>
           </motion.div>
         );
       })}
       <button
         onClick={onCreate}
-        className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted/50 p-4 transition-all duration-200 hover:border-primary hover:bg-primary/5 hover:text-primary"
+        className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted/50 p-2 transition-all duration-200 hover:border-primary hover:bg-primary/5 hover:text-primary"
       >
         <DynamicIcon name="Plus" className="h-8 w-8 mb-2" />
-        <span className="text-sm font-semibold">
-          {typographies.length === 0
-            ? "Añadir Nuevo Set"
-            : createNewFontSetButton}
-        </span>
+        <span className="text-sm font-semibold">{createNewPaletteButton}</span>
       </button>
     </div>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/_components/TypographySelector.tsx

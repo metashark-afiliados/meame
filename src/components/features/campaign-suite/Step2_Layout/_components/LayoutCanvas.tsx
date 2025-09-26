@@ -158,4 +158,3 @@ export function LayoutCanvas({
     </div>
   );
 }
-// RUTA: src/components/features/campaign-suite/Step2_Layout/_components/LayoutCanvas.tsx

@@ -3,7 +3,7 @@
  * @file getPrompts.action.ts
  * @description Server Action de élite que actúa como un Agregador de Datos.
  *              Obtiene prompts y los enriquece con datos de la BAVI.
- * @version 7.2.0 (Data Validation & Elite Compliance)
+ * @version 8.0.0 (Production-Ready User Context)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -11,8 +11,9 @@
 import { z } from "zod";
 import { type Filter, type Document } from "mongodb";
 import { connectToDatabase } from "@/shared/lib/mongodb";
+import { createServerClient } from "@/shared/lib/supabase/server"; // <-- IMPORTACIÓN CLAVE
 import {
-  RaZPromptsEntrySchema, // Ahora se utiliza
+  RaZPromptsEntrySchema,
   type RaZPromptsEntry,
 } from "@/shared/lib/schemas/raz-prompts/entry.schema";
 import {
@@ -21,7 +22,6 @@ import {
 } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import { logger } from "@/shared/lib/logging";
-import { createServerClient } from "@/shared/lib/supabase/server";
 import { getBaviManifest } from "@/shared/lib/bavi";
 import type {
   BaviAsset,
@@ -45,7 +45,7 @@ export type GetPromptsInput = z.infer<typeof GetPromptsInputSchema>;
 
 interface PromptsAggregationResult {
   totalCount: [{ count: number }];
-  prompts: Document[]; // Se recibe como Document genérico desde MongoDB
+  prompts: Document[];
 }
 
 export async function getPromptsAction(
@@ -53,19 +53,25 @@ export async function getPromptsAction(
 ): Promise<
   ActionResult<{ prompts: EnrichedRaZPromptsEntry[]; total: number }>
 > {
-  const traceId = logger.startTrace("getPromptsAction_v7.2");
-  try {
-    const supabase = createServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { success: false, error: "auth_required" };
+  const traceId = logger.startTrace("getPromptsAction_v8.0");
+  const supabase = createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
+  // --- GUARDIA DE SEGURIDAD SOBERANA ---
+  if (!user) {
+    return { success: false, error: "auth_required" };
+  }
+
+  try {
     const { page, limit, query, tags } = GetPromptsInputSchema.parse(input);
     const client = await connectToDatabase();
     const db = client.db(process.env.MONGODB_DB_NAME);
     const collection = db.collection<RaZPromptsEntry>("prompts");
 
+    // --- LÓGICA DE PRODUCCIÓN ---
+    // El `matchStage` ahora es seguro y contextual al usuario.
     const matchStage: Filter<RaZPromptsEntry> = { userId: user.id };
     if (query) matchStage.$text = { $search: query };
     if (tags && Object.keys(tags).length > 0) {
@@ -91,16 +97,15 @@ export async function getPromptsAction(
     const promptsFromDb = result[0]?.prompts ?? [];
     const total = result[0]?.totalCount[0]?.count ?? 0;
 
-    // --- MEJORA DE ROBUSTEZ: Validación de Datos ---
     const validation = z.array(RaZPromptsEntrySchema).safeParse(promptsFromDb);
     if (!validation.success) {
       logger.error("[getPromptsAction] Datos de prompts corruptos en la DB.", {
         error: validation.error.flatten(),
+        traceId,
       });
       throw new Error("Los datos de la base de datos no son válidos.");
     }
     const validatedPrompts = validation.data;
-    // --- FIN DE MEJORA ---
 
     const baviManifest = await getBaviManifest();
     const enrichedPrompts = validatedPrompts.map(
@@ -125,10 +130,12 @@ export async function getPromptsAction(
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[getPromptsAction] Fallo crítico.", { error: errorMessage });
+    logger.error("[getPromptsAction] Fallo crítico.", {
+      error: errorMessage,
+      traceId,
+    });
     return { success: false, error: "No se pudieron cargar los prompts." };
   } finally {
     logger.endTrace(traceId);
   }
 }
-// RUTA: src/shared/lib/actions/raz-prompts/getPrompts.action.ts

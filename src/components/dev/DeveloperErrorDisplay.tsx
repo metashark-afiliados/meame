@@ -1,8 +1,7 @@
-// Ruta correcta: src/components/dev/DeveloperErrorDisplay.tsx
+// RUTA: src/components/dev/DeveloperErrorDisplay.tsx
 /**
  * @file DeveloperErrorDisplay.tsx
- * @description Componente de UI de élite, ahora herméticamente sellado y sin
- *              dependencias externas, para mostrar errores de renderizado del servidor.
+ * @description Componente de UI de élite, herméticamente sellado, para mostrar errores de renderizado del servidor.
  * @version 2.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -20,10 +19,8 @@ export function DeveloperErrorDisplay({
   errorMessage,
   errorDetails,
 }: DeveloperErrorDisplayProps) {
-  // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
-  // Se elimina la dependencia de nuestro `logger` personalizado.
-  // En su lugar, se utiliza `console.error` nativo para el logging interno,
-  // rompiendo el bucle de dependencia y garantizando que este componente
+  // Se utiliza console.error nativo para el logging interno, rompiendo
+  // cualquier posible bucle de dependencia y garantizando que este componente
   // nunca falle al intentar registrar un error.
   console.error(
     `[DEV ERROR DISPLAY] Capturado un error en el contexto: ${context}`,
@@ -32,7 +29,6 @@ export function DeveloperErrorDisplay({
       details: errorDetails,
     }
   );
-  // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
 
   return (
     <Container className="py-12">
@@ -75,4 +71,3 @@ export function DeveloperErrorDisplay({
     </Container>
   );
 }
-// Ruta correcta: src/components/dev/DeveloperErrorDisplay.tsx

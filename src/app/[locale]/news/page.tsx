@@ -1,8 +1,9 @@
-// app/[locale]/news/page.tsx
+// RUTA: src/app/[locale]/news/page.tsx
 /**
  * @file page.tsx
- * @description Página de archivo del blog, ahora alimentada por CogniRead.
- * @version 3.0.0 (CogniRead Integration)
+ * @description Página de archivo del blog, ahora alimentada por CogniRead y
+ *              arquitectónicamente soberana.
+ * @version 4.0.0 (Holistic Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -13,7 +14,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { NewsGrid } from "@/components/sections/NewsGrid";
 import { CommunitySection } from "@/components/sections/CommunitySection";
 import { DeveloperErrorDisplay } from "@/components/dev";
-import { getPublishedArticlesAction } from "../(dev)/cogniread/_actions";
+import { getPublishedArticlesAction } from "@/shared/lib/actions/cogniread"; // <-- RUTA CORREGIDA
 import { notFound } from "next/navigation";
 
 interface NewsArchivePageProps {
@@ -24,25 +25,36 @@ export default async function NewsArchivePage({
   params: { locale },
 }: NewsArchivePageProps) {
   logger.info(
-    `[NewsArchivePage] Renderizando v3.0 (CogniRead) para locale: ${locale}`
+    `[NewsArchivePage] Renderizando v4.0 (Holistic) para locale: ${locale}`
   );
 
-  // Cargar contenido estático de la UI (títulos, etc.)
-  const { dictionary, error: dictError } = await getDictionary(locale);
-  const pageContent = dictionary.newsGrid; // Reutilizamos el i18n para el header
+  // Cargar contenido estático y artículos dinámicos en paralelo
+  const [{ dictionary, error: dictError }, articlesResult] = await Promise.all([
+    getDictionary(locale),
+    getPublishedArticlesAction({
+      page: 1,
+      limit: 9,
+    }),
+  ]);
+
+  const pageContent = dictionary.newsGrid;
   const communityContent = dictionary.communitySection;
 
+  // --- Guardia de Resiliencia para Contenido i18n ---
   if (dictError || !pageContent) {
-    // ... (Manejo de errores para el diccionario)
-    return notFound();
+    const errorMessage = "Fallo al cargar el contenido i18n para la página de noticias.";
+    logger.error(`[NewsArchivePage] ${errorMessage}`, { error: dictError });
+    if (process.env.NODE_ENV === "production") return notFound();
+    return (
+        <DeveloperErrorDisplay
+            context="NewsArchivePage"
+            errorMessage={errorMessage}
+            errorDetails={dictError || "La clave 'newsGrid' falta en el diccionario."}
+        />
+    );
   }
 
-  // Cargar artículos dinámicos desde la base de datos
-  const articlesResult = await getPublishedArticlesAction({
-    page: 1,
-    limit: 9,
-  });
-
+  // --- Guardia de Resiliencia para Datos Dinámicos ---
   if (!articlesResult.success) {
     return (
       <DeveloperErrorDisplay
@@ -57,11 +69,14 @@ export default async function NewsArchivePage({
     <>
       <PageHeader content={pageContent} />
 
-      {/* Pasamos los artículos reales al componente NewsGrid */}
-      <NewsGrid articles={articlesResult.data.articles} locale={locale} />
+      {/* --- CONTRATO DE PROPS CUMPLIDO --- */}
+      <NewsGrid
+        articles={articlesResult.data.articles}
+        locale={locale}
+        content={pageContent}
+      />
 
       {communityContent && <CommunitySection content={communityContent} />}
     </>
   );
 }
-// app/[locale]/news/page.tsx

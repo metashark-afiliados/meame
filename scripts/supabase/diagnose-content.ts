@@ -1,10 +1,4 @@
 // scripts/supabase/diagnose-content.ts
-import { createClient } from "@supabase/supabase-js";
-import chalk from "chalk";
-import fs from "fs";
-import path from "path";
-import { loadEnvironment } from "./_utils";
-
 /**
  * @file diagnose-content.ts
  * @description Herramienta de auditoría de contenido. Invoca la RPC
@@ -14,6 +8,14 @@ import { loadEnvironment } from "./_utils";
  * @version 3.1.0
  * @usage pnpm diag:content
  */
+import { createClient } from "@supabase/supabase-js";
+import chalk from "chalk";
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: MÓDULOS] ---
+import { promises as fs } from "fs";
+import * as path from "path";
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
+import { loadEnvironment } from "./_utils";
+
 async function main() {
   console.clear();
   loadEnvironment();
@@ -55,7 +57,6 @@ async function main() {
   );
 
   console.log(chalk.blueBright.bold(`\n--- MÉTRICAS DE RELACIÓN ---`));
-  // --- INICIO DE REFACTORIZACIÓN: Guardián de Tipo (TS2339) ---
   console.table(
     Object.entries(report.relationship_metrics).map(([Metrica, Valor]) => ({
       Metrica,
@@ -63,7 +64,6 @@ async function main() {
         typeof Valor === "number" && Valor !== null ? Valor.toFixed(2) : "N/A",
     }))
   );
-  // --- FIN DE REFACTORIZACIÓN ---
 
   console.log(chalk.blueBright.bold(`\n--- DISTRIBUCIÓN DE ESTADOS ---`));
   console.log(
@@ -85,13 +85,9 @@ async function main() {
 
   // Persistir en archivo JSON
   const reportDir = path.resolve(process.cwd(), "supabase/reports");
-  if (!fs.existsSync(reportDir)) {
-    fs.mkdirSync(reportDir, { recursive: true });
-  }
-
+  await fs.mkdir(reportDir, { recursive: true });
   const reportPath = path.resolve(reportDir, `latest-content-diagnostics.json`);
-
-  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
+  await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
 
   console.log(
     chalk.blueBright.bold(
@@ -112,4 +108,3 @@ main()
     process.exit(1);
   });
 // scripts/supabase/diagnose-content.ts
-

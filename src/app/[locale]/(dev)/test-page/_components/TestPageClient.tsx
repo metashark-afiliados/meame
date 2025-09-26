@@ -14,7 +14,7 @@ import React, { useState, useMemo, ComponentType } from "react";
 import { motion } from "framer-motion";
 import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
-import type { AvailableTheme } from "../_types/themes.types";
+import type { AvailableTheme } from "@/shared/lib/types/test-page/themes.types"; // CORREGIDO
 import { PageHeader } from "@/components/layout/PageHeader";
 import { CampaignThemeProvider } from "@/components/layout/CampaignThemeProvider";
 import {
@@ -31,7 +31,7 @@ import {
 import * as Sections from "@/components/sections";
 import { type AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
 import { logger } from "@/shared/lib/logging";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/dev"; // CORREGIDO
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyComponentType = ComponentType<any>;

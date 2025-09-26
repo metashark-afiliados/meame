@@ -1,4 +1,4 @@
-// Ruta correcta: src/app/[locale]/(dev)/campaign-suite/layout.tsx
+// RUTA: src/app/[locale]/(dev)/campaign-suite/layout.tsx
 /**
  * @file layout.tsx
  * @description Layout de Servidor para la SDC, ahora de calidad de élite.
@@ -65,4 +65,3 @@ export default async function WizardLayout({
     </WizardClientLayout>
   );
 }
-// Ruta correcta: src/app/[locale]/(dev)/campaign-suite/layout.tsx

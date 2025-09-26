@@ -25,9 +25,9 @@ export function getLocaleFromBrowser(request: NextRequest): Locale {
     defaultLocale
   ) as Locale;
 
-  logger.trace(
-    `[LocaleDetector] Detección de navegador completada.`,
-    { preferredLanguages: languages, matchedLocale: locale }
-  );
+  logger.trace(`[LocaleDetector] Detección de navegador completada.`, {
+    preferredLanguages: languages,
+    matchedLocale: locale,
+  });
   return locale;
 }

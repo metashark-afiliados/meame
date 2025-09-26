@@ -225,7 +225,10 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
         </CardContent>
       </Card>
 
-      <Dialog open={isForgotPasswordOpen} onOpenChange={setIsForgotPasswordOpen}>
+      <Dialog
+        open={isForgotPasswordOpen}
+        onOpenChange={setIsForgotPasswordOpen}
+      >
         <DialogContent>
           <ForgotPasswordForm
             content={content.forgotPassword}

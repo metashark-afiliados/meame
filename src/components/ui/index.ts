@@ -2,10 +2,10 @@
 /**
  * @file index.ts (Barrel File)
  * @description SSoT y fachada pública para el módulo de componentes de UI.
- *              v4.1.0 (Casing Integrity Fix): Se corrige la importación de
- *              Collapsible para que use PascalCase, alineándose con la
- *              convención de nomenclatura y resolviendo el error de build TS1261.
- * @version 4.1.0
+ *              v5.0.0 (Price Component Integration): Se añade la exportación
+ *              para el componente de élite 'Price', integrándolo en la librería
+ *              de UI soberana.
+ * @version 5.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 export * from "./Accordion";
@@ -20,7 +20,6 @@ export * from "./Checkbox";
 export * from "./Collapsible";
 export * from "./Container";
 export * from "./Dialog";
-export * from "./DropdownMenu";
 export * from "./DynamicIcon";
 export * from "./FadeIn";
 export * from "./FlagIcon";
@@ -30,12 +29,17 @@ export * from "./ImageUploader";
 export * from "./Input";
 export * from "./Label";
 export * from "./NavigationMenu";
+export * from "./PassportStamp";
+export * from "./Popover";
+export * from "./Price"; // <-- NUEVA EXPORTACIÓN SOBERANA
 export * from "./PriceDisplay";
+export * from "./ProductBadge";
 export * from "./RadioGroup";
 export * from "./ScrollArea";
 export * from "./Select";
 export * from "./Separator";
 export * from "./Sheet";
+export * from "./Skeleton";
 export * from "./Slider";
 export * from "./Switch";
 export * from "./Table";
@@ -46,5 +50,3 @@ export * from "./TiltCard";
 export * from "./ToggleTheme";
 export * from "./Tooltip";
 export * from "./ValidationError";
-export * from "./Skeleton";
-// RUTA: src/components/ui/index.ts

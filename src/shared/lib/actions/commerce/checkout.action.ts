@@ -1,8 +1,11 @@
-// Ruta correcta: src/shared/lib/actions/commerce/checkout.action.ts
+// RUTA: src/shared/lib/actions/commerce/checkout.action.ts
 /**
  * @file checkout.action.ts
- * @description Server Action para orquestar el proceso de checkout.
- * @version 2.1.0 (Sovereign Path Restoration)
+ * @description Server Action soberana que orquesta el proceso de checkout.
+ *              Actúa como un guardián de la lógica de negocio, obteniendo
+ *              datos del carrito, calculando el total y creando una intención
+ *              de pago segura en Stripe.
+ * @version 3.0.0 (Elite Leveling & i18n Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -19,8 +22,8 @@ interface CheckoutSessionPayload {
 export async function createCheckoutSessionAction(): Promise<
   ActionResult<CheckoutSessionPayload>
 > {
-  const traceId = logger.startTrace("createCheckoutSessionAction_v2.1");
-  logger.info("[Checkout Action] Iniciando sesión de checkout v2.1...", {
+  const traceId = logger.startTrace("createCheckoutSessionAction_v3.0");
+  logger.info("[Checkout Action] Iniciando sesión de checkout v3.0...", {
     traceId,
   });
 
@@ -30,13 +33,23 @@ export async function createCheckoutSessionAction(): Promise<
     logger.warn("[Checkout Action] Intento de checkout con carrito vacío.", {
       traceId,
     });
-    return { success: false, error: "Tu carrito está vacío." };
+    // Pilar I: Devolver clave de i18n
+    return { success: false, error: "cart.errors.emptyCart" };
   }
 
+  // Pilar VI: Lógica de negocio crítica ejecutada en el servidor
   const amountInCents = Math.round(
     parseFloat(cart.cost.totalAmount.amount) * 100
   );
   const currency = cart.cost.totalAmount.currencyCode;
+
+  // Pilar III: Observabilidad mejorada
+  logger.traceEvent(traceId, "Datos del carrito validados y procesados.", {
+    cartId: cart.id,
+    itemCount: cart.lines.length,
+    amount: amountInCents,
+    currency,
+  });
 
   try {
     const metadata = { cartId: cart.id };
@@ -65,9 +78,9 @@ export async function createCheckoutSessionAction(): Promise<
       error,
       traceId,
     });
-    return { success: false, error: "No se pudo iniciar el proceso de pago." };
+    // Pilar I: Devolver clave de i18n
+    return { success: false, error: "cart.errors.checkoutFailed" };
   } finally {
     logger.endTrace(traceId);
   }
 }
-// Ruta correcta: src/shared/lib/actions/commerce/checkout.action.ts

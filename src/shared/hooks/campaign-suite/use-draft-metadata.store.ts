@@ -63,7 +63,7 @@ export const useDraftMetadataStore = create<
           updatedAt: new Date().toISOString(),
         });
       },
-      completeStep: (stepId) => {
+      completeStep: (stepId: number) => {
         logger.info(`[MetadataStore] Marcando paso ${stepId} como completado.`);
         set((state) => ({
           completedSteps: Array.from(

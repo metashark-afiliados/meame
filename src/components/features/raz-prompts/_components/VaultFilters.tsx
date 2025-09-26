@@ -1,9 +1,9 @@
-// app/[locale]/(dev)/raz-prompts/_components/VaultFilters.tsx
+// RUTA: src/components/features/raz-prompts/_components/VaultFilters.tsx
 /**
  * @file VaultFilters.tsx
- * @description Componente de presentación puro para los controles de búsqueda
- *              y filtrado de la Bóveda de Prompts.
- * @version 1.0.0
+ * @description Componente de presentación puro para los controles de búsqueda y
+ *              filtrado de la Bóveda de Prompts.
+ * @version 2.0.0 (Holistic & API Contract Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -26,38 +26,44 @@ import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 type SesaOptions = NonNullable<Dictionary["promptCreator"]>["sesaOptions"];
 type VaultContent = NonNullable<Dictionary["promptVault"]>;
 
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: CONTRATO DE API SOBERANO] ---
+// Se define un contrato de props explícito y completo. Este componente ahora
+// es 100% controlado por su padre, cumpliendo con el Principio de Responsabilidad Única.
 interface VaultFiltersProps {
   searchQuery: string;
-  onSearch: (query: string) => void;
+  activeFilters: Partial<RaZPromptsSesaTags>;
+  onSearchChange: (value: string) => void;
   onFilterChange: (category: keyof RaZPromptsSesaTags, value: string) => void;
+  onSearchSubmit: (e: React.FormEvent) => void;
   content: VaultContent;
   sesaOptions: SesaOptions;
   isPending: boolean;
 }
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
 export function VaultFilters({
   searchQuery,
-  onSearch,
+  activeFilters,
+  onSearchChange,
   onFilterChange,
+  onSearchSubmit,
   content,
   sesaOptions,
   isPending,
 }: VaultFiltersProps): React.ReactElement {
-  logger.info("[Observabilidad] Renderizando VaultFilters");
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch(searchQuery);
-  };
+  logger.info(
+    "[VaultFilters] Renderizando v2.0 (Holistic & API Contract Restoration)."
+  );
 
   return (
     <div className="space-y-4">
-      <form onSubmit={handleFormSubmit} className="flex gap-4">
+      <form onSubmit={onSearchSubmit} className="flex gap-4">
         <Input
           placeholder={content.searchPlaceholder}
           value={searchQuery}
-          onChange={(e) => onSearch(e.target.value)}
+          onChange={(e) => onSearchChange(e.target.value)}
           className="flex-grow"
+          disabled={isPending}
         />
         <Button type="submit" disabled={isPending}>
           <DynamicIcon name="Search" className="h-4 w-4 mr-2" />
@@ -65,7 +71,11 @@ export function VaultFilters({
         </Button>
       </form>
       <div className="flex flex-wrap gap-2">
-        <Select onValueChange={(value) => onFilterChange("ai", value)}>
+        <Select
+          value={activeFilters.ai || "all"}
+          onValueChange={(value) => onFilterChange("ai", value)}
+          disabled={isPending}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder={content.filterByAILabel} />
           </SelectTrigger>
@@ -83,4 +93,3 @@ export function VaultFilters({
     </div>
   );
 }
-// app/[locale]/(dev)/raz-prompts/_components/VaultFilters.tsx

@@ -12,13 +12,24 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import {
-  Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
-import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/Form";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/Form";
 import { UpdatePasswordSchema } from "@/shared/lib/schemas/account/account-forms.schema";
 import { updateUserPasswordAction } from "@/shared/lib/actions/account/manage-account.action";
 import type { z } from "zod";
@@ -81,7 +92,9 @@ export function PasswordForm(): React.ReactElement {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
+                  <Label htmlFor="confirmPassword">
+                    Confirmar Nueva Contraseña
+                  </Label>
                   <FormControl>
                     <Input id="confirmPassword" type="password" {...field} />
                   </FormControl>

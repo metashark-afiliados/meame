@@ -1,4 +1,4 @@
-// RUTA: shared/lib/schemas/components/cart.schema.ts
+// RUTA: src/shared/lib/schemas/components/cart.schema.ts
 /**
  * @file cart.schema.ts
  * @description SSoT para el contrato de datos del contenido i18n del
@@ -21,10 +21,11 @@ export const CartContentSchema = z.object({
     removeItemFailed: z.string(),
     updateItemFailed: z.string(),
     createCartFailed: z.string(),
+    emptyCart: z.string(),
+    checkoutFailed: z.string(),
   }),
 });
 
 export const CartLocaleSchema = z.object({
   cart: CartContentSchema.optional(),
 });
-// RUTA: shared/lib/schemas/components/cart.schema.ts

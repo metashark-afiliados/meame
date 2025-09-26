@@ -1,9 +1,8 @@
 // RUTA: src/shared/hooks/aether/use-playback-control.ts
 /**
  * @file use-playback-control.ts
- * @description Hook atómico para gestionar el estado de reproducción y volumen
- *              del motor "Aether".
- * @version 1.0.0
+ * @description Hook atómico para gestionar el estado de reproducción y volumen.
+ * @version 2.0.0 (Conditional Audio Logic)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -18,13 +17,15 @@ import type {
 interface UsePlaybackControlProps {
   videoTexture: VideoTexture;
   audioRef: React.RefObject<PositionalAudioImpl>;
+  audioSrc?: string; // <-- Prop añadida al contrato
 }
 
 export function usePlaybackControl({
   videoTexture,
   audioRef,
+  audioSrc, // <-- Prop consumida
 }: UsePlaybackControlProps) {
-  logger.trace("[usePlaybackControl] Hook inicializado.");
+  logger.trace("[usePlaybackControl] Hook inicializado v2.0.");
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
 
@@ -39,7 +40,8 @@ export function usePlaybackControl({
       videoElement
         .play()
         .catch((e) => logger.warn("Autoplay de vídeo bloqueado.", { e }));
-      if (audioObject?.source && !audioObject.isPlaying) {
+      // Solo intenta reproducir el audio si existe y tiene una fuente.
+      if (audioSrc && audioObject?.source && !audioObject.isPlaying) {
         audioObject.play();
       }
     } else {
@@ -52,8 +54,8 @@ export function usePlaybackControl({
     if (audioObject) {
       audioObject.setVolume(isMuted ? 0 : 1);
     }
-    videoElement.muted = true; // El vídeo siempre está muteado para delegar al audio 3D.
-  }, [isPlaying, isMuted, videoTexture, audioRef]);
+    videoElement.muted = true;
+  }, [isPlaying, isMuted, videoTexture, audioRef, audioSrc]); // <-- audioSrc añadido a las dependencias
 
   return { isPlaying, isMuted, togglePlay, toggleMute };
 }

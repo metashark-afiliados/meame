@@ -1,10 +1,8 @@
-// RUTA: app/[locale]/(dev)/nos3/[sessionId]/page.tsx
+// RUTA: src/app/[locale]/(dev)/nos3/[sessionId]/page.tsx
 /**
  * @file page.tsx
  * @description Página de servidor para el reproductor de sesiones de `nos3`.
- *              v1.1.0 (Module Resolution Fix): Se alinea con la Directiva 021
- *              utilizando un archivo de barril para una resolución de módulos robusta.
- * @version 1.1.0
+ * @version 2.0.0 (Sovereign Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -12,7 +10,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Container } from "@/components/ui";
 import { DeveloperErrorDisplay } from "@/components/dev";
 import { logger } from "@/shared/lib/logging";
-import { getSessionEventsAction } from "../_actions";
+import { getSessionEventsAction } from "@/shared/lib/actions/nos3";
 import { SessionPlayerClient } from "./_components";
 
 interface Nos3PlayerPageProps {

@@ -1,9 +1,9 @@
-// RUTA: src/components/features/dev-tools/SuiteStyleComposer/_components/SuiteTypographyTab.tsx
+// RUTA: src/components/features/dev-tools/SuiteStyleComposer/SuiteTypographyTab.tsx
 /**
  * @file SuiteTypographyTab.tsx
- * @description Aparato de UI atómico para la pestaña de tipografía, ahora funcionalmente
- *              completo con controles granulares y MEA/UX.
- * @version 3.0.0 (Full Granular Controls & MEA/UX)
+ * @description Aparato de UI atómico para la pestaña de tipografía, ahora con
+ *              higiene de código de élite.
+ * @version 3.1.0 (Code Hygiene)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -20,15 +20,14 @@ import {
 import { Label } from "@/components/ui/Label";
 import { logger } from "@/shared/lib/logging";
 import { GranularInputControl } from "./GranularInputControl";
-import type { LoadedFragments, SuiteThemeConfig } from "./types";
-
+import type { LoadedFragments } from "../types";
 interface SuiteTypographyTabProps {
   allThemeFragments: LoadedFragments;
   selectedFontPreset: string;
   granularFonts: Record<string, string>;
   onFontPresetChange: (value: string) => void;
   onGranularChange: (
-    category: keyof Pick<SuiteThemeConfig, "granularFonts">,
+    category: "granularFonts",
     cssVar: string,
     value: string
   ) => void;
@@ -66,9 +65,7 @@ export function SuiteTypographyTab({
   onGranularChange,
   content,
 }: SuiteTypographyTabProps): React.ReactElement {
-  logger.trace(
-    "[SuiteTypographyTab] Renderizando v3.0 (Full Granular Controls)."
-  );
+  logger.trace("[SuiteTypographyTab] Renderizando v3.1 (Code Hygiene).");
 
   const fontOptions = useMemo(
     () => [
@@ -99,7 +96,6 @@ export function SuiteTypographyTab({
         </Select>
       </div>
 
-      {/* --- [INICIO DE REFACTORIZACIÓN: RESTAURACIÓN DE FUNCIONALIDAD] --- */}
       <h4 className="font-semibold text-foreground pt-4 border-t">
         {content.fontSizeLabel}
       </h4>
@@ -161,7 +157,6 @@ export function SuiteTypographyTab({
           </motion.div>
         ))}
       </motion.div>
-      {/* --- [FIN DE REFACTORIZACIÓN] --- */}
     </div>
   );
 }

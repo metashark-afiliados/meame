@@ -2,7 +2,6 @@
 /**
  * @file DigitalConfetti.tsx
  * @description Aparato de élite para renderizar una celebración de confeti digital.
- *              Soberano, tematizado dinámicamente e inyectado con MEA/UX (feedback auditivo).
  * @version 2.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -15,30 +14,15 @@ import { useTheme } from "next-themes";
 import { logger } from "@/shared/lib/logging";
 import { useSound } from "@/shared/hooks/use-sound";
 
-/**
- * @interface DigitalConfettiProps
- * @description Contrato de props para el componente de confeti de élite.
- */
 interface DigitalConfettiProps {
-  /** Controla si la animación de confeti está activa. */
   isActive: boolean;
-  /** Callback que se ejecuta cuando la animación de caída termina. */
   onComplete?: () => void;
-  /** Duración en milisegundos de la animación. Por defecto 5000ms. */
   duration?: number;
-  /** Array de claves de color semánticas (ej. 'primary', 'accent') a usar. */
   semanticColors?: string[];
-  /** Número de partículas de confeti a renderizar. */
   particleCount?: number;
-  /** Si se debe reproducir un sonido al iniciar. */
   playSound?: boolean;
 }
 
-/**
- * @function getCssVariableValue
- * @description Helper de cliente para obtener el valor HSL de una variable CSS.
- * @private
- */
 const getCssVariableValue = (variable: string): string | null => {
   if (typeof window === "undefined") return null;
   return getComputedStyle(document.documentElement)
@@ -46,10 +30,6 @@ const getCssVariableValue = (variable: string): string | null => {
     .trim();
 };
 
-/**
- * @component DigitalConfetti
- * @description Orquesta una celebración visual y auditiva de confeti.
- */
 export function DigitalConfetti({
   isActive,
   onComplete,
@@ -61,12 +41,10 @@ export function DigitalConfetti({
   logger.trace("[DigitalConfetti] Renderizando componente v2.0.");
 
   const { width, height } = useWindowSize();
-  const { theme } = useTheme(); // Para detectar cambios de tema (light/dark)
+  const { theme } = useTheme();
   const [isRunning, setIsRunning] = useState(false);
   const playPopSound = useSound("/sounds/confetti-pop.mp3", 0.3);
 
-  // Resuelve los colores semánticos a valores HSL/Hex reales.
-  // Se memoiza y recalcula solo cuando el tema o los colores semánticos cambian.
   const resolvedColors = useMemo(() => {
     logger.trace("[DigitalConfetti] Resolviendo colores semánticos a HSL.");
     return semanticColors
@@ -75,7 +53,8 @@ export function DigitalConfetti({
         return hslValue ? `hsl(${hslValue})` : null;
       })
       .filter((color): color is string => color !== null);
-  }, [semanticColors, theme]); // Depende del `theme` para re-evaluar en cambio de modo
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [semanticColors, theme]); // La dependencia 'theme' ES necesaria para recalcular en cambio de tema.
 
   useEffect(() => {
     let timer: NodeJS.Timeout;

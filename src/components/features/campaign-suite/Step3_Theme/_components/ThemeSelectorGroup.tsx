@@ -1,15 +1,19 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/_components/ThemeSelectorGroup.tsx
+// RUTA: src/components/features/campaign-suite/Step3_Theme/_components/ThemeSelectorGroup.tsx
 /**
  * @file ThemeSelectorGroup.tsx
  * @description Aparato de UI que agrupa los selectores de fragmentos de tema.
- * @version 1.0.0
+ *              v2.0.0 (Sovereign Path Restoration): Se corrige la ruta de
+ *              importación para alinearse con la ACS y restaurar la integridad del build.
+ * @version 2.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
 import type { ThemeConfig } from "@/shared/lib/types/campaigns/draft.types";
-import type { DiscoveredFragments } from "../../../_actions/getThemeFragments.action";
+// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
+import type { DiscoveredFragments } from "@/shared/lib/actions/campaign-suite/getThemeFragments.action";
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { ThemeFragmentSelector } from "./ThemeFragmentSelector";
 import { logger } from "@/shared/lib/logging";
 import type { Step3ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step3.schema";
@@ -42,7 +46,7 @@ export function ThemeSelectorGroup({
   isPending,
 }: ThemeSelectorGroupProps): React.ReactElement {
   logger.trace(
-    "[ThemeSelectorGroup] Renderizando grupo de selectores de tema."
+    "[ThemeSelectorGroup] Renderizando grupo de selectores de tema (v2.0)."
   );
 
   return (
@@ -83,4 +87,3 @@ export function ThemeSelectorGroup({
     </div>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step3_Theme/_components/ThemeSelectorGroup.tsx

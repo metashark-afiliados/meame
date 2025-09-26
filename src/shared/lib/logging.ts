@@ -54,7 +54,11 @@ const developmentLogger: Logger = {
   startGroup: (label, style = STYLES.hook) => {
     const timestamp = getTimestamp();
     if (isBrowser) {
-      console.groupCollapsed(`%c[${timestamp}] %c▶ ${label}`, STYLES.timestamp, style);
+      console.groupCollapsed(
+        `%c[${timestamp}] %c▶ ${label}`,
+        STYLES.timestamp,
+        style
+      );
     } else {
       console.log(`[${timestamp}] ▶ GROUP START: ${label}`);
     }
@@ -69,7 +73,12 @@ const developmentLogger: Logger = {
   success: (message, context) => {
     const timestamp = getTimestamp();
     if (isBrowser) {
-      console.log(`%c[${timestamp}] %c✅ ${message}`, STYLES.timestamp, STYLES.success, ...(context ? [context] : []));
+      console.log(
+        `%c[${timestamp}] %c✅ ${message}`,
+        STYLES.timestamp,
+        STYLES.success,
+        ...(context ? [context] : [])
+      );
     } else {
       console.log(`[${timestamp}] ✅ ${message}`, context || "");
     }
@@ -77,7 +86,12 @@ const developmentLogger: Logger = {
   info: (message, context) => {
     const timestamp = getTimestamp();
     if (isBrowser) {
-      console.info(`%c[${timestamp}] %cℹ️ ${message}`, STYLES.timestamp, STYLES.info, ...(context ? [context] : []));
+      console.info(
+        `%c[${timestamp}] %cℹ️ ${message}`,
+        STYLES.timestamp,
+        STYLES.info,
+        ...(context ? [context] : [])
+      );
     } else {
       console.info(`[${timestamp}] ℹ️ ${message}`, context || "");
     }
@@ -85,7 +99,12 @@ const developmentLogger: Logger = {
   warn: (message, context) => {
     const timestamp = getTimestamp();
     if (isBrowser) {
-      console.warn(`%c[${timestamp}] %c⚠️ ${message}`, STYLES.timestamp, STYLES.warn, ...(context ? [context] : []));
+      console.warn(
+        `%c[${timestamp}] %c⚠️ ${message}`,
+        STYLES.timestamp,
+        STYLES.warn,
+        ...(context ? [context] : [])
+      );
     } else {
       console.warn(`[${timestamp}] ⚠️ ${message}`, context || "");
     }
@@ -93,7 +112,12 @@ const developmentLogger: Logger = {
   error: (message, context) => {
     const timestamp = getTimestamp();
     if (isBrowser) {
-      console.error(`%c[${timestamp}] %c❌ ${message}`, STYLES.timestamp, STYLES.error, ...(context ? [context] : []));
+      console.error(
+        `%c[${timestamp}] %c❌ ${message}`,
+        STYLES.timestamp,
+        STYLES.error,
+        ...(context ? [context] : [])
+      );
     } else {
       console.error(`[${timestamp}] ❌ ${message}`, context || "");
     }
@@ -101,7 +125,12 @@ const developmentLogger: Logger = {
   trace: (message, context) => {
     const timestamp = getTimestamp();
     if (isBrowser) {
-      console.log(`%c[${timestamp}] %c• ${message}`, STYLES.timestamp, STYLES.trace, ...(context ? [context] : []));
+      console.log(
+        `%c[${timestamp}] %c• ${message}`,
+        STYLES.timestamp,
+        STYLES.trace,
+        ...(context ? [context] : [])
+      );
     } else {
       console.log(`[${timestamp}] • ${message}`, context || "");
     }
@@ -115,7 +144,11 @@ const developmentLogger: Logger = {
       const duration = (performance.now() - startTime).toFixed(2);
       const timestamp = getTimestamp();
       if (isBrowser) {
-        console.log(`%c[${timestamp}] %c⏱️ Timer [${label}]: ${duration}ms`, STYLES.timestamp, STYLES.timer);
+        console.log(
+          `%c[${timestamp}] %c⏱️ Timer [${label}]: ${duration}ms`,
+          STYLES.timestamp,
+          STYLES.timer
+        );
       } else {
         console.log(`[${timestamp}] ⏱️ Timer [${label}]: ${duration}ms`);
       }
@@ -126,10 +159,14 @@ const developmentLogger: Logger = {
     const traceId = `${traceName}-${Math.random().toString(36).substring(2, 9)}`;
     traces.set(traceId, { name: traceName, startTime: performance.now() });
     const timestamp = getTimestamp();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const logMethod = isBrowser ? console.info : (msg: string, ...args: any[]) => console.info(`[${timestamp}] ${msg}`, ...args);
+    const logMethod = isBrowser
+      ? console.info
+      : (msg: string, ...args: unknown[]) =>
+          console.info(`[${timestamp}] ${msg}`, ...args);
     logMethod(
-      isBrowser ? `%c[${timestamp}] %cℹ️ 🔗 Trace Start: ${traceId} (${traceName})` : `ℹ️ 🔗 Trace Start: ${traceId} (${traceName})`,
+      isBrowser
+        ? `%c[${timestamp}] %cℹ️ 🔗 Trace Start: ${traceId} (${traceName})`
+        : `ℹ️ 🔗 Trace Start: ${traceId} (${traceName})`,
       STYLES.timestamp,
       STYLES.info
     );
@@ -137,10 +174,14 @@ const developmentLogger: Logger = {
   },
   traceEvent: (traceId, eventName, context) => {
     const timestamp = getTimestamp();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const logMethod = isBrowser ? console.log : (msg: string, ...args: any[]) => console.log(`[${timestamp}] ${msg}`, ...args);
+    const logMethod = isBrowser
+      ? console.log
+      : (msg: string, ...args: unknown[]) =>
+          console.log(`[${timestamp}] ${msg}`, ...args);
     logMethod(
-      isBrowser ? `%c[${timestamp}] %c➡️  [${traceId}] ${eventName}` : `➡️  [${traceId}] ${eventName}`,
+      isBrowser
+        ? `%c[${timestamp}] %c➡️  [${traceId}] ${eventName}`
+        : `➡️  [${traceId}] ${eventName}`,
       STYLES.timestamp,
       STYLES.trace,
       ...(context ? [context] : [])
@@ -152,8 +193,10 @@ const developmentLogger: Logger = {
       const duration = (performance.now() - trace.startTime).toFixed(2);
       const timestamp = getTimestamp();
       const message = `🏁 Trace End: ${traceId} (${trace.name}) - Total Duration: ${duration}ms`;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const logMethod = isBrowser ? console.log : (msg: string, ...args: any[]) => console.log(`[${timestamp}] ${msg}`, ...args);
+      const logMethod = isBrowser
+        ? console.log
+        : (msg: string, ...args: unknown[]) =>
+            console.log(`[${timestamp}] ${msg}`, ...args);
       logMethod(
         isBrowser ? `%c[${timestamp}] %c✅ ${message}` : `✅ ${message}`,
         STYLES.timestamp,
@@ -166,12 +209,17 @@ const developmentLogger: Logger = {
 };
 
 const productionLogger: Logger = {
-  startGroup: (label) => console.log(`[${getTimestamp()}] ▶ GROUP START: ${label}`),
+  startGroup: (label) =>
+    console.log(`[${getTimestamp()}] ▶ GROUP START: ${label}`),
   endGroup: () => console.log(`[${getTimestamp()}] ◀ GROUP END`),
-  success: (message, context) => console.log(`[${getTimestamp()}] ✅ [SUCCESS] ${message}`, context || ""),
-  info: (message, context) => console.info(`[${getTimestamp()}] ℹ️ [INFO] ${message}`, context || ""),
-  warn: (message, context) => console.warn(`[${getTimestamp()}] ⚠️ [WARN] ${message}`, context || ""),
-  error: (message, context) => console.error(`[${getTimestamp()}] ❌ [ERROR] ${message}`, context || ""),
+  success: (message, context) =>
+    console.log(`[${getTimestamp()}] ✅ [SUCCESS] ${message}`, context || ""),
+  info: (message, context) =>
+    console.info(`[${getTimestamp()}] ℹ️ [INFO] ${message}`, context || ""),
+  warn: (message, context) =>
+    console.warn(`[${getTimestamp()}] ⚠️ [WARN] ${message}`, context || ""),
+  error: (message, context) =>
+    console.error(`[${getTimestamp()}] ❌ [ERROR] ${message}`, context || ""),
   trace: () => {},
   time: () => {},
   timeEnd: () => {},
@@ -186,5 +234,6 @@ const productionLogger: Logger = {
   },
 };
 
-export const logger = process.env.NODE_ENV === "development" ? developmentLogger : productionLogger;
+export const logger =
+  process.env.NODE_ENV === "development" ? developmentLogger : productionLogger;
 // RUTA: src/shared/lib/logging.ts

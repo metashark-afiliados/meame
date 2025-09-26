@@ -13,7 +13,9 @@ import { spawn } from "child_process";
 import { logger } from "@/shared/lib/logging";
 
 // --- INICIO DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
-logger.trace("[ssg/programmatic-builder.ts] Módulo de builder programático SSG cargado y listo para usar.");
+logger.trace(
+  "[ssg/programmatic-builder.ts] Módulo de builder programático SSG cargado y listo para usar."
+);
 // --- FIN DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
 
 /**
@@ -59,11 +61,15 @@ export function runScopedNextBuild(
 
     let stderr = "";
     buildProcess.stdout.on("data", (data: Buffer) => {
-      logger.trace(`[Next Build - STDOUT]: ${data.toString().trim()}`, { traceId: currentTraceId });
+      logger.trace(`[Next Build - STDOUT]: ${data.toString().trim()}`, {
+        traceId: currentTraceId,
+      });
     });
     buildProcess.stderr.on("data", (data: Buffer) => {
       const line = data.toString().trim();
-      logger.error(`[Next Build - STDERR]: ${line}`, { traceId: currentTraceId });
+      logger.error(`[Next Build - STDERR]: ${line}`, {
+        traceId: currentTraceId,
+      });
       stderr += line + "\n";
     });
 

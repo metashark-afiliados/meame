@@ -52,8 +52,8 @@ export function AssetBlueprint({
       <DynamicIcon name="Image" className="h-12 w-12" />
       <div className="text-center font-mono text-xs">
         <p>
-          <strong className="text-foreground/80">Dimensiones:</strong> {width}
-          x{height}px
+          <strong className="text-foreground/80">Dimensiones:</strong> {width}x
+          {height}px
         </p>
         <p>
           <strong className="text-foreground/80">Formato:</strong> {format}

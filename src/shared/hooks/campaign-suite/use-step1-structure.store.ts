@@ -42,8 +42,6 @@ export const useStep1StructureStore = create<Step1State & Step1Actions>()(
         set((state) => ({
           headerConfig: deepMerge(state.headerConfig, config),
         }));
-        // En una futura implementación, aquí se notificaría al store orquestador
-        // para iniciar el debounce de guardado en la base de datos.
       },
       updateFooterConfig: (config) => {
         logger.trace(
@@ -60,9 +58,8 @@ export const useStep1StructureStore = create<Step1State & Step1Actions>()(
       },
     }),
     {
-      name: "campaign-draft-step1-structure", // Clave de persistencia granular
+      name: "campaign-draft-step1-structure",
       storage: createJSONStorage(() => localStorage),
     }
   )
 );
-// RUTA: src/shared/hooks/campaign-suite/use-step1-structure.store.ts

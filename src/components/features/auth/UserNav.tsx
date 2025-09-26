@@ -30,6 +30,7 @@ import { logger } from "@/shared/lib/logging";
 import type { UserNavContentSchema } from "@/shared/lib/schemas/components/auth/user-nav.schema";
 import type { z } from "zod";
 
+// --- SSoT del Contrato de Contenido ---
 type Content = z.infer<typeof UserNavContentSchema>;
 
 interface UserNavProps {
@@ -48,15 +49,16 @@ export function UserNav({ content }: UserNavProps): React.ReactElement {
     router.push("/");
   };
 
-  if (isLoading) {
-    return <Skeleton className="h-10 w-24 rounded-md" />;
-  }
-
+  // --- Guardia de Resiliencia ---
   if (!content) {
     logger.error(
       "[UserNav] Contenido i18n no proporcionado. Renderizado nulo."
     );
     return <></>;
+  }
+
+  if (isLoading) {
+    return <Skeleton className="h-10 w-24 rounded-md" />;
   }
 
   if (!user) {
@@ -92,7 +94,7 @@ export function UserNav({ content }: UserNavProps): React.ReactElement {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
           {content.logoutButton}
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -12,7 +12,10 @@ import type { FieldValues } from "react-hook-form";
 import { usePathname } from "next/navigation";
 import { logger } from "@/shared/lib/logging";
 import { getCurrentLocaleFromPathname } from "@/shared/lib/utils/i18n/i18n.utils";
-import { getBaviI18nContentAction, type BaviI18nContent } from "@/shared/lib/actions/bavi";
+import {
+  getBaviI18nContentAction,
+  type BaviI18nContent,
+} from "@/shared/lib/actions/bavi";
 import type { FieldComponentProps } from "../../../_types/field.types";
 import { useImageField } from "./_hooks/use-image-field";
 import { ImagePreview, ImageFieldActions } from "./_components";
@@ -37,9 +40,12 @@ export function ImageField<TFieldValues extends FieldValues>({
       if (result.success) {
         setI18nContent(result.data);
       } else {
-        logger.error("[ImageField] No se pudo cargar el contenido i18n para la BAVI.", {
-          error: result.error,
-        });
+        logger.error(
+          "[ImageField] No se pudo cargar el contenido i18n para la BAVI.",
+          {
+            error: result.error,
+          }
+        );
       }
       setIsLoading(false);
     };

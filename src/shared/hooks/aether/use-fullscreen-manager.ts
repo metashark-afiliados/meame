@@ -10,7 +10,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { logger } from "@/shared/lib/logging";
 
-export function useFullscreenManager(containerRef: React.RefObject<HTMLDivElement | null>) {
+export function useFullscreenManager(
+  containerRef: React.RefObject<HTMLDivElement | null>
+) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const toggleFullscreen = useCallback(() => {
@@ -27,9 +29,11 @@ export function useFullscreenManager(containerRef: React.RefObject<HTMLDivElemen
   }, [containerRef]);
 
   useEffect(() => {
-    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const handleFullscreenChange = () =>
+      setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
   return { isFullscreen, toggleFullscreen };

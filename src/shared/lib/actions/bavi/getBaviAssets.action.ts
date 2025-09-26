@@ -1,41 +1,49 @@
-
-// Ruta correcta: src/shared/lib/actions/bavi/getBaviAssets.action.ts
+// RUTA: src/shared/lib/actions/bavi/getBaviAssets.action.ts
 /**
  * @file getBaviAssets.action.ts
- * @description Server Action para obtener una lista paginada y filtrada de activos de BAVI.
- * @version 1.2.0 (Sovereign Path Restoration)
+ * @description Server Action de producción para obtener una lista paginada y
+ *              filtrada de activos de la BAVI, consultando directamente Supabase.
+ * @version 2.1.0 (Type-Safe & Linter-Compliant)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
 
-import { promises as fs } from "fs";
-import path from "path";
+import { z } from "zod";
+import { createServerClient } from "@/shared/lib/supabase/server";
 import { logger } from "@/shared/lib/logging";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import {
-  BaviManifestSchema,
-  type BaviManifest,
+  BaviAssetSchema,
   type BaviAsset,
 } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
-import {
-  BaviSearchIndexSchema,
-  type BaviSearchIndex,
-} from "@/shared/lib/schemas/bavi/bavi.search-index.schema";
 import {
   RaZPromptsSesaTagsSchema,
   type RaZPromptsSesaTags,
 } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
-import { z } from "zod";
-import { normalizeKeywords } from "@/shared/lib/utils/search/keyword-normalizer";
+// Se elimina la importación no utilizada.
+// import { normalizeKeywords } from "@/shared/lib/utils/search/keyword-normalizer";
 
-const BAVI_MANIFEST_PATH = path.join(
-  process.cwd(),
-  "content/bavi/bavi.manifest.json"
-);
-const SEARCH_INDEX_PATH = path.join(
-  process.cwd(),
-  "content/bavi/bavi.search-index.json"
-);
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: CONTRATOS DE TIPO SOBERANOS] ---
+// Contratos que modelan la respuesta de Supabase con snake_case.
+interface SupabaseBaviVariant {
+  variant_id: string;
+  public_id: string;
+  state: "orig" | "enh";
+  width: number;
+  height: number;
+}
+
+interface SupabaseBaviAsset {
+  asset_id: string;
+  provider: "cloudinary";
+  prompt_id: string | null;
+  tags: Partial<RaZPromptsSesaTags> | null;
+  metadata: { altText?: Record<string, string> } | null;
+  created_at: string;
+  updated_at: string;
+  bavi_variants: SupabaseBaviVariant[];
+}
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
 const GetBaviAssetsInputSchema = z.object({
   page: z.number().int().min(1).default(1),
@@ -49,81 +57,97 @@ export type GetBaviAssetsInput = z.infer<typeof GetBaviAssetsInputSchema>;
 export async function getBaviAssetsAction(
   input: GetBaviAssetsInput
 ): Promise<ActionResult<{ assets: BaviAsset[]; total: number }>> {
-  const traceId = logger.startTrace("getBaviAssetsAction");
+  const traceId = logger.startTrace("getBaviAssetsAction_v2.1");
+  const supabase = createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    logger.warn("[Action] Intento no autorizado de obtener activos BAVI.", {
+      traceId,
+    });
+    return { success: false, error: "auth_required" };
+  }
+
   try {
     const validatedInput = GetBaviAssetsInputSchema.safeParse(input);
     if (!validatedInput.success) {
-      logger.error("[getBaviAssetsAction] Fallo de validación de entrada.", {
-        errors: validatedInput.error.flatten(),
-      });
       return { success: false, error: "Parámetros de búsqueda inválidos." };
     }
 
     const { page, limit, query, tags } = validatedInput.data;
+    const start = (page - 1) * limit;
+    const end = start + limit - 1;
 
-    const baviManifestContent = await fs
-      .readFile(BAVI_MANIFEST_PATH, "utf-8")
-      .catch(() => '{ "assets": [] }');
-    const baviManifest: BaviManifest = BaviManifestSchema.parse(
-      JSON.parse(baviManifestContent)
-    );
-
-    const searchIndexContent = await fs
-      .readFile(SEARCH_INDEX_PATH, "utf-8")
-      .catch(() => '{ "version": "1.0.0", "index": {} }');
-    const baviSearchIndex: BaviSearchIndex = BaviSearchIndexSchema.parse(
-      JSON.parse(searchIndexContent)
-    );
-
-    let filteredAssets = baviManifest.assets;
-
-    if (tags) {
-      filteredAssets = filteredAssets.filter((asset) => {
-        for (const key in tags) {
-          const tagValue = tags[key as keyof RaZPromptsSesaTags];
-          if (
-            tagValue &&
-            asset.tags &&
-            asset.tags[key as keyof RaZPromptsSesaTags] !== tagValue
-          ) {
-            return false;
-          }
-        }
-        return true;
-      });
-    }
+    let queryBuilder = supabase
+      .from("bavi_assets")
+      .select("*, bavi_variants(*)", { count: "exact" })
+      .eq("user_id", user.id);
 
     if (query) {
-      const normalizedQueryKeywords = normalizeKeywords(query.split(" "));
-      filteredAssets = filteredAssets.filter((asset) => {
-        const assetKeywords = baviSearchIndex.index[asset.assetId] || [];
-        return normalizedQueryKeywords.some((qKeyword: string) =>
-          assetKeywords.includes(qKeyword)
-        );
-      });
+      // Futura implementación de búsqueda por palabras clave aquí.
     }
 
-    const total = filteredAssets.length;
-    const start = (page - 1) * limit;
-    const end = start + limit;
-    const paginatedAssets = filteredAssets.slice(start, end);
+    if (tags) {
+      for (const key in tags) {
+        const tagValue = tags[key as keyof RaZPromptsSesaTags];
+        if (tagValue) {
+          queryBuilder = queryBuilder.eq(`tags->>${key}`, tagValue);
+        }
+      }
+    }
+
+    const { data, error, count } = await queryBuilder
+      .order("created_at", { ascending: false })
+      .range(start, end);
+
+    if (error) throw new Error(error.message);
+
+    // Se aplica el tipo soberano a la respuesta de la base de datos.
+    const reshapedAssets = (data as SupabaseBaviAsset[]).map(
+      (asset: SupabaseBaviAsset): BaviAsset => {
+        // <-- Tipo explícito para 'asset'
+        const transformedAsset = {
+          assetId: asset.asset_id,
+          provider: asset.provider,
+          promptId: asset.prompt_id ?? undefined,
+          tags: asset.tags ?? undefined,
+          variants: asset.bavi_variants.map((v: SupabaseBaviVariant) => ({
+            // <-- Tipo explícito para 'v'
+            versionId: v.variant_id,
+            publicId: v.public_id,
+            state: v.state,
+            dimensions: { width: v.width, height: v.height },
+          })),
+          metadata: asset.metadata ?? { altText: {} },
+          createdAt: asset.created_at,
+          updatedAt: asset.updated_at,
+        };
+        return BaviAssetSchema.parse(transformedAsset);
+      }
+    );
 
     logger.success(
-      `[getBaviAssetsAction] Activos obtenidos: ${paginatedAssets.length} de ${total}.`
+      `[getBaviAssetsAction] Activos obtenidos: ${reshapedAssets.length} de ${
+        count ?? 0
+      }.`
     );
-    logger.endTrace(traceId);
-    return { success: true, data: { assets: paginatedAssets, total } };
+    return {
+      success: true,
+      data: { assets: reshapedAssets, total: count ?? 0 },
+    };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
     logger.error("[getBaviAssetsAction] Fallo al obtener activos de BAVI.", {
       error: errorMessage,
     });
-    logger.endTrace(traceId);
     return {
       success: false,
-      error: "No se pudieron cargar los activos de BAVI.",
+      error: "No se pudieron cargar los activos de la biblioteca.",
     };
+  } finally {
+    logger.endTrace(traceId);
   }
 }
-// Ruta correcta: src/shared/lib/actions/bavi/getBaviAssets.action.ts

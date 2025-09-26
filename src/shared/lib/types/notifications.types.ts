@@ -19,4 +19,3 @@ export const NotificationSchema = z.object({
 
 export type Notification = z.infer<typeof NotificationSchema>;
 // Ruta correcta: src/shared/lib/types/notifications.types.ts```
-

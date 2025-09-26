@@ -21,7 +21,9 @@ interface DevDashboardPageProps {
 export default async function DevDashboardPage({
   params: { locale },
 }: DevDashboardPageProps) {
-  logger.info(`[DevDashboardPage Shell] Obteniendo datos para locale: ${locale}`);
+  logger.info(
+    `[DevDashboardPage Shell] Obteniendo datos para locale: ${locale}`
+  );
 
   const { dictionary, error } = await getDictionary(locale);
   const content = dictionary.devDashboardPage;

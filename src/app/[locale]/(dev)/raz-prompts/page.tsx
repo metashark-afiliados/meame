@@ -33,7 +33,9 @@ interface RaZPromptsHomePageProps {
 export default async function RaZPromptsHomePage({
   params: { locale },
 }: RaZPromptsHomePageProps) {
-  logger.info("[RaZPromptsHomePage] Renderizando v9.0 (Resilience Restoration).");
+  logger.info(
+    "[RaZPromptsHomePage] Renderizando v9.0 (Resilience Restoration)."
+  );
 
   // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
   // Se envuelve toda la lógica de obtención de datos en un bloque try...catch.

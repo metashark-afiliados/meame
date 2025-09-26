@@ -1,9 +1,12 @@
-// RUTA: components/layout/PageHeader.tsx
+// RUTA: src/components/layout/PageHeader.tsx
 /**
  * @file PageHeader.tsx
- * @description Componente de élite para encabezados de página. Orquesta una
- *              animación de entrada y es 100% data-driven y resiliente.
- * @version 3.0.0 (Holistic Elite Leveling & MEA/UX Injection)
+ * @description Componente de élite para encabezados de página.
+ *              v4.2.0 (Explicit Module Resolution): Se corrige la ruta de
+ *              importación para apuntar directamente al archivo del componente,
+ *              resolviendo el error TS2307 y eliminando la dependencia de un
+ *              "barrel file" inexistente.
+ * @version 4.2.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,23 +16,16 @@ import { motion, type Variants } from "framer-motion";
 import { Container } from "@/components/ui/Container";
 import { LightRays } from "@/components/razBits/LightRays/LightRays";
 import { logger } from "@/shared/lib/logging";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/dev/DeveloperErrorDisplay";
 import type { PageHeaderContentSchema } from "@/shared/lib/schemas/components/page-header.schema";
 import type { z } from "zod";
 
-// --- SSoT de Tipos ---
 type PageHeaderContent = z.infer<typeof PageHeaderContentSchema>;
 
-/**
- * @interface PageHeaderProps
- * @description Contrato de props para el componente PageHeader. Es 100%
- *              data-driven, consumiendo un único objeto de contenido.
- */
 export interface PageHeaderProps {
-  content?: PageHeaderContent; // Prop hecha opcional para la guardia de resiliencia.
+  content?: PageHeaderContent;
 }
 
-// --- SSoT de Animaciones (MEA/UX) ---
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
@@ -47,34 +43,24 @@ const itemVariants: Variants = {
   },
 };
 
-/**
- * @component PageHeader
- * @description Renderiza la sección de cabecera principal de una página. Es
- *              resiliente a la falta de contenido y presenta una animación de entrada.
- * @param {PageHeaderProps} props - Las propiedades del componente.
- * @returns {React.ReactElement} El elemento JSX del encabezado.
- */
 export function PageHeader({ content }: PageHeaderProps): React.ReactElement {
-  // --- Pilar III: Guardia de Resiliencia y Observabilidad ---
   if (!content) {
     const errorMessage =
-      "Componente 'PageHeader' renderizado sin la prop 'content' requerida. El contrato de la API no se está cumpliendo en el componente padre.";
+      "Componente 'PageHeader' renderizado sin la prop 'content' requerida.";
     logger.error(`[PageHeader] ${errorMessage}`);
-
-    // En desarrollo, mostramos un error claro para facilitar la depuración.
     if (process.env.NODE_ENV === "development") {
       return (
         <DeveloperErrorDisplay
           context="PageHeader"
           errorMessage={errorMessage}
-          errorDetails="Asegúrate de que la página que llama a <PageHeader /> esté pasando la prop 'content' con el formato correcto, derivado de 'page-header.schema.ts'."
+          errorDetails="Asegúrate de que la página que llama a <PageHeader /> esté pasando la prop 'content'."
         />
       );
     }
-    return <></>; // En producción, falla silenciosamente para no romper la UI.
+    return <></>;
   }
 
-  logger.info("[PageHeader] Renderizando v3.0 (Elite & MEA).");
+  logger.info("[PageHeader] Renderizando v4.2 (Explicit Module Resolution).");
   const { title, subtitle, lightRays } = content;
 
   return (

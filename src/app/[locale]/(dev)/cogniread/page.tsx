@@ -48,7 +48,12 @@ export default async function CogniReadDashboardPage({
   if (dictError || !pageContent) {
     // ... (Manejo de error de diccionario)
     if (process.env.NODE_ENV === "production") return notFound();
-    return <DeveloperErrorDisplay context="CogniReadDashboardPage" errorMessage="Contenido i18n no encontrado." />;
+    return (
+      <DeveloperErrorDisplay
+        context="CogniReadDashboardPage"
+        errorMessage="Contenido i18n no encontrado."
+      />
+    );
   }
 
   if (!articlesResult.success) {
@@ -70,7 +75,9 @@ export default async function CogniReadDashboardPage({
             <div>
               {/* --- [INICIO DE CORRECCIÓN DE CONTRATO] --- */}
               <CardTitle>{pageContent.articlesListTitle}</CardTitle>
-              <CardDescription>{pageContent.articlesListDescription}</CardDescription>
+              <CardDescription>
+                {pageContent.articlesListDescription}
+              </CardDescription>
               {/* --- [FIN DE CORRECCIÓN DE CONTRATO] --- */}
             </div>
             <Button asChild>

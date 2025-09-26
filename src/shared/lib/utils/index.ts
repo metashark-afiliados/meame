@@ -14,7 +14,9 @@
 import { logger } from "@/shared/lib/logging"; // Importa el logger
 
 // --- INICIO DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
-logger.trace("[index.ts] Módulo de utilidades generales cargado y listo para usar.");
+logger.trace(
+  "[index.ts] Módulo de utilidades generales cargado y listo para usar."
+);
 // --- FIN DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
 
 // Exporta desde la SSoT canónica de cada utilidad.

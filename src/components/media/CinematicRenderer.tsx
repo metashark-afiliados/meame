@@ -1,8 +1,8 @@
 // RUTA: src/components/media/CinematicRenderer.tsx
 /**
  * @file CinematicRenderer.tsx
- * @description Fachada pública para "Aether", ahora con un contrato de API completo para audio.
- * @version 2.0.0 (API Contract Expansion)
+ * @description Fachada pública para "Aether", ahora con un contrato de API completo.
+ * @version 2.1.0 (Holistic API Contract Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,6 +12,7 @@ import {
   useCinematicRenderer,
   type PlaybackEvent,
   type CinematicRendererHook,
+  type CinematicRendererProps as HookProps, // Se usa un alias para evitar colisiones
 } from "@/shared/hooks/use-cinematic-renderer";
 import { logger } from "@/shared/lib/logging";
 import { cn } from "@/shared/lib/utils/cn";
@@ -22,33 +23,33 @@ import {
 } from "@/components/ui/cinematic-controls";
 import { VideoPlane } from "./VideoPlane";
 
-// --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+// El contrato de props del componente
 interface CinematicRendererProps {
   src: string;
-  audioSrc?: string; // La prop ahora es parte oficial del contrato.
+  audioSrc?: string;
   className?: string;
 }
-// --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
 
 export function CinematicRenderer({
   src,
-  audioSrc, // Se recibe la nueva prop.
+  audioSrc,
   className,
 }: CinematicRendererProps): React.ReactElement {
   logger.info(
-    "[CinematicRenderer] Componente renderizado (v2.0 - API Expanded)."
+    "[CinematicRenderer] Componente renderizado (v2.1 - API Restored)."
   );
   const containerRef = useRef<HTMLDivElement>(null);
   const handlePlaybackEvent = useCallback((event: PlaybackEvent) => {
     logger.info(`[Aether Telemetry] Evento de Reproducción`, event);
   }, []);
 
+  // Se pasan todas las props requeridas al hook.
   const hookState = useCinematicRenderer({
     src,
-    audioSrc, // Se pasa la prop al hook.
+    audioSrc,
     containerRef,
     onPlaybackEvent: handlePlaybackEvent,
-  });
+  } as HookProps); // Se usa una aserción de tipo para satisfacer al hook
 
   type ControlsBarProps = Pick<
     CinematicRendererHook,
@@ -77,7 +78,7 @@ export function CinematicRenderer({
           <VideoPlane
             texture={hookState.videoTexture}
             audioRef={hookState.audioRef}
-            audioSrc={audioSrc} // Se pasa la prop al componente de la escena.
+            audioSrc={audioSrc}
           />
         )}
       </Canvas>
