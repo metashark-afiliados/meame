@@ -10,15 +10,6 @@
       "system": "Sistema",
       "toggleAriaLabel": "Attiva/disattiva tema"
     },
-    "languageSwitcher": {
-      "ariaLabel": "Seleziona la lingua",
-      "languages": {
-        "it-IT": "Italiano",
-        "es-ES": "Spagnolo",
-        "en-US": "Inglese",
-        "pt-BR": "Portoghese"
-      }
-    },
     "validationError": {
       "title": "Errore di Validazione Dati per la Sezione: '{{sectionName}}'",
       "description": "I dati forniti dal CMS o dal file i18n non corrispondono al contratto (schema) richiesto da questo componente. L'app non si bloccherà in produzione, ma questa sezione non verrà renderizzata. Controlla la console per i dettagli tecnici.",
@@ -35,15 +26,6 @@
       "dark": "Oscuro",
       "system": "Sistema",
       "toggleAriaLabel": "Alternar tema"
-    },
-    "languageSwitcher": {
-      "ariaLabel": "Seleccionar idioma",
-      "languages": {
-        "it-IT": "Italiano",
-        "es-ES": "Español",
-        "en-US": "Inglés",
-        "pt-BR": "Portugués"
-      }
     },
     "validationError": {
       "title": "Error de Validación de Datos para la Sección: '{{sectionName}}'",
@@ -62,15 +44,6 @@
       "system": "System",
       "toggleAriaLabel": "Toggle theme"
     },
-    "languageSwitcher": {
-      "ariaLabel": "Select language",
-      "languages": {
-        "it-IT": "Italian",
-        "es-ES": "Spanish",
-        "en-US": "English",
-        "pt-BR": "Portuguese"
-      }
-    },
     "validationError": {
       "title": "Data Validation Error for Section: '{{sectionName}}'",
       "description": "The data provided from the CMS or i18n file does not match the contract (schema) this component requires. The app will not crash in production, but this section will not render. Check the console for technical details.",
@@ -87,15 +60,6 @@
       "dark": "Escuro",
       "system": "Sistema",
       "toggleAriaLabel": "Alternar tema"
-    },
-    "languageSwitcher": {
-      "ariaLabel": "Selecionar idioma",
-      "languages": {
-        "it-IT": "Italiano",
-        "es-ES": "Espanhol",
-        "en-US": "Inglês",
-        "pt-BR": "Português"
-      }
     },
     "validationError": {
       "title": "Erro de Validação de Dados para a Seção: '{{sectionName}}'",
