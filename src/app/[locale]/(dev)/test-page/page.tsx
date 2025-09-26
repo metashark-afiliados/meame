@@ -2,144 +2,76 @@
 /**
  * @file page.tsx
  * @description Página de servidor para la Vitrina de Resiliencia.
- *              v10.0.0 (Sovereign Path Restoration): Se corrige la ruta de
- *              importación de 'theme-utils' para alinearla con la ACS y
- *              restaurar la integridad del build.
- * @version 10.0.0
+ *              v11.0.0 (Server Shell Pattern): Refactorizado para actuar como
+ *              un "Server Shell" que carga todos los datos y componentes del
+ *              servidor, y los pasa de forma segura al cliente.
+ * @version 11.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
-import {
-  getCampaignData,
-  resolveCampaignVariant,
-} from "@/shared/lib/i18n/campaign.i18n";
-import {
-  getAllCampaignsAndVariants,
-  type CampaignVariantInfo,
-} from "@/shared/lib/dev/campaign-utils"; // CORREGIDO
-import { loadJsonAsset } from "@/shared/lib/i18n/campaign.data.loader";
-import {
-  AssembledThemeSchema,
-  type AssembledTheme,
-} from "@/shared/lib/schemas/theming/assembled-theme.schema";
+import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
+import TestPageClient from "./_components/TestPageClient.tsx";
+import * as Sections from "@/components/sections";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
-import type { Locale } from "@/shared/lib/i18n/i18n.config";
-import TestPageClient from "./_components/TestPageClient";
-import { ZodError } from "zod";
-import { deepMerge } from "@/shared/lib/utils";
+
 // --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-// La ruta ahora apunta a la ubicación canónica dentro de 'utils'.
-import { parseThemeNetString } from "@/shared/lib/utils/theming/theme-utils";
+// Mapeo de componentes y sus claves de diccionario. Esta lógica ahora
+// reside en el servidor, donde debe estar.
+const sectionsToRender = [
+  { name: "BenefitsSection", Comp: Sections.BenefitsSection, contentKey: "benefitsSection" },
+  { name: "CommunitySection", Comp: Sections.CommunitySection, contentKey: "communitySection" },
+  // ... Añadir aquí el resto de los componentes de sección ...
+  { name: "Hero", Comp: Sections.Hero, contentKey: "hero" },
+  { name: "FaqAccordion", Comp: Sections.FaqAccordion, contentKey: "faqAccordion" },
+];
 // --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-import { netTracePrefixToPathMap } from "@/shared/lib/config/theming.config";
-import type { AvailableTheme } from "@/shared/lib/types/test-page/themes.types"; // CORREGIDO
-import { DeveloperErrorDisplay } from "@/components/features/dev-tools/"; // CORREGIDO
 
 interface DevTestPageProps {
   params: { locale: Locale };
 }
 
-export default async function DevTestPage({
-  params: { locale },
-}: DevTestPageProps): Promise<React.ReactElement> {
-  logger.startGroup(
-    "Vitrina de Componentes v10.0: Fase de Carga de Datos (Servidor)"
-  );
-  let validationError: ZodError | Error | null = null;
+export default async function DevTestPage({ params: { locale } }: DevTestPageProps) {
+  logger.info("[TestPage Shell] Renderizando v11.0 (Server Shell).");
+
   try {
-    const [{ dictionary: globalDictionary, error: dictError }, campaignData] =
-      await Promise.all([
-        getDictionary(locale),
-        getCampaignData("12157", locale, "02"),
-      ]);
-    validationError = dictError;
-    if (dictError)
-      throw new Error("Fallo en la validación del diccionario global.");
-    const masterDictionary = {
-      ...globalDictionary,
-      ...campaignData.dictionary,
-    };
-    logger.success("Diccionario Maestro ensamblado con éxito.");
-    const campaignVariants = await getAllCampaignsAndVariants();
-    const baseTheme = await loadJsonAsset<Partial<AssembledTheme>>(
-      "theme-fragments",
-      "base",
-      "global.theme.json"
+    const { dictionary, error } = await getDictionary(locale);
+    if (error) throw error;
+
+    const pageContent = dictionary.devTestPage;
+    if (!pageContent) throw new Error("Contenido 'devTestPage' no encontrado.");
+
+    // --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+    // Renderizamos todos los componentes de sección aquí, en el servidor.
+    const renderedSections = await Promise.all(
+      sectionsToRender.map(async ({ name, Comp, contentKey }) => {
+        const content = dictionary[contentKey as keyof Dictionary];
+        return {
+          name,
+          // @ts-expect-error Las props de 'content' son dinámicas, lo manejamos.
+          jsx: <Comp content={content} locale={locale} />,
+        };
+      })
     );
-    const themePromises = campaignVariants.map(
-      async (variantInfo: CampaignVariantInfo) => {
-        try {
-          const { variant } = await resolveCampaignVariant(
-            variantInfo.campaignId,
-            variantInfo.variantId
-          );
-          const themePlan = parseThemeNetString(variant.theme);
-          const fragmentPromises = Object.entries(themePlan).map(
-            ([prefix, name]) => {
-              const dir =
-                netTracePrefixToPathMap[
-                  prefix as keyof typeof netTracePrefixToPathMap
-                ];
-              if (!dir) return Promise.resolve({});
-              return loadJsonAsset<Partial<AssembledTheme>>(
-                "theme-fragments",
-                dir,
-                `${name}.${dir}.json`
-              );
-            }
-          );
-          const themeFragments = await Promise.all(fragmentPromises);
-          let finalTheme: AssembledTheme = baseTheme as AssembledTheme;
-          for (const fragment of themeFragments) {
-            finalTheme = deepMerge(finalTheme, fragment as AssembledTheme);
-          }
-          finalTheme = deepMerge(
-            finalTheme,
-            (variant.themeOverrides ?? {}) as AssembledTheme
-          );
-          const validation = AssembledThemeSchema.safeParse(finalTheme);
-          if (validation.success) {
-            return {
-              id: variantInfo.variantId,
-              name: variantInfo.name,
-              themeData: validation.data,
-            };
-          }
-        } catch (e) {
-          logger.warn(`No se pudo cargar el tema para ${variantInfo.name}`, {
-            e,
-          });
-        }
-        return null;
-      }
-    );
-    const availableThemes = (await Promise.all(themePromises)).filter(
-      Boolean
-    ) as AvailableTheme[];
-    logger.success(`${availableThemes.length} temas de campaña cargados.`);
+    // --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+
     return (
       <TestPageClient
-        locale={locale}
-        masterDictionary={masterDictionary as Dictionary}
-        availableThemes={availableThemes}
+        content={pageContent}
+        renderedSections={renderedSections}
       />
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error(
-      "Fallo crítico al cargar datos para la Vitrina de Componentes",
-      { error: errorMessage }
-    );
+    const errorMessage = "Fallo crítico al cargar datos para la Vitrina de Componentes.";
+    logger.error(`[TestPage Shell] ${errorMessage}`, { error });
     return (
       <DeveloperErrorDisplay
-        context="DevTestPage"
+        context="DevTestPage Shell"
         errorMessage={errorMessage}
-        errorDetails={validationError}
+        errorDetails={error instanceof Error ? error : String(error)}
       />
     );
-  } finally {
-    logger.endGroup();
   }
 }
