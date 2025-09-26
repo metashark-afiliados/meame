@@ -1,24 +1,27 @@
-// scripts/validation/validate-theme-fragments.ts
+// RUTA: scripts/validation/validate-theme-fragments.ts
 /**
  * @file validate-theme-fragments.ts
  * @description Guardián de Integridad de Temas. Audita los `campaign.map.json`
  *              y reporta cualquier inconsistencia o desviación de la SSoT.
- * @version 2.0.0 (Normalization Engine)
+ * @version 3.0.0 (Node Runtime Compatibility)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { promises as fs } from "fs";
 import * as path from "path";
 import chalk from "chalk";
-import { parseThemeNetString } from "@/shared/lib/theming/theme-utils";
-import { netTracePrefixToPathMap } from "@/shared/lib/config/theming.config";
-import { logger } from "@/shared/lib/logging";
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: RUTAS RELATIVAS] ---
+// Se reemplazan los alias por rutas relativas para compatibilidad con Node/tsx.
+import { parseThemeNetString } from "../../src/shared/lib/utils/theming/theme-utils";
+import { netTracePrefixToPathMap } from "../../src/shared/lib/config/theming.config";
+import { logger } from "../../src/shared/lib/logging";
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
 const CAMPAIGNS_DIR = path.resolve(process.cwd(), "content/campaigns");
 const FRAGMENTS_DIR = path.resolve(process.cwd(), "content/theme-fragments");
 
 async function validateAllCampaignThemes() {
   logger.startGroup(
-    "🛡️  Iniciando Guardián de Integridad de Temas (v2.0 - Normalization Engine)..."
+    "🛡️  Iniciando Guardián de Integridad de Temas (v3.0 - Node Compatible)..."
   );
   let totalErrors = 0;
 
@@ -47,9 +50,8 @@ async function validateAllCampaignThemes() {
           const requiredPrefixes = ["cp", "ft", "rd"];
           let variantErrors = 0;
 
-          // 1. Validar existencia de fragmentos
           for (const prefix of requiredPrefixes) {
-            const name = themePlan[prefix];
+            const name = themePlan[prefix as keyof typeof themePlan];
             if (!name) {
               logger.error(
                 `[Guardián] ¡Anomalía! Falta el prefijo '${prefix}' en el trazo NET.`,
@@ -79,28 +81,15 @@ async function validateAllCampaignThemes() {
               variantErrors++;
             }
           }
-
-          // 2. Proponer normalización (si no hay errores de existencia)
-          if (variantErrors === 0) {
-            const normalizedNet = requiredPrefixes
-              .map((p) => `${p}-${themePlan[p]}`)
-              .join(".");
-            if (variant.theme !== normalizedNet) {
-              console.log(
-                chalk.yellow(
-                  `   - [NORMALIZACIÓN SUGERIDA] Variante: "${variant.name}"`
-                )
-              );
-              console.log(chalk.red(`     - Actual:  "${variant.theme}"`));
-              console.log(chalk.green(`     - Sugerido: "${normalizedNet}"\n`));
-            }
-          }
           totalErrors += variantErrors;
         }
       } catch (e) {
         const errorMessage = e instanceof Error ? e.message : String(e);
         logger.warn(
-          `No se pudo procesar ${path.relative(process.cwd(), mapPath)}. Causa: ${errorMessage}`
+          `No se pudo procesar ${path.relative(
+            process.cwd(),
+            mapPath
+          )}. Causa: ${errorMessage}`
         );
       }
     }
@@ -117,7 +106,7 @@ async function validateAllCampaignThemes() {
     } else {
       console.log(
         chalk.green.bold(
-          "\n✅ Auditoría completada. Todos los temas son congruentes y están normalizados."
+          "\n✅ Auditoría completada. Todos los temas son congruentes."
         )
       );
     }
@@ -128,4 +117,3 @@ async function validateAllCampaignThemes() {
 }
 
 validateAllCampaignThemes();
-// scripts/validation/validate-theme-fragments.ts

@@ -2,11 +2,11 @@
 /**
  * @file manifest.queries.ts
  * @description SSoT para las operaciones de lectura de la BAVI desde Supabase.
- * @version 3.1.0 (Code Hygiene & Elite Compliance)
+ * @version 4.0.0 (Environment-Aware & Isomorphic)
  * @author RaZ Podestá - MetaShark Tech
  */
 import "server-only";
-import { cache } from "react";
+import * as React from "react"; // Importar como espacio de nombres
 import { createServerClient } from "@/shared/lib/supabase/server";
 import { logger } from "@/shared/lib/logging";
 import {
@@ -15,10 +15,8 @@ import {
   type BaviManifest,
 } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 import type { RaZPromptsSesaTags } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
-// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: HIGIENE DE CÓDIGO] ---
-// Se elimina la importación no utilizada de 'zod', resolviendo la advertencia de ESLint.
-// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
+// --- Tipos internos para la respuesta de Supabase ---
 interface SupabaseBaviVariant {
   variant_id: string;
   public_id: string;
@@ -37,9 +35,17 @@ interface SupabaseBaviAsset {
   updated_at: string;
   bavi_variants: SupabaseBaviVariant[];
 }
+// --- Fin de tipos internos ---
 
-export const getBaviManifest = cache(async (): Promise<BaviManifest> => {
-  logger.trace("[BAVI DAL v3.1] Solicitando manifiesto desde Supabase...");
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: LÓGICA PURA AISLADA] ---
+/**
+ * @function getBaviManifestFn
+ * @description La función pura y sin caché para obtener y transformar los datos.
+ *              Es segura para ser ejecutada en cualquier entorno de Node.js.
+ * @private
+ */
+const getBaviManifestFn = async (): Promise<BaviManifest> => {
+  logger.trace("[BAVI DAL v4.0] Solicitando manifiesto desde Supabase...");
   const supabase = createServerClient();
 
   const { data: assetsData, error: assetsError } = await supabase
@@ -82,7 +88,18 @@ export const getBaviManifest = cache(async (): Promise<BaviManifest> => {
   );
 
   logger.success(
-    `[BAVI DAL v3.1] Manifiesto ensamblado con ${reshapedAssets.length} activos.`
+    `[BAVI DAL v4.0] Manifiesto ensamblado con ${reshapedAssets.length} activos.`
   );
   return { assets: reshapedAssets };
-});
+};
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
+
+/**
+ * @export getBaviManifest
+ * @description Exportación pública y consciente del entorno.
+ *              Aplica la optimización de caché de React solo si está disponible.
+ */
+export const getBaviManifest =
+  typeof React.cache === "function"
+    ? React.cache(getBaviManifestFn)
+    : getBaviManifestFn;

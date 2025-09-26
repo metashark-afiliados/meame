@@ -1,18 +1,19 @@
-// RUTA: hooks/tracking/use-nos3-tracker.ts
+// RUTA: src/shared/hooks/use-nos3-tracker.ts
 /**
  * @file use-nos3-tracker.ts
  * @description Hook soberano y orquestador para el colector de `nos3`.
- *              v2.2.0 (Internal SSoT): Ahora consume los tipos desde la SSoT
- *              interna para una máxima resiliencia, resolviendo errores de
- *              build y de incompatibilidad de tipos.
- * @version 2.2.0
+ * @version 4.0.0 (Build Integrity Restored - Definitive Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
 import { usePathname } from "next/navigation";
-import { record } from "rrweb";
+// --- [INICIO DE SOLUCIÓN DEFINITIVA] ---
+// Se utiliza una importación de espacio de nombres, que es la forma
+// canónica y segura de importar módulos que no tienen una exportación por defecto clara.
+import * as rrweb from "rrweb";
+// --- [FIN DE SOLUCIÓN DEFINITIVA] ---
 import { createId } from "@paralleldrive/cuid2";
 import { logger } from "@/shared/lib/logging";
 import type { eventWithTime } from "@/shared/lib/types/rrweb.types.ts";
@@ -94,9 +95,11 @@ export function useNos3Tracker(enabled: boolean): void {
 
     const intervalId = setInterval(flushEvents, BATCH_INTERVAL_MS);
 
-    const stopRecording = record({
-      emit(event) {
-        eventsBuffer.current.push(event as eventWithTime);
+    // Se utiliza la función 'record' desde el objeto de espacio de nombres 'rrweb'.
+    // Se añade el tipo explícito al parámetro 'event' para resolver TS7006.
+    const stopRecording = rrweb.record({
+      emit(event: eventWithTime) {
+        eventsBuffer.current.push(event);
         if (eventsBuffer.current.length >= MAX_EVENTS_PER_BATCH) {
           flushEvents();
         }

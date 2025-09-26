@@ -1,18 +1,12 @@
-// RUTA: shared/lib/i18n/i18n.ts
+// RUTA: src/shared/lib/i18n/i18n.ts
 /**
  * @file i18n.ts
- * @description Orquestador de i18n consciente del entorno. Delega la carga
- *              de diccionarios al motor apropiado. En producción, utiliza
- *              `React.cache` para memoizar la lectura de archivos.
- *              v17.1.0 (Module Load Observability & Production Error Handling):
- *              Se añade un log de traza al inicio del módulo y se mejora el
- *              manejo de errores en producción para diccionarios corruptos,
- *              lanzando un error que Next.js puede capturar.
- * @version 17.1.0
+ * @description Orquestador de i18n "isomórfico" y consciente del entorno.
+ * @version 18.0.0 (Isomorphic & Build-Resilient)
  * @author RaZ Podestá - MetaShark Tech
  */
 import "server-only";
-import { cache } from "react";
+import * as React from "react";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { type ZodError } from "zod";
@@ -25,11 +19,7 @@ import {
 import { logger } from "@/shared/lib/logging";
 import { getDevDictionary } from "@/shared/lib/i18n/i18n.dev";
 
-// --- INICIO DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
-logger.trace("[i18n.ts] Módulo orquestador i18n cargado y listo para usar.");
-// --- FIN DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
-
-// --- Lógica de Producción Cacheada ---
+logger.trace("[i18n.ts] Módulo orquestador i18n v18.0 cargado.");
 
 const prodDictionariesCache: Partial<
   Record<
@@ -38,30 +28,16 @@ const prodDictionariesCache: Partial<
   >
 > = {};
 
-/**
- * @function getProductionDictionary
- * @description Lógica pura para cargar y validar un diccionario en producción.
- *              Esta función será envuelta por `React.cache`.
- *              En producción, un diccionario inválido lanzará un error.
- * @private
- */
-const getProductionDictionary = async (
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: LÓGICA PURA AISLADA] ---
+const getProductionDictionaryFn = async (
   locale: Locale
 ): Promise<{
   dictionary: Partial<Dictionary>;
   error: ZodError | Error | null;
 }> => {
   if (prodDictionariesCache[locale]) {
-    logger.trace(
-      `[i18n Orquestador - PROD] Sirviendo diccionario para [${locale}] desde caché de petición.`
-    );
     return prodDictionariesCache[locale]!;
   }
-
-  logger.trace(
-    `[i18n Orquestador - PROD] Leyendo del sistema de archivos para [${locale}].`
-  );
-
   try {
     const filePath = path.join(
       process.cwd(),
@@ -74,46 +50,26 @@ const getProductionDictionary = async (
 
     const validation = i18nSchema.safeParse(dictionary);
     if (!validation.success) {
-      logger.error(
-        `[i18n Orquestador - PROD] ¡FALLO CRÍTICO DE VALIDACIÓN! Diccionario para "${locale}" está corrupto.`,
-        { errors: validation.error.flatten().fieldErrors }
-      );
-      // --- INICIO DE MEJORA: LANZAR ERROR EN PRODUCCIÓN ---
-      // En producción, un diccionario corrupto debe causar un fallo explícito.
       throw new Error(`Diccionario i18n para '${locale}' corrupto o inválido.`);
-      // --- FIN DE MEJORA ---
     }
-
     const result = { dictionary: validation.data, error: null };
     prodDictionariesCache[locale] = result;
     return result;
   } catch (error) {
     logger.error(
-      `[i18n Orquestador - PROD] No se pudo cargar el diccionario para ${locale}.`,
+      `[i18n.prod] No se pudo cargar el diccionario para ${locale}.`,
       { error }
     );
-    // Para errores de lectura de archivo o JSON.parse, también lanzamos un error.
     throw error;
   }
 };
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
-/**
- * @const getCachedProductionDictionary
- * @description Versión memoizada de `getProductionDictionary` usando `React.cache`.
- *              Asegura que, dentro de un mismo ciclo de renderizado en servidor,
- *              la lectura de un archivo de locale solo ocurra una vez.
- */
-const getCachedProductionDictionary = cache(getProductionDictionary);
+const getCachedProductionDictionary =
+  typeof React.cache === "function"
+    ? React.cache(getProductionDictionaryFn)
+    : getProductionDictionaryFn;
 
-// --- Orquestador Principal ---
-
-/**
- * @function getDictionary
- * @description SSoT para la obtención de diccionarios i18n.
- *              Detecta el entorno y utiliza la estrategia de carga óptima.
- * @param {string} locale - El código de idioma solicitado (ej. "es-ES").
- * @returns {Promise<{ dictionary: Partial<Dictionary>; error: ZodError | Error | null; }>}
- */
 export const getDictionary = async (
   locale: string
 ): Promise<{
@@ -125,15 +81,12 @@ export const getDictionary = async (
     : defaultLocale;
 
   if (process.env.NODE_ENV === "development") {
-    logger.trace(`[i18n Orquestador] Entorno DEV. Delegando a i18n.dev.ts...`);
     return getDevDictionary(validatedLocale);
   }
 
-  logger.trace(`[i18n Orquestador] Entorno PROD. Usando motor cacheado...`);
   try {
     return await getCachedProductionDictionary(validatedLocale);
   } catch (error) {
-    // Captura cualquier error lanzado por getProductionDictionary
     return {
       dictionary: {},
       error: error instanceof Error ? error : new Error(String(error)),

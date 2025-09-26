@@ -1,22 +1,17 @@
-// scripts/validation/validate-sdc-config.ts
+// RUTA: scripts/validation/validate-sdc-config.ts
 /**
  * @file validate-sdc-config.ts
  * @description Guardián de Integridad para la configuración de la SDC.
- * @version 1.2.0 (ESM Path Resolution Fix): Utiliza pathToFileURL para
- *              garantizar la compatibilidad con el cargador de módulos ESM de
- *              Node.js en todos los sistemas operativos, resolviendo el error
- *              ERR_UNSUPPORTED_ESM_URL_SCHEME en Windows.
+ * @version 3.0.0 (Isomorphic & Build-Resilient)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { promises as fs } from "fs";
 import path from "path";
-import { pathToFileURL } from "url"; // <-- [INICIO DE SOLUCIÓN DE ÉLITE]
 import chalk from "chalk";
-
-const wizardConfigPath = path.resolve(
-  process.cwd(),
-  "app/[locale]/(dev)/dev/campaign-suite/_config/wizard.config.ts"
-);
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: IMPORTACIÓN SOBERANA Y SEGURA] ---
+// Se importa desde el nuevo archivo de configuración de solo datos.
+import { stepsDataConfig } from "../../src/shared/lib/config/campaign-suite/wizard.data.config";
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
 async function main() {
   console.log(
@@ -25,28 +20,34 @@ async function main() {
   let errorCount = 0;
 
   try {
-    // Se convierte la ruta del sistema de archivos a una URL file://
-    const wizardConfigUrl = pathToFileURL(wizardConfigPath).href;
-    const { stepsConfig } = await import(wizardConfigUrl);
-    // <-- [FIN DE SOLUCIÓN DE ÉLITE]
+    // La importación ahora es síncrona y segura.
+    const { stepsConfig } = { stepsConfig: stepsDataConfig };
 
     for (const step of stepsConfig) {
       console.log(
         chalk.cyan(`   🔎 Verificando Paso ${step.id}: ${step.titleKey}`)
       );
 
-      const i18nPath = path.resolve(process.cwd(), step.i18nPath);
-      // La lógica para `schemaPath` debe ser ajustada si `step.schemaPath` existe
-      // Asumiendo que ahora los schemas están co-ubicados o importados directamente
-      // en el config, esta parte puede necesitar una revisión futura si la
-      // estructura de `wizard.config.ts` cambia. Por ahora, nos centramos en i18n.
+      const i18nPath = path.resolve(
+        process.cwd(),
+        `src/messages/pages/dev/campaign-suite/steps/${step.i18nKey}.i18n.json`
+      );
 
       try {
         await fs.access(i18nPath);
-        console.log(chalk.gray(`     ✅ [i18n] Encontrado: ${step.i18nPath}`));
+        console.log(
+          chalk.gray(
+            `     ✅ [i18n] Encontrado: ${path.relative(process.cwd(), i18nPath)}`
+          )
+        );
       } catch {
         console.error(
-          chalk.red.bold(`     🔥 [i18n] ¡NO ENCONTRADO!: ${step.i18nPath}`)
+          chalk.red.bold(
+            `     🔥 [i18n] ¡NO ENCONTRADO!: ${path.relative(
+              process.cwd(),
+              i18nPath
+            )}`
+          )
         );
         errorCount++;
       }
