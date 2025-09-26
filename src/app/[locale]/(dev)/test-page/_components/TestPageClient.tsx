@@ -31,7 +31,7 @@ import {
 import * as Sections from "@/components/sections";
 import { type AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
 import { logger } from "@/shared/lib/logging";
-import { DeveloperErrorDisplay } from "@/components/dev"; // CORREGIDO
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/"; // CORREGIDO
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyComponentType = ComponentType<any>;

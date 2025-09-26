@@ -2,9 +2,11 @@
 /**
  * @file CampaignSuiteWizard.tsx
  * @description Orquestador de cliente principal ("cerebro") para la SDC.
- *              v3.0.0 (Atomic State Architecture): Refactorizado para orquestar
- *              los nuevos stores de Zustand atómicos y sus proveedores de contexto.
- * @version 3.0.0
+ *              v1.2.0 (Architectural Realignment): Se corrige la ruta de
+ *              importación de DeveloperErrorDisplay para alinearse con la
+ *              nueva Arquitectura Canónica Soberana (ACS), resolviendo un
+ *              error crítico de build TS2304.
+ * @version 1.2.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -19,8 +21,11 @@ import {
 } from "@/shared/hooks/campaign-suite";
 import { WizardProvider } from "./_context/WizardContext";
 import { ProgressContext, type ProgressStep } from "./_context/ProgressContext";
-import { WizardClientLayout } from "./_components/WizardClientLayout";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { WizardClientLayout } from "./_components";
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+// La importación ahora apunta a la SSoT canónica en la capa de 'features'.
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 interface CampaignSuiteWizardProps {
@@ -32,16 +37,11 @@ export function CampaignSuiteWizard({
   children,
   content,
 }: CampaignSuiteWizardProps): React.ReactElement {
-  logger.info(
-    "[CampaignSuiteWizard] Renderizando orquestador v3.0 (Atomic State)."
-  );
+  logger.info("[CampaignSuiteWizard] Renderizando orquestador v1.2.0.");
 
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // Orquestador principal del ciclo de vida
   const { initializeDraft, isLoading } = useCampaignDraftContext();
-  // Store de metadata para el progreso
   const { completedSteps } = useDraftMetadataStore();
 
   useEffect(() => {
@@ -92,20 +92,20 @@ export function CampaignSuiteWizard({
     [handleNextStep, handlePrevStep]
   );
 
-  const progressSteps: ProgressStep[] = useMemo(
-    () =>
-      stepsConfig.map((step) => ({
-        id: step.id,
-        title: content.stepper ? content.stepper[step.titleKey] : step.titleKey,
-        status:
-          step.id === currentStepId
-            ? "active"
-            : completedSteps.includes(step.id)
-              ? "completed"
-              : "pending",
-      })),
-    [currentStepId, completedSteps, content.stepper]
-  );
+  const progressSteps: ProgressStep[] = useMemo(() => {
+    return stepsConfig.map((step) => ({
+      id: step.id,
+      title: content.stepper
+        ? content.stepper[step.titleKey as keyof typeof content.stepper]
+        : step.titleKey,
+      status:
+        step.id === currentStepId
+          ? "active"
+          : completedSteps.includes(step.id)
+            ? "completed"
+            : "pending",
+    }));
+  }, [currentStepId, completedSteps, content]);
 
   const progressContextValue = useMemo(
     () => ({ steps: progressSteps, onStepClick: handleStepClick }),
@@ -126,10 +126,11 @@ export function CampaignSuiteWizard({
     <WizardProvider value={wizardContextValue}>
       <ProgressContext.Provider value={progressContextValue}>
         <WizardClientLayout
-          stepContent={children}
           previewContent={content.preview}
           isLoadingDraft={isLoading}
-        />
+        >
+          {children}
+        </WizardClientLayout>
       </ProgressContext.Provider>
     </WizardProvider>
   );

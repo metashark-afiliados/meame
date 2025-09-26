@@ -3,7 +3,7 @@
  * @file order.schema.ts
  * @description SSoT para la entidad de negocio "Pedido". Define el contrato
  *              de datos inmutable para las transacciones en nuestro ecosistema.
- * @version 1.0.0
+ * @version 4.1.3
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";

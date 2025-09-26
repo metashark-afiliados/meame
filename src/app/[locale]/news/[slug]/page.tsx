@@ -16,7 +16,7 @@ import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ArticleBody, CommentSection } from "@/components/sections";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { SectionAnimator } from "@/components/layout/SectionAnimator";
 import {
   getArticleBySlugAction,

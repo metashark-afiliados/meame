@@ -1,4 +1,4 @@
-// RUTA: app/[locale]/(dev)/dev/campaign-suite/_components/Step5_Management/_components/SaveAsTemplateDialog.tsx
+// RUTA: src/components/features/campaign-suite/Step5_Management/_components/SaveAsTemplateDialog.tsx
 /**
  * @file SaveAsTemplateDialog.tsx
  * @description Aparato atómico para el diálogo de "Guardar como Plantilla".

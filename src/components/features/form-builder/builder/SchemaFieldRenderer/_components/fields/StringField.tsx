@@ -1,4 +1,4 @@
-// components/forms/builder/SchemaFieldRenderer/_components/fields/StringField.tsx
+// RUTA: src/components/features/form-builder/builder/SchemaFieldRenderer/_components/fields/StringField.tsx
 /**
  * @file StringField.tsx
  * @description Aparato hiper-atómico para renderizar un control <Textarea>.
@@ -10,7 +10,6 @@
 import React from "react";
 import type { FieldValues } from "react-hook-form";
 import { Textarea } from "@/components/ui/Textarea";
-// --- [INICIO DE CORRECCIÓN DE RUTA Y CONTRATO] ---
 import type { FieldComponentProps } from "../../_types/field.types";
 import { logger } from "@/shared/lib/logging";
 
@@ -25,7 +24,6 @@ export function StringField<TFieldValues extends FieldValues>({
   fieldName,
   placeholder,
 }: StringFieldProps<TFieldValues>): React.ReactElement {
-  // --- [FIN DE CORRECCIÓN DE RUTA Y CONTRATO] ---
   logger.trace(`[StringField] Renderizando para: ${String(fieldName)}`);
   return (
     <Textarea
@@ -40,4 +38,3 @@ export function StringField<TFieldValues extends FieldValues>({
     />
   );
 }
-// components/forms/builder/SchemaFieldRenderer/_components/fields/StringField.tsx

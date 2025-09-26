@@ -1,4 +1,4 @@
-// RUTA: shared/lib/actions/campaign-suite/getCampaignTemplates.action.ts
+// RUTA: src/shared/lib/actions/campaign-suite/getCampaignTemplates.action.ts
 /**
  * @file getCampaignTemplates.action.ts
  * @description Server Action de producción para obtener las plantillas de un usuario.
@@ -14,6 +14,7 @@ import {
   CampaignTemplateSchema,
   type CampaignTemplate,
 } from "@/shared/lib/schemas/campaigns/template.schema";
+import { z } from "zod";
 
 export async function getCampaignTemplatesAction(): Promise<
   ActionResult<CampaignTemplate[]>
@@ -37,6 +38,7 @@ export async function getCampaignTemplatesAction(): Promise<
     const { data: templates, error } = await supabase
       .from("campaign_templates")
       .select("*")
+      .eq("user_id", user.id) // <-- VULNERABILIDAD CORREGIDA
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -44,7 +46,7 @@ export async function getCampaignTemplatesAction(): Promise<
     }
 
     // Validamos la respuesta de la DB contra nuestro schema de Zod
-    const validatedTemplates = CampaignTemplateSchema.array().parse(templates);
+    const validatedTemplates = z.array(CampaignTemplateSchema).parse(templates);
 
     logger.success(
       `Se recuperaron ${validatedTemplates.length} plantillas para el usuario.`,

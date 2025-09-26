@@ -86,4 +86,3 @@ export async function sendOrderConfirmationEmailAction(
     logger.endTrace(traceId);
   }
 }
-// RUTA: src/shared/lib/actions/notifications/send-order-confirmation.action.tsx

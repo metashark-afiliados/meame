@@ -14,7 +14,7 @@ import { logger } from "@/shared/lib/logging";
 import Header from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { getCart } from "@/shared/lib/commerce/cart";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import CartStoreInitializer from "@/shared/lib/stores/CartStoreInitializer";
 import type { CartItem as ZustandCartItem } from "@/shared/lib/stores/useCartStore";
 import type { CartItem as ShopifyCartItem } from "@/shared/lib/shopify/types";

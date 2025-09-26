@@ -1,4 +1,4 @@
-// RUTA: app/[locale]/(dev)/dev/campaign-suite/_components/Step5_Management/_components/ManagementActions.tsx
+// RUTA: src/components/features/campaign-suite/Step5_Management/_components/ManagementActions.tsx
 /**
  * @file ManagementActions.tsx
  * @description Orquestador de presentación puro para el panel de acciones del Paso 5.

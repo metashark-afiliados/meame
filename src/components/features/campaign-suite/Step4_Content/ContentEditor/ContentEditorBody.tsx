@@ -1,4 +1,4 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/ContentEditor/ContentEditorBody.tsx
+// RUTA: src/components/features/campaign-suite/Step4_Content/ContentEditor/ContentEditorBody.tsx
 /**
  * @file ContentEditorBody.tsx
  * @description Cuerpo del editor de contenido, ahora con higiene de código de élite.
@@ -10,20 +10,11 @@
 import React from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import {
-  Form,
-  Tabs,
-  // --- [INICIO DE CORRECCIÓN] ---
-  // Se elimina la importación no utilizada de 'TabsContent'.
-  // --- [FIN DE CORRECCIÓN] ---
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui";
+import { Form, Tabs, TabsList, TabsTrigger } from "@/components/ui";
 import { SchemaFieldRenderer } from "@/components/features/form-builder/builder/SchemaFieldRenderer";
 import { supportedLocales, type Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 
-// ... (El resto del componente permanece sin cambios)
 interface ContentEditorBodyProps {
   form: UseFormReturn<z.infer<z.ZodObject<z.ZodRawShape>>>;
   activeLocale: Locale;
@@ -81,4 +72,3 @@ export function ContentEditorBody({
     </div>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/ContentEditor/ContentEditorBody.tsx

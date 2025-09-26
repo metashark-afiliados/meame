@@ -59,7 +59,6 @@ export function ArticleEditorClient({
   });
 
   useEffect(() => {
-    // Resetea el formulario si los datos iniciales cambian (ej. al navegar entre artículos)
     form.reset(initialData || form.control._defaultValues);
   }, [initialData, form]);
 
@@ -71,10 +70,8 @@ export function ArticleEditorClient({
         toast.success(
           `Artículo ${initialData ? "actualizado" : "creado"} con éxito!`
         );
-        // Redirige a la misma página de edición para evitar re-envíos y
-        // actualizar la URL con el ID si es una nueva creación.
         router.push(`?id=${result.data.articleId}`);
-        router.refresh(); // Refresca los datos del Server Component
+        router.refresh();
       } else {
         toast.error("Error al guardar el artículo", {
           description: result.error,
@@ -88,7 +85,7 @@ export function ArticleEditorClient({
       form={form}
       onSubmit={form.handleSubmit(onSubmit)}
       isPending={isPending}
-      content={content}
+      content={content} // <-- SE PASA LA PROP 'content'
     />
   );
 }

@@ -1,8 +1,8 @@
 // RUTA: src/components/layout/SectionRenderer.tsx
 /**
  * @file SectionRenderer.tsx
- * @description Motor de renderizado de élite y Guardián de Contratos.
- * @version 19.0.0 (Definitive Type-Safe Solution)
+ * @description Motor de renderizado con decorador de foco y aserción de tipo segura.
+ * @version 25.0.0 (Build Integrity & Type-Safe Assertion)
  * @author RaZ Podestá - MetaShark Tech
  */
 import * as React from "react";
@@ -14,47 +14,48 @@ import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { ValidationError } from "@/components/ui/ValidationError";
-import { SectionAnimator } from "./SectionAnimator";
-import type { z } from "zod"; // Importar z para inferencia de tipo
+import type { LayoutConfigItem } from "@/shared/lib/types/campaigns/draft.types";
+import { cn } from "@/shared/lib/utils/cn";
+
+// --- [INICIO DE SOLUCIÓN DE ÉLITE] ---
+// Se define un tipo genérico para cualquier componente de sección.
+// Esto nos permite hacer una aserción de tipo segura en lugar de usar 'any'.
+type AnySectionComponent = React.ComponentType<{
+  content: unknown;
+  locale: Locale;
+  [key: string]: unknown;
+}>;
+// --- [FIN DE SOLUCIÓN DE ÉLITE] ---
 
 interface SectionRendererProps {
-  sections: { name?: string | undefined }[];
+  sections: LayoutConfigItem[];
   dictionary: Dictionary;
   locale: Locale;
+  dynamicData?: Record<string, unknown>;
   focusedSection?: string | null;
-  sectionRefs?: React.MutableRefObject<Record<string, HTMLElement>>;
+  sectionRefs?: React.MutableRefObject<Record<string, HTMLElement | null>>;
 }
 
 export function SectionRenderer({
   sections,
   dictionary,
   locale,
-  focusedSection = null,
+  dynamicData = {},
+  focusedSection,
   sectionRefs,
 }: SectionRendererProps): React.ReactElement {
   logger.info(
-    "[SectionRenderer v19.0] Ensamblando página con seguridad de tipos definitiva."
+    "[SectionRenderer v25.0] Ensamblando con aserción de tipo SEGURA."
   );
 
   return (
-    <SectionAnimator>
+    <>
       {sections.map((section, index) => {
-        if (!section || !section.name) {
-          logger.warn(
-            `[SectionRenderer] Sección en el índice ${index} es inválida y será omitida.`
-          );
-          return null;
-        }
+        if (!section || !section.name) return null;
 
         const sectionName = section.name as SectionName;
         const config = sectionsConfig[sectionName];
-
-        if (!config) {
-          logger.warn(
-            `[SectionRenderer] Configuración para "${sectionName}" no encontrada.`
-          );
-          return null;
-        }
+        if (!config) return null;
 
         const { component: Component, dictionaryKey, schema } = config;
         const contentData = (dictionary as Record<string, unknown>)[
@@ -63,46 +64,56 @@ export function SectionRenderer({
         const validation = schema.safeParse(contentData);
 
         if (!validation.success) {
-          if (
-            process.env.NODE_ENV === "development" &&
-            dictionary.validationError
-          ) {
+          if (process.env.NODE_ENV === "development") {
             return (
               <ValidationError
                 key={`${sectionName}-${index}-error`}
                 sectionName={sectionName}
                 error={validation.error}
-                content={dictionary.validationError}
+                content={dictionary.validationError!}
               />
             );
           }
-          logger.error(
-            `[SectionRenderer] Fallo de validación para '${sectionName}'. No se renderizará.`
-          );
           return null;
         }
 
-        // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: SEGURIDAD DE TIPOS ABSOLUTA] ---
-        // Se pasa cada prop individualmente. La prop 'content' recibe una aserción
-        // de tipo explícita y segura, basada en la inferencia del schema
-        // que acabamos de validar. Esto elimina 'any' y satisface a ESLint.
+        const dynamicProps =
+          typeof dynamicData[sectionName] === "object" &&
+          dynamicData[sectionName] !== null
+            ? dynamicData[sectionName]
+            : {};
+
+        const componentProps = {
+          content: validation.data,
+          locale,
+          ...dynamicProps,
+        };
+
+        const sectionRef = (el: HTMLElement | null) => {
+          if (sectionRefs) {
+            sectionRefs.current[sectionName] = el;
+          }
+        };
+
+        const isCurrentlyFocused = focusedSection === sectionName;
+
+        // Se realiza la aserción de tipo segura.
+        const TypedComponent = Component as AnySectionComponent;
+
         return (
-          <Component
+          <div
             key={`${sectionName}-${index}`}
-            content={validation.data as z.infer<typeof schema>}
-            locale={locale}
-            isFocused={sectionName === focusedSection}
-            ref={(el: HTMLElement | null) => {
-              if (sectionRefs && el) {
-                sectionRefs.current[sectionName] = el;
-              } else if (sectionRefs) {
-                delete sectionRefs.current[sectionName];
-              }
-            }}
-          />
+            ref={sectionRef}
+            className={cn(
+              "transition-all duration-300 rounded-lg",
+              isCurrentlyFocused &&
+                "ring-2 ring-primary ring-offset-4 ring-offset-background"
+            )}
+          >
+            <TypedComponent {...componentProps} />
+          </div>
         );
-        // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
       })}
-    </SectionAnimator>
+    </>
   );
 }

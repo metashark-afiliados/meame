@@ -1,8 +1,9 @@
 // RUTA: src/shared/lib/actions/campaign-suite/saveAsTemplate.action.ts
 /**
  * @file saveAsTemplate.action.ts
- * @description Server Action para persistir un borrador como plantilla en Supabase.
- * @version 3.1.0 (Type-Safe JSONB Insertion)
+ * @description Server Action para persistir un borrador como plantilla en Supabase,
+ *              ahora con validación de integridad de datos de grado de producción.
+ * @version 3.1.0 (Data Integrity Hardening)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -30,7 +31,6 @@ export async function saveAsTemplateAction(
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 1. Guardia de Resiliencia: Autenticación
   if (!user) {
     logger.warn("[Action] Intento no autorizado de guardar plantilla.", {
       traceId,
@@ -48,7 +48,6 @@ export async function saveAsTemplateAction(
   );
 
   try {
-    // 2. Guardia de Resiliencia: Validación de Entrada del Usuario
     const inputValidation = InputSchema.safeParse({ name, description });
     if (!inputValidation.success) {
       logger.warn("[Action] Validación de entrada de plantilla fallida.", {
@@ -61,7 +60,7 @@ export async function saveAsTemplateAction(
       };
     }
 
-    // 3. Guardia de Resiliencia: Integridad del Borrador
+    // --- GUARDIA DE INTEGRIDAD DE DATOS ---
     const draftValidation = CampaignDraftDataSchema.safeParse(draft);
     if (!draftValidation.success) {
       logger.error(
@@ -74,20 +73,14 @@ export async function saveAsTemplateAction(
       return { success: false, error: "El borrador contiene datos corruptos." };
     }
 
-    // 4. Lógica de Negocio: Construcción del Documento
     const templateData = {
       user_id: user.id,
       name: inputValidation.data.name,
       description: inputValidation.data.description || null,
       source_campaign_id: draft.baseCampaignId || "unknown",
-      // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: TIPO SEGURO] ---
-      // Se elimina la aserción `as any`. El cliente de Supabase manejará
-      // la serialización del objeto validado por Zod a jsonb.
-      draft_data: draftValidation.data,
-      // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
+      draft_data: draftValidation.data, // Usamos los datos validados
     };
 
-    // 5. Interacción con la Base de Datos
     const { data, error } = await supabase
       .from("campaign_templates")
       .insert(templateData)
@@ -105,7 +98,6 @@ export async function saveAsTemplateAction(
 
     return { success: true, data: { templateId: data.id } };
   } catch (error) {
-    // 6. Guardia de Resiliencia: Captura de Errores de BD
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
     logger.error(

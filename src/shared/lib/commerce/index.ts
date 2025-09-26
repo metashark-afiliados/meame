@@ -2,7 +2,7 @@
 /**
  * @file index.ts (Barrel File)
  * @description Capa de Acceso a Datos Soberana y Agregadora para E-commerce.
- * @version 5.0.0 (Production Resilience & Holistic Refactor)
+ * @version 6.0.0 (Atomic Architecture & Holistic Aggregation)
  * @author RaZ Podestá - MetaShark Tech
  */
 import "server-only";
@@ -14,61 +14,9 @@ import {
   type EnrichedProduct,
 } from "./shapers";
 import { getShopifyProducts, getShopifyProduct } from "@/shared/lib/shopify";
-import { loadJsonAsset } from "@/shared/lib/i18n/campaign.data.loader";
-import {
-  ProductCatalogSchema,
-  type Product,
-} from "@/shared/lib/schemas/entities/product.schema";
-import type { z } from "zod";
-
-type ProductCatalogI18n = Partial<
-  Record<Locale, z.infer<typeof ProductCatalogSchema>>
->;
-
-/**
- * @function getLocalProducts
- * @description Obtiene y valida los productos de dropshipping/afiliado desde el catálogo JSON local.
- * @private
- * @param {Locale} locale - El idioma para el cual obtener los datos.
- * @returns {Promise<Product[]>} Una lista de productos locales.
- */
-async function getLocalProducts(locale: Locale): Promise<Product[]> {
-  const traceId = logger.startTrace("getLocalProducts");
-  try {
-    const catalogData = await loadJsonAsset<ProductCatalogI18n>(
-      "products",
-      "catalog.i18n.json"
-    );
-    const catalogForLocale = catalogData[locale];
-    if (!catalogForLocale) return [];
-
-    const validation = ProductCatalogSchema.safeParse(catalogForLocale);
-    if (!validation.success) {
-      logger.error(
-        "[Commerce DAL] Catálogo local de productos falló la validación.",
-        { error: validation.error.flatten(), traceId }
-      );
-      return [];
-    }
-    // Filtra para devolver solo productos que NO son de nuestra marca principal.
-    const localProducts = validation.data.products.filter(
-      (p) => p.producerInfo.name !== "Global Fitwell"
-    );
-    logger.traceEvent(
-      traceId,
-      `Se encontraron ${localProducts.length} productos locales.`
-    );
-    return localProducts;
-  } catch (error) {
-    logger.error("Fallo crítico al cargar el catálogo de productos locales.", {
-      error,
-      traceId,
-    });
-    return []; // Devuelve un array vacío en caso de error.
-  } finally {
-    logger.endTrace(traceId);
-  }
-}
+import { getLocalProducts } from "./catalog";
+import { getCart as getCartData } from "./cart";
+import type { Product } from "@/shared/lib/schemas/entities/product.schema";
 
 /**
  * @function getProducts
@@ -80,7 +28,7 @@ async function getLocalProducts(locale: Locale): Promise<Product[]> {
 export async function getProducts(options: {
   locale: Locale;
 }): Promise<EnrichedProduct[]> {
-  const traceId = logger.startTrace("getProducts (Hybrid v5.0)");
+  const traceId = logger.startTrace("getProducts (Hybrid v6.0)");
   logger.info(
     `[Commerce DAL] Solicitando productos HÍBRIDOS para [${options.locale}]`
   );
@@ -108,7 +56,7 @@ export async function getProducts(options: {
       `Resultados de fuentes: Shopify: ${shopifyProducts.length}, Local: ${localProducts.length}`
     );
 
-    const allProducts = [...shopifyProducts, ...localProducts];
+    const allProducts: Product[] = [...shopifyProducts, ...localProducts];
     return reshapeProducts(allProducts);
   } catch (error) {
     logger.error("Error inesperado en getProducts.", { error, traceId });
@@ -134,7 +82,6 @@ export async function getProductBySlug(options: {
   );
 
   try {
-    // Primero intenta buscar en Shopify de forma resiliente.
     const shopifyProduct = await getShopifyProduct(options.slug).catch(
       () => null
     );
@@ -143,7 +90,6 @@ export async function getProductBySlug(options: {
       return reshapeProduct(shopifyProduct);
     }
 
-    // Si no se encuentra en Shopify, busca en el catálogo local.
     logger.traceEvent(
       traceId,
       "Producto no encontrado en Shopify. Buscando en catálogo local..."
@@ -168,3 +114,5 @@ export async function getProductBySlug(options: {
     logger.endTrace(traceId);
   }
 }
+
+export const getCart = getCartData;

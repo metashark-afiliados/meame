@@ -1,4 +1,4 @@
-// components/forms/builder/SchemaFieldRenderer/_types/field.types.ts
+// RUTA: src/components/features/form-builder/builder/SchemaFieldRenderer/_types/field.types.ts
 /**
  * @file field.types.ts
  * @description SSoT para los contratos de tipos del Motor de Renderizado de UI.
@@ -36,4 +36,3 @@ export type FieldComponentProps<TFieldValues extends FieldValues> = {
   onValueChange: (field: Path<TFieldValues>, value: unknown) => void;
   fieldName: Path<TFieldValues>;
 };
-// components/forms/builder/SchemaFieldRenderer/_types/field.types.ts

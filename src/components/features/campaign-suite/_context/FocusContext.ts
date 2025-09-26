@@ -22,9 +22,11 @@ export const useFocusStore = create<FocusState>((set) => ({
   focusedSection: null,
   focusedField: null,
   setFocus: (section, field) => {
+    logger.trace(`[FocusStore] Foco establecido en: ${section}.${field}`);
     set({ focusedSection: section, focusedField: field });
   },
   clearFocus: () => {
+    logger.trace("[FocusStore] Foco limpiado.");
     set({ focusedSection: null, focusedField: null });
   },
 }));

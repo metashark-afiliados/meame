@@ -13,7 +13,7 @@ import { logger } from "@/shared/lib/logging";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { NewsGrid } from "@/components/sections/NewsGrid";
 import { CommunitySection } from "@/components/sections/CommunitySection";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { getPublishedArticlesAction } from "@/shared/lib/actions/cogniread"; // <-- RUTA CORREGIDA
 import { notFound } from "next/navigation";
 
@@ -42,15 +42,18 @@ export default async function NewsArchivePage({
 
   // --- Guardia de Resiliencia para Contenido i18n ---
   if (dictError || !pageContent) {
-    const errorMessage = "Fallo al cargar el contenido i18n para la página de noticias.";
+    const errorMessage =
+      "Fallo al cargar el contenido i18n para la página de noticias.";
     logger.error(`[NewsArchivePage] ${errorMessage}`, { error: dictError });
     if (process.env.NODE_ENV === "production") return notFound();
     return (
-        <DeveloperErrorDisplay
-            context="NewsArchivePage"
-            errorMessage={errorMessage}
-            errorDetails={dictError || "La clave 'newsGrid' falta en el diccionario."}
-        />
+      <DeveloperErrorDisplay
+        context="NewsArchivePage"
+        errorMessage={errorMessage}
+        errorDetails={
+          dictError || "La clave 'newsGrid' falta en el diccionario."
+        }
+      />
     );
   }
 

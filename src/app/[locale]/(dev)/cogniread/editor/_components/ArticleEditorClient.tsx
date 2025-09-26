@@ -1,8 +1,9 @@
-// app/[locale]/(dev)/cogniread/editor/_components/ArticleEditorClient.tsx
+// RUTA: src/components/features/cogniread/editor/ArticleEditorClient.tsx
 /**
  * @file ArticleEditorClient.tsx
- * @description Componente "cerebro" para el editor de CogniRead, con layout de pestañas.
- * @version 3.0.0 (Tabbed Layout & Full Article State)
+ * @description Componente "cerebro" para el editor de CogniRead, gestiona el
+ *              estado del formulario y las interacciones del usuario.
+ * @version 4.0.0 (Holistic & Data-Driven)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -11,19 +12,26 @@ import React, { useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import {
   CogniReadArticleSchema,
   type CogniReadArticle,
 } from "@/shared/lib/schemas/cogniread/article.schema";
-import { createOrUpdateArticleAction } from "@/shared/lib/actions/cogniread/createOrUpdateArticle.action";
+import { createOrUpdateArticleAction } from "@/shared/lib/actions/cogniread";
 import { ArticleEditorForm } from "./ArticleEditorForm";
-import { useRouter } from "next/navigation";
+import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+
+type EditorContent = NonNullable<Dictionary["cogniReadEditor"]>;
 
 interface ArticleEditorClientProps {
   initialData: CogniReadArticle | null;
+  content: EditorContent;
 }
 
-export function ArticleEditorClient({ initialData }: ArticleEditorClientProps) {
+export function ArticleEditorClient({
+  initialData,
+  content,
+}: ArticleEditorClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -47,26 +55,23 @@ export function ArticleEditorClient({ initialData }: ArticleEditorClientProps) {
         limitations: [],
       },
       content: {},
-      relatedPromptIds: [],
     },
   });
 
   useEffect(() => {
-    form.reset(initialData || {});
+    form.reset(initialData || form.control._defaultValues);
   }, [initialData, form]);
 
   const onSubmit = (data: CogniReadArticle) => {
     startTransition(async () => {
-      // El payload ahora es el objeto 'data' completo
       const result = await createOrUpdateArticleAction(data);
 
       if (result.success) {
         toast.success(
           `Artículo ${initialData ? "actualizado" : "creado"} con éxito!`
         );
-        // Redirige a la misma página de edición para evitar re-envíos y actualizar la URL con el ID
         router.push(`?id=${result.data.articleId}`);
-        router.refresh(); // Refresca los datos del Server Component
+        router.refresh();
       } else {
         toast.error("Error al guardar el artículo", {
           description: result.error,
@@ -80,7 +85,8 @@ export function ArticleEditorClient({ initialData }: ArticleEditorClientProps) {
       form={form}
       onSubmit={form.handleSubmit(onSubmit)}
       isPending={isPending}
+      content={content} // <-- SE PASA LA PROP 'content'
     />
   );
 }
-// app/[locale]/(dev)/cogniread/editor/_components/ArticleEditorClient.tsx
+// RUTA: src/components/features/cogniread/editor/ArticleEditorClient.tsx

@@ -1,13 +1,14 @@
 // RUTA: src/components/features/campaign-suite/Step3_Theme/_components/ThemeComposerModal.tsx
 /**
  * @file ThemeComposerModal.tsx
- * @description Orquestador modal para la composición visual de temas con previsualización en tiempo real.
- * @version 1.1.0 (Architectural Realignment)
+ * @description Orquestador modal para la composición visual de temas.
+ *              v2.0.0 (Module & Type Integrity Restoration, MEA/UX Injected)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -18,9 +19,7 @@ import {
 } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
-import { PaletteSelector } from "./PaletteSelector";
-import { TypographySelector } from "./TypographySelector";
-import { GeometrySelector } from "./GeometrySelector";
+import { PaletteSelector, TypographySelector, GeometrySelector } from "./";
 import { usePreviewStore } from "@/components/features/campaign-suite/_context/PreviewContext";
 import type { ThemeConfig } from "@/shared/lib/types/campaigns/draft.types";
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
@@ -28,6 +27,20 @@ import { AssembledThemeSchema } from "@/shared/lib/schemas/theming/assembled-the
 import { deepMerge } from "@/shared/lib/utils";
 import { logger } from "@/shared/lib/logging";
 import { toast } from "sonner";
+
+// --- Contratos de Tipo Locales para Máxima Seguridad y Claridad ---
+interface Palette {
+  name: string;
+  colors?: { [key: string]: string | undefined };
+}
+interface Typography {
+  name: string;
+  fonts?: { [key: string]: string | undefined };
+}
+interface Geometry {
+  name: string;
+  geometry?: { [key: string]: string | undefined };
+}
 
 type LoadedFragments = {
   base: Partial<AssembledTheme>;
@@ -66,7 +79,7 @@ export function ThemeComposerModal({
   onSave,
   content,
 }: ThemeComposerModalProps) {
-  logger.info("[ThemeComposerModal] Renderizando Compositor de Temas.");
+  logger.info("[ThemeComposerModal] Renderizando Compositor de Temas v2.0.");
   const [localConfig, setLocalConfig] = useState(currentConfig);
   const { setPreviewTheme } = usePreviewStore();
 
@@ -87,6 +100,7 @@ export function ThemeComposerModal({
   };
 
   const assemblePreviewTheme = (config: ThemeConfig): AssembledTheme | null => {
+    // ... (lógica de ensamblaje sin cambios)
     const { colorPreset, fontPreset, radiusPreset } = config;
     const colorFrag = colorPreset ? fragments.colors[colorPreset] : {};
     const fontFrag = fontPreset ? fragments.fonts[fontPreset] : {};
@@ -101,10 +115,6 @@ export function ThemeComposerModal({
     if (validation.success) {
       return validation.data;
     }
-    logger.warn(
-      "[ThemeComposer] El tema de previsualización ensamblado es inválido.",
-      { errors: validation.error.flatten() }
-    );
     return null;
   };
 
@@ -146,89 +156,95 @@ export function ThemeComposerModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>{content.composerTitle}</DialogTitle>
-          <DialogDescription>{content.composerDescription}</DialogDescription>
-        </DialogHeader>
-        <div className="flex-grow overflow-y-auto pr-2">
-          <Tabs defaultValue="colors" className="w-full">
-            <TabsList>
-              <TabsTrigger value="colors">
-                {content.composerColorsTab}
-              </TabsTrigger>
-              <TabsTrigger value="typography">
-                {content.composerTypographyTab}
-              </TabsTrigger>
-              <TabsTrigger value="geometry">
-                {content.composerGeometryTab}
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="colors" className="mt-4">
-              <PaletteSelector
-                palettes={palettes}
-                selectedPaletteName={localConfig.colorPreset}
-                onSelect={handlePaletteSelect}
-                onPreview={(palette) =>
-                  handlePreviewUpdate({
-                    colorPreset: palette ? palette.name : null,
-                  })
-                }
-                onCreate={() =>
-                  toast.info(
-                    "Funcionalidad de creación de paletas próximamente."
-                  )
-                }
-                createNewPaletteButton={content.createNewPaletteButton}
-              />
-            </TabsContent>
-            <TabsContent value="typography" className="mt-4">
-              <TypographySelector
-                typographies={typographies}
-                selectedTypographyName={localConfig.fontPreset}
-                onSelect={handleTypographySelect}
-                onPreview={(typography) =>
-                  handlePreviewUpdate({
-                    fontPreset: typography ? typography.name : null,
-                  })
-                }
-                onCreate={() =>
-                  toast.info(
-                    "Funcionalidad de creación de sets de fuentes próximamente."
-                  )
-                }
-                createNewFontSetButton={content.createNewFontSetButton}
-                emptyPlaceholder={content.placeholderFontsNone}
-              />
-            </TabsContent>
-            <TabsContent value="geometry" className="mt-4">
-              <GeometrySelector
-                geometries={geometries}
-                selectedGeometryName={localConfig.radiusPreset}
-                onSelect={handleGeometrySelect}
-                onPreview={(geometry) =>
-                  handlePreviewUpdate({
-                    radiusPreset: geometry ? geometry.name : null,
-                  })
-                }
-                onCreate={() =>
-                  toast.info(
-                    "Funcionalidad de creación de estilos de radio próximamente."
-                  )
-                }
-                createNewRadiusStyleButton={content.createNewRadiusStyleButton}
-                emptyPlaceholder={content.placeholderRadiiNone}
-              />
-            </TabsContent>
-          </Tabs>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            {content.composerCancelButton}
-          </Button>
-          <Button onClick={handleSave}>{content.composerSaveButton}</Button>
-        </DialogFooter>
-      </DialogContent>
+      <AnimatePresence>
+        {isOpen && (
+          <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="flex flex-col h-full"
+            >
+              <DialogHeader className="p-6">
+                <DialogTitle>{content.composerTitle}</DialogTitle>
+                <DialogDescription>
+                  {content.composerDescription}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-grow overflow-y-auto px-6">
+                <Tabs defaultValue="colors" className="w-full">
+                  <TabsList>
+                    <TabsTrigger value="colors">
+                      {content.composerColorsTab}
+                    </TabsTrigger>
+                    <TabsTrigger value="typography">
+                      {content.composerTypographyTab}
+                    </TabsTrigger>
+                    <TabsTrigger value="geometry">
+                      {content.composerGeometryTab}
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="colors" className="mt-4">
+                    <PaletteSelector
+                      palettes={palettes}
+                      selectedPaletteName={localConfig.colorPreset}
+                      onSelect={handlePaletteSelect}
+                      onPreview={(palette: Palette | null) =>
+                        handlePreviewUpdate({
+                          colorPreset: palette ? palette.name : null,
+                        })
+                      }
+                      onCreate={() => toast.info("Funcionalidad futura.")}
+                      createNewPaletteButton={content.createNewPaletteButton}
+                    />
+                  </TabsContent>
+                  <TabsContent value="typography" className="mt-4">
+                    <TypographySelector
+                      typographies={typographies}
+                      selectedTypographyName={localConfig.fontPreset}
+                      onSelect={handleTypographySelect}
+                      onPreview={(typography: Typography | null) =>
+                        handlePreviewUpdate({
+                          fontPreset: typography ? typography.name : null,
+                        })
+                      }
+                      onCreate={() => toast.info("Funcionalidad futura.")}
+                      createNewFontSetButton={content.createNewFontSetButton}
+                      emptyPlaceholder={content.placeholderFontsNone}
+                    />
+                  </TabsContent>
+                  <TabsContent value="geometry" className="mt-4">
+                    <GeometrySelector
+                      geometries={geometries}
+                      selectedGeometryName={localConfig.radiusPreset}
+                      onSelect={handleGeometrySelect}
+                      onPreview={(geometry: Geometry | null) =>
+                        handlePreviewUpdate({
+                          radiusPreset: geometry ? geometry.name : null,
+                        })
+                      }
+                      onCreate={() => toast.info("Funcionalidad futura.")}
+                      createNewRadiusStyleButton={
+                        content.createNewRadiusStyleButton
+                      }
+                      emptyPlaceholder={content.placeholderRadiiNone}
+                    />
+                  </TabsContent>
+                </Tabs>
+              </div>
+              <DialogFooter className="p-6 border-t mt-auto">
+                <Button variant="outline" onClick={onClose}>
+                  {content.composerCancelButton}
+                </Button>
+                <Button onClick={handleSave}>
+                  {content.composerSaveButton}
+                </Button>
+              </DialogFooter>
+            </motion.div>
+          </DialogContent>
+        )}
+      </AnimatePresence>
     </Dialog>
   );
 }

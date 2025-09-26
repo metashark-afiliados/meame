@@ -17,7 +17,7 @@ import { ProductGallery } from "@/components/sections/ProductGallery";
 import { ProductInfo } from "@/components/sections/ProductInfo";
 import { ProductGrid } from "@/components/sections/ProductGrid";
 import { getProducts, getProductBySlug } from "@/shared/lib/commerce";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import type { Product } from "@/shared/lib/schemas/entities/product.schema";
 import { ProductDetailPageContentSchema } from "@/shared/lib/schemas/pages/product-detail-page.schema";
 

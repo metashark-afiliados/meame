@@ -16,7 +16,7 @@ import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { AuthForm } from "@/components/features/auth/AuthForm";
 import { logger } from "@/shared/lib/logging";
 import { notFound } from "next/navigation";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { getBaviManifest } from "@/shared/lib/bavi";
 import { routes } from "@/shared/lib/navigation";
 

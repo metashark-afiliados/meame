@@ -1,4 +1,4 @@
-// components/forms/builder/SchemaFieldRenderer/_components/fields/BooleanField.tsx
+// RUTA: src/components/features/form-builder/builder/SchemaFieldRenderer/_components/fields/BooleanField.tsx
 /**
  * @file BooleanField.tsx
  * @description Aparato hiper-atómico para renderizar un control <Switch>.
@@ -18,10 +18,7 @@ export function BooleanField<TFieldValues extends FieldValues>({
   onValueChange,
   fieldName,
 }: FieldComponentProps<TFieldValues>): React.ReactElement {
-  // --- [INICIO DE CORRECCIÓN DE SINTAXIS] ---
-  // La llamada al logger ahora usa la sintaxis correcta de template literal.
   logger.trace(`[BooleanField] Renderizando para campo: ${String(fieldName)}`);
-  // --- [FIN DE CORRECCIÓN DE SINTAXIS] ---
   return (
     <div className="flex items-center space-x-2 h-10 group">
       <Switch
@@ -35,4 +32,3 @@ export function BooleanField<TFieldValues extends FieldValues>({
     </div>
   );
 }
-// components/forms/builder/SchemaFieldRenderer/_components/fields/BooleanField.tsx

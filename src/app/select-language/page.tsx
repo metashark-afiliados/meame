@@ -12,7 +12,7 @@ import path from "path";
 import { logger } from "@/shared/lib/logging";
 import { LanguageSelectorClient } from "./_components/LanguageSelectorClient";
 import { SelectLanguagePageContentSchema } from "@/shared/lib/schemas/pages/select-language.schema";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 
 async function getSelectLanguageContent() {
   const filePath = path.join(

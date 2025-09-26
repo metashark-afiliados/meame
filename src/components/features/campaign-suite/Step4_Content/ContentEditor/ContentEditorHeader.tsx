@@ -1,4 +1,4 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/ContentEditor/ContentEditorHeader.tsx
+// RUTA: src/components/features/campaign-suite/Step4_Content/ContentEditor/ContentEditorHeader.tsx
 /**
  * @file ContentEditorHeader.tsx
  * @description Aparato de presentación atómico para el encabezado del editor de contenido.
@@ -34,4 +34,3 @@ export function ContentEditorHeader({
     </header>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/ContentEditor/ContentEditorHeader.tsx

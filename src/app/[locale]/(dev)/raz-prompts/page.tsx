@@ -21,7 +21,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { SectionAnimator } from "@/components/layout/SectionAnimator";
 import { PromptCreator } from "@/components/features/raz-prompts/_components/PromptCreator";
 import { PromptVault } from "@/components/features/raz-prompts/_components/PromptVault";

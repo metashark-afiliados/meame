@@ -22,7 +22,7 @@ import {
   DynamicIcon,
 } from "@/components/ui";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { getAllArticlesAction } from "@/shared/lib/actions/cogniread";
 import { ArticleList } from "@/components/features/cogniread/_components/ArticleList";
 import { routes } from "@/shared/lib/navigation";

@@ -99,4 +99,3 @@ export function usePreviewTheme(): UsePreviewThemeReturn {
 
   return { theme, isLoading, error };
 }
-

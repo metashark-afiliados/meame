@@ -1,4 +1,4 @@
-// components/forms/builder/SchemaFieldRenderer/SchemaFieldRenderer.tsx
+// RUTA: src/components/features/form-builder/builder/SchemaFieldRenderer/SchemaFieldRenderer.tsx
 /**
  * @file SchemaFieldRenderer.tsx
  * @description Orquestador de élite V2. Integra RHF con el motor de renderizado de UI.
@@ -12,9 +12,7 @@ import { z } from "zod";
 import type { Control, FieldValues, Path } from "react-hook-form";
 import { FormField } from "@/components/ui/Form";
 import { logger } from "@/shared/lib/logging";
-// --- [INICIO DE CORRECCIÓN DE RUTA] ---
 import { FieldControl } from "./_components";
-// --- [FIN DE CORRECCIÓN DE RUTA] ---
 
 interface SchemaFieldRendererProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
@@ -51,4 +49,3 @@ export function SchemaFieldRenderer<TFieldValues extends FieldValues>({
     />
   );
 }
-// components/forms/builder/SchemaFieldRenderer/SchemaFieldRenderer.tsx

@@ -23,7 +23,9 @@ if (
   !process.env.CLOUDINARY_API_KEY ||
   !process.env.CLOUDINARY_API_SECRET
 ) {
-  throw new Error("Las variables de entorno de Cloudinary no están configuradas.");
+  throw new Error(
+    "Las variables de entorno de Cloudinary no están configuradas."
+  );
 }
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -48,10 +50,9 @@ export async function uploadAssetAction(
     return { success: false, error: "auth_required" };
   }
 
-  logger.info(
-    `[Action] Iniciando ingesta de activo para usuario: ${user.id}`,
-    { traceId }
-  );
+  logger.info(`[Action] Iniciando ingesta de activo para usuario: ${user.id}`, {
+    traceId,
+  });
 
   try {
     // --- 2. Guardia de Resiliencia: Integridad del Payload ---
@@ -63,7 +64,9 @@ export async function uploadAssetAction(
     }
 
     // --- 3. Guardia de Resiliencia: Contrato de Datos (Zod) ---
-    const metadata = assetUploadMetadataSchema.parse(JSON.parse(metadataString));
+    const metadata = assetUploadMetadataSchema.parse(
+      JSON.parse(metadataString)
+    );
     logger.traceEvent(traceId, "Metadatos parseados y validados con Zod.");
 
     const arrayBuffer = await file.arrayBuffer();

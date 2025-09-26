@@ -1,4 +1,4 @@
-// RUTA: app/[locale]/(dev)/dev/campaign-suite/_components/Step5_Management/_components/CampaignSummary.tsx
+// RUTA: src/components/features/campaign-suite/Step5_Management/_components/CampaignSummary.tsx
 /**
  * @file CampaignSummary.tsx
  * @description Aparato atómico para la vista de resumen de la campaña en el Paso 5.

@@ -14,7 +14,7 @@ import { CommunitySection } from "@/components/sections/CommunitySection";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 import { getPublishedArticlesAction } from "@/shared/lib/actions/cogniread";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { SectionAnimator } from "@/components/layout/SectionAnimator";
 
 interface HomePageProps {

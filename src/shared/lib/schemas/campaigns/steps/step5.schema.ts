@@ -1,4 +1,4 @@
-// RUTA: shared/lib/schemas/campaigns/steps/step5.schema.ts
+// RUTA: src/shared/lib/schemas/campaigns/steps/step5.schema.ts
 /**
  * @file step5.schema.ts
  * @description SSoT para el contrato de datos del contenido i18n del Paso 5 de la SDC.

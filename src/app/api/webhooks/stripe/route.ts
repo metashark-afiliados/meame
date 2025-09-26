@@ -25,7 +25,6 @@ import {
 } from "@/shared/lib/schemas/entities/order.schema";
 
 // --- Guardias de Configuración a Nivel de Módulo ---
-// Falla rápido si las variables de entorno críticas no están configuradas.
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("STRIPE_SECRET_KEY no está definido.");
 }
@@ -45,8 +44,6 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
 
   // --- Pilar VI: Resiliencia (Verificación de Firma) ---
-  // Primer nivel de seguridad: si la firma es inválida, es una petición
-  // maliciosa o mal configurada. No se debe procesar.
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     logger.traceEvent(traceId, "Firma de Webhook verificada con éxito.");
@@ -58,7 +55,6 @@ export async function POST(req: Request) {
   }
 
   // --- Pilar VI: Resiliencia (Lógica de Negocio) ---
-  // Segundo nivel de seguridad: cualquier error aquí es un problema del servidor.
   try {
     switch (event.type) {
       case "payment_intent.succeeded": {
@@ -68,7 +64,6 @@ export async function POST(req: Request) {
           `Procesando pago exitoso: ${paymentIntent.id}`
         );
 
-        // 1. Obtener y validar metadatos críticos
         const cartId = paymentIntent.metadata.cartId;
         if (!cartId) {
           throw new Error(
@@ -77,13 +72,11 @@ export async function POST(req: Request) {
         }
         logger.traceEvent(traceId, `Carrito asociado: ${cartId}`);
 
-        // 2. Obtener datos de la fuente externa (Shopify)
         const cart = await getShopifyCart(cartId);
         if (!cart) {
           throw new Error(`Carrito con ID ${cartId} no encontrado en Shopify.`);
         }
 
-        // 3. Transformar y construir el documento de la orden
         const now = new Date().toISOString();
         const orderItems: OrderItem[] = cart.lines.map((line) => ({
           productId: line.merchandise.product.id,
@@ -96,7 +89,7 @@ export async function POST(req: Request) {
         const orderDocumentData: Order = {
           orderId: createId(),
           stripePaymentIntentId: paymentIntent.id,
-          userId: undefined, // Lógica futura para vincular a usuario autenticado
+          userId: undefined,
           amount: paymentIntent.amount / 100,
           currency: paymentIntent.currency.toUpperCase(),
           status: "succeeded",
@@ -106,11 +99,9 @@ export async function POST(req: Request) {
           updatedAt: now,
         };
 
-        // 4. Pilar VI: Validar contra el Contrato Soberano ANTES de escribir en la DB
         const validatedOrder = OrderSchema.parse(orderDocumentData);
         logger.traceEvent(traceId, "Documento de la orden validado con Zod.");
 
-        // 5. Persistir la orden en la base de datos
         const client = await connectToDatabase();
         const db = client.db(process.env.MONGODB_DB_NAME);
         const collection = db.collection<Order>("orders");
@@ -121,7 +112,6 @@ export async function POST(req: Request) {
           { traceId }
         );
 
-        // 6. Despachar efectos secundarios (Notificación por correo)
         const emailResult = await sendOrderConfirmationEmailAction({
           to: validatedOrder.customerEmail,
           orderId: validatedOrder.orderId,
@@ -133,8 +123,6 @@ export async function POST(req: Request) {
         });
 
         if (!emailResult.success) {
-          // Es un error importante, pero no debe hacer que el webhook falle,
-          // ya que el pago y el pedido SÍ se procesaron.
           logger.error(
             "[Stripe Webhook] Orden persistida pero falló el envío del email de confirmación.",
             {

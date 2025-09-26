@@ -2,7 +2,7 @@
 /**
  * @file cart.actions.ts
  * @description Server Actions soberanas para la gestión del carrito de compras.
- * @version 3.0.0 (Holistic Resilience & Architectural Realignment)
+ * @version 4.0.0 (Sovereign DAL Consumption)
  * @author razstore (original), RaZ Podestá - MetaShark Tech (adaptación y nivelación)
  */
 "use server";
@@ -16,14 +16,14 @@ import {
   createCart,
   removeFromCart,
   updateCart,
-} from "@/shared/lib/shopify"; // <-- RUTA CORREGIDA
-import { getCart } from "@/shared/lib/commerce/cart";
+} from "@/shared/lib/shopify";
+import { getCart } from "@/shared/lib/commerce/cart"; // <-- IMPORTACIÓN SOBERANA
 
 export async function addItem(
   prevState: unknown,
   formData: FormData
 ): Promise<string | undefined> {
-  const traceId = logger.startTrace("addItemAction_v3.0");
+  const traceId = logger.startTrace("addItemAction_v4.0");
   const selectedVariantId = formData.get("variantId") as string | undefined;
 
   if (!selectedVariantId) {
@@ -36,9 +36,9 @@ export async function addItem(
 
   try {
     let cartId = cookies().get("cartId")?.value;
+    // Se consume la DAL soberana para obtener el carrito
     let cart = cartId ? await getCart() : undefined;
 
-    // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
     if (!cart || !cartId) {
       logger.traceEvent(traceId, "Carrito no encontrado, creando uno nuevo...");
       try {
@@ -55,12 +55,9 @@ export async function addItem(
           traceId,
         });
         logger.endTrace(traceId);
-        // Si la creación del carrito falla, no podemos continuar. Retornamos inmediatamente.
         return "cart.errors.createCartFailed";
       }
     }
-    // A partir de este punto, TypeScript sabe que 'cartId' es un string.
-    // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
 
     logger.traceEvent(traceId, "Añadiendo item a la API de Shopify...", {
       cartId,
@@ -76,7 +73,7 @@ export async function addItem(
       traceId,
     });
     logger.endTrace(traceId);
-    return undefined; // Retornamos undefined en caso de éxito.
+    return undefined;
   } catch (e) {
     const errorMessage = e instanceof Error ? e.message : "Error desconocido.";
     logger.error(

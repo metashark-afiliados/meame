@@ -2,7 +2,8 @@
 /**
  * @file CheckoutForm.tsx
  * @description Componente de cliente de élite que envuelve y gestiona el
- *              Stripe Payment Element. Ahora es 100% data-driven.
+ *              Stripe Payment Element. Ahora es 100% data-driven y está
+ *              inyectado con MEA/UX.
  * @version 3.0.0 (Holistic Elite Leveling & i18n)
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -18,10 +19,11 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { DotsWave } from "@/components/ui/Loaders/DotsWave";
 import { logger } from "@/shared/lib/logging";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import type { z } from "zod";
+import type { CheckoutFormContentSchema } from "@/shared/lib/schemas/components/commerce/checkout-form.schema";
 
 // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: CONTRATO SOBERANO] ---
-type Content = NonNullable<Dictionary["checkoutForm"]>;
+type Content = z.infer<typeof CheckoutFormContentSchema>;
 
 interface CheckoutFormProps {
   content: Content;

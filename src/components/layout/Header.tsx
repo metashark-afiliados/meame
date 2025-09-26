@@ -24,7 +24,7 @@ import { CartSheet } from "./CartSheet";
 import { UserNav } from "@/components/features/auth/UserNav";
 import { NotificationBell } from "@/components/features/notifications/NotificationBell/NotificationBell";
 import { routes } from "@/shared/lib/navigation";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 
 // --- SSoT del Nuevo Contrato de Contenido Unificado ---
 interface HeaderContentBundle {

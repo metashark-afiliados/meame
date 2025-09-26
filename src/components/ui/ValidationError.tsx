@@ -1,4 +1,4 @@
-// RUTA: components/ui/ValidationError.tsx
+// RUTA: src/components/ui/ValidationError.tsx
 /**
  * @file ValidationError.tsx
  * @description Componente de UI de élite, exclusivo para desarrollo, que muestra
@@ -6,7 +6,7 @@
  * @version 2.0.0 (Holistic Elite Leveling & MEA)
  * @author RaZ Podestá - MetaShark Tech
  */
-"use client"; // Necesario para el <details> interactivo
+"use client";
 
 import React from "react";
 import { type ZodError } from "zod";
@@ -33,7 +33,6 @@ export function ValidationError({
     { validationErrors: error.flatten().fieldErrors }
   );
 
-  // Este componente solo se renderiza en desarrollo.
   if (process.env.NODE_ENV !== "production") {
     const title = content.title.replace("{{sectionName}}", sectionName);
 

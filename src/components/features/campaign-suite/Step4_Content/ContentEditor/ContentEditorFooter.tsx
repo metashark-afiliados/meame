@@ -1,4 +1,4 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/ContentEditor/ContentEditorFooter.tsx
+// RUTA: src/components/features/campaign-suite/Step4_Content/ContentEditor/ContentEditorFooter.tsx
 /**
  * @file ContentEditorFooter.tsx
  * @description Aparato de presentación atómico para el pie del editor de contenido.
@@ -30,4 +30,3 @@ export function ContentEditorFooter({
     </footer>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/ContentEditor/ContentEditorFooter.tsx

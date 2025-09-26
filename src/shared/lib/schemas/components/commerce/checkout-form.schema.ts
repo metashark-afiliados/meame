@@ -2,7 +2,7 @@
 /**
  * @file checkout-form.schema.ts
  * @description SSoT para el contrato de datos del contenido i18n del componente CheckoutForm.
- * @version 1.0.0
+ * @version 9.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";

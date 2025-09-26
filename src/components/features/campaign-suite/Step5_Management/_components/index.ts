@@ -1,4 +1,4 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step5_Management/_components/index.ts
+// RUTA: src/components/features/campaign-suite/Step5_Management/_components/index.ts
 /**
  * @file index.ts (Barrel File)
  * @description Fachada pública para los micro-componentes del Paso 5.

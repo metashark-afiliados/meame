@@ -2,15 +2,16 @@
 /**
  * @file LivePreviewCanvas.tsx
  * @description Orquestador de élite para el lienzo de previsualización (EDVI).
- *              Compone hooks y componentes atómicos para una máxima cohesión.
- * @version 11.0.0 (Atomic Architecture)
+ *              Compone hooks y componentes atómicos para una máxima cohesión
+ *              y una experiencia de "Modo Enfoque Sincronizado".
+ * @version 12.0.0 (Hyper-Atomic & Focus-Aware)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
 import { createPortal } from "react-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCampaignDraftStore } from "@/shared/lib/stores/campaign-draft.store";
 import { usePreviewTheme } from "@/shared/hooks/campaign-suite/use-preview-theme";
 import { useIframe } from "@/shared/hooks/campaign-suite/use-iframe";
@@ -20,7 +21,7 @@ import {
   PreviewContent,
   PreviewLoadingOverlay,
   PreviewErrorOverlay,
-} from "./LivePreviewCanvas/_components"; // <-- IMPORTACIÓN CORREGIDA
+} from "./LivePreviewCanvas/_components";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { logger } from "@/shared/lib/logging";
 
@@ -32,9 +33,11 @@ interface LivePreviewCanvasProps {
 }
 
 export function LivePreviewCanvas({ content }: LivePreviewCanvasProps) {
-  logger.info("[LivePreviewCanvas] Renderizando orquestador v11.0 (Atomic).");
+  logger.info(
+    "[LivePreviewCanvas] Renderizando orquestador v12.0 (Focus-Aware)."
+  );
 
-  // --- Capa de Lógica: Hooks ---
+  // --- Capa de Lógica: Hooks Soberanos ---
   const draft = useCampaignDraftStore((state) => state.draft);
   const { theme, isLoading, error } = usePreviewTheme();
   const { iframeRef, iframeBody } = useIframe();
@@ -57,27 +60,51 @@ export function LivePreviewCanvas({ content }: LivePreviewCanvasProps) {
         ref={iframeRef}
         className="w-full h-full bg-background rounded-md border"
         title="Live Preview"
+        sandbox="allow-scripts allow-same-origin"
       />
       {iframeBody &&
         createPortal(
-          <>
-            {isLoading && <PreviewLoadingOverlay text={content.loadingTheme} />}
+          <AnimatePresence>
+            {isLoading && (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <PreviewLoadingOverlay text={content.loadingTheme} />
+              </motion.div>
+            )}
             {error && (
-              <PreviewErrorOverlay
-                title={content.errorLoadingTheme}
-                details={error}
-              />
+              <motion.div
+                key="error"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <PreviewErrorOverlay
+                  title={content.errorLoadingTheme}
+                  details={error}
+                />
+              </motion.div>
             )}
-            {theme && (
-              <PreviewContent
-                draft={draft}
-                theme={theme}
-                dictionary={previewDictionary}
-                focusedSection={focusedSection}
-                sectionRefs={sectionRefs}
-              />
+            {theme && !isLoading && !error && (
+              <motion.div
+                key="content"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <PreviewContent
+                  draft={draft}
+                  theme={theme}
+                  dictionary={previewDictionary}
+                  focusedSection={focusedSection}
+                  sectionRefs={sectionRefs}
+                />
+              </motion.div>
             )}
-          </>,
+          </AnimatePresence>,
           iframeBody
         )}
     </motion.div>

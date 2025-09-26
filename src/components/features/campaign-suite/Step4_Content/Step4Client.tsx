@@ -2,13 +2,12 @@
 /**
  * @file Step4Client.tsx
  * @description Componente Contenedor de Cliente para el Paso 4 (Contenido).
- *              Ahora consume los stores de layout y contenido atómicos.
- * @version 4.0.0 (Atomic State Consumption)
+ * @version 5.0.0 (Holistic Refactor)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { logger } from "@/shared/lib/logging";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { useWizard } from "@/components/features/campaign-suite/_context/WizardContext";
@@ -17,7 +16,8 @@ import { useStep4ContentStore } from "@/shared/hooks/campaign-suite/use-step4-co
 import { useDraftMetadataStore } from "@/shared/hooks/campaign-suite/use-draft-metadata.store";
 import { Step4Form } from "./Step4Form";
 import type { z } from "zod";
-import type { Step4ContentSchema } from "@/shared/lib/schemas/campaign-suite/steps/step4.schema";
+import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
+import { Step4ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step4.schema"; // <-- RUTA CORREGIDA
 
 type Step4Content = z.infer<typeof Step4ContentSchema>;
 
@@ -26,31 +26,40 @@ interface Step4ClientProps {
 }
 
 export function Step4Client({ content }: Step4ClientProps): React.ReactElement {
-  logger.info("Renderizando Step4Client (v4.0 - Atomic State).");
+  logger.info("Renderizando Step4Client (v5.0 - Holistic Refactor).");
 
-  // --- [INICIO DE REFACTORIZACIÓN: CONSUMO DE STORES ATÓMICOS] ---
   const { layoutConfig } = useStep2LayoutStore();
   const { contentData, setSectionContent } = useStep4ContentStore();
-  const { completeStep } = useDraftMetadataStore();
+  const metadata = useDraftMetadataStore();
   const { goToNextStep, goToPrevStep } = useWizard();
-
   const [editingSection, setEditingSection] = useState<string | null>(null);
-  // --- [FIN DE REFACTORIZACIÓN] ---
+
+  // Ensamblamos el objeto draft completo para pasarlo a los hijos
+  const assembledDraft: CampaignDraft = useMemo(
+    () => ({
+      ...metadata,
+      layoutConfig,
+      contentData,
+      // Se rellenan los campos faltantes con valores por defecto para cumplir el contrato
+      affiliateNetwork: null,
+      affiliateUrl: null,
+      headerConfig: { useHeader: false, componentName: null, logoPath: null },
+      footerConfig: { useFooter: false, componentName: null },
+      themeConfig: {
+        colorPreset: null,
+        fontPreset: null,
+        radiusPreset: null,
+      },
+      step: 4,
+    }),
+    [metadata, layoutConfig, contentData]
+  );
 
   if (!content) {
     logger.error("[Step4Client] El contenido para el Paso 4 es indefinido.");
-    return (
-      <div className="text-destructive p-8">
-        Error: Faltan datos de contenido para este paso.
-      </div>
-    );
+    return <div className="text-destructive p-8">Error de contenido.</div>;
   }
 
-  const handleEditSection = (sectionName: string) =>
-    setEditingSection(sectionName);
-  const handleCloseEditor = () => setEditingSection(null);
-
-  // La acción de actualización ahora es una llamada directa al store de contenido.
   const handleUpdateContent = (
     sectionName: string,
     locale: Locale,
@@ -61,23 +70,21 @@ export function Step4Client({ content }: Step4ClientProps): React.ReactElement {
   };
 
   const handleNext = () => {
-    logger.info("[Step4Client] El usuario avanza al Paso 5.");
-    completeStep(4); // Marca el Paso 4 como completado.
+    metadata.completeStep(4);
     goToNextStep();
   };
 
   return (
     <Step4Form
       content={content}
-      layoutConfig={layoutConfig}
-      contentData={contentData}
-      onEditSection={handleEditSection}
-      onCloseEditor={handleCloseEditor}
+      draft={assembledDraft} // <-- SE PASA EL DRAFT COMPLETO
+      onEditSection={setEditingSection}
+      onCloseEditor={() => setEditingSection(null)}
       editingSection={editingSection}
       onUpdateContent={handleUpdateContent}
       onBack={goToPrevStep}
       onNext={handleNext}
-      isPending={false} // El estado de 'pending' se gestionará en el editor.
+      isPending={false}
     />
   );
 }

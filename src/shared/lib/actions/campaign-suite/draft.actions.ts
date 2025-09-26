@@ -1,43 +1,33 @@
 // RUTA: src/shared/lib/actions/campaign-suite/draft.actions.ts
 /**
  * @file draft.actions.ts
- * @description Server Actions de producción para el ciclo de vida de los borradores de campaña.
- * @version 4.0.0 (Production-Ready User Context & FSD Alignment)
+ * @description Server Actions de producción para el ciclo de vida de los borradores de campaña,
+ *              operando soberanamente sobre Supabase.
+ * @version 6.2.0 (Type-Safe & Linter-Compliant)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { connectToDatabase } from "@/shared/lib/mongodb";
-import { createServerClient } from "@/shared/lib/supabase/server"; // <-- IMPORTACIÓN CLAVE
+import { createServerClient } from "@/shared/lib/supabase/server";
 import {
   CampaignDraftDataSchema,
+  CampaignDraftDbSchema, // <-- IMPORTACIÓN CORREGIDA
   type CampaignDraftDb,
 } from "@/shared/lib/schemas/campaigns/draft.schema";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import { logger } from "@/shared/lib/logging";
-
-/**
- * @function getDraftsCollection
- * @description Helper puro para obtener la colección de borradores de MongoDB.
- * @private
- */
-async function getDraftsCollection() {
-  const client = await connectToDatabase();
-  const db = client.db(process.env.MONGODB_DB_NAME);
-  return db.collection<CampaignDraftDb>("campaign_drafts");
-}
+import { z } from "zod";
 
 export async function saveDraftAction(
   draftData: Omit<CampaignDraftDb, "createdAt" | "updatedAt" | "userId">
 ): Promise<ActionResult<{ draftId: string; updatedAt: string }>> {
-  const traceId = logger.startTrace("saveDraftAction_v4.0");
+  const traceId = logger.startTrace("saveDraftAction_v6.2_supabase");
   const supabase = createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // --- GUARDIA DE SEGURIDAD SOBERANA ---
   if (!user) {
     logger.warn("[Action] Intento no autorizado de guardar borrador.", {
       traceId,
@@ -45,14 +35,15 @@ export async function saveDraftAction(
     return { success: false, error: "Acción no autorizada." };
   }
 
-  logger.info(`[Action] Guardando borrador para usuario: ${user.id}`, {
-    traceId,
-  });
+  logger.info(
+    `[Action] Guardando borrador en Supabase para usuario: ${user.id}`,
+    {
+      traceId,
+      draftId: draftData.draftId,
+    }
+  );
 
   try {
-    const collection = await getDraftsCollection();
-    const now = new Date().toISOString();
-
     const validation = CampaignDraftDataSchema.safeParse(draftData);
     if (!validation.success) {
       logger.error("[saveDraftAction] Fallo de validación de Zod.", {
@@ -62,37 +53,28 @@ export async function saveDraftAction(
       return { success: false, error: "Los datos del borrador son inválidos." };
     }
 
-    // --- LÓGICA DE PRODUCCIÓN ---
-    // La consulta es segura y contextual: solo puede actualizar (upsert) un
-    // borrador que pertenezca al usuario actual.
-    const result = await collection.updateOne(
-      { draftId: draftData.draftId, userId: user.id },
-      {
-        $set: {
-          ...validation.data,
-          updatedAt: now,
-          userId: user.id, // Se asegura de que el userId esté siempre presente
-        },
-        $setOnInsert: {
-          createdAt: now,
-          draftId: draftData.draftId,
-        },
-      },
-      { upsert: true }
-    );
+    const { error } = await supabase.from("campaign_drafts").upsert({
+      draft_id: validation.data.draftId,
+      user_id: user.id,
+      draft_data: validation.data, // <-- 'as any' ELIMINADO
+    });
 
-    if (result.modifiedCount === 0 && result.upsertedCount === 0) {
-      // Este caso podría ocurrir si hay un problema de concurrencia, es una
-      // buena práctica registrarlo.
-      logger.warn(
-        "[saveDraftAction] La operación de guardado no modificó ningún documento.",
-        { traceId }
+    if (error) {
+      logger.error(
+        "[saveDraftAction] Error desde Supabase al guardar el borrador.",
+        {
+          error: error.message,
+          traceId,
+        }
       );
+      throw new Error(error.message);
     }
 
-    revalidatePath("/creator/campaign-suite"); // Revalida la página de la SDC
+    const now = new Date().toISOString();
+
+    revalidatePath("/creator/campaign-suite");
     logger.success(
-      `[Action] Borrador ${draftData.draftId} sincronizado con la DB.`,
+      `[Action] Borrador ${draftData.draftId} sincronizado con Supabase.`,
       { traceId }
     );
 
@@ -103,10 +85,13 @@ export async function saveDraftAction(
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[saveDraftAction] Fallo al guardar el borrador.", {
-      error: errorMessage,
-      traceId,
-    });
+    logger.error(
+      "[saveDraftAction] Fallo al guardar el borrador en Supabase.",
+      {
+        error: errorMessage,
+        traceId,
+      }
+    );
     return {
       success: false,
       error: "No se pudo guardar el borrador en la base de datos.",
@@ -119,58 +104,164 @@ export async function saveDraftAction(
 export async function getDraftAction(): Promise<
   ActionResult<{ draft: CampaignDraftDb | null }>
 > {
-  const traceId = logger.startTrace("getDraftAction_v4.0");
+  const traceId = logger.startTrace("getDraftAction_v6.2_supabase");
   const supabase = createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // --- GUARDIA DE SEGURIDAD SOBERANA ---
   if (!user) {
     logger.info(
       "[Action] No hay usuario autenticado. No se puede cargar el borrador.",
       { traceId }
     );
-    // No es un error, simplemente no hay borrador para un usuario no logueado.
     return { success: true, data: { draft: null } };
   }
 
-  logger.info(`[Action] Obteniendo último borrador para usuario: ${user.id}`, {
-    traceId,
-  });
+  logger.info(
+    `[Action] Obteniendo último borrador de Supabase para usuario: ${user.id}`,
+    {
+      traceId,
+    }
+  );
 
   try {
-    const collection = await getDraftsCollection();
+    const { data, error } = await supabase
+      .from("campaign_drafts")
+      .select("draft_id, draft_data, created_at, updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .single();
 
-    // --- LÓGICA DE PRODUCCIÓN ---
-    // La consulta es segura y contextual: solo busca borradores del usuario actual.
-    const draft = await collection.findOne(
-      { userId: user.id },
-      { sort: { updatedAt: -1 } } // Obtiene el más reciente
-    );
-
-    if (draft) {
-      logger.success(
-        `[Action] Borrador ${draft.draftId} encontrado para el usuario.`,
-        { traceId }
-      );
-    } else {
-      logger.info("[Action] El usuario no tiene borradores guardados.", {
-        traceId,
-      });
+    if (error && error.code !== "PGRST116") {
+      throw new Error(error.message);
     }
 
-    return { success: true, data: { draft } };
+    if (data) {
+      const fullDraft: CampaignDraftDb = {
+        ...(data.draft_data as Omit<
+          CampaignDraftDb,
+          "draftId" | "createdAt" | "updatedAt" | "userId"
+        >),
+        draftId: data.draft_id,
+        userId: user.id,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+      };
+
+      // --- VALIDACIÓN DE LECTURA ---
+      const validation = CampaignDraftDbSchema.safeParse(fullDraft); // <-- VALIDACIÓN CORREGIDA
+      if (!validation.success) {
+        logger.error("[getDraftAction] El borrador de la DB es inválido.", {
+          error: validation.error.flatten(),
+          traceId,
+        });
+        throw new Error("Datos de borrador corruptos en la base de datos.");
+      }
+
+      logger.success(
+        `[Action] Borrador ${validation.data.draftId} encontrado y validado.`,
+        { traceId }
+      );
+      return { success: true, data: { draft: validation.data } };
+    } else {
+      logger.info(
+        "[Action] El usuario no tiene borradores guardados en Supabase.",
+        {
+          traceId,
+        }
+      );
+      return { success: true, data: { draft: null } };
+    }
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[getDraftAction] Fallo al obtener el borrador.", {
+    logger.error("[getDraftAction] Fallo al obtener el borrador de Supabase.", {
       error: errorMessage,
       traceId,
     });
     return {
       success: false,
       error: "No se pudo obtener el borrador de la base de datos.",
+    };
+  } finally {
+    logger.endTrace(traceId);
+  }
+}
+
+export async function deleteDraftAction(
+  draftId: string
+): Promise<ActionResult<{ deletedCount: number }>> {
+  const traceId = logger.startTrace("deleteDraftAction_v3.0_supabase");
+  const supabase = createServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    logger.warn("[Action] Intento no autorizado de eliminar borrador.", {
+      traceId,
+    });
+    return { success: false, error: "Acción no autorizada." };
+  }
+
+  logger.warn(
+    `[Action] Petición para eliminar borrador de Supabase: ${draftId}`,
+    {
+      traceId,
+      userId: user.id,
+    }
+  );
+
+  try {
+    const validation = z.string().min(1).safeParse(draftId);
+    if (!validation.success) {
+      const errorMsg = "El ID de borrador proporcionado es inválido.";
+      logger.error(`[Action] ${errorMsg}`, {
+        errors: validation.error.flatten(),
+        receivedId: draftId,
+        traceId,
+      });
+      return { success: false, error: errorMsg };
+    }
+    const validDraftId = validation.data;
+
+    const { count, error } = await supabase
+      .from("campaign_drafts")
+      .delete()
+      .match({ draft_id: validDraftId, user_id: user.id });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (count !== null && count > 0) {
+      logger.success(
+        `[Action] Borrador ${validDraftId} eliminado exitosamente de Supabase.`,
+        { traceId, deletedCount: count }
+      );
+    } else {
+      logger.warn(
+        "[Action] No se encontró ningún borrador para eliminar que coincida con los criterios.",
+        { draftId: validDraftId, userId: user.id, traceId }
+      );
+    }
+
+    return { success: true, data: { deletedCount: count ?? 0 } };
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error(
+      "[Action] Fallo crítico al intentar eliminar el borrador de Supabase.",
+      {
+        error: errorMessage,
+        traceId,
+      }
+    );
+    return {
+      success: false,
+      error: "No se pudo completar la eliminación en la base de datos.",
     };
   } finally {
     logger.endTrace(traceId);

@@ -11,7 +11,7 @@
 import React from "react";
 import { getCampaignTemplatesAction } from "@/shared/lib/actions/campaign-suite";
 import { TemplateBrowser } from "@/components/features/campaign-suite/TemplateBrowser";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { logger } from "@/shared/lib/logging";
 
 export default async function CampaignSuiteLobbyPage() {

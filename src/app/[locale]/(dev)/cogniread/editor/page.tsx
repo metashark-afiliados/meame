@@ -14,7 +14,7 @@ import { logger } from "@/shared/lib/logging";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 import { getArticleByIdAction } from "@/shared/lib/actions/cogniread";
@@ -36,17 +36,12 @@ export default async function ArticleEditorPage({
     `[ArticleEditorPage] Renderizando v4.0. Modo: ${isEditing ? `Edición (ID: ${id})` : "Creación"}`
   );
 
-  // Carga de datos en paralelo para máxima eficiencia
-  const [{ dictionary, error: dictError }, articleResult] = await Promise.all([
-    getDictionary(locale),
-    isEditing
-      ? getArticleByIdAction(id)
-      : Promise.resolve({ success: true, data: { article: null } }),
-  ]);
-
+  // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: OBTENCIÓN DE DATOS SECUENCIAL Y RESILIENTE] ---
+  // 1. Obtener el diccionario, que siempre es necesario.
+  const { dictionary, error: dictError } = await getDictionary(locale);
   const pageContent = dictionary.cogniReadEditor;
 
-  // Guardia de Resiliencia para i18n
+  // 2. Guardia de Resiliencia para el contenido i18n.
   if (dictError || !pageContent) {
     const errorMessage =
       "Fallo al cargar el contenido i18n para el editor de CogniRead.";
@@ -63,20 +58,26 @@ export default async function ArticleEditorPage({
     );
   }
 
+  // 3. Obtener los datos del artículo SOLO si estamos en modo de edición.
   let initialArticleData: CogniReadArticle | null = null;
   let fetchError: string | null = null;
 
   if (isEditing) {
+    const articleResult = await getArticleByIdAction(id);
     if (articleResult.success) {
       initialArticleData = articleResult.data.article;
       if (!initialArticleData) {
+        // Si la acción fue exitosa pero no se encontró el artículo, establecemos un error amigable.
         fetchError =
-          pageContent.articleNotFoundError || "Artículo no encontrado."; // Fallback
+          pageContent.articleNotFoundError || "Artículo no encontrado.";
       }
     } else {
+      // Si la acción falló, TypeScript ahora sabe que `articleResult` es de tipo `ErrorResult`.
+      // El acceso a `articleResult.error` es 100% seguro.
       fetchError = articleResult.error;
     }
   }
+  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
   return (
     <>

@@ -11,7 +11,7 @@ import React from "react";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { getBaviManifest } from "@/shared/lib/bavi"; // <-- Importación corregida
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { HeroClient } from "./HeroClient";
 import type {
   BaviAsset,

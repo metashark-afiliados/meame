@@ -185,4 +185,3 @@ export const sectionsConfig = {
 } as const satisfies Record<string, SectionConfig>;
 
 export type SectionName = keyof typeof sectionsConfig;
-// RUTA: src/shared/lib/config/sections.config.ts

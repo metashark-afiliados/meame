@@ -1,4 +1,4 @@
-// RUTA: app/[locale]/(dev)/dev/campaign-suite/_components/Step5_Management/_components/DeleteDraftDialog.tsx
+// RUTA: src/components/features/campaign-suite/Step5_Management/_components/DeleteDraftDialog.tsx
 /**
  * @file DeleteDraftDialog.tsx
  * @description Aparato atómico para el diálogo de confirmación de eliminación de borrador.

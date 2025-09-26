@@ -2,7 +2,7 @@
 /**
  * @file TemplateCard.tsx
  * @description Componente de presentación atómico para una tarjeta de plantilla.
- * @version 1.0.0
+ * @version 1.1.0 (Data Contract Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";

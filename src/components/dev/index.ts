@@ -11,7 +11,6 @@ export * from "./ComponentCanvasHeader";
 export * from "./ComponentLoader";
 export * from "./ComponentMetadataPanel";
 export * from "./ComponentRegistry";
-export * from "./DeveloperErrorDisplay";
 export * from "./DevHeader";
 export * from "./DevRouteMenu";
 export * from "./DevThemeSwitcher";

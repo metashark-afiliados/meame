@@ -1,11 +1,9 @@
 // RUTA: src/components/features/form-builder/builder/SchemaFieldRenderer/_components/FieldControl.tsx
 /**
  * @file FieldControl.tsx
- * @description Componente despachador puro.
- *              v5.0.0 (Holistic Path Restoration): Se restaura la integridad de
- *              las rutas de importación para alinearse con la arquitectura
- *              soberana, resolviendo un error crítico de build.
- * @version 5.0.0
+ * @description Componente despachador puro. Interpreta metadatos de schema
+ *              y renderiza el componente de campo atómico apropiado.
+ * @version 5.0.0 (Holistic Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -14,10 +12,7 @@ import React from "react";
 import type { FieldValues } from "react-hook-form";
 import { logger } from "@/shared/lib/logging";
 import type { FieldComponentProps } from "../_types/field.types";
-// --- [INICIO DE REFACTORIZACIÓN DE RUTA] ---
-// La ruta ahora es relativa y apunta correctamente al hook co-ubicado.
 import { useFieldMetadata } from "../_hooks/use-field-metadata";
-// --- [FIN DE REFACTORIZACIÓN DE RUTA] ---
 import { FieldWrapper } from "./FieldWrapper";
 import * as Fields from "./fields";
 

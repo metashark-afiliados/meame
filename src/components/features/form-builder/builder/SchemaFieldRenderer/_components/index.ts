@@ -1,4 +1,4 @@
-// components/forms/builder/SchemaFieldRenderer/_components/index.ts
+// RUTA: src/components/features/form-builder/builder/SchemaFieldRenderer/_components/index.ts
 /**
  * @file index.ts (Barrel File)
  * @description Fachada pública para los sub-componentes del SchemaFieldRenderer.
@@ -7,4 +7,3 @@
  */
 export * from "./FieldWrapper";
 export * from "./FieldControl";
-// components/forms/builder/SchemaFieldRenderer/_components/index.ts

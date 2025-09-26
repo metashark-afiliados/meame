@@ -1,6 +1,6 @@
-// components/forms/builder/SchemaFieldRenderer/_hooks/useFieldMetadata.ts
+// RUTA: src/components/features/form-builder/builder/SchemaFieldRenderer/_hooks/use-field-metadata.ts
 /**
- * @file useFieldMetadata.ts
+ * @file use-field-metadata.ts
  * @description Hook puro para interpretar las "pistas" de UI desde un schema de Zod.
  * @version 1.2.0 (Syntax Restoration)
  * @author RaZ Podestá - MetaShark Tech
@@ -10,20 +10,11 @@ import { z } from "zod";
 import { logger } from "@/shared/lib/logging";
 import type { FieldMetadata } from "../_types/field.types";
 
-/**
- * @function useFieldMetadata
- * @description Un hook que toma un schema de Zod y extrae metadatos para renderizar la UI.
- * @param fieldSchema El schema de Zod para un campo específico.
- * @param fieldName El nombre del campo.
- * @returns {FieldMetadata} Un objeto con los metadatos de UI.
- */
 export function useFieldMetadata(
   fieldSchema: z.ZodTypeAny,
   fieldName: string
 ): FieldMetadata {
-  // --- [INICIO DE CORRECCIÓN DE SINTAXIS] ---
   logger.trace(`[useFieldMetadata] Interpretando schema para: ${fieldName}`);
-  // --- [FIN DE CORRECCIÓN DE SINTAXIS] ---
 
   return useMemo(() => {
     const description = fieldSchema.description || "";
@@ -64,4 +55,3 @@ export function useFieldMetadata(
     };
   }, [fieldSchema, fieldName]);
 }
-// components/forms/builder/SchemaFieldRenderer/_hooks/useFieldMetadata.ts

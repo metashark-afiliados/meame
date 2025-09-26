@@ -14,9 +14,7 @@ import { CldImage } from "next-cloudinary";
 import { motion, type Variants } from "framer-motion";
 import { Container, DynamicIcon } from "@/components/ui";
 import { routes } from "@/shared/lib/navigation";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { type Locale } from "@/shared/lib/i18n/i18n.config";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
@@ -66,15 +64,13 @@ export function NewsGrid({
           viewport={{ once: true, amount: 0.1 }}
         >
           {articles.map((article) => {
-            // --- [INICIO DE GUARDIA DE TIPO RESILIENTE] ---
             const articleContent = article.content[locale];
             if (!articleContent) {
               logger.warn(
                 `[NewsGrid] No se encontró traducción para el locale '${locale}' en el artículo '${article.articleId}'. Se omite el renderizado.`
               );
-              return null; // Omite este artículo si no hay contenido para el idioma actual.
+              return null;
             }
-            // --- [FIN DE GUARDIA DE TIPO RESILIENTE] ---
 
             return (
               <motion.div key={article.articleId} variants={cardVariants}>

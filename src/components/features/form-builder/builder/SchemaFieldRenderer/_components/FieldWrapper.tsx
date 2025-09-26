@@ -2,7 +2,10 @@
 /**
  * @file FieldWrapper.tsx
  * @description Componente de envoltura de alto orden para campos de formulario.
- * @version 3.0.0 (Sovereign Path Restoration)
+ *              v3.0.0 (Sovereign Path Restoration & Focus-Aware): Ahora actúa
+ *              como el "sensor" del Modo Enfoque, comunicando los eventos de
+ *              foco al store de Zustand global.
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -15,9 +18,7 @@ import {
   FormDescription,
   FormMessage,
 } from "@/components/ui/Form";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { useFocusStore } from "@/components/features/campaign-suite/_context/FocusContext";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { logger } from "@/shared/lib/logging";
 import { cn } from "@/shared/lib/utils/cn";
 import type { FieldMetadata } from "../_types/field.types";

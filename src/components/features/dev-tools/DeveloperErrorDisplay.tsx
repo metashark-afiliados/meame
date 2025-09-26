@@ -1,8 +1,10 @@
-// RUTA: src/components/dev/DeveloperErrorDisplay.tsx
+// RUTA: src/components/features/dev-tools/DeveloperErrorDisplay.tsx
 /**
  * @file DeveloperErrorDisplay.tsx
- * @description Componente de UI de élite, herméticamente sellado, para mostrar errores de renderizado del servidor.
- * @version 2.0.0
+ * @description Componente de UI de élite para mostrar errores en desarrollo.
+ *              v3.0.0 (Architectural Realignment): Movido a su ubicación canónica
+ *              en `components/features/dev-tools` para alinearse con la ACS.
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -19,15 +21,9 @@ export function DeveloperErrorDisplay({
   errorMessage,
   errorDetails,
 }: DeveloperErrorDisplayProps) {
-  // Se utiliza console.error nativo para el logging interno, rompiendo
-  // cualquier posible bucle de dependencia y garantizando que este componente
-  // nunca falle al intentar registrar un error.
   console.error(
     `[DEV ERROR DISPLAY] Capturado un error en el contexto: ${context}`,
-    {
-      message: errorMessage,
-      details: errorDetails,
-    }
+    { message: errorMessage, details: errorDetails }
   );
 
   return (
@@ -61,10 +57,6 @@ export function DeveloperErrorDisplay({
                 </pre>
               </details>
             )}
-            <p className="mt-4 text-xs text-destructive-foreground/60">
-              Esta pantalla de error solo es visible en modo de desarrollo. En
-              producción, esto se habría convertido en una página 404.
-            </p>
           </div>
         </div>
       </div>

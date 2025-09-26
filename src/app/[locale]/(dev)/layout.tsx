@@ -15,7 +15,7 @@ import { getDictionary } from "@/shared/lib/i18n/i18n";
 import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 import { DevLayoutClient } from "./DevLayoutClient";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 // --- [INICIO DE CORRECCIÓN DE HIGIENE Y API] ---
 // Se corrige el nombre de la función importada (TS2724)
 import { getThemeFragmentsAction } from "@/shared/lib/actions/campaign-suite/getThemeFragments.action";

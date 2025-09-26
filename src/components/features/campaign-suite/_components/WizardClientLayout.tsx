@@ -11,10 +11,10 @@
 import React from "react";
 import { DynamicIcon } from "@/components/ui";
 import { LivePreviewCanvas } from "./LivePreviewCanvas";
+import { logger } from "@/shared/lib/logging";
 
-// Contrato de Props puro y explícito
 interface WizardClientLayoutProps {
-  stepContent: React.ReactNode;
+  children: React.ReactNode;
   previewContent: {
     loadingTheme: string;
     errorLoadingTheme: string;
@@ -23,16 +23,14 @@ interface WizardClientLayoutProps {
 }
 
 export function WizardClientLayout({
-  stepContent,
+  children,
   previewContent,
   isLoadingDraft,
 }: WizardClientLayoutProps): React.ReactElement {
-  // Pilar III (Observabilidad)
-  console.log(
-    "[Observabilidad] Renderizando WizardClientLayout (Presentación Pura) v13.0"
+  logger.info(
+    "[WizardClientLayout] Renderizando layout de presentación puro v13.0."
   );
 
-  // Pilar MEA/UX: Muestra un estado de carga claro mientras se inicializa el borrador.
   if (isLoadingDraft) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
@@ -50,10 +48,9 @@ export function WizardClientLayout({
     );
   }
 
-  // La única responsabilidad es renderizar el layout visual.
   return (
     <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-      <div className="lg:col-span-1">{stepContent}</div>
+      <div className="lg:col-span-1">{children}</div>
       <div className="lg:col-span-1 h-[calc(100vh-12rem)] hidden lg:block">
         <LivePreviewCanvas content={previewContent} />
       </div>

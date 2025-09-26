@@ -2,13 +2,16 @@
 /**
  * @file index.ts (Barrel File)
  * @description Fachada pública para las Server Actions de la SDC.
- *              v3.0.0 (Holistic Export & Production Readiness): Se añaden las
- *              exportaciones para las acciones de ciclo de vida del borrador
- *              basadas en la base de datos.
- * @version 3.0.0
+ *              v4.0.0 (Holistic & DRY Refactoring): Consolidado para eliminar
+ *              exportaciones ambiguas y reflejar la nueva arquitectura soberana.
+ * @version 4.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 
+// Exporta todas las acciones relacionadas con el ciclo de vida del borrador desde su SSoT.
+export * from "./draft.actions";
+
+// Exporta el resto de las acciones de la SDC desde sus módulos soberanos.
 export * from "./getThemeFragments.action";
 export * from "./saveCampaignAsset.action";
 export * from "./publishCampaign.action";
@@ -16,7 +19,5 @@ export * from "./packageCampaign.action";
 export * from "./getBaseCampaigns.action";
 export * from "./saveAsTemplate.action";
 export * from "./loadTemplate.action";
-export * from "./getTemplates.action"; // Mantenido por si es usado en otro lugar
-export * from "./getCampaignTemplates.action"; // <-- EXPORTACIÓN RESTAURADA
-export * from "./draft.actions"; // <-- NUEVA EXPORTACIÓN HOLÍSTICA
-export * from "./deleteDraft.action"; // <-- NUEVA EXPORTACIÓN HOLÍSTICA
+export * from "./getTemplates.action";
+export * from "./getCampaignTemplates.action";

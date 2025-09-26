@@ -1,4 +1,4 @@
-// RUTA: app/[locale]/(dev)/dev/campaign-suite/_components/Step5_Management/_components/LaunchChecklist.tsx
+// RUTA: src/components/features/campaign-suite/Step5_Management/_components/LaunchChecklist.tsx
 /**
  * @file LaunchChecklist.tsx
  * @description Componente de UI atómico y gamificado para el checklist de pre-lanzamiento.
@@ -15,7 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/Tooltip";
-import type { ChecklistItem } from "@/shared/lib/utils/campaign-suite/campaign-suite/draft.validator";
+import type { ChecklistItem } from "@/shared/lib/utils/campaign-suite/draft.validator";
 import { cn } from "@/shared/lib/utils/cn";
 
 interface LaunchChecklistProps {

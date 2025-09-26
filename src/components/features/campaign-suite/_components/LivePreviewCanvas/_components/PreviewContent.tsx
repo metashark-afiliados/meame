@@ -2,7 +2,7 @@
 /**
  * @file PreviewContent.tsx
  * @description Componente de presentación que renderiza el contenido real de la previsualización.
- * @version 1.0.0
+ * @version 2.0.0 (Focus-Aware)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -23,7 +23,7 @@ interface PreviewContentProps {
   theme: AssembledTheme;
   dictionary: Dictionary;
   focusedSection: string | null;
-  sectionRefs: React.MutableRefObject<Record<string, HTMLElement>>;
+  sectionRefs: React.MutableRefObject<Record<string, HTMLElement | null>>;
 }
 
 const animationProps = {
@@ -64,7 +64,7 @@ export function PreviewContent({
       <SectionRenderer
         sections={draft.layoutConfig}
         dictionary={dictionary}
-        locale={"it-IT"} // Locale de previsualización por defecto
+        locale={"it-IT"}
         focusedSection={focusedSection}
         sectionRefs={sectionRefs}
       />

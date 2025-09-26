@@ -2,7 +2,7 @@
 /**
  * @file transactional.schema.ts
  * @description SSoT para los contratos de datos de los payloads de emails transaccionales.
- *              v2.0.0 (Order Items Integration): Se alinea el contrato de
+ *              v4.5.1 (Order Items Integration): Se alinea el contrato de
  *              confirmación de pedido con los requisitos de la plantilla de email,
  *              incluyendo la lista de items del pedido.
  * @version 2.0.0

@@ -8,10 +8,10 @@
  */
 import React from "react";
 import { CampaignSuiteWizard } from "@/components/features/campaign-suite/CampaignSuiteWizard";
-import { getDictionary } from "@/shared/lib/i18n/i18n"; // <-- RUTA CORREGIDA
+import { getDictionary } from "@/shared/lib/i18n/i18n";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { notFound } from "next/navigation";
 
 interface CampaignSuiteLayoutProps {
@@ -43,10 +43,7 @@ export default async function CampaignSuiteLayout({
     );
   }
 
-  // --- [INICIO DE CORRECCIÓN DE CONTRATO] ---
-  // Se eliminan las props que no pertenecen al contrato de CampaignSuiteWizard
   return (
     <CampaignSuiteWizard content={pageContent}>{children}</CampaignSuiteWizard>
   );
-  // --- [FIN DE CORRECCIÓN DE CONTRATO] ---
 }

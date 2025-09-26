@@ -12,7 +12,7 @@ import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { StepClientWrapper } from "@/components/features/campaign-suite/_components";
 import { stepsConfig } from "@/shared/lib/config/campaign-suite/wizard.config";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 
 interface CreatePageProps {
   params: { locale: Locale };

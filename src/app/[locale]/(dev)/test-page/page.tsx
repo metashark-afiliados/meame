@@ -35,7 +35,7 @@ import { parseThemeNetString } from "@/shared/lib/utils/theming/theme-utils";
 // --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import { netTracePrefixToPathMap } from "@/shared/lib/config/theming.config";
 import type { AvailableTheme } from "@/shared/lib/types/test-page/themes.types"; // CORREGIDO
-import { DeveloperErrorDisplay } from "@/components/dev"; // CORREGIDO
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/"; // CORREGIDO
 
 interface DevTestPageProps {
   params: { locale: Locale };

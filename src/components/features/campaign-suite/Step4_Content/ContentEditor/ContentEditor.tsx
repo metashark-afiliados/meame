@@ -1,151 +1,88 @@
-// RUTA: src/components/features/campaign-suite/Step2_Layout/_components/LayoutCanvas.tsx
+// RUTA: src/components/features/campaign-suite/Step4_Content/ContentEditor/ContentEditor.tsx
 /**
- * @file LayoutCanvas.tsx
- * @description Aparato atómico para el lienzo de layout reordenable, con
- *              feedback visual gamificado (MEA/UX) para "Combos Estratégicos".
- * @version 2.0.0 (Strategic Combo Feedback)
+ * @file ContentEditor.tsx
+ * @description Orquestador del editor de contenido. Gestiona el estado del
+ *              formulario, la lógica de guardado y la comunicación con el exterior.
+ * @version 6.0.0 (Holistic & Production Ready)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
-import React from "react";
-import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { motion, AnimatePresence } from "framer-motion";
-import type { LayoutConfigItem } from "@/shared/lib/types/campaigns/draft.types";
-import { Button, DynamicIcon } from "@/components/ui";
-import { logger } from "@/shared/lib/logging";
-import { cn } from "@/shared/lib/utils/cn";
 
-interface SortableItemProps {
-  id: string;
-  isComboPart: boolean;
-  isLastItem: boolean;
-  isNextItemInCombo: boolean;
-  onRemove: (id: string) => void;
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { motion } from "framer-motion";
+import { defaultLocale, type Locale } from "@/shared/lib/i18n/i18n.config";
+import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
+import { logger } from "@/shared/lib/logging";
+import { ContentEditorHeader } from "./ContentEditorHeader";
+import { ContentEditorBody } from "./ContentEditorBody";
+import { ContentEditorFooter } from "./ContentEditorFooter";
+
+interface ContentEditorProps {
+  sectionName: string;
+  sectionSchema: z.ZodObject<z.ZodRawShape>;
+  draft: CampaignDraft;
+  onClose: () => void;
+  onUpdateContent: (
+    sectionName: string,
+    locale: Locale,
+    field: string,
+    value: unknown
+  ) => void;
 }
 
-function SortableItem({
-  id,
-  isComboPart,
-  isLastItem,
-  isNextItemInCombo,
-  onRemove,
-}: SortableItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+export function ContentEditor({
+  sectionName,
+  sectionSchema,
+  draft,
+  onClose,
+  onUpdateContent,
+}: ContentEditorProps): React.ReactElement {
+  logger.info(`[ContentEditor] Editor abierto para: ${sectionName}`);
+
+  const [activeLocale, setActiveLocale] = useState<Locale>(defaultLocale);
+
+  const form = useForm<z.infer<typeof sectionSchema>>({
+    resolver: zodResolver(sectionSchema),
+    defaultValues: draft.contentData[sectionName]?.[activeLocale] || {},
+    mode: "onBlur",
+  });
+
+  const handlePersistChange = (field: string, value: unknown) => {
+    onUpdateContent(sectionName, activeLocale, field, value);
+  };
+
+  const onSubmit = () => {
+    logger.success(
+      `[ContentEditor] Contenido para ${sectionName} guardado. Cerrando panel.`
+    );
+    onClose();
   };
 
   return (
     <motion.div
-      ref={setNodeRef}
-      style={style}
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -50 }}
-      transition={{ duration: 0.25, ease: "easeInOut" }}
-      className={cn(
-        "relative flex items-center justify-between p-3 border rounded-md bg-background shadow-sm touch-none transition-all duration-300",
-        isComboPart && "border-primary ring-2 ring-primary/50"
-      )}
-      {...attributes}
-      {...listeners}
+      initial={{ x: "100%" }}
+      animate={{ x: 0 }}
+      exit={{ x: "100%" }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className="fixed top-0 right-0 h-full w-full max-w-2xl bg-background border-l shadow-2xl z-50 flex flex-col"
     >
-      <div className="flex items-center gap-2">
-        <DynamicIcon
-          name="GripVertical"
-          className="h-5 w-5 text-muted-foreground cursor-grab"
-        />
-        <span className="font-medium">{id}</span>
-      </div>
-      <Button variant="ghost" size="icon" onClick={() => onRemove(id)}>
-        <DynamicIcon name="X" className="h-4 w-4 text-destructive" />
-      </Button>
-      {!isLastItem && (
-        <div className="absolute left-5 -bottom-3 h-3 w-0.5 bg-border">
-          {isNextItemInCombo && (
-            <motion.div
-              className="absolute inset-0 bg-primary"
-              initial={{ scaleY: 0, originY: 0 }}
-              animate={{ scaleY: 1, originY: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            />
-          )}
-        </div>
-      )}
+      <ContentEditorHeader sectionName={sectionName} onClose={onClose} />
+      <ContentEditorBody
+        form={form}
+        activeLocale={activeLocale}
+        setActiveLocale={setActiveLocale}
+        sectionSchema={sectionSchema}
+        onPersistChange={handlePersistChange}
+        onSubmit={form.handleSubmit(onSubmit)}
+        sectionName={sectionName}
+      />
+      <ContentEditorFooter
+        onClose={onClose}
+        onSubmit={form.handleSubmit(onSubmit)}
+      />
     </motion.div>
-  );
-}
-
-interface LayoutCanvasProps {
-  activeLayout: LayoutConfigItem[];
-  comboSections: Set<string>;
-  onRemoveSection: (sectionName: string) => void;
-  title: string;
-  emptyCanvasText: string;
-}
-
-export function LayoutCanvas({
-  activeLayout,
-  comboSections,
-  onRemoveSection,
-  title,
-  emptyCanvasText,
-}: LayoutCanvasProps) {
-  logger.trace("[LayoutCanvas] Renderizando lienzo de layout (v2.0 - MEA).");
-  return (
-    <div className="md:col-span-2 p-4 border rounded-lg bg-muted/20 min-h-[400px]">
-      <h3 className="font-semibold mb-4">{title}</h3>
-      <AnimatePresence>
-        <SortableContext
-          items={activeLayout.map((item) => item.name)}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="space-y-4">
-            {activeLayout.length > 0 ? (
-              activeLayout.map((item, index) => {
-                const isComboPart = comboSections.has(item.name);
-                const isNextItemInCombo =
-                  isComboPart &&
-                  index < activeLayout.length - 1 &&
-                  comboSections.has(activeLayout[index + 1].name);
-                return (
-                  <SortableItem
-                    key={item.name}
-                    id={item.name}
-                    onRemove={onRemoveSection}
-                    isComboPart={isComboPart}
-                    isLastItem={index === activeLayout.length - 1}
-                    isNextItemInCombo={isNextItemInCombo}
-                  />
-                );
-              })
-            ) : (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-sm text-muted-foreground text-center py-10"
-              >
-                {emptyCanvasText}
-              </motion.p>
-            )}
-          </div>
-        </SortableContext>
-      </AnimatePresence>
-    </div>
   );
 }

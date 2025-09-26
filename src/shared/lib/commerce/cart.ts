@@ -15,7 +15,6 @@ import { logger } from "@/shared/lib/logging";
 /**
  * @function getCart
  * @description Obtiene el carrito del usuario actual basándose en la cookie 'cartId'.
- *              Si no hay cookie, devuelve undefined.
  * @returns {Promise<Cart | undefined>} El objeto del carrito o undefined.
  */
 export async function getCart(): Promise<Cart | undefined> {

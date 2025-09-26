@@ -1,4 +1,4 @@
-// components/forms/builder/SchemaFieldRenderer/_components/fields/EnumField.tsx
+// RUTA: src/components/features/form-builder/builder/SchemaFieldRenderer/_components/fields/EnumField.tsx
 /**
  * @file EnumField.tsx
  * @description Aparato hiper-atómico para renderizar un control <Select> para campos Zod enum.
@@ -34,14 +34,12 @@ export function EnumField<TFieldValues extends FieldValues>({
 }: EnumFieldProps<TFieldValues>): React.ReactElement {
   logger.trace(`[EnumField] Renderizando para: ${String(fieldName)}`);
 
-  // Extraemos las opciones directamente del schema de Zod.
   const enumOptions = (fieldSchema as z.ZodEnum<[string, ...string[]]>)._def
     .values;
 
   return (
     <Select
       onValueChange={(value) => {
-        // Notificamos tanto a react-hook-form como a nuestro sistema de persistencia.
         field.onChange(value);
         onValueChange(fieldName, value);
       }}
@@ -64,4 +62,3 @@ export function EnumField<TFieldValues extends FieldValues>({
     </Select>
   );
 }
-// components/forms/builder/SchemaFieldRenderer/_components/fields/EnumField.tsx

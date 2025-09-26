@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/_components/EditorOrchestrator.tsx
+// RUTA: src/components/features/campaign-suite/Step4_Content/_components/EditorOrchestrator.tsx
 /**
  * @file EditorOrchestrator.tsx
  * @description Aparato atómico que orquesta el renderizado del ContentEditor.
- * @version 2.1.0 (Module Resolution Fix)
+ * @version 3.0.0 (Build Integrity Restored)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -11,10 +11,7 @@ import { AnimatePresence } from "framer-motion";
 import { sectionsConfig } from "@/shared/lib/config/sections.config";
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
-// La importación ahora apunta al módulo hermano a través de su barrel file.
 import { ContentEditor } from "../ContentEditor";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 interface EditorOrchestratorProps {
   draft: CampaignDraft;
@@ -52,4 +49,3 @@ export function EditorOrchestrator({
     </AnimatePresence>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/_components/EditorOrchestrator.tsx

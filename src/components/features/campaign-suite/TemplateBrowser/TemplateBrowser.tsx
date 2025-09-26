@@ -16,6 +16,9 @@ import { logger } from "@/shared/lib/logging";
 import type { CampaignTemplate } from "@/shared/lib/schemas/campaigns/template.schema";
 import { TemplateCard } from "./_components/TemplateCard";
 import { Separator } from "@/components/ui/Separator";
+import { routes } from "@/shared/lib/navigation";
+import { usePathname } from "next/navigation";
+import { getCurrentLocaleFromPathname } from "@/shared/lib/utils/i18n/i18n.utils";
 
 interface TemplateBrowserProps {
   templates: CampaignTemplate[];
@@ -23,6 +26,8 @@ interface TemplateBrowserProps {
 
 export function TemplateBrowser({ templates }: TemplateBrowserProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = getCurrentLocaleFromPathname(pathname);
   const resetDraft = useCampaignDraftStore((s) => s.resetDraft);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
     null
@@ -30,13 +35,13 @@ export function TemplateBrowser({ templates }: TemplateBrowserProps) {
 
   const { loadTemplate, isPending } = useTemplateLoader(() => {
     // Callback de éxito: redirige al usuario al inicio del asistente
-    router.push("/creator/campaign-suite/0");
+    router.push(routes.creatorCampaignSuite.path({ locale, stepId: ["0"] }));
   });
 
   const handleStartFromScratch = () => {
     logger.info("[TemplateBrowser] Iniciando un nuevo borrador desde cero.");
     resetDraft();
-    router.push("/creator/campaign-suite/0");
+    router.push(routes.creatorCampaignSuite.path({ locale, stepId: ["0"] }));
   };
 
   const handleTemplateSelect = (templateId: string) => {

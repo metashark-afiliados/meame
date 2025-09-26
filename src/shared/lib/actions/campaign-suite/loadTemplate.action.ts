@@ -1,8 +1,9 @@
-// RUTA: shared/lib/actions/campaign-suite/loadTemplate.action.ts
+// RUTA: src/shared/lib/actions/campaign-suite/loadTemplate.action.ts
 /**
  * @file loadTemplate.action.ts
- * @description Server Action de producción para cargar una plantilla específica.
- * @version 3.0.0 (Supabase Production Ready)
+ * @description Server Action de producción para cargar una plantilla específica,
+ *              ahora con una consulta de seguridad compuesta para garantizar la propiedad.
+ * @version 4.1.0 (Code Hygiene)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -14,11 +15,12 @@ import {
   type CampaignTemplate,
 } from "@/shared/lib/schemas/campaigns/template.schema";
 import { logger } from "@/shared/lib/logging";
+// Se elimina la importación no utilizada de 'zod'.
 
 export async function loadTemplateAction(
   templateId: string
 ): Promise<ActionResult<CampaignTemplate>> {
-  const traceId = logger.startTrace("loadTemplateAction_v3.0");
+  const traceId = logger.startTrace("loadTemplateAction_v4.1");
   const supabase = createServerClient();
   const {
     data: { user },
@@ -40,9 +42,17 @@ export async function loadTemplateAction(
       .from("campaign_templates")
       .select("*")
       .eq("id", templateId)
-      .single(); // .single() devuelve un error si no se encuentra exactamente un resultado
+      .eq("user_id", user.id)
+      .single();
 
     if (error) {
+      if (error.code === "PGRST116") {
+        logger.warn(
+          `[Action] Plantilla no encontrada o no pertenece al usuario.`,
+          { templateId, userId: user.id, traceId }
+        );
+        throw new Error("Plantilla no encontrada o acceso denegado.");
+      }
       throw new Error(error.message);
     }
 
@@ -62,7 +72,7 @@ export async function loadTemplateAction(
     return {
       success: false,
       error:
-        "La plantilla no se pudo cargar o no tienes permiso para acceder a ella.",
+        "La plantilla no se pudo cargar. Puede que no exista o que no tengas permiso para acceder a ella.",
     };
   } finally {
     logger.endTrace(traceId);

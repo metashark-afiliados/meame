@@ -8,7 +8,7 @@
 import React from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Container } from "@/components/ui";
-import { DeveloperErrorDisplay } from "@/components/dev";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { logger } from "@/shared/lib/logging";
 import { getSessionEventsAction } from "@/shared/lib/actions/nos3";
 import { SessionPlayerClient } from "./_components";
