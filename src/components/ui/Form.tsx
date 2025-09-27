@@ -1,4 +1,4 @@
-// components/ui/Form.tsx
+// RUTA: src/components/ui/Form.tsx
 "use client";
 
 import * as React from "react";
@@ -6,18 +6,18 @@ import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
 import {
   Controller,
-  ControllerProps,
-  FieldPath,
-  FieldValues,
+  type ControllerProps,
+  type FieldPath,
+  type FieldValues,
   FormProvider,
   useFormContext,
 } from "react-hook-form";
 
 import { cn } from "@/shared/lib/utils/cn";
-// --- INICIO DE CORRECCIÓN ---
-// Se corrige la ruta de importación a PascalCase para cumplir con la convención.
+// --- [INICIO DE REFACTORIZACIÓN DE NIVELACIÓN] ---
+// Se corrige la importación para cumplir con la convención de nomenclatura PascalCase.
 import { Label } from "@/components/ui/Label";
-// --- FIN DE CORRECCIÓN ---
+// --- [FIN DE REFACTORIZACIÓN DE NIVELACIÓN] ---
 
 const Form = FormProvider;
 
@@ -181,4 +181,3 @@ export {
   FormMessage,
   FormField,
 };
-// components/ui/Form.tsx

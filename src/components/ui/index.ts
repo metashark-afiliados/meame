@@ -2,51 +2,51 @@
 /**
  * @file index.ts (Barrel File)
  * @description SSoT y fachada pública para el módulo de componentes de UI.
- *              v5.0.0 (Price Component Integration): Se añade la exportación
- *              para el componente de élite 'Price', integrándolo en la librería
- *              de UI soberana.
- * @version 5.0.0
+ *              v6.0.0 (Explicit Module Resolution): Se añaden extensiones .tsx
+ *              a todas las exportaciones para una resolución de módulos robusta.
+ * @version 6.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
-export * from "./Accordion";
-export * from "./AlertDialog";
-export * from "./Alert";
-export * from "./Avatar";
-export * from "./Badge";
-export * from "./Button";
-export * from "./Card";
-export * from "./Carousel";
-export * from "./Checkbox";
-export * from "./Collapsible";
-export * from "./Container";
-export * from "./Dialog";
-export * from "./DynamicIcon";
-export * from "./FadeIn";
-export * from "./FlagIcon";
-export * from "./Form";
-export * from "./FormInput";
-export * from "./ImageUploader";
-export * from "./Input";
-export * from "./Label";
-export * from "./NavigationMenu";
-export * from "./PassportStamp";
-export * from "./Popover";
-export * from "./Price"; // <-- NUEVA EXPORTACIÓN SOBERANA
-export * from "./PriceDisplay";
-export * from "./ProductBadge";
-export * from "./RadioGroup";
-export * from "./ScrollArea";
-export * from "./Select";
-export * from "./Separator";
-export * from "./Sheet";
-export * from "./Skeleton";
-export * from "./Slider";
-export * from "./Switch";
-export * from "./Table";
-export * from "./Tabs";
-export * from "./TestimonialCard";
-export * from "./Textarea";
-export * from "./TiltCard";
-export * from "./ToggleTheme";
-export * from "./Tooltip";
-export * from "./ValidationError";
+export * from "./Accordion.tsx";
+export * from "./AlertDialog.tsx";
+export * from "./Alert.tsx";
+export * from "./Avatar.tsx";
+export * from "./Badge.tsx";
+export * from "./Button.tsx";
+export * from "./Card.tsx";
+export * from "./Carousel.tsx";
+export * from "./Checkbox.tsx";
+export * from "./Collapsible.tsx";
+export * from "./Container.tsx";
+export * from "./Dialog.tsx";
+export * from "./DynamicIcon.tsx";
+export * from "./FadeIn.tsx";
+export * from "./FlagIcon.tsx";
+export * from "./Form.tsx";
+export * from "./FormInput.tsx";
+export * from "../forms/FormFieldGroup.tsx";
+export * from "./ImageUploader.tsx";
+export * from "./Input.tsx";
+export * from "./Label.tsx";
+export * from "./NavigationMenu.tsx";
+export * from "./PassportStamp.tsx";
+export * from "./Popover.tsx";
+export * from "./Price.tsx";
+export * from "./PriceDisplay.tsx";
+export * from "./ProductBadge.tsx";
+export * from "./RadioGroup.tsx";
+export * from "./ScrollArea.tsx";
+export * from "./Select.tsx";
+export * from "./Separator.tsx";
+export * from "./Sheet.tsx";
+export * from "./Skeleton.tsx";
+export * from "./Slider.tsx";
+export * from "./Switch.tsx";
+export * from "./Table.tsx";
+export * from "./Tabs.tsx";
+export * from "./TestimonialCard.tsx";
+export * from "./Textarea.tsx";
+export * from "./TiltCard.tsx";
+export * from "./ToggleTheme.tsx";
+export * from "./Tooltip.tsx";
+export * from "./ValidationError.tsx";
