@@ -11,6 +11,7 @@
 import type { ComponentType } from "react";
 import { logger } from "@/shared/lib/logging";
 import * as Sections from "@/components/sections";
+// Header y Footer son client components y seguros de importar
 import Header from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
@@ -37,7 +38,8 @@ export const livePreviewComponentMap: Record<string, ComponentType<any>> = {
   FeaturedArticlesCarousel: Sections.FeaturedArticlesCarousel,
   FeaturesSection: Sections.FeaturesSection,
   GuaranteeSection: Sections.GuaranteeSection,
-  Hero: Sections.Hero,
+  // Hero es un Server Component, por lo que usamos su contraparte de cliente.
+  Hero: Sections.HeroClient,
   HeroNews: Sections.HeroNews,
   IngredientAnalysis: Sections.IngredientAnalysis,
   NewsGrid: Sections.NewsGrid,
@@ -45,7 +47,8 @@ export const livePreviewComponentMap: Record<string, ComponentType<any>> = {
   PricingSection: Sections.PricingSection,
   ProductShowcase: Sections.ProductShowcase,
   ServicesSection: Sections.ServicesSection,
-  SocialProofLogos: Sections.SocialProofLogos,
+  // SocialProofLogos es un Server Component, se necesita una versión de cliente o mock
+  SocialProofLogos: Sections.SocialProofLogos, // Temporalmente, esto puede necesitar un refactor
   SponsorsSection: Sections.SponsorsSection,
   TeamSection: Sections.TeamSection,
   TestimonialCarouselSection: Sections.TestimonialCarouselSection,
@@ -53,4 +56,3 @@ export const livePreviewComponentMap: Record<string, ComponentType<any>> = {
   TextSection: Sections.TextSection,
   ThumbnailCarousel: Sections.ThumbnailCarousel,
 };
-// RUTA: src/shared/lib/dev/live-previews.config.ts
