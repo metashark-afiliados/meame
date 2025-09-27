@@ -16,7 +16,7 @@ import type { Step3ContentSchema } from "@/shared/lib/schemas/campaigns/steps/st
 import type { z } from "zod";
 import { loadJsonAsset } from "@/shared/lib/i18n/campaign.data.loader";
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
-import type { LoadedFragments } from "./_components/ThemeComposerModal";
+import type { LoadedFragments } from "@/components/features/dev-tools/SuiteStyleComposer/types"; // <-- IMPORTACIÓN CORREGIDA Y SOBERANA
 
 type Content = z.infer<typeof Step3ContentSchema>;
 
@@ -94,3 +94,4 @@ export default async function Step3({
     />
   );
 }
+// RUTA: src/components/features/campaign-suite/Step3_Theme/Step3.tsx

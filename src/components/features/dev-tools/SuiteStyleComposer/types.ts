@@ -20,3 +20,4 @@ export interface SuiteThemeConfig extends ThemeConfig {
   granularFonts?: Record<string, string>;
   granularGeometry?: Record<string, string>;
 }
+// RUTA: src/components/features/dev-tools/SuiteStyleComposer/types.ts

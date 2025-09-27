@@ -20,7 +20,7 @@ import { DynamicIcon } from "@/components/ui";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 import type { z } from "zod";
 import type { Step3ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step3.schema";
-import type { LoadedFragments } from "./_components/ThemeComposerModal";
+import type { LoadedFragments } from "@/components/features/dev-tools/SuiteStyleComposer/types";
 
 type Step3Content = z.infer<typeof Step3ContentSchema>;
 

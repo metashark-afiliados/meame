@@ -2,7 +2,7 @@
 /**
  * @file ThemeComposerModal.tsx
  * @description Orquestador modal para la composición visual de temas.
- *              v2.0.0 (Module & Type Integrity Restoration, MEA/UX Injected)
+ * @version 2.0.0 (Module & Type Integrity Restoration, MEA/UX Injected)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -27,6 +27,7 @@ import { AssembledThemeSchema } from "@/shared/lib/schemas/theming/assembled-the
 import { deepMerge } from "@/shared/lib/utils";
 import { logger } from "@/shared/lib/logging";
 import { toast } from "sonner";
+import type { LoadedFragments } from "@/components/features/dev-tools/SuiteStyleComposer/types"; // <-- IMPORTACIÓN CORREGIDA Y SOBERANA
 
 // --- Contratos de Tipo Locales para Máxima Seguridad y Claridad ---
 interface Palette {
@@ -41,13 +42,6 @@ interface Geometry {
   name: string;
   geometry?: { [key: string]: string | undefined };
 }
-
-type LoadedFragments = {
-  base: Partial<AssembledTheme>;
-  colors: Record<string, Partial<AssembledTheme>>;
-  fonts: Record<string, Partial<AssembledTheme>>;
-  radii: Record<string, Partial<AssembledTheme>>;
-};
 
 interface ThemeComposerModalProps {
   isOpen: boolean;
@@ -79,6 +73,7 @@ export function ThemeComposerModal({
   onSave,
   content,
 }: ThemeComposerModalProps) {
+  // ... (resto de la lógica del componente sin cambios) ...
   logger.info("[ThemeComposerModal] Renderizando Compositor de Temas v2.0.");
   const [localConfig, setLocalConfig] = useState(currentConfig);
   const { setPreviewTheme } = usePreviewStore();
@@ -100,7 +95,6 @@ export function ThemeComposerModal({
   };
 
   const assemblePreviewTheme = (config: ThemeConfig): AssembledTheme | null => {
-    // ... (lógica de ensamblaje sin cambios)
     const { colorPreset, fontPreset, radiusPreset } = config;
     const colorFrag = colorPreset ? fragments.colors[colorPreset] : {};
     const fontFrag = fontPreset ? fragments.fonts[fontPreset] : {};
@@ -248,3 +242,4 @@ export function ThemeComposerModal({
     </Dialog>
   );
 }
+// RUTA: src/components/features/campaign-suite/Step3_Theme/_components/ThemeComposerModal.tsx
