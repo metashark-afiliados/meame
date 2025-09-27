@@ -1,7 +1,7 @@
-// app/[locale]/(dev)/dev/_components/SuiteStyleComposer/GranularInputControl.tsx
+// RUTA: src/components/features/dev-tools/SuiteStyleComposer/_components/GranularInputControl.tsx
 /**
  * @file GranularInputControl.tsx
- * @description Aparato hiper-atómico para un control de input granular individual (label + input).
+ * @description Aparato hiper-atómico para un control de input granular individual.
  * @version 1.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -18,7 +18,7 @@ interface GranularInputControlProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  unit?: string; // Por ejemplo, 'px', 'rem', '%'
+  unit?: string;
   type?: "text" | "number";
 }
 
@@ -32,7 +32,6 @@ export function GranularInputControl({
   type = "text",
 }: GranularInputControlProps): React.ReactElement {
   logger.trace(`[GranularInputControl] Renderizando para: ${id}`);
-
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>

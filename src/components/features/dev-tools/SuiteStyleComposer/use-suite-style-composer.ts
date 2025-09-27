@@ -2,10 +2,7 @@
 /**
  * @file use-suite-style-composer.ts
  * @description Hook "cerebro" de élite para la lógica del Compositor de Estilos.
- *              v4.0.0 (Atomic API & Elite Compliance): Refactorizado para exponer
- *              una API de actualización granular, resolviendo el error de contrato
- *              TS2322 y cumpliendo con los 7 Pilares de Calidad.
- * @version 4.0.0
+ * @version 4.0.0 (Atomic API & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
