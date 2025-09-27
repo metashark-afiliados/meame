@@ -2,11 +2,14 @@
 /**
  * @file manifest.queries.ts
  * @description SSoT para las operaciones de lectura de la BAVI desde Supabase.
- * @version 4.0.0 (Environment-Aware & Isomorphic)
+ *              v5.0.0 (Resilient Parsing & Elite Observability): Inyectado con
+ *              guardianes de resiliencia. Ahora utiliza `safeParse` para ignorar
+ *              activos corruptos y registrarlos, previniendo fallos de renderizado.
+ * @version 5.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import "server-only";
-import * as React from "react"; // Importar como espacio de nombres
+import * as React from "react";
 import { createServerClient } from "@/shared/lib/supabase/server";
 import { logger } from "@/shared/lib/logging";
 import {
@@ -35,17 +38,10 @@ interface SupabaseBaviAsset {
   updated_at: string;
   bavi_variants: SupabaseBaviVariant[];
 }
-// --- Fin de tipos internos ---
 
-// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: LÓGICA PURA AISLADA] ---
-/**
- * @function getBaviManifestFn
- * @description La función pura y sin caché para obtener y transformar los datos.
- *              Es segura para ser ejecutada en cualquier entorno de Node.js.
- * @private
- */
 const getBaviManifestFn = async (): Promise<BaviManifest> => {
-  logger.trace("[BAVI DAL v4.0] Solicitando manifiesto desde Supabase...");
+  const traceId = logger.startTrace("getBaviManifestFn_v5.0_Resilient");
+  logger.trace("[BAVI DAL v5.0] Solicitando manifiesto desde Supabase...");
   const supabase = createServerClient();
 
   const { data: assetsData, error: assetsError } = await supabase
@@ -60,45 +56,55 @@ const getBaviManifestFn = async (): Promise<BaviManifest> => {
   if (assetsError) {
     logger.error("[BAVI DAL] Fallo al obtener activos de Supabase.", {
       error: assetsError,
+      traceId,
     });
     throw new Error(
       "No se pudo cargar la biblioteca de activos visuales desde Supabase."
     );
   }
 
-  const reshapedAssets: BaviAsset[] = assetsData.map(
-    (asset: SupabaseBaviAsset) => {
-      const transformedAsset = {
-        assetId: asset.asset_id,
-        provider: asset.provider,
-        promptId: asset.prompt_id ?? undefined,
-        tags: asset.tags ?? undefined,
-        variants: asset.bavi_variants.map((v: SupabaseBaviVariant) => ({
-          versionId: v.variant_id,
-          publicId: v.public_id,
-          state: v.state,
-          dimensions: { width: v.width, height: v.height },
-        })),
-        metadata: asset.metadata ?? { altText: {} },
-        createdAt: asset.created_at,
-        updatedAt: asset.updated_at,
-      };
-      return BaviAssetSchema.parse(transformedAsset);
+  const validAssets: BaviAsset[] = [];
+
+  for (const asset of assetsData as SupabaseBaviAsset[]) {
+    const transformedAsset = {
+      assetId: asset.asset_id,
+      provider: asset.provider,
+      promptId: asset.prompt_id ?? undefined,
+      tags: asset.tags ?? undefined,
+      variants: asset.bavi_variants.map((v: SupabaseBaviVariant) => ({
+        versionId: v.variant_id,
+        publicId: v.public_id,
+        state: v.state,
+        dimensions: { width: v.width, height: v.height },
+      })),
+      metadata: asset.metadata ?? { altText: {} },
+      createdAt: asset.created_at,
+      updatedAt: asset.updated_at,
+    };
+
+    // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
+    const validation = BaviAssetSchema.safeParse(transformedAsset);
+    if (validation.success) {
+      validAssets.push(validation.data);
+    } else {
+      logger.error(
+        `[BAVI DAL] Activo corrupto ignorado en la base de datos. assetId: ${asset.asset_id}`,
+        {
+          error: validation.error.flatten(),
+          traceId,
+        }
+      );
     }
-  );
+    // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
+  }
 
   logger.success(
-    `[BAVI DAL v4.0] Manifiesto ensamblado con ${reshapedAssets.length} activos.`
+    `[BAVI DAL v5.0] Manifiesto ensamblado con ${validAssets.length} activos válidos (de ${assetsData.length} encontrados).`
   );
-  return { assets: reshapedAssets };
+  logger.endTrace(traceId);
+  return { assets: validAssets };
 };
-// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
-/**
- * @export getBaviManifest
- * @description Exportación pública y consciente del entorno.
- *              Aplica la optimización de caché de React solo si está disponible.
- */
 export const getBaviManifest =
   typeof React.cache === "function"
     ? React.cache(getBaviManifestFn)

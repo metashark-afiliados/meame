@@ -2,7 +2,7 @@
 /**
  * @file EditorOrchestrator.tsx
  * @description Aparato atómico que orquesta el renderizado del ContentEditor.
- * @version 3.0.0 (Build Integrity Restored)
+ * @version 4.0.0 (ACS Path & Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";

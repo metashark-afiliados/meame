@@ -2,7 +2,7 @@
 /**
  * @file Step0Form.tsx
  * @description Componente de Presentación para el formulario del Paso 0.
- * @version 5.1.0 (Module Resolution Fix)
+ * @version 6.0.0 (ACS Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -24,9 +24,7 @@ import {
   type Step0Data,
   type Step0ContentSchema,
 } from "@/shared/lib/schemas/campaigns/steps/step0.schema";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { CampaignSelectField, VariantInputField } from "../_components/shared";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { WizardNavigation } from "@/components/features/campaign-suite/_components/WizardNavigation";
 
 type Step0Content = z.infer<typeof Step0ContentSchema>;
@@ -48,7 +46,7 @@ export function Step0Form({
   onBack,
   onNext,
 }: Step0FormProps): React.ReactElement {
-  logger.info("Renderizando Step0Form (v5.1 - Module Resolution Fix)");
+  logger.info("Renderizando Step0Form (v6.0 - ACS Path Restoration)");
 
   return (
     <Card>
@@ -92,4 +90,3 @@ export function Step0Form({
     </Card>
   );
 }
-// RUTA: src/components/features/campaign-suite/Step0_Identity/Step0Form.tsx

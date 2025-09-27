@@ -1,9 +1,11 @@
+// RUTA: tsconfig.scripts.json
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "types": ["node"],
+    "lib": ["ES2017", "DOM"],
     "noEmit": true
   },
   "include": [

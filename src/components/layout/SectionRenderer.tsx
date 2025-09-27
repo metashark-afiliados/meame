@@ -1,8 +1,9 @@
 // RUTA: src/components/layout/SectionRenderer.tsx
 /**
  * @file SectionRenderer.tsx
- * @description Motor de renderizado con decorador de foco y aserción de tipo segura.
- * @version 25.0.0 (Build Integrity & Type-Safe Assertion)
+ * @description Motor de renderizado soberano. Mapea nombres de sección a
+ *              componentes y los renderiza con datos validados.
+ * @version 26.0.0 (Component Mapping Decoupling)
  * @author RaZ Podestá - MetaShark Tech
  */
 import * as React from "react";
@@ -10,6 +11,7 @@ import {
   sectionsConfig,
   type SectionName,
 } from "@/shared/lib/config/sections.config";
+import * as Sections from "@/components/sections";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
@@ -17,15 +19,42 @@ import { ValidationError } from "@/components/ui/ValidationError";
 import type { LayoutConfigItem } from "@/shared/lib/types/campaigns/draft.types";
 import { cn } from "@/shared/lib/utils/cn";
 
-// --- [INICIO DE SOLUCIÓN DE ÉLITE] ---
-// Se define un tipo genérico para cualquier componente de sección.
-// Esto nos permite hacer una aserción de tipo segura en lugar de usar 'any'.
+// SSoT del Mapeo Componente-Nombre
+const componentMap = {
+  BenefitsSection: Sections.BenefitsSection,
+  CommunitySection: Sections.CommunitySection,
+  CommentSection: Sections.CommentSection,
+  ContactSection: Sections.ContactSection,
+  DoubleScrollingBanner: Sections.DoubleScrollingBanner,
+  FaqAccordion: Sections.FaqAccordion,
+  FeaturedArticlesCarousel: Sections.FeaturedArticlesCarousel,
+  FeaturesSection: Sections.FeaturesSection,
+  GuaranteeSection: Sections.GuaranteeSection,
+  Hero: Sections.Hero,
+  HeroClient: Sections.HeroClient,
+  HeroNews: Sections.HeroNews,
+  IngredientAnalysis: Sections.IngredientAnalysis,
+  NewsGrid: Sections.NewsGrid,
+  OrderSection: Sections.OrderSection,
+  PricingSection: Sections.PricingSection,
+  ProductShowcase: Sections.ProductShowcase,
+  ScrollingBanner: Sections.ScrollingBanner,
+  ServicesSection: Sections.ServicesSection,
+  SocialProofLogos: Sections.SocialProofLogos,
+  SponsorsSection: Sections.SponsorsSection,
+  TeamSection: Sections.TeamSection,
+  TestimonialCarouselSection: Sections.TestimonialCarouselSection,
+  TestimonialGrid: Sections.TestimonialGrid,
+  TextSection: Sections.TextSection,
+  ThumbnailCarousel: Sections.ThumbnailCarousel,
+  ArticleBody: Sections.ArticleBody,
+};
+
 type AnySectionComponent = React.ComponentType<{
   content: unknown;
   locale: Locale;
   [key: string]: unknown;
 }>;
-// --- [FIN DE SOLUCIÓN DE ÉLITE] ---
 
 interface SectionRendererProps {
   sections: LayoutConfigItem[];
@@ -44,9 +73,7 @@ export function SectionRenderer({
   focusedSection,
   sectionRefs,
 }: SectionRendererProps): React.ReactElement {
-  logger.info(
-    "[SectionRenderer v25.0] Ensamblando con aserción de tipo SEGURA."
-  );
+  logger.info("[SectionRenderer v26.0] Ensamblando con mapeo desacoplado.");
 
   return (
     <>
@@ -55,9 +82,13 @@ export function SectionRenderer({
 
         const sectionName = section.name as SectionName;
         const config = sectionsConfig[sectionName];
-        if (!config) return null;
+        const Component = componentMap[
+          sectionName as keyof typeof componentMap
+        ] as AnySectionComponent | undefined;
 
-        const { component: Component, dictionaryKey, schema } = config;
+        if (!config || !Component) return null;
+
+        const { dictionaryKey, schema } = config;
         const contentData = (dictionary as Record<string, unknown>)[
           dictionaryKey
         ];
@@ -77,28 +108,16 @@ export function SectionRenderer({
           return null;
         }
 
-        const dynamicProps =
-          typeof dynamicData[sectionName] === "object" &&
-          dynamicData[sectionName] !== null
-            ? dynamicData[sectionName]
-            : {};
-
         const componentProps = {
           content: validation.data,
           locale,
-          ...dynamicProps,
+          ...(dynamicData[sectionName] || {}),
         };
 
         const sectionRef = (el: HTMLElement | null) => {
-          if (sectionRefs) {
-            sectionRefs.current[sectionName] = el;
-          }
+          if (sectionRefs) sectionRefs.current[sectionName] = el;
         };
-
         const isCurrentlyFocused = focusedSection === sectionName;
-
-        // Se realiza la aserción de tipo segura.
-        const TypedComponent = Component as AnySectionComponent;
 
         return (
           <div
@@ -110,7 +129,7 @@ export function SectionRenderer({
                 "ring-2 ring-primary ring-offset-4 ring-offset-background"
             )}
           >
-            <TypedComponent {...componentProps} />
+            <Component {...componentProps} />
           </div>
         );
       })}

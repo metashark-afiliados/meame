@@ -2,9 +2,9 @@
 /**
  * @file DevLayoutClient.tsx
  * @description Límite de Cliente para el Layout del DCC. Orquesta los
- *              proveedores, el header y los efectos de MEA/UX, confiando en
- *              un contrato de datos garantizado por su padre de servidor.
- * @version 2.0.0 (Guaranteed Prop Contract)
+ *              proveedores, el header y los efectos de MEA/UX, y ahora cumple
+ *              con la Arquitectura Canónica Soberana.
+ * @version 3.0.0 (Sovereign Path Restoration & ACS Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,10 +12,13 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import AppProviders from "@/components/layout/AppProviders";
-import DevHeader from "@/components/dev/DevHeader";
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+// Se corrigen las importaciones para apuntar a la SSoT canónica en la capa de features.
+import DevHeader from "@/components/features/dev-tools/DevHeader";
+import { DevThemeSwitcher } from "@/components/features/dev-tools/DevThemeSwitcher";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import { Container } from "@/components/ui/Container";
 import { WizardHeader } from "@/components/features/campaign-suite/_components/WizardHeader";
-import { DevThemeSwitcher } from "@/components/dev/DevThemeSwitcher";
 import { useCelebrationStore } from "@/shared/lib/stores/use-celebration.store";
 import { DigitalConfetti } from "@/components/ui/DigitalConfetti";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
@@ -26,7 +29,7 @@ import { logger } from "@/shared/lib/logging";
 interface DevLayoutClientProps {
   children: React.ReactNode;
   locale: Locale;
-  dictionary: Dictionary; // La prop ahora es no-opcional
+  dictionary: Dictionary;
   allLoadedFragments: LoadedFragments;
 }
 
@@ -37,31 +40,54 @@ export function DevLayoutClient({
   allLoadedFragments,
 }: DevLayoutClientProps) {
   logger.info(
-    `[DevLayoutClient] Hidratando layout del DCC para locale: [${locale}]`
+    `[DevLayoutClient] Hidratando layout del DCC v3.0 (ACS Compliant)`
   );
 
   const { isCelebrating, endCelebration } = useCelebrationStore();
   const pathname = usePathname();
   const isCampaignSuite = pathname.includes("/creator/campaign-suite");
 
+  // Guardia de resiliencia para el contenido, asegurando que las claves existan.
+  const devHeaderContent = dictionary.devHeader;
+  const devMenuContent = dictionary.devRouteMenu;
+  const toggleThemeContent = dictionary.toggleTheme;
+  const languageSwitcherContent = dictionary.languageSwitcher;
+  const suiteStyleComposerContent = dictionary.suiteStyleComposer;
+  const cookieConsentContent = dictionary.cookieConsentBanner;
+
+  if (
+    !devHeaderContent ||
+    !devMenuContent ||
+    !toggleThemeContent ||
+    !languageSwitcherContent ||
+    !suiteStyleComposerContent ||
+    !cookieConsentContent
+  ) {
+    // En un caso real, un componente de error más elegante sería ideal aquí.
+    logger.error("[DevLayoutClient] Faltan claves de contenido i18n críticas.");
+    return (
+      <div className="bg-destructive text-destructive-foreground p-4">
+        Error: Faltan datos de configuración para el layout de desarrollo.
+        Revise los archivos i18n.
+      </div>
+    );
+  }
+
   return (
-    <AppProviders
-      locale={locale}
-      cookieConsentContent={dictionary.cookieConsentBanner}
-    >
+    <AppProviders locale={locale} cookieConsentContent={cookieConsentContent}>
       <DevHeader
         locale={locale}
         centerComponent={isCampaignSuite ? <WizardHeader /> : null}
         devThemeSwitcher={
           <DevThemeSwitcher
             allThemeFragments={allLoadedFragments}
-            content={dictionary.suiteStyleComposer!} // Aserción segura
+            content={suiteStyleComposerContent}
           />
         }
-        content={dictionary.devHeader!} // Aserción segura
-        devMenuContent={dictionary.devRouteMenu!} // Aserción segura
-        toggleThemeContent={dictionary.toggleTheme!} // Aserción segura
-        languageSwitcherContent={dictionary.languageSwitcher!} // Aserción segura
+        content={devHeaderContent}
+        devMenuContent={devMenuContent}
+        toggleThemeContent={toggleThemeContent}
+        languageSwitcherContent={languageSwitcherContent}
       />
       <main className="py-8 md:py-12">
         <Container>{children}</Container>
@@ -70,3 +96,4 @@ export function DevLayoutClient({
     </AppProviders>
   );
 }
+// RUTA: src/app/[locale]/(dev)/DevLayoutClient.tsx

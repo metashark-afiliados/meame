@@ -2,15 +2,16 @@
 /**
  * @file LoginForm.tsx
  * @description Componente de presentación puro para el formulario de login.
- *              v4.0.0 (Password Visibility & MEA/UX): Implementa el conmutador de
- *              visibilidad de contraseña con una animación de élite.
- * @version 4.0.0
+ *              v5.0.0 (Contextual Redirect & Elite Compliance): Implementa la
+ *              lógica de redirección inteligente post-login, enviando al usuario
+ *              a la página que intentaba acceder originalmente.
+ * @version 5.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React, { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -69,11 +70,12 @@ const fieldVariants: Variants = {
 };
 
 export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
-  logger.info("[LoginForm] Renderizando v4.0 (Password Visibility).");
+  logger.info("[LoginForm] Renderizando v5.0 (Contextual Redirect).");
   const router = useRouter();
+  const searchParams = useSearchParams(); // <-- Hook para leer los parámetros de la URL
   const [isPending, startTransition] = useTransition();
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // --- [INICIO DE MEJORA] ---
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(LoginSchema),
@@ -89,8 +91,17 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
     startTransition(async () => {
       const result = await loginWithPasswordAction(data);
       if (result.success) {
-        toast.success("Login exitoso. Redirigiendo al DCC...");
-        router.push(routes.devDashboard.path({ locale }));
+        toast.success("Login exitoso. Redirigiendo...");
+
+        // --- [INICIO DE REFACTORIZACIÓN DE LÓGICA DE REDIRECCIÓN] ---
+        const redirectTo = searchParams.get("redirectedFrom");
+        const destination = redirectTo || routes.devDashboard.path({ locale });
+
+        logger.info(
+          `[LoginForm] Redirección post-login. Destino: ${destination}`
+        );
+        router.push(destination);
+        // --- [FIN DE REFACTORIZACIÓN DE LÓGICA DE REDIRECCIÓN] ---
       } else {
         toast.error("Error de Login", { description: result.error });
         form.setError("root", { message: result.error });
@@ -114,6 +125,7 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
               initial="hidden"
               animate="visible"
             >
+              {/* ... Campos del formulario sin cambios ... */}
               <motion.div variants={fieldVariants}>
                 <FormField
                   control={form.control}
@@ -150,7 +162,6 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
                         </button>
                       </div>
                       <FormControl>
-                        {/* --- [INICIO DE REFACTORIZACIÓN MEA/UX] --- */}
                         <div className="relative">
                           <Input
                             type={showPassword ? "text" : "password"}
@@ -186,7 +197,6 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
                             </AnimatePresence>
                           </Button>
                         </div>
-                        {/* --- [FIN DE REFACTORIZACIÓN MEA/UX] --- */}
                       </FormControl>
                       <FormMessage />
                     </FormItem>

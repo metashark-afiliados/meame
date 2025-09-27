@@ -3,7 +3,7 @@
  * @file Step3Client.tsx
  * @description Contenedor de Cliente para el Paso 3. Orquesta el Compositor
  *              de Temas y consume los stores de tema y metadata atómicos.
- * @version 7.0.0 (Server-Hydrated & Elite Compliance)
+ * @version 8.0.0 (ACS Path & Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -35,7 +35,7 @@ export function Step3Client({
   loadedFragments,
   fetchError,
 }: Step3ClientProps): React.ReactElement {
-  logger.info("Renderizando Step3Client (v7.0 - Server-Hydrated).");
+  logger.info("Renderizando Step3Client (v8.0 - ACS Aligned).");
 
   const { themeConfig, updateThemeConfig } = useStep3ThemeStore();
   const { completeStep } = useDraftMetadataStore();

@@ -2,9 +2,7 @@
 /**
  * @file Step3Form.tsx
  * @description Orquestador de presentación puro para el Paso 3.
- *              v6.0.0 (Theme Composer Integration): Refactorizado para lanzar el
- *              modal del Compositor de Temas en lugar de mostrar selectores estáticos.
- * @version 6.0.0
+ * @version 7.0.0 (ACS Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -43,7 +41,7 @@ export function Step3Form({
   onNext,
   onLaunchComposer,
 }: Step3FormProps): React.ReactElement {
-  logger.info("[Step3Form] Renderizando orquestador de presentación v6.0.");
+  logger.info("[Step3Form] Renderizando orquestador de presentación v7.0.");
 
   return (
     <Card>

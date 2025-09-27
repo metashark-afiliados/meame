@@ -1,23 +1,21 @@
-// RUTA: src/shared/lib/dev/live-previews.config.ts
+// RUTA: src/components/features/dev-tools/config/live-previews.config.ts
 /**
  * @file live-previews.config.ts
  * @description SSoT para el registro de componentes SEGUROS PARA EL CLIENTE para el EDVI.
- *              Este manifiesto es el guardián de la frontera Servidor-Cliente. Solo
- *              debe importar componentes de presentación puros ("use client") para
- *              garantizar la integridad del build.
- * @version 6.0.0 (Holistic & Server-Client Boundary Enforcement)
+ * @version 8.0.0 (Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import type { ComponentType } from "react";
 import { logger } from "@/shared/lib/logging";
 
-// --- Pilar III (Observabilidad): Se registra la carga de este módulo crítico. ---
 logger.trace(
-  "[LivePreviewRegistry] Cargando registro para EDVI (v6.0 - Client-Safe & Holistic)."
+  "[LivePreviewRegistry] Cargando registro para EDVI (v8.0 - Build-Ready)."
 );
 
-// --- Pilar V (Arquitectura): Importaciones quirúrgicas SÓLO a componentes de CLIENTE ---
-import Header from "@/components/layout/Header";
+// --- [INICIO DE CORRECCIÓN DE BUILD TS2614] ---
+// Se corrige la importación de HeaderClient para usar la sintaxis de exportación por defecto.
+import HeaderClient from "@/components/layout/HeaderClient";
+// --- [FIN DE CORRECCIÓN DE BUILD TS2614] ---
 import { Footer } from "@/components/layout/Footer";
 import { BenefitsSection } from "@/components/sections/BenefitsSection";
 import { CommunitySection } from "@/components/sections/CommunitySection";
@@ -43,18 +41,10 @@ import { TestimonialGrid } from "@/components/sections/TestimonialGrid";
 import { TextSection } from "@/components/sections/TextSection";
 import { ThumbnailCarousel } from "@/components/sections/ThumbnailCarousel";
 
-/**
- * @const livePreviewComponentMap
- * @description El registro soberano que mapea un componentName a su función de
- *              renderizado de CLIENTE. Este es el corazón del EDVI.
- *              Se utiliza `any` de forma controlada aquí porque es un mapa de
- *              componentes con props heterogéneas, lo cual es un caso de uso
- *              aceptado para la flexibilidad arquitectónica.
- */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const livePreviewComponentMap: Record<string, ComponentType<any>> = {
-  StandardHeader: Header,
-  MinimalHeader: Header,
+  StandardHeader: HeaderClient,
+  MinimalHeader: HeaderClient, // Reutiliza el cliente, la variante se maneja con props
   StandardFooter: Footer,
   BenefitsSection,
   CommunitySection,

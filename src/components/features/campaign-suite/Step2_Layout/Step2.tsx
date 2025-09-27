@@ -1,10 +1,10 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step2_Layout/Step2.tsx
+// RUTA: src/components/features/campaign-suite/Step2_Layout/Step2.tsx
 /**
  * @file Step2.tsx
  * @description Ensamblador de Servidor para el Paso 2 de la SDC (Layout).
- * @version 3.0.0 (Holistic Type Alignment): Se alinea con la nueva
- *              arquitectura de props "envueltas".
- * @version 3.0.0
+ *              v5.0.0 (Simplified Prop Contract): Alineado con el nuevo contrato
+ *              de props directo.
+ * @version 5.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -16,11 +16,12 @@ import type { z } from "zod";
 
 type Content = z.infer<typeof Step2ContentSchema>;
 
+// --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
 export default async function Step2({
-  content: rawContent,
-}: StepProps<{ step2: Content }>): Promise<React.ReactElement> {
-  const content = rawContent.step2;
-  logger.info("[Step2 Ensamblador] Ensamblando y delegando al cliente (v3.0).");
+  content,
+}: StepProps<Content>): Promise<React.ReactElement> {
+  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
+  logger.info("[Step2 Ensamblador] Ensamblando v5.0 y delegando al cliente.");
   return <Step2Client content={content} />;
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step2_Layout/Step2.tsx
+// RUTA: src/components/features/campaign-suite/Step2_Layout/Step2.tsx

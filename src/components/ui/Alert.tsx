@@ -1,10 +1,8 @@
-// RUTA: components/ui/Alert.tsx
+// RUTA: src/components/ui/Alert.tsx
 /**
  * @file Alert.tsx
  * @description Componente de alerta de élite, inyectado con MEA/UX.
- *              Muestra mensajes importantes con una animación de entrada sutil
- *              y un pulso visual para captar la atención del usuario.
- * @version 2.0.0 (MEA Injected & Elite Leveling)
+ * @version 2.1.0 (A11y & Elite Leveling)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -47,35 +45,36 @@ const AlertComponent = React.forwardRef<
 });
 AlertComponent.displayName = "AlertComponent";
 
+// --- [INICIO DE REFACTORIZACIÓN DE ACCESIBILIDAD] ---
 const AlertTitle = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, children, ...props }, ref) => (
+  <h5
     ref={ref}
     className={cn("mb-1 font-medium leading-none tracking-tight", className)}
     {...props}
-  />
+  >
+    {children}
+  </h5>
 ));
 AlertTitle.displayName = "AlertTitle";
 
 const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => (
-  <div
+>(({ className, children, ...props }, ref) => (
+  <p
     ref={ref}
     className={cn("text-sm [&_p]:leading-relaxed", className)}
     {...props}
-  />
+  >
+    {children}
+  </p>
 ));
 AlertDescription.displayName = "AlertDescription";
+// --- [FIN DE REFACTORIZACIÓN DE ACCESIBILIDAD] ---
 
-/**
- * @hoc AnimatedAlert
- * @description High-Order Component que envuelve el Alert base con animación.
- *              Esta es la exportación pública y recomendada.
- */
 const AnimatedAlert = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>

@@ -1,28 +1,31 @@
-// components/layout/DevHomepageHeader.tsx
+// RUTA: src/components/layout/DevHomepageHeader.tsx
 /**
  * @file DevHomepageHeader.tsx
  * @description Header de desarrollo para la página de inicio.
- *              v8.0.0 (Holistic Refactor): Sincronizado con el contrato de `getDictionary`.
- *              Ahora desestructura la respuesta, es resiliente a contenido faltante y
- *              utiliza tokens de theming semánticos.
- * @version 8.0.0
+ *              v9.0.0 (Sovereign Path Restoration): Se corrige la ruta de
+ *              importación para alinearse con la Arquitectura Canónica Soberana
+ *              (ACS), restaurando la integridad del build.
+ * @version 9.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { logger } from "@/shared/lib/logging";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
-import { usePathname } from "next/navigation";
 import { getCurrentLocaleFromPathname } from "@/shared/lib/utils/i18n/i18n.utils";
 import { routes } from "@/shared/lib/navigation";
-import DevToolsDropdown from "../dev/DevToolsDropdown";
+import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+// Se corrige la ruta de importación a la SSoT canónica utilizando un alias soberano.
+import DevToolsDropdown from "@/components/features/dev-tools/DevToolsDropdown";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
 interface DevHomepageHeaderProps {
-  dictionary: Dictionary["devHomepageHeader"];
-  devRouteMenuDictionary: Dictionary["devRouteMenu"];
+  dictionary: NonNullable<Dictionary["devHomepageHeader"]>;
+  devRouteMenuDictionary: NonNullable<Dictionary["devRouteMenu"]>;
 }
 
 export function DevHomepageHeader({
@@ -30,20 +33,17 @@ export function DevHomepageHeader({
   devRouteMenuDictionary,
 }: DevHomepageHeaderProps): React.ReactElement | null {
   logger.info(
-    "[Observabilidad][DevHomepageHeader] Renderizando DevHomepageHeader (DEV-ONLY)"
+    "[DevHomepageHeader] Renderizando v9.0 (Sovereign Path Restoration)."
   );
   const pathname = usePathname();
   const currentLocale = getCurrentLocaleFromPathname(pathname);
 
-  // --- [INICIO] REFACTORIZACIÓN HOLÍSTICA ---
-  // 1. Manejo de contenido potencialmente nulo.
   if (!dictionary || !devRouteMenuDictionary) {
     logger.warn(
-      "[DevHomepageHeader] No se proporcionó contenido completo. El header no se renderizará para evitar errores."
+      "[DevHomepageHeader] No se proporcionó contenido completo. El header no se renderizará."
     );
-    return null; // Renderizado resiliente
+    return null;
   }
-  // --- [FIN] REFACTORIZACIÓN HOLÍSTICA ---
 
   return (
     <header className="py-3 sticky top-0 z-50 bg-destructive/90 backdrop-blur-lg border-b border-destructive/50">
@@ -84,4 +84,4 @@ export function DevHomepageHeader({
     </header>
   );
 }
-// components/layout/DevHomepageHeader.tsx
+// RUTA: src/components/layout/DevHomepageHeader.tsx

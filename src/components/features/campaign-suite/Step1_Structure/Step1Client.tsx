@@ -1,9 +1,8 @@
 // RUTA: src/components/features/campaign-suite/Step1_Structure/Step1Client.tsx
 /**
  * @file Step1Client.tsx
- * @description Componente Contenedor de Cliente para el Paso 1, ahora
- *              consumiendo stores atómicos.
- * @version 6.0.0 (Atomic State Consumption)
+ * @description Componente Contenedor de Cliente para el Paso 1.
+ * @version 7.0.0 (ACS Path & State Logic Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -28,7 +27,7 @@ interface Step1ClientProps {
 }
 
 export function Step1Client({ content }: Step1ClientProps): React.ReactElement {
-  logger.info("Renderizando Step1Client (v6.0 - Atomic State).");
+  logger.info("Renderizando Step1Client (v7.0 - ACS Aligned).");
 
   const { headerConfig, footerConfig, updateHeaderConfig, updateFooterConfig } =
     useStep1StructureStore();

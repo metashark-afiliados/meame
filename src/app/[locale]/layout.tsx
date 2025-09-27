@@ -3,7 +3,7 @@
  * @file layout.tsx
  * @description Layout Localizado. Orquesta la carga de datos, el ensamblaje
  *              de contratos de contenido y la hidratación del estado del cliente.
- * @version 19.0.0 (Type-Safe Contract Assembly)
+ * @version 21.0.0 (Data Corruption Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -29,7 +29,9 @@ export default async function LocaleLayout({
   children,
   params: { locale },
 }: LocaleLayoutProps) {
-  logger.info(`[LocaleLayout] Renderizando v19.0 para locale: [${locale}]`);
+  logger.info(
+    `[LocaleLayout] Renderizando v21.0 (Restored) para locale: [${locale}]`
+  );
 
   const [{ dictionary, error }, cartFromShopify] = await Promise.all([
     getDictionary(locale),
@@ -45,7 +47,6 @@ export default async function LocaleLayout({
       };
     }) || [];
 
-  // --- 1. Validación Atómica de Contenido ---
   const {
     footer,
     header,
@@ -54,9 +55,9 @@ export default async function LocaleLayout({
     cart,
     userNav,
     notificationBell,
+    devLoginPage,
   } = dictionary;
 
-  // --- 2. Guardia de Contrato Soberana ---
   if (
     error ||
     !footer ||
@@ -65,7 +66,8 @@ export default async function LocaleLayout({
     !languageSwitcher ||
     !cart ||
     !userNav ||
-    !notificationBell
+    !notificationBell ||
+    !devLoginPage
   ) {
     const errorMessage =
       "Fallo al cargar contenido i18n esencial para el layout.";
@@ -80,7 +82,6 @@ export default async function LocaleLayout({
     );
   }
 
-  // --- 3. Ensamblaje Post-Validación ---
   const headerContentBundle = {
     header,
     toggleTheme,
@@ -88,6 +89,7 @@ export default async function LocaleLayout({
     cart,
     userNav,
     notificationBell,
+    devLoginPage,
   };
 
   return (
@@ -103,3 +105,4 @@ export default async function LocaleLayout({
     </>
   );
 }
+// RUTA: src/app/[locale]/layout.tsx

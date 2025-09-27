@@ -2,7 +2,7 @@
 /**
  * @file LayoutBuilder.tsx
  * @description Orquestador de lógica y estado para la composición de layouts.
- * @version 5.2.0 (Holistic Integrity Restoration)
+ * @version 6.0.0 (ACS Path & Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -59,9 +59,7 @@ export function LayoutBuilder({
   onLayoutChange,
   content,
 }: LayoutBuilderProps) {
-  logger.info(
-    "[LayoutBuilder] Renderizando orquestador v5.2 (Holistic Integrity)."
-  );
+  logger.info("[LayoutBuilder] Renderizando orquestador v6.0 (ACS Aligned).");
   const [activeLayout, setActiveLayout] =
     useState<LayoutConfigItem[]>(initialLayout);
   const [activeId, setActiveId] = useState<string | null>(null);

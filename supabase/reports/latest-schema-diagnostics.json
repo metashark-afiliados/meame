@@ -9,6 +9,10 @@
       "index_name": "campaign_templates_pkey"
     },
     {
+      "table": "campaign_drafts",
+      "index_name": "campaign_drafts_pkey"
+    },
+    {
       "table": "bavi_assets",
       "index_name": "bavi_assets_pkey"
     },
@@ -37,6 +41,12 @@
       "table": "campaign_templates",
       "timing": "BEFORE",
       "trigger_name": "on_template_update"
+    },
+    {
+      "event": "UPDATE",
+      "table": "campaign_drafts",
+      "timing": "BEFORE",
+      "trigger_name": "handle_campaign_draft_update"
     }
   ],
   "extensions": [
@@ -63,6 +73,10 @@
     {
       "name": "pg_graphql",
       "version": "1.5.11"
+    },
+    {
+      "name": "moddatetime",
+      "version": "1.0"
     }
   ],
   "rls_policies": [
@@ -83,6 +97,12 @@
       "command": "ALL",
       "definition": "(auth.uid() = user_id)",
       "policy_name": "Los miembros pueden gestionar plantillas."
+    },
+    {
+      "table": "campaign_drafts",
+      "command": "ALL",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Los usuarios pueden gestionar sus propios borradores"
     },
     {
       "table": "bavi_assets",
@@ -110,15 +130,15 @@
     },
     {
       "table": "profiles",
-      "command": "UPDATE",
-      "definition": "(auth.uid() = user_id)",
-      "policy_name": "Users can update their own profile."
-    },
-    {
-      "table": "profiles",
       "command": "INSERT",
       "definition": null,
       "policy_name": "Users can insert their own profile."
+    },
+    {
+      "table": "profiles",
+      "command": "UPDATE",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Users can update their own profile."
     },
     {
       "table": "profiles",
@@ -139,21 +159,6 @@
       "column": "user_id"
     },
     {
-      "type": "uuid",
-      "table": "campaign_templates",
-      "column": "id"
-    },
-    {
-      "type": "uuid",
-      "table": "campaign_templates",
-      "column": "user_id"
-    },
-    {
-      "type": "jsonb",
-      "table": "campaign_templates",
-      "column": "draft_data"
-    },
-    {
       "type": "timestamp with time zone",
       "table": "campaign_templates",
       "column": "created_at"
@@ -161,6 +166,26 @@
     {
       "type": "timestamp with time zone",
       "table": "campaign_templates",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "campaign_drafts",
+      "column": "user_id"
+    },
+    {
+      "type": "jsonb",
+      "table": "campaign_drafts",
+      "column": "draft_data"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "campaign_drafts",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "campaign_drafts",
       "column": "updated_at"
     },
     {
@@ -234,6 +259,21 @@
       "column": "created_at"
     },
     {
+      "type": "uuid",
+      "table": "campaign_templates",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "campaign_templates",
+      "column": "user_id"
+    },
+    {
+      "type": "jsonb",
+      "table": "campaign_templates",
+      "column": "draft_data"
+    },
+    {
       "type": "text",
       "table": "notifications",
       "column": "type"
@@ -247,56 +287,6 @@
       "type": "text",
       "table": "notifications",
       "column": "link"
-    },
-    {
-      "type": "text",
-      "table": "profiles",
-      "column": "last_sign_in_location"
-    },
-    {
-      "type": "text",
-      "table": "profiles",
-      "column": "full_name"
-    },
-    {
-      "type": "text",
-      "table": "profiles",
-      "column": "avatar_url"
-    },
-    {
-      "type": "text",
-      "table": "profiles",
-      "column": "last_sign_in_ip"
-    },
-    {
-      "type": "text",
-      "table": "campaign_templates",
-      "column": "name"
-    },
-    {
-      "type": "text",
-      "table": "campaign_templates",
-      "column": "description"
-    },
-    {
-      "type": "text",
-      "table": "campaign_templates",
-      "column": "source_campaign_id"
-    },
-    {
-      "type": "text",
-      "table": "bavi_variants",
-      "column": "variant_id"
-    },
-    {
-      "type": "text",
-      "table": "bavi_variants",
-      "column": "asset_id"
-    },
-    {
-      "type": "text",
-      "table": "bavi_variants",
-      "column": "public_id"
     },
     {
       "type": "text",
@@ -317,6 +307,61 @@
       "type": "text",
       "table": "bavi_variants",
       "column": "state"
+    },
+    {
+      "type": "text",
+      "table": "campaign_templates",
+      "column": "name"
+    },
+    {
+      "type": "text",
+      "table": "campaign_templates",
+      "column": "description"
+    },
+    {
+      "type": "text",
+      "table": "campaign_templates",
+      "column": "source_campaign_id"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "last_sign_in_location"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "full_name"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "avatar_url"
+    },
+    {
+      "type": "text",
+      "table": "campaign_drafts",
+      "column": "draft_id"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "last_sign_in_ip"
+    },
+    {
+      "type": "text",
+      "table": "bavi_variants",
+      "column": "variant_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_variants",
+      "column": "asset_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_variants",
+      "column": "public_id"
     }
   ],
   "table_constraints": [
@@ -359,6 +404,16 @@
       "type": "FOREIGN KEY",
       "table": "bavi_assets",
       "constraint_name": "bavi_assets_user_id_fkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "campaign_drafts",
+      "constraint_name": "campaign_drafts_pkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "campaign_drafts",
+      "constraint_name": "campaign_drafts_user_id_fkey"
     },
     {
       "type": "FOREIGN KEY",
@@ -447,6 +502,31 @@
     },
     {
       "type": "CHECK",
+      "table": "campaign_drafts",
+      "constraint_name": "2200_24526_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "campaign_drafts",
+      "constraint_name": "2200_24526_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "campaign_drafts",
+      "constraint_name": "2200_24526_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "campaign_drafts",
+      "constraint_name": "2200_24526_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "campaign_drafts",
+      "constraint_name": "2200_24526_5_not_null"
+    },
+    {
+      "type": "CHECK",
       "table": "bavi_variants",
       "constraint_name": "2200_23186_1_not_null"
     },
@@ -513,6 +593,10 @@
     },
     {
       "name": "get_system_diagnostics",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "get_campaign_analytics",
       "type": "FUNCTION"
     }
   ]

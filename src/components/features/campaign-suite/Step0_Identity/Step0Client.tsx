@@ -2,7 +2,7 @@
 /**
  * @file Step0Client.tsx
  * @description Componente Contenedor de Cliente para el Paso 0. Consume los stores atómicos.
- * @version 7.0.0 (Definitive Type Safety & Elite Compliance)
+ * @version 8.0.0 (ACS Path & State Logic Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -10,15 +10,12 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-// --- [INICIO DE CORRECCIÓN TS2322] ---
-// Se importan los tipos necesarios desde framer-motion para un contrato explícito.
 import {
   AnimatePresence,
   motion,
   type Variants,
   type Transition,
 } from "framer-motion";
-// --- [FIN DE CORRECCIÓN TS2322] ---
 import { z } from "zod";
 import { logger } from "@/shared/lib/logging";
 import {
@@ -44,7 +41,7 @@ export function Step0Client({
   content,
   baseCampaigns,
 }: Step0ClientProps): React.ReactElement {
-  logger.info("Renderizando Step0Client (v7.0 - Definitive Type Safety).");
+  logger.info("Renderizando Step0Client (v8.0 - ACS Aligned).");
 
   const {
     baseCampaignId,
@@ -113,8 +110,6 @@ export function Step0Client({
     logger.endGroup();
   };
 
-  // --- [INICIO DE CORRECCIÓN TS2322] ---
-  // Se aplica el tipo `Transition` para un contrato explícito y seguro.
   const transitionConfig: Transition = { duration: 0.3, ease: "easeInOut" };
 
   const animationVariants: Variants = {
@@ -122,7 +117,6 @@ export function Step0Client({
     animate: { opacity: 1, scale: 1 },
     exit: { opacity: 0, scale: 0.95 },
   };
-  // --- [FIN DE CORRECCIÓN TS2322] ---
 
   return (
     <AnimatePresence mode="wait">

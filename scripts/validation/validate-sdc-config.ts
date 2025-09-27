@@ -2,28 +2,24 @@
 /**
  * @file validate-sdc-config.ts
  * @description Guardián de Integridad para la configuración de la SDC.
- * @version 3.0.0 (Isomorphic & Build-Resilient)
+ * @version 4.0.0 (Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { promises as fs } from "fs";
 import path from "path";
 import chalk from "chalk";
-// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: IMPORTACIÓN SOBERANA Y SEGURA] ---
-// Se importa desde el nuevo archivo de configuración de solo datos.
 import { stepsDataConfig } from "../../src/shared/lib/config/campaign-suite/wizard.data.config";
-// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
 async function main() {
   console.log(
-    chalk.blue.bold("🛡️  Ejecutando Guardián de Integridad de la SDC...")
+    chalk.blue.bold("🛡️  Ejecutando Guardián de Integridad de la SDC (v4.0)...")
   );
   let errorCount = 0;
 
   try {
-    // La importación ahora es síncrona y segura.
-    const { stepsConfig } = { stepsConfig: stepsDataConfig };
+    const steps = stepsDataConfig;
 
-    for (const step of stepsConfig) {
+    for (const step of steps) {
       console.log(
         chalk.cyan(`   🔎 Verificando Paso ${step.id}: ${step.titleKey}`)
       );

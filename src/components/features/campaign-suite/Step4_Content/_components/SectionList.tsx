@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/_components/SectionList.tsx
+// RUTA: src/components/features/campaign-suite/Step4_Content/_components/SectionList.tsx
 /**
  * @file SectionList.tsx
  * @description Aparato de presentación atómico para mostrar la lista de secciones.
- * @version 2.0.0 (Artist Leveling & MEA)
+ * @version 3.0.0 (ACS Path Restoration & MEA)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -30,7 +30,7 @@ export function SectionList({
   content,
 }: SectionListProps): React.ReactElement {
   logger.trace(
-    "[SectionList] Renderizando lista de secciones del layout (v2.0)."
+    "[SectionList] Renderizando lista de secciones del layout (v3.0)."
   );
 
   return (
@@ -80,4 +80,3 @@ export function SectionList({
     </div>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/_components/SectionList.tsx

@@ -3,7 +3,7 @@
  * @file ContentEditor.tsx
  * @description Orquestador del editor de contenido. Gestiona el estado del
  *              formulario, la lógica de guardado y la comunicación con el exterior.
- * @version 6.0.0 (Holistic & Production Ready)
+ * @version 7.0.0 (ACS Path & Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -40,7 +40,7 @@ export function ContentEditor({
   onClose,
   onUpdateContent,
 }: ContentEditorProps): React.ReactElement {
-  logger.info(`[ContentEditor] Editor abierto para: ${sectionName}`);
+  logger.info(`[ContentEditor] Editor abierto para: ${sectionName} (v7.0)`);
 
   const [activeLocale, setActiveLocale] = useState<Locale>(defaultLocale);
 

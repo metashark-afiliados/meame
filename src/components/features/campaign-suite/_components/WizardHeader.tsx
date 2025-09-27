@@ -10,20 +10,15 @@
 import React, { useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ProgressContext } from "../_context/ProgressContext";
-// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-// Se importan los nuevos stores atómicos soberanos. El hook obsoleto se elimina.
 import { useCampaignDraftContext } from "@/shared/hooks/campaign-suite/use-campaign-draft-context.store";
 import { useDraftMetadataStore } from "@/shared/hooks/campaign-suite/use-draft-metadata.store";
-// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import { ProgressStepper } from "./ProgressStepper";
 import { DynamicIcon } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
 
 const SyncStatusIndicator = () => {
-  // Se consume el estado desde los stores atómicos correspondientes.
   const isSyncing = useCampaignDraftContext((state) => state.isSyncing);
   const updatedAt = useDraftMetadataStore((state) => state.updatedAt);
-
   const lastSavedTime = new Date(updatedAt).toLocaleTimeString();
 
   return (

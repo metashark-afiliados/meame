@@ -1,12 +1,9 @@
 // RUTA: src/app/[locale]/(dev)/layout.tsx
 /**
  * @file layout.tsx
- * @description Layout de Servidor para el DCC, ahora un Guardián de Datos resiliente.
- *              v10.0.0 (Holistic Refactor & Contract Guardian): Resuelve una cascada
- *              de errores de tipo y de importación. Implementa un manejo de errores
- *              robusto que garantiza que el componente de cliente siempre reciba un
- *              contrato de datos completo y válido.
- * @version 10.0.0
+ * @description Layout de Servidor para el DCC, ahora un Guardián de Datos
+ *              resiliente y con observabilidad de élite para depuración.
+ * @version 12.0.0 (Armored with Elite Observability & Resilience)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -16,10 +13,7 @@ import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 import { DevLayoutClient } from "./DevLayoutClient";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
-// --- [INICIO DE CORRECCIÓN DE HIGIENE Y API] ---
-// Se corrige el nombre de la función importada (TS2724)
 import { getThemeFragmentsAction } from "@/shared/lib/actions/campaign-suite/getThemeFragments.action";
-// --- [FIN DE CORRECCIÓN DE HIGIENE Y API] ---
 import { loadJsonAsset } from "@/shared/lib/i18n/campaign.data.loader";
 import { type AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
 import type { LoadedFragments } from "@/components/features/dev-tools/SuiteStyleComposer/types";
@@ -31,16 +25,17 @@ interface DevLayoutProps {
 }
 
 export default async function DevLayout({ children, params }: DevLayoutProps) {
+  const traceId = logger.startTrace("DevLayout_Render_v12.0_Armored");
   logger.info(
-    "[DevLayout] Renderizando layout de DCC v10.0 (Contract Guardian)."
+    `[DevLayout] Renderizando layout de DCC v12.0 (Armored) para locale: ${params.locale}`,
+    { traceId }
   );
 
+  // --- [INICIO DE BLINDAJE DE RESILIENCIA] ---
   try {
+    logger.traceEvent(traceId, "Obteniendo diccionario...");
     const { dictionary, error: dictError } = await getDictionary(params.locale);
 
-    // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA (TS2322)] ---
-    // Guardia de Contrato Estricta: se verifica la existencia de todas las
-    // claves de primer nivel que el DevLayoutClient necesita.
     if (
       dictError ||
       !dictionary.devHeader ||
@@ -53,23 +48,26 @@ export default async function DevLayout({ children, params }: DevLayoutProps) {
         "Faltan claves de contenido i18n críticas para el layout del DCC."
       );
     }
-    // A partir de aquí, TypeScript sabe que `dictionary` es un objeto completo y no parcial.
-    // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA (TS2322)] ---
+    logger.traceEvent(traceId, "Diccionario obtenido y validado.");
 
+    logger.traceEvent(traceId, "Obteniendo lista de fragmentos de tema...");
     const fragmentsResult = await getThemeFragmentsAction();
     if (!fragmentsResult.success) {
       throw new Error(fragmentsResult.error);
     }
     const fragments = fragmentsResult.data;
+    logger.traceEvent(traceId, "Lista de fragmentos obtenida.");
 
-    // Carga de todos los fragmentos en paralelo con tipado explícito
+    logger.traceEvent(
+      traceId,
+      "Cargando todos los archivos de fragmentos JSON en paralelo..."
+    );
     const [base, colors, fonts, radii] = await Promise.all([
       loadJsonAsset<Partial<AssembledTheme>>(
         "theme-fragments",
         "base",
         "global.theme.json"
       ),
-      // --- [INICIO DE CORRECCIÓN DE TIPO (TS7006)] ---
       Promise.all(
         fragments.colors.map((name: string) =>
           loadJsonAsset<Partial<AssembledTheme>>(
@@ -97,37 +95,26 @@ export default async function DevLayout({ children, params }: DevLayoutProps) {
           ).then((data) => ({ name, data }))
         )
       ),
-      // --- [FIN DE CORRECCIÓN DE TIPO (TS7006)] ---
     ]);
+    logger.traceEvent(traceId, "Todos los fragmentos JSON cargados.");
 
     const allLoadedFragments: LoadedFragments = {
       base,
-      // --- [INICIO DE CORRECCIÓN DE TIPO (TS7006)] ---
-      colors: Object.fromEntries(
-        colors.map((c: { name: string; data: Partial<AssembledTheme> }) => [
-          c.name,
-          c.data,
-        ])
-      ),
-      fonts: Object.fromEntries(
-        fonts.map((f: { name: string; data: Partial<AssembledTheme> }) => [
-          f.name,
-          f.data,
-        ])
-      ),
-      radii: Object.fromEntries(
-        radii.map((r: { name: string; data: Partial<AssembledTheme> }) => [
-          r.name,
-          r.data,
-        ])
-      ),
-      // --- [FIN DE CORRECCIÓN DE TIPO (TS7006)] ---
+      colors: Object.fromEntries(colors.map((c) => [c.name, c.data])),
+      fonts: Object.fromEntries(fonts.map((f) => [f.name, f.data])),
+      radii: Object.fromEntries(radii.map((r) => [r.name, r.data])),
     };
+    logger.traceEvent(traceId, "Objeto de fragmentos ensamblado.");
+
+    logger.success("[DevLayout] Todos los datos cargados con éxito.", {
+      traceId,
+    });
+    logger.endTrace(traceId);
 
     return (
       <DevLayoutClient
         locale={params.locale}
-        dictionary={dictionary as Dictionary} // Aserción segura gracias a la guardia
+        dictionary={dictionary as Dictionary}
         allLoadedFragments={allLoadedFragments}
       >
         {children}
@@ -136,18 +123,19 @@ export default async function DevLayout({ children, params }: DevLayoutProps) {
   } catch (error) {
     const errorMessage =
       "Fallo crítico al renderizar el layout del Developer Command Center.";
-    logger.error(`[DevLayout] ${errorMessage}`, { error });
+    logger.error(`[DevLayout] ${errorMessage}`, { error, traceId });
+    logger.endTrace(traceId);
 
     if (process.env.NODE_ENV === "development") {
       return (
         <DeveloperErrorDisplay
-          context="DevLayout"
+          context="DevLayout (Armored v12.0)"
           errorMessage={errorMessage}
           errorDetails={error instanceof Error ? error : String(error)}
         />
       );
     }
-
     return notFound();
   }
+  // --- [FIN DE BLINDAJE DE RESILIENCIA] ---
 }

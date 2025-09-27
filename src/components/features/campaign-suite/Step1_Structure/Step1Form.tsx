@@ -2,7 +2,7 @@
 /**
  * @file Step1Form.tsx
  * @description Componente de Presentación para la UI del Paso 1.
- * @version 7.0.0 (Holistic Sovereignty & Elite Compliance)
+ * @version 8.0.0 (ACS Path & Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -23,11 +23,9 @@ import type {
   FooterConfig,
 } from "@/shared/lib/types/campaigns/draft.types";
 import { WizardNavigation } from "@/components/features/campaign-suite/_components/WizardNavigation";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { galleryConfig } from "@/shared/lib/config/campaign-suite/gallery.config";
 import { StructuralSectionConfig } from "./_components";
 import { Step1ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step1.schema";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 type Step1Content = z.infer<typeof Step1ContentSchema>;
 
@@ -50,7 +48,7 @@ export function Step1Form({
   onBack,
   onNext,
 }: Step1FormProps): React.ReactElement {
-  logger.info("Renderizando Step1Form (v7.0 - Holistic Sovereignty)");
+  logger.info("Renderizando Step1Form (v8.0 - ACS Aligned)");
 
   return (
     <Card className="flex flex-col h-full">
@@ -94,4 +92,3 @@ export function Step1Form({
     </Card>
   );
 }
-// RUTA: src/components/features/campaign-suite/Step1_Structure/Step1Form.tsx

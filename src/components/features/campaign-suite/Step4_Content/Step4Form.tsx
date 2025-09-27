@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/Step4Form.tsx
+// RUTA: src/components/features/campaign-suite/Step4_Content/Step4Form.tsx
 /**
  * @file Step4Form.tsx
  * @description Orquestador de presentación puro para el Paso 4.
- * @version 8.0.0 (Architectural Refactor)
+ * @version 9.0.0 (ACS Path & Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -54,7 +54,7 @@ export function Step4Form({
   onNext,
   isPending,
 }: Step4FormProps): React.ReactElement {
-  logger.info("[Step4Form] Orquestando presentación del Paso 4 (v8.0).");
+  logger.info("[Step4Form] Orquestando presentación del Paso 4 (v9.0).");
 
   return (
     <>
@@ -91,4 +91,3 @@ export function Step4Form({
     </>
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/Step4Form.tsx

@@ -2,7 +2,7 @@
 /**
  * @file Step2Form.tsx
  * @description Componente de Presentación Puro para la UI del Paso 2 (Layout).
- * @version 6.0.0 (Holistic & Regression-Free)
+ * @version 7.0.0 (ACS Path Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -41,7 +41,7 @@ export function Step2Form({
   onNext,
 }: Step2FormProps): React.ReactElement {
   logger.info(
-    "[Step2Form] Renderizando formulario de presentación puro (v6.0)."
+    "[Step2Form] Renderizando formulario de presentación puro (v7.0)."
   );
 
   return (
@@ -73,4 +73,3 @@ export function Step2Form({
     </Card>
   );
 }
-// RUTA: src/components/features/campaign-suite/Step2_Layout/Step2Form.tsx

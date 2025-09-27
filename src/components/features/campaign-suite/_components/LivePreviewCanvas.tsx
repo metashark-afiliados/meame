@@ -2,9 +2,7 @@
 /**
  * @file LivePreviewCanvas.tsx
  * @description Orquestador de élite para el lienzo de previsualización (EDVI).
- *              Compone hooks y componentes atómicos para una máxima cohesión
- *              y una experiencia de "Modo Enfoque Sincronizado".
- * @version 12.0.0 (Hyper-Atomic & Focus-Aware)
+ * @version 16.0.0 (ACS Path & Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -17,6 +15,7 @@ import { usePreviewTheme } from "@/shared/hooks/campaign-suite/use-preview-theme
 import { useIframe } from "@/shared/hooks/campaign-suite/use-iframe";
 import { usePreviewFocus } from "@/shared/hooks/campaign-suite/use-preview-focus";
 import { buildPreviewDictionary } from "@/shared/lib/utils/campaign-suite/preview.utils";
+import { useLivePreviewAssets } from "@/shared/hooks/campaign-suite/use-live-preview-assets";
 import {
   PreviewContent,
   PreviewLoadingOverlay,
@@ -33,22 +32,35 @@ interface LivePreviewCanvasProps {
 }
 
 export function LivePreviewCanvas({ content }: LivePreviewCanvasProps) {
-  logger.info(
-    "[LivePreviewCanvas] Renderizando orquestador v12.0 (Focus-Aware)."
-  );
+  logger.info("[LivePreviewCanvas] Renderizando orquestador v16.0.");
 
-  // --- Capa de Lógica: Hooks Soberanos ---
   const draft = useCampaignDraftStore((state) => state.draft);
-  const { theme, isLoading, error } = usePreviewTheme();
+  const {
+    theme,
+    isLoading: isThemeLoading,
+    error: themeError,
+  } = usePreviewTheme();
+  const {
+    assets,
+    isLoading: areAssetsLoading,
+    error: assetsError,
+  } = useLivePreviewAssets();
   const { iframeRef, iframeBody } = useIframe();
   const { focusedSection, sectionRefs } = usePreviewFocus();
 
-  // --- Capa de Transformación de Datos ---
-  const previewDictionary = buildPreviewDictionary(
+  const isLoading = isThemeLoading || areAssetsLoading;
+  const error = themeError || assetsError;
+
+  const draftDictionary = buildPreviewDictionary(
     draft.contentData,
     draft.layoutConfig,
     "it-IT"
-  ) as Dictionary;
+  );
+
+  const finalDictionary = {
+    ...assets?.dictionary,
+    ...draftDictionary,
+  } as Dictionary;
 
   return (
     <motion.div
@@ -65,44 +77,22 @@ export function LivePreviewCanvas({ content }: LivePreviewCanvasProps) {
       {iframeBody &&
         createPortal(
           <AnimatePresence>
-            {isLoading && (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <PreviewLoadingOverlay text={content.loadingTheme} />
-              </motion.div>
-            )}
+            {isLoading && <PreviewLoadingOverlay text={content.loadingTheme} />}
             {error && (
-              <motion.div
-                key="error"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <PreviewErrorOverlay
-                  title={content.errorLoadingTheme}
-                  details={error}
-                />
-              </motion.div>
+              <PreviewErrorOverlay
+                title={content.errorLoadingTheme}
+                details={error}
+              />
             )}
-            {theme && !isLoading && !error && (
-              <motion.div
-                key="content"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <PreviewContent
-                  draft={draft}
-                  theme={theme}
-                  dictionary={previewDictionary}
-                  focusedSection={focusedSection}
-                  sectionRefs={sectionRefs}
-                />
-              </motion.div>
+            {theme && assets && !isLoading && !error && (
+              <PreviewContent
+                draft={draft}
+                theme={theme}
+                baviManifest={assets.baviManifest}
+                dictionary={finalDictionary}
+                focusedSection={focusedSection}
+                sectionRefs={sectionRefs}
+              />
             )}
           </AnimatePresence>,
           iframeBody

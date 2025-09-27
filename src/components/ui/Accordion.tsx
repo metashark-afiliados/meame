@@ -1,10 +1,8 @@
-// RUTA: components/ui/Accordion.tsx
+// RUTA: src/components/ui/Accordion.tsx
 /**
  * @file Accordion.tsx
  * @description Sistema de componentes de acordeón de élite, inyectado con MEA/UX.
- *              Permite la creación de contenido expandible con animaciones
- *              fluidas y accesibilidad de primer nivel gracias a Radix UI.
- * @version 2.1.0 (Code Hygiene Fix)
+ * @version 3.1.0 (Code Hygiene)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,7 +10,7 @@
 import * as React from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 // --- [INICIO DE CORRECCIÓN DE HIGIENE] ---
-// Se elimina 'AnimatePresence' de esta importación ya que no se utiliza aquí.
+// Se elimina la importación no utilizada de 'AnimatePresence'.
 import { motion } from "framer-motion";
 // --- [FIN DE CORRECCIÓN DE HIGIENE] ---
 import { DynamicIcon } from "@/components/ui";
@@ -63,15 +61,14 @@ const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
-  logger.trace("[AccordionContent] Renderizando contenido v2.1.");
+  logger.trace("[AccordionContent] Renderizando contenido v3.1.");
   return (
     <AccordionPrimitive.Content
       ref={ref}
-      className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+      className="overflow-hidden text-sm transition-all"
       {...props}
       asChild
     >
-      {/* La lógica de animación se encapsula correctamente aquí */}
       <motion.div
         initial={{ opacity: 0, height: 0 }}
         animate={{

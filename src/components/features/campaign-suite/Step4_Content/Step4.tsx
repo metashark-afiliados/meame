@@ -1,10 +1,8 @@
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/Step4.tsx
+// RUTA: src/components/features/campaign-suite/Step4_Content/Step4.tsx
 /**
  * @file Step4.tsx
- * @description Ensamblador de Servidor para el Paso 4 de la SDC (Contenido).
- * @version 2.0.0 (Holistic Type Alignment): Se alinea con la nueva
- *              arquitectura de props "envueltas".
- * @version 2.0.0
+ * @description Ensamblador de Servidor para el Paso 4, con contrato de props simplificado.
+ * @version 4.0.0 (Simplified Prop Contract)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -16,11 +14,12 @@ import type { z } from "zod";
 
 type Content = z.infer<typeof Step4ContentSchema>;
 
+// --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
 export default async function Step4({
-  content: rawContent,
-}: StepProps<{ step4: Content }>): Promise<React.ReactElement> {
-  const content = rawContent.step4;
-  logger.info("[Step4 Ensamblador] Ensamblando y delegando al cliente...");
+  content,
+}: StepProps<Content>): Promise<React.ReactElement> {
+  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
+  logger.info("[Step4 Ensamblador] Ensamblando v4.0 y delegando al cliente...");
   return <Step4Client content={content} />;
 }
-// app/[locale]/(dev)/dev/campaign-suite/_components/Step4_Content/Step4.tsx
+// RUTA: src/components/features/campaign-suite/Step4_Content/Step4.tsx

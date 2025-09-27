@@ -2,9 +2,7 @@
 /**
  * @file use-preview-theme.ts
  * @description Hook atómico para ensamblar el tema de la vista previa.
- *              v4.0.0 (Atomic State Alignment): Refactorizado para alinearse
- *              con la arquitectura de stores atómicos.
- * @version 4.0.0
+ * @version 5.0.0 (ACS Path & Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";

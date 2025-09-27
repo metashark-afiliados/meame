@@ -1,23 +1,25 @@
-// RUTA: src/components/features/dev-tools/ComponentLoader.ts
+// RUTA: src/shared/lib/dev/ComponentLoader.ts
 /**
  * @file ComponentLoader.ts
  * @description Módulo de servicio SOBERANO para la carga dinámica de componentes.
- *              v6.1.0 (Code Hygiene): Se elimina la importación no utilizada del
- *              tipo 'Dictionary' para cumplir con los estándares de limpieza del
- *              código y las reglas de linting.
- * @version 6.1.0
+ *              v7.0.0 (Sovereign Path Restoration): Se corrige la ruta de importación
+ *              de la utilidad de props para alinearse con la ACS, restaurando la
+ *              integridad del build del DCC.
+ * @version 7.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
+"use server-only";
+
 import React from "react";
 import {
   getComponentByName,
   type ComponentRegistryEntry,
-} from "@/components/features/dev-tools/ComponentRegistry";
-import { getFallbackProps } from "@/components/features/dev-tools/utils/component-props";
+} from "@/shared/lib/dev/ComponentRegistry";
 import { logger } from "@/shared/lib/logging";
-// --- [INICIO DE REFACTORIZACIÓN DE HIGIENE] ---
-// Se ha eliminado la importación no utilizada de 'Dictionary'.
-// --- [FIN DE REFACTORIZACIÓN DE HIGIENE] ---
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+// Se corrige la ruta de importación para apuntar a la SSoT canónica en la capa de features.
+import { getFallbackProps } from "@/components/features/dev-tools/utils/component-props";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
 interface ComponentLoadResult {
   ComponentToRender: React.ComponentType<Record<string, unknown>>;
@@ -28,7 +30,7 @@ interface ComponentLoadResult {
 export async function loadComponentAndProps(
   componentName: string
 ): Promise<ComponentLoadResult> {
-  logger.startGroup(`[Loader v6.1] Cargando "${componentName}"`);
+  logger.startGroup(`[Loader v7.0] Cargando "${componentName}"`);
 
   const entry = getComponentByName(componentName);
   if (!entry) {
@@ -71,4 +73,4 @@ export async function loadComponentAndProps(
     );
   }
 }
-// RUTA: src/components/features/dev-tools/ComponentLoader.ts
+// RUTA: src/shared/lib/dev/ComponentLoader.ts

@@ -2,11 +2,7 @@
 /**
  * @file CampaignSuiteWizard.tsx
  * @description Orquestador de cliente principal ("cerebro") para la SDC.
- *              v1.2.0 (Architectural Realignment): Se corrige la ruta de
- *              importación de DeveloperErrorDisplay para alinearse con la
- *              nueva Arquitectura Canónica Soberana (ACS), resolviendo un
- *              error crítico de build TS2304.
- * @version 1.2.0
+ * @version 13.0.0 (ACS Alignment & Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -22,10 +18,7 @@ import {
 import { WizardProvider } from "./_context/WizardContext";
 import { ProgressContext, type ProgressStep } from "./_context/ProgressContext";
 import { WizardClientLayout } from "./_components";
-// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-// La importación ahora apunta a la SSoT canónica en la capa de 'features'.
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
-// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 interface CampaignSuiteWizardProps {
@@ -37,7 +30,7 @@ export function CampaignSuiteWizard({
   children,
   content,
 }: CampaignSuiteWizardProps): React.ReactElement {
-  logger.info("[CampaignSuiteWizard] Renderizando orquestador v1.2.0.");
+  logger.info("[CampaignSuiteWizard] Renderizando orquestador v13.0.");
 
   const router = useRouter();
   const searchParams = useSearchParams();

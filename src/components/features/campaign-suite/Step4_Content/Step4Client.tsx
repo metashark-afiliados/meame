@@ -2,7 +2,7 @@
 /**
  * @file Step4Client.tsx
  * @description Componente Contenedor de Cliente para el Paso 4 (Contenido).
- * @version 5.0.0 (Holistic Refactor)
+ * @version 6.0.0 (ACS Path & State Logic Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -17,7 +17,7 @@ import { useDraftMetadataStore } from "@/shared/hooks/campaign-suite/use-draft-m
 import { Step4Form } from "./Step4Form";
 import type { z } from "zod";
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
-import { Step4ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step4.schema"; // <-- RUTA CORREGIDA
+import { Step4ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step4.schema";
 
 type Step4Content = z.infer<typeof Step4ContentSchema>;
 
@@ -26,7 +26,7 @@ interface Step4ClientProps {
 }
 
 export function Step4Client({ content }: Step4ClientProps): React.ReactElement {
-  logger.info("Renderizando Step4Client (v5.0 - Holistic Refactor).");
+  logger.info("Renderizando Step4Client (v6.0 - ACS Aligned).");
 
   const { layoutConfig } = useStep2LayoutStore();
   const { contentData, setSectionContent } = useStep4ContentStore();
@@ -34,13 +34,11 @@ export function Step4Client({ content }: Step4ClientProps): React.ReactElement {
   const { goToNextStep, goToPrevStep } = useWizard();
   const [editingSection, setEditingSection] = useState<string | null>(null);
 
-  // Ensamblamos el objeto draft completo para pasarlo a los hijos
   const assembledDraft: CampaignDraft = useMemo(
     () => ({
       ...metadata,
       layoutConfig,
       contentData,
-      // Se rellenan los campos faltantes con valores por defecto para cumplir el contrato
       affiliateNetwork: null,
       affiliateUrl: null,
       headerConfig: { useHeader: false, componentName: null, logoPath: null },
@@ -77,7 +75,7 @@ export function Step4Client({ content }: Step4ClientProps): React.ReactElement {
   return (
     <Step4Form
       content={content}
-      draft={assembledDraft} // <-- SE PASA EL DRAFT COMPLETO
+      draft={assembledDraft}
       onEditSection={setEditingSection}
       onCloseEditor={() => setEditingSection(null)}
       editingSection={editingSection}

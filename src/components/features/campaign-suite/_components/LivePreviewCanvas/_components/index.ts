@@ -2,8 +2,11 @@
 /**
  * @file index.ts (Barrel File)
  * @description Fachada pública para los componentes de presentación del LivePreviewCanvas.
- * @version 1.0.0
+ *              v3.0.0 (Module Integrity Restoration): Se restaura la exportación
+ *              de los componentes de overlay para cumplir con el contrato del módulo.
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 export * from "./PreviewContent";
-export * from "./PreviewOverlays";
+export * from "./PreviewOverlays"; // <-- EXPORTACIÓN RESTAURADA
+// RUTA: src/components/features/campaign-suite/_components/LivePreviewCanvas/_components/index.ts

@@ -1,31 +1,30 @@
 // RUTA: src/components/features/campaign-suite/Step3_Theme/Step3.tsx
 /**
  * @file Step3.tsx
- * @description Ensamblador de Servidor para el Paso 3. Actúa como un cargador
- *              de datos de producción, obteniendo todos los fragmentos de tema
- *              necesarios y pasándolos al cliente.
- * @version 4.0.0 (Production Data Fetching)
+ * @description Ensamblador de Servidor para el Paso 3, con contrato de props simplificado.
+ * @version 6.0.0 (Simplified Prop Contract)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
 import { logger } from "@/shared/lib/logging";
 import { Step3Client } from "./Step3Client";
-import { getThemeFragmentsAction } from "@/shared/lib/actions/campaign-suite/getThemeFragments.action";
+import { getThemeFragmentsAction } from "@/shared/lib/actions/campaign-suite";
 import type { StepProps } from "@/shared/lib/types/campaigns/step.types";
 import type { Step3ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step3.schema";
 import type { z } from "zod";
 import { loadJsonAsset } from "@/shared/lib/i18n/campaign.data.loader";
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
-import type { LoadedFragments } from "@/components/features/dev-tools/SuiteStyleComposer/types"; // <-- IMPORTACIÓN CORREGIDA Y SOBERANA
+import type { LoadedFragments } from "@/components/features/dev-tools/SuiteStyleComposer/types";
 
 type Content = z.infer<typeof Step3ContentSchema>;
 
+// --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
 export default async function Step3({
-  content: rawContent,
-}: StepProps<{ step3: Content }>): Promise<React.ReactElement> {
-  const content = rawContent.step3;
+  content,
+}: StepProps<Content>): Promise<React.ReactElement> {
+  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
   logger.info(
-    "[Step3 Ensamblador] Obteniendo datos de producción para el Paso 3..."
+    "[Step3 Ensamblador] Obteniendo datos de producción para el Paso 3 (v6.0)..."
   );
 
   const fragmentsResult = await getThemeFragmentsAction();
@@ -42,7 +41,7 @@ export default async function Step3({
           "global.theme.json"
         ),
         Promise.all(
-          fragments.colors.map((name) =>
+          fragments.colors.map((name: string) =>
             loadJsonAsset<Partial<AssembledTheme>>(
               "theme-fragments",
               "colors",
@@ -51,7 +50,7 @@ export default async function Step3({
           )
         ),
         Promise.all(
-          fragments.fonts.map((name) =>
+          fragments.fonts.map((name: string) =>
             loadJsonAsset<Partial<AssembledTheme>>(
               "theme-fragments",
               "fonts",
@@ -60,7 +59,7 @@ export default async function Step3({
           )
         ),
         Promise.all(
-          fragments.radii.map((name) =>
+          fragments.radii.map((name: string) =>
             loadJsonAsset<Partial<AssembledTheme>>(
               "theme-fragments",
               "radii",

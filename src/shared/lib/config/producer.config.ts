@@ -2,14 +2,18 @@
 /**
  * @file producer.config.ts
  * @description Orquestador de Configuración y SSoT para el productor y tracking.
- *              v3.0.0 (Resilient Lazy Initialization & Elite Logging): Refactorizado
- *              a una función memoizada y con logging de error granular para
- *              una DX superior.
- * @version 3.0.0
+ *              Este módulo es EXCLUSIVO DEL SERVIDOR.
+ * @version 4.0.0 (Server-Only Hardening & Elite Observability)
  * @author RaZ Podestá - MetaShark Tech
  */
+"use server-only";
+
 import { z } from "zod";
 import { logger } from "@/shared/lib/logging";
+
+logger.trace(
+  "[ProducerConfig] Módulo de configuración del productor cargado (v4.0)."
+);
 
 const ProducerConfigSchema = z.object({
   TRACKING_ENABLED: z.boolean(),
@@ -29,21 +33,10 @@ type ProducerConfig = z.infer<typeof ProducerConfigSchema>;
 
 let cachedConfig: ProducerConfig | null = null;
 
-/**
- * @function getProducerConfig
- * @description Lee, valida y devuelve la configuración del productor.
- *              Utiliza un patrón singleton para validar solo una vez.
- * @returns {ProducerConfig} La configuración validada.
- * @throws {Error} Si las variables de entorno son inválidas.
- */
 export function getProducerConfig(): ProducerConfig {
   if (cachedConfig) {
     return cachedConfig;
   }
-
-  logger.trace(
-    "[ProducerConfig] Validando variables de entorno del productor..."
-  );
 
   const configData = {
     TRACKING_ENABLED:
@@ -61,7 +54,6 @@ export function getProducerConfig(): ProducerConfig {
   const validation = ProducerConfigSchema.safeParse(configData);
 
   if (!validation.success) {
-    // --- MEJORA DE OBSERVABILIDAD ---
     logger.error(
       "❌ CONFIGURACIÓN DE ENTORNO INVÁLIDA:",
       validation.error.flatten().fieldErrors
@@ -71,10 +63,6 @@ export function getProducerConfig(): ProducerConfig {
     );
   }
 
-  logger.success(
-    "[ProducerConfig] Configuración del productor validada y cacheada."
-  );
   cachedConfig = validation.data;
   return cachedConfig;
 }
-// RUTA: src/shared/lib/config/producer.config.ts

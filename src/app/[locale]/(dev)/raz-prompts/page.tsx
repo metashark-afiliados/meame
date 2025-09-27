@@ -3,9 +3,7 @@
  * @file page.tsx
  * @description Página principal de élite para la Bóveda de RaZPrompts.
  *              v9.0.0 (Resilience Restoration): Implementa un manejo de errores
- *              holístico para capturar fallos propagados desde los layouts y
- *              mostrarlos en el DeveloperErrorDisplay, cumpliendo con el pilar
- *              de resiliencia del proyecto.
+ *              holístico para capturar fallos y mostrarlos en el DeveloperErrorDisplay.
  * @version 9.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -37,19 +35,15 @@ export default async function RaZPromptsHomePage({
     "[RaZPromptsHomePage] Renderizando v9.0 (Resilience Restoration)."
   );
 
-  // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
-  // Se envuelve toda la lógica de obtención de datos en un bloque try...catch.
   try {
     const { dictionary, error } = await getDictionary(locale);
-
     const pageContent = dictionary.razPromptsHomePage;
     const promptCreatorContent = dictionary.promptCreator;
     const promptVaultContent = dictionary.promptVault;
 
     if (error || !pageContent || !promptCreatorContent || !promptVaultContent) {
-      // Este error específico es para cuando falta el contenido i18n.
       throw new Error(
-        "Faltan una o más claves de i18n (razPromptsHomePage, promptCreator, promptVault) en el diccionario."
+        "Faltan una o más claves de i18n (razPromptsHomePage, promptCreator, promptVault)."
       );
     }
 
@@ -82,25 +76,15 @@ export default async function RaZPromptsHomePage({
       </>
     );
   } catch (error) {
-    // Este bloque ahora capturará CUALQUIER error, incluyendo los que vienen
-    // de los layouts hijos como el Header.
     const errorMessage =
-      "Fallo crítico durante el renderizado de la página RaZPrompts o sus componentes de layout.";
+      "Fallo crítico durante el renderizado de la página RaZPrompts.";
     logger.error(`[RaZPromptsHomePage] ${errorMessage}`, { error });
-
-    // En desarrollo, mostramos el error detallado. En producción, esto debería
-    // llevar a una página de error 500.
-    if (process.env.NODE_ENV === "development") {
-      return (
-        <DeveloperErrorDisplay
-          context="RaZPromptsHomePage"
-          errorMessage={errorMessage}
-          errorDetails={error instanceof Error ? error : String(error)}
-        />
-      );
-    }
-    // Lógica para producción (ej. redirigir a una página de error genérica)
-    return <p>Error 500 - Internal Server Error</p>;
+    return (
+      <DeveloperErrorDisplay
+        context="RaZPromptsHomePage"
+        errorMessage={errorMessage}
+        errorDetails={error instanceof Error ? error : String(error)}
+      />
+    );
   }
-  // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
 }

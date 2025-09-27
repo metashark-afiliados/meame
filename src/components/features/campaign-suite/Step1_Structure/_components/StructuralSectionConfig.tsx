@@ -2,7 +2,7 @@
 /**
  * @file StructuralSectionConfig.tsx
  * @description Aparato atómico para un bloque de configuración estructural.
- * @version 2.1.0 (Sovereign Path Restoration)
+ * @version 3.1.0 (Code Hygiene Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -10,11 +10,12 @@
 import React from "react";
 import { Switch } from "@/components/ui/Switch";
 import { Label } from "@/components/ui/Label";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { ComponentGallery } from "@/components/features/campaign-suite/_components/shared";
 import type { GalleryItem } from "@/shared/lib/config/campaign-suite/gallery.config";
 import { logger } from "@/shared/lib/logging";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
+// --- [INICIO DE CORRECCIÓN DE HIGIENE] ---
+// Se elimina la importación no utilizada de 'cn'.
+// --- [FIN DE CORRECCIÓN DE HIGIENE] ---
 
 interface StructuralSectionConfigProps {
   isEnabled: boolean;

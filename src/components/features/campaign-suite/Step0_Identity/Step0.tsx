@@ -2,10 +2,9 @@
 /**
  * @file Step0.tsx
  * @description Ensamblador y Cargador de Datos para el Paso 0 de la SDC.
- *              v3.2.0 (Sovereign Path Restoration): Resuelve el error crítico de
- *              build 'Module not found' al alinear la importación de la Server Action
- *              con la SSoT de la arquitectura FSD.
- * @version 3.2.0
+ *              v5.0.0 (Simplified Prop Contract): Ahora recibe su contenido
+ *              directamente, alineándose con el despachador `StepClientWrapper`.
+ * @version 5.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -14,12 +13,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { logger } from "@/shared/lib/logging";
 import { Step0Client } from "./Step0Client";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
-// Se corrige la ruta de importación para apuntar a la SSoT soberana de las
-// Server Actions, utilizando el alias de ruta canónico. Esto resuelve
-// el error de build "Module not found". [2]
 import { getBaseCampaignsAction } from "@/shared/lib/actions/campaign-suite/getBaseCampaigns.action";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 import { DynamicIcon } from "@/components/ui";
 import type { StepProps } from "@/shared/lib/types/campaigns/step.types";
 import type { Step0ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step0.schema";
@@ -27,10 +21,12 @@ import type { z } from "zod";
 
 type Content = z.infer<typeof Step0ContentSchema>;
 
+// --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+// El componente ahora espera su contenido 'Content' directamente, sin anidación.
 export default function Step0({
-  content: rawContent,
-}: StepProps<{ step0: Content }>): React.ReactElement {
-  const content = rawContent.step0;
+  content,
+}: StepProps<Content>): React.ReactElement {
+  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
   const [baseCampaigns, setBaseCampaigns] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

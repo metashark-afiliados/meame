@@ -1,81 +1,44 @@
 // RUTA: src/components/features/campaign-suite/_components/LivePreviewCanvas/_components/PreviewContent.tsx
 /**
  * @file PreviewContent.tsx
- * @description Componente de presentación que renderiza el contenido real de la previsualización.
- * @version 2.0.0 (Focus-Aware)
+ * @description Componente de presentación puro que delega el renderizado de la previsualización.
+ * @version 8.0.0 (Pure & Data-Driven)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { CampaignThemeProvider, SectionRenderer } from "@/components/layout";
-import { generateCssVariablesFromTheme } from "@/shared/lib/utils/theming/theme-utils";
-import { livePreviewComponentMap } from "@/shared/lib/dev/live-previews.config";
-import {
-  mockHeader,
-  mockFooter,
-} from "@/shared/lib/config/campaign-suite/previews.mock-data";
+import { PreviewRenderer } from "./PreviewRenderer";
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
+import type { BaviManifest } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
+import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
+// El contrato de props ahora es 100% data-driven.
 interface PreviewContentProps {
   draft: CampaignDraft;
   theme: AssembledTheme;
+  baviManifest: BaviManifest;
   dictionary: Dictionary;
   focusedSection: string | null;
   sectionRefs: React.MutableRefObject<Record<string, HTMLElement | null>>;
 }
 
-const animationProps = {
-  initial: { opacity: 0, y: -10 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -10 },
-  transition: { duration: 0.3, ease: "easeInOut" },
-} as const;
-
 export function PreviewContent({
   draft,
   theme,
+  baviManifest,
   dictionary,
   focusedSection,
   sectionRefs,
 }: PreviewContentProps) {
-  const HeaderComponent =
-    draft.headerConfig.useHeader && draft.headerConfig.componentName
-      ? livePreviewComponentMap[draft.headerConfig.componentName]
-      : null;
-
-  const FooterComponent =
-    draft.footerConfig.useFooter && draft.footerConfig.componentName
-      ? livePreviewComponentMap[draft.footerConfig.componentName]
-      : null;
-
+  // Toda la lógica de fetching ha sido eliminada.
   return (
-    <CampaignThemeProvider theme={theme}>
-      <style>{generateCssVariablesFromTheme(theme)}</style>
-      <AnimatePresence>
-        {HeaderComponent && (
-          <motion.div key="header" {...animationProps}>
-            <HeaderComponent {...mockHeader} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <SectionRenderer
-        sections={draft.layoutConfig}
-        dictionary={dictionary}
-        locale={"it-IT"}
-        focusedSection={focusedSection}
-        sectionRefs={sectionRefs}
-      />
-
-      <AnimatePresence>
-        {FooterComponent && (
-          <motion.div key="footer" {...animationProps}>
-            <FooterComponent {...mockFooter} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </CampaignThemeProvider>
+    <PreviewRenderer
+      draft={draft}
+      theme={theme}
+      baviManifest={baviManifest}
+      dictionary={dictionary}
+      focusedSection={focusedSection}
+      sectionRefs={sectionRefs}
+    />
   );
 }

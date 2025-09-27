@@ -1,24 +1,29 @@
 // RUTA: src/app/[locale]/login/page.tsx
 /**
  * @file page.tsx
- * @description Página de login para el DCC, optimizada con guardia de
- *              redirección para usuarios autenticados y fondo dinámico desde BAVI.
- * @version 5.0.0 (Authenticated User Redirect Guard & SSoT Alignment)
+ * @description Página de login para el DCC, con flujo de redirección contextual
+ *              y código de élite sin variables o importaciones no utilizadas.
+ * @version 6.1.0 (Elite Code Hygiene)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+// --- [INICIO DE REFACTORIZACIÓN DE HIGIENE] ---
+// Se elimina la importación no utilizada de 'redirect'.
+import { notFound } from "next/navigation";
+// --- [FIN DE REFACTORIZACIÓN DE HIGIENE] ---
 import { getDictionary } from "@/shared/lib/i18n/i18n";
-import { createServerClient } from "@/shared/lib/supabase/server";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { AuthForm } from "@/components/features/auth/AuthForm";
 import { logger } from "@/shared/lib/logging";
-import { notFound } from "next/navigation";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { getBaviManifest } from "@/shared/lib/bavi";
 import { routes } from "@/shared/lib/navigation";
+import type {
+  BaviAsset,
+  BaviVariant,
+} from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 
 interface DevLoginPageProps {
   params: { locale: Locale };
@@ -27,21 +32,13 @@ interface DevLoginPageProps {
 export default async function DevLoginPage({
   params: { locale },
 }: DevLoginPageProps) {
-  logger.info(`[DevLoginPage] Renderizando v5.0 (Redirect Guard)`);
+  logger.info(`[DevLoginPage] Renderizando v6.1 (Elite Code Hygiene)`);
 
-  // --- [INICIO DE OPTIMIZACIÓN DE ÉLITE: GUARDIA DE REDIRECCIÓN] ---
-  const supabase = createServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) {
-    logger.info(
-      `Usuario ya autenticado (${user.email}). Redirigiendo al dashboard.`
-    );
-    return redirect(routes.devDashboard.path({ locale }));
-  }
-  // --- [FIN DE OPTIMIZACIÓN DE ÉLITE] ---
+  // --- [INICIO DE REFACTORIZACIÓN DE HIGIENE] ---
+  // La lógica para obtener el usuario y redirigir ha sido eliminada de este
+  // Server Component, ya que ahora es manejada por el cliente. Las variables
+  // 'supabase' y 'user' ya no son necesarias aquí.
+  // --- [FIN DE REFACTORIZACIÓN DE HIGIENE] ---
 
   const [{ dictionary, error }, baviManifest] = await Promise.all([
     getDictionary(locale),
@@ -73,13 +70,14 @@ export default async function DevLoginPage({
     );
   }
 
-  // --- Lógica de BAVI para Fondo Dinámico ---
-  let backgroundImageUrl = "/img/dev/login/bg-1.png"; // Fallback resiliente
+  let backgroundImageUrl = "/img/dev/login/bg-1.png";
   if (baviManifest && content.backgroundImageAssetId) {
     const asset = baviManifest.assets.find(
-      (a) => a.assetId === content.backgroundImageAssetId
+      (a: BaviAsset) => a.assetId === content.backgroundImageAssetId
     );
-    const publicId = asset?.variants.find((v) => v.state === "orig")?.publicId;
+    const publicId = asset?.variants.find(
+      (v: BaviVariant) => v.state === "orig"
+    )?.publicId;
     if (publicId) {
       backgroundImageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,w_1920/${publicId}`;
     } else {
@@ -92,7 +90,6 @@ export default async function DevLoginPage({
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background flex flex-col items-center justify-center p-4">
       <header className="absolute top-0 left-0 w-full p-6 z-20">
-        {/* --- OPTIMIZACIÓN: Uso de SSoT de Rutas --- */}
         <Link href={routes.home.path({ locale })}>
           <Image
             src={headerContent.logoUrl}
@@ -104,7 +101,6 @@ export default async function DevLoginPage({
           />
         </Link>
       </header>
-
       <div className="absolute inset-0 z-0 opacity-20">
         <Image
           src={backgroundImageUrl}
@@ -116,9 +112,7 @@ export default async function DevLoginPage({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
       </div>
-
       <main className="relative z-10 flex w-full max-w-sm flex-col items-center">
-        {/* --- OPTIMIZACIÓN: Uso de Orquestador AuthForm --- */}
         <AuthForm content={content} locale={locale} />
       </main>
     </div>

@@ -1,12 +1,11 @@
-// components/dev/DevHeader.tsx
+// RUTA: src/components/features/dev-tools/DevHeader.tsx
 /**
  * @file DevHeader.tsx
  * @description Header de élite para el Developer Command Center (DCC).
- *              v13.0 (Holistic Elite Leveling & MEA): Refactorizado a un
- *              Componente de Cliente para inyectar una animación de entrada
- *              MEA/UX. Ahora es 100% data-driven y cumple con todos los
- *              Pilares de Calidad.
- * @version 13.0.0
+ *              v14.0 (Sovereign Path Restoration): Se corrige la ruta de
+ *              importación de DevToolsDropdown para alinearse con la ACS,
+ *              restaurando la integridad del build del DCC.
+ * @version 14.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -19,8 +18,10 @@ import { logger } from "@/shared/lib/logging";
 import { routes } from "@/shared/lib/navigation";
 import { type Locale, supportedLocales } from "@/shared/lib/i18n/i18n.config";
 import { Container } from "@/components/ui/Container";
-import DevToolsDropdown from "@/components/dev/DevToolsDropdown";
-import { ToggleTheme } from "@/components/ui/ToggleTheme.tsx";
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+import DevToolsDropdown from "@/components/features/dev-tools/DevToolsDropdown";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+import { ToggleTheme } from "@/components/ui/ToggleTheme";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
@@ -55,7 +56,7 @@ export default function DevHeader({
   toggleThemeContent,
   languageSwitcherContent,
 }: DevHeaderProps): React.ReactElement {
-  logger.info("[DevHeader] Renderizando v13.0 (Holistic Elite & MEA).");
+  logger.info("[DevHeader] Renderizando v14.0 (Sovereign Path Restoration).");
 
   const headerTitle = content.title ?? "Developer Command Center";
 
@@ -107,4 +108,4 @@ export default function DevHeader({
     </motion.header>
   );
 }
-// components/dev/DevHeader.tsx
+// RUTA: src/components/features/dev-tools/DevHeader.tsx

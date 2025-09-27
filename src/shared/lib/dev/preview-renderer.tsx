@@ -2,7 +2,10 @@
 /**
  * @file preview-renderer.tsx
  * @description Motor de renderizado soberano para las vistas previas de componentes.
- * @version 2.0.0 (Build Integrity Fix)
+ *              v3.0.0 (Sovereign Path Restoration): Se corrige la ruta de importación
+ *              de ErrorPreview para alinearse con la ACS, restaurando la
+ *              integridad del build de la API de previsualización.
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import "server-only";
@@ -13,7 +16,9 @@ import { loadJsonAsset } from "@/shared/lib/i18n/campaign.data.loader";
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
 import { AssembledThemeSchema } from "@/shared/lib/schemas/theming/assembled-theme.schema";
 import { logger } from "@/shared/lib/logging";
-import { ErrorPreview } from "@/components/dev/ErrorPreview";
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+import { ErrorPreview } from "@/components/features/dev-tools/ErrorPreview";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
 async function assembleDefaultTheme(): Promise<AssembledTheme> {
   try {
@@ -61,7 +66,6 @@ export async function renderPreviewComponent(componentName: string) {
     logger.warn(
       `[PreviewRenderer] No se encontró un renderizador para: ${componentName}`
     );
-    // Devuelve el componente de error directamente si el renderizador no existe
     return {
       jsx: <ErrorPreview componentName={componentName} />,
       width: 600,
@@ -71,3 +75,4 @@ export async function renderPreviewComponent(componentName: string) {
   const theme = await assembleDefaultTheme();
   return renderer(defaultLocale, theme);
 }
+// RUTA: src/shared/lib/dev/preview-renderer.tsx

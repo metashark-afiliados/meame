@@ -1,9 +1,8 @@
 // RUTA: src/components/features/campaign-suite/Step2_Layout/Step2Client.tsx
 /**
  * @file Step2Client.tsx
- * @description Componente Contenedor de Cliente para el Paso 2 (Layout),
- *              ahora consumiendo stores atómicos.
- * @version 4.0.0 (Atomic State Consumption)
+ * @description Componente Contenedor de Cliente para el Paso 2 (Layout).
+ * @version 5.0.0 (ACS Path & State Logic Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -25,13 +24,11 @@ interface Step2ClientProps {
 }
 
 export function Step2Client({ content }: Step2ClientProps): React.ReactElement {
-  logger.info("Renderizando Step2Client (v4.0 - Atomic State).");
+  logger.info("Renderizando Step2Client (v5.0 - ACS Aligned).");
 
-  // --- [INICIO DE REFACTORIZACIÓN: CONSUMO DE STORES ATÓMICOS] ---
   const { layoutConfig, setLayoutConfig } = useStep2LayoutStore();
   const { completeStep } = useDraftMetadataStore();
   const { goToNextStep, goToPrevStep } = useWizard();
-  // --- [FIN DE REFACTORIZACIÓN] ---
 
   if (!content) {
     logger.error("[Step2Client] El contenido para el Paso 2 es indefinido.");
@@ -42,7 +39,6 @@ export function Step2Client({ content }: Step2ClientProps): React.ReactElement {
     );
   }
 
-  // La función onLayoutChange ahora invoca directamente la acción del store atómico.
   const handleLayoutChange = (newLayout: LayoutConfigItem[]) => {
     logger.trace(
       "[Step2Client] Layout modificado, actualizando store de layout..."
@@ -50,10 +46,9 @@ export function Step2Client({ content }: Step2ClientProps): React.ReactElement {
     setLayoutConfig(newLayout);
   };
 
-  // La navegación al siguiente paso ahora también registra el progreso.
   const handleNext = () => {
     logger.info("[Step2Client] El usuario avanza al Paso 3.");
-    completeStep(2); // Marca el Paso 2 como completado
+    completeStep(2);
     goToNextStep();
   };
 

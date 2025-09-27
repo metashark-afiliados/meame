@@ -3,7 +3,7 @@
  * @file Step5Client.tsx
  * @description Orquestador de cliente para el Paso 5. Ensambla el borrador
  *              final a partir de los stores atómicos y gestiona el ciclo de vida.
- * @version 3.0.0 (Functional Activation & Elite Compliance)
+ * @version 4.0.0 (ACS Path & Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";

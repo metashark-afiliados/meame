@@ -1,18 +1,18 @@
 // RUTA: src/components/sections/SocialProofLogos.tsx
 /**
  * @file SocialProofLogos.tsx
- * @description Componente de prueba social. Renderiza logos desde la BAVI 2.0.
- * @version 7.2.0 (Holistic Type Safety)
+ * @description Aparato "Server Shell" para la sección de prueba social. Su única
+ *              responsabilidad es obtener los datos y delegar el renderizado
+ *              al componente de cliente. Cumple con los 7 Pilares de Calidad.
+ * @version 8.0.0 (Server Shell Pattern)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
-import Marquee from "react-fast-marquee";
-import { CldImage } from "next-cloudinary";
-import { Container } from "@/components/ui/Container";
 import { getBaviManifest } from "@/shared/lib/bavi/manifest.queries";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
+import { SocialProofLogosClient } from "./SocialProofLogosClient";
 import type {
   BaviAsset,
   BaviVariant,
@@ -22,10 +22,17 @@ interface SocialProofLogosProps {
   content?: Dictionary["socialProofLogos"];
 }
 
+type ResolvedLogo = {
+  alt: string;
+  publicId: string;
+  width: number;
+  height: number;
+};
+
 export async function SocialProofLogos({
   content,
 }: SocialProofLogosProps): Promise<React.ReactElement | null> {
-  logger.info("[SocialProofLogos] Renderizando v7.2 (Holistic Type Safety).");
+  logger.info("[SocialProofLogos Shell] Renderizando v8.0 (Server Shell).");
 
   if (!content || !content.logos || content.logos.length === 0) {
     return null;
@@ -33,7 +40,8 @@ export async function SocialProofLogos({
 
   try {
     const baviManifest = await getBaviManifest();
-    const resolvedLogos = content.logos
+
+    const resolvedLogos: ResolvedLogo[] = content.logos
       .map((logo) => {
         const baviAsset = baviManifest.assets.find(
           (asset: BaviAsset) => asset.assetId === logo.assetId
@@ -56,53 +64,14 @@ export async function SocialProofLogos({
           height: variant.dimensions.height,
         };
       })
-      .filter(Boolean);
+      .filter((logo): logo is ResolvedLogo => logo !== null);
 
+    // Delega el renderizado al componente de cliente, pasando los datos como props.
     return (
-      <section
-        className="py-12 bg-background"
-        aria-labelledby="social-proof-title"
-      >
-        <Container>
-          <h2
-            id="social-proof-title"
-            className="text-center font-semibold text-foreground/70 uppercase tracking-wider mb-8"
-          >
-            {content.title}
-          </h2>
-          <Marquee
-            gradient
-            gradientColor="hsl(var(--background))"
-            gradientWidth={100}
-            speed={40}
-            autoFill
-            pauseOnHover
-          >
-            {resolvedLogos.map(
-              (logo) =>
-                logo && (
-                  <div
-                    key={logo.publicId}
-                    className="mx-12 flex items-center justify-center h-10"
-                  >
-                    <CldImage
-                      src={logo.publicId}
-                      alt={logo.alt}
-                      width={logo.width}
-                      height={logo.height}
-                      format="auto"
-                      quality="auto"
-                      className="h-10 w-auto object-contain grayscale opacity-60 transition-all duration-300 ease-in-out hover:grayscale-0 hover:opacity-100 hover:scale-110"
-                    />
-                  </div>
-                )
-            )}
-          </Marquee>
-        </Container>
-      </section>
+      <SocialProofLogosClient title={content.title} logos={resolvedLogos} />
     );
   } catch (error) {
-    logger.error("[SocialProofLogos] Fallo al renderizar.", { error });
+    logger.error("[SocialProofLogos Shell] Fallo al renderizar.", { error });
     if (process.env.NODE_ENV === "development") {
       return (
         <DeveloperErrorDisplay
