@@ -55,6 +55,7 @@ playwright/.cache/
 # Se excluyen los manifiestos de desarrollo y los reportes de snapshot.
 .docs/
 snapshot-reports/
+reports
 
 # 7. Archivos de Sistema Operativo y Editor de Código
 # ------------------------------------------------------------------------------
@@ -80,6 +81,6 @@ Thumbs.db
 # *.gif
 # *.webp
 # *.svg
-# *.pdf
+*.pdf
 
 # .gitignore
