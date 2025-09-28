@@ -2,98 +2,69 @@
 /**
  * @file use-preview-theme.ts
  * @description Hook atómico para ensamblar el tema de la vista previa.
- * @version 5.0.0 (ACS Path & Build Integrity Restoration)
+ *              v7.0.0 (Data Flow Restoration & Logic Fix): Se restaura el flujo de
+ *              datos correcto y se corrige la lógica de `useMemo`.
+ * @version 7.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useStep3ThemeStore } from "./use-step3-theme.store";
 import { usePreviewStore } from "@/components/features/campaign-suite/_context/PreviewContext";
 import { deepMerge } from "@/shared/lib/utils";
 import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
 import { AssembledThemeSchema } from "@/shared/lib/schemas/theming/assembled-theme.schema";
-import { loadJsonAsset } from "@/shared/lib/i18n/campaign.data.loader";
+import type { LoadedFragments } from "@/shared/lib/actions/campaign-suite";
 
 interface UsePreviewThemeReturn {
   theme: AssembledTheme | null;
-  isLoading: boolean;
   error: string | null;
 }
 
-export function usePreviewTheme(): UsePreviewThemeReturn {
+export function usePreviewTheme(
+  allThemeFragments: LoadedFragments | null
+): UsePreviewThemeReturn {
   const themeConfig = useStep3ThemeStore((state) => state.themeConfig);
   const previewThemeFromStore = usePreviewStore((state) => state.previewTheme);
-  const [theme, setTheme] = useState<AssembledTheme | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const effectiveThemeSource = useMemo(() => {
+  const theme = useMemo(() => {
     if (previewThemeFromStore) {
-      return { source: "preview", data: previewThemeFromStore };
+      return previewThemeFromStore;
     }
-    return { source: "draft", data: themeConfig };
-  }, [previewThemeFromStore, themeConfig]);
 
-  useEffect(() => {
-    const assembleTheme = async () => {
-      const { source, data } = effectiveThemeSource;
-      if (source === "preview" && data) {
-        setTheme(data as AssembledTheme);
-        return;
+    if (!allThemeFragments) return null;
+
+    const { colorPreset, fontPreset, radiusPreset, themeOverrides } =
+      themeConfig;
+    if (!colorPreset || !fontPreset || !radiusPreset) return null;
+
+    try {
+      const finalThemeObject = deepMerge(
+        deepMerge(
+          deepMerge(
+            deepMerge(
+              allThemeFragments.base,
+              allThemeFragments.colors[colorPreset] || {}
+            ),
+            allThemeFragments.fonts[fontPreset] || {}
+          ),
+          allThemeFragments.radii[radiusPreset] || {}
+        ),
+        themeOverrides ?? {}
+      );
+      const validation = AssembledThemeSchema.safeParse(finalThemeObject);
+      if (!validation.success) {
+        console.error("Tema ensamblado inválido", validation.error.flatten());
+        return null;
       }
+      return validation.data;
+    } catch (error) {
+      console.error("Error al ensamblar el tema de previsualización", error);
+      return null;
+    }
+  }, [previewThemeFromStore, themeConfig, allThemeFragments]);
 
-      const config = data as typeof themeConfig;
-      const { colorPreset, fontPreset, radiusPreset, themeOverrides } = config;
-
-      if (!colorPreset || !fontPreset || !radiusPreset) {
-        setTheme(null);
-        return;
-      }
-
-      setIsLoading(true);
-      setError(null);
-      try {
-        const [base, colors, fonts, radii] = await Promise.all([
-          loadJsonAsset<Partial<AssembledTheme>>(
-            "theme-fragments",
-            "base",
-            "global.theme.json"
-          ),
-          loadJsonAsset<Partial<AssembledTheme>>(
-            "theme-fragments",
-            "colors",
-            `${colorPreset}.colors.json`
-          ),
-          loadJsonAsset<Partial<AssembledTheme>>(
-            "theme-fragments",
-            "fonts",
-            `${fontPreset}.fonts.json`
-          ),
-          loadJsonAsset<Partial<AssembledTheme>>(
-            "theme-fragments",
-            "radii",
-            `${radiusPreset}.radii.json`
-          ),
-        ]);
-
-        const finalThemeObject = deepMerge(
-          deepMerge(deepMerge(deepMerge(base, colors), fonts), radii),
-          themeOverrides ?? {}
-        );
-        const validation = AssembledThemeSchema.safeParse(finalThemeObject);
-        if (!validation.success) throw new Error("Tema ensamblado inválido.");
-        setTheme(validation.data);
-      } catch (e) {
-        const err = e instanceof Error ? e.message : "Error desconocido.";
-        setError(err);
-        setTheme(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    assembleTheme();
-  }, [effectiveThemeSource]);
-
-  return { theme, isLoading, error };
+  return { theme, error: null };
 }
+// RUTA: src/shared/hooks/campaign-suite/use-preview-theme.tsx

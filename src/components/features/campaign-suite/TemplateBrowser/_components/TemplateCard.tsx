@@ -2,7 +2,7 @@
 /**
  * @file TemplateCard.tsx
  * @description Componente de presentación atómico para una tarjeta de plantilla.
- * @version 1.1.0 (Data Contract Fix)
+ * @version 2.0.0 (MEA/UX Injection)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { DynamicIcon } from "@/components/ui";
+import { TiltCard } from "@/components/ui/TiltCard";
 import type { CampaignTemplate } from "@/shared/lib/schemas/campaigns/template.schema";
 
 interface TemplateCardProps {
@@ -31,41 +32,39 @@ export function TemplateCard({
   onSelect,
   isPending,
 }: TemplateCardProps) {
-  const formattedDate = new Date(template.createdAt).toLocaleDateString();
+  const formattedDate = new Date(template.created_at).toLocaleDateString();
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{
-        y: -5,
-        boxShadow: "0 8px 25px hsla(var(--primary-rgb), 0.1)",
-      }}
       className="h-full"
     >
-      <Card className="h-full flex flex-col">
-        <CardHeader>
-          <CardTitle>{template.name}</CardTitle>
-          <CardDescription>
-            {template.description || "Sin descripción."}
-          </CardDescription>
-        </CardHeader>
-        <div className="flex-grow p-6 pt-0 text-sm text-muted-foreground">
-          Creada: {formattedDate}
-        </div>
-        <CardFooter>
-          <Button onClick={onSelect} disabled={isPending} className="w-full">
-            {isPending ? (
-              <DynamicIcon
-                name="LoaderCircle"
-                className="mr-2 h-4 w-4 animate-spin"
-              />
-            ) : (
-              <DynamicIcon name="Wand" className="mr-2 h-4 w-4" />
-            )}
-            Usar esta Plantilla
-          </Button>
-        </CardFooter>
-      </Card>
+      <TiltCard className="h-full">
+        <Card className="h-full flex flex-col transition-all duration-300 ease-in-out hover:border-primary hover:shadow-2xl hover:shadow-primary/20">
+          <CardHeader>
+            <CardTitle>{template.name}</CardTitle>
+            <CardDescription>
+              {template.description || "Sin descripción."}
+            </CardDescription>
+          </CardHeader>
+          <div className="flex-grow p-6 pt-0 text-sm text-muted-foreground">
+            Creada: {formattedDate}
+          </div>
+          <CardFooter>
+            <Button onClick={onSelect} disabled={isPending} className="w-full">
+              {isPending ? (
+                <DynamicIcon
+                  name="LoaderCircle"
+                  className="mr-2 h-4 w-4 animate-spin"
+                />
+              ) : (
+                <DynamicIcon name="Wand" className="mr-2 h-4 w-4" />
+              )}
+              Usar esta Plantilla
+            </Button>
+          </CardFooter>
+        </Card>
+      </TiltCard>
     </motion.div>
   );
 }

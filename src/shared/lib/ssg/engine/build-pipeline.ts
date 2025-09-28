@@ -1,7 +1,8 @@
-// RUTA: shared/lib/ssg/engine/build-pipeline.ts
+// RUTA: src/shared/lib/ssg/engine/build-pipeline.ts
 /**
  * @file build-pipeline.ts
- * @description El motor del pipeline para el Motor de Forja.
+ * @description El motor del pipeline para el Motor de Forja. Orquesta la
+ *              ejecución secuencial y transaccional de las tareas de build.
  * @version 1.0.0
  * @author RaZ Podestá - MetaShark Tech
  */

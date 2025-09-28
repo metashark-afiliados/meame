@@ -2,44 +2,66 @@
 /**
  * @file TemplateBrowser.tsx
  * @description Interfaz para seleccionar una plantilla de campaña o empezar de cero.
- * @version 3.0.0 (Live Data & Hydration Logic)
+ *              Implementa una estrategia de caché inteligente para minimizar llamadas a la DB.
+ * @version 5.0.0 (Intelligent Caching)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 import { useCampaignDraftStore } from "@/shared/lib/stores/campaign-draft.store";
 import { useTemplateLoader } from "@/shared/hooks/campaign-suite/use-template-loader";
 import { logger } from "@/shared/lib/logging";
-import type { CampaignTemplate } from "@/shared/lib/schemas/campaigns/template.schema";
 import { TemplateCard } from "./_components/TemplateCard";
 import { Separator } from "@/components/ui/Separator";
 import { routes } from "@/shared/lib/navigation";
 import { usePathname } from "next/navigation";
 import { getCurrentLocaleFromPathname } from "@/shared/lib/utils/i18n/i18n.utils";
+import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store";
+import { getCampaignTemplatesAction } from "@/shared/lib/actions/campaign-suite";
+import { Skeleton } from "@/components/ui/Skeleton";
 
-interface TemplateBrowserProps {
-  templates: CampaignTemplate[];
-}
-
-export function TemplateBrowser({ templates }: TemplateBrowserProps) {
+export function TemplateBrowser() {
   const router = useRouter();
   const pathname = usePathname();
   const locale = getCurrentLocaleFromPathname(pathname);
   const resetDraft = useCampaignDraftStore((s) => s.resetDraft);
+
+  // --- LÓGICA DE CACHÉ INTELIGENTE ---
+  const {
+    activeWorkspaceId,
+    templates,
+    isLoadingTemplates,
+    setTemplates,
+    setLoadingTemplates,
+  } = useWorkspaceStore();
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
     null
   );
 
-  const { loadTemplate, isPending } = useTemplateLoader(() => {
-    // Callback de éxito: redirige al usuario al inicio del asistente
-    router.push(routes.creatorCampaignSuite.path({ locale, stepId: ["0"] }));
-  });
+  useEffect(() => {
+    // Solo hacer fetch si hay un workspace activo y la caché de plantillas está vacía.
+    if (activeWorkspaceId && templates.length === 0) {
+      setLoadingTemplates(true);
+      getCampaignTemplatesAction(activeWorkspaceId).then((result) => {
+        if (result.success) {
+          setTemplates(result.data);
+        }
+        // setLoadingTemplates(false) es llamado dentro de setTemplates
+      });
+    }
+  }, [activeWorkspaceId, templates.length, setTemplates, setLoadingTemplates]);
+  // --- FIN LÓGICA DE CACHÉ ---
+
+  const { loadTemplate, isPending: isTemplateLoading } = useTemplateLoader(
+    () => {
+      router.push(routes.creatorCampaignSuite.path({ locale, stepId: ["0"] }));
+    }
+  );
 
   const handleStartFromScratch = () => {
-    logger.info("[TemplateBrowser] Iniciando un nuevo borrador desde cero.");
     resetDraft();
     router.push(routes.creatorCampaignSuite.path({ locale, stepId: ["0"] }));
   };
@@ -65,14 +87,22 @@ export function TemplateBrowser({ templates }: TemplateBrowserProps) {
         <h2 className="text-2xl font-semibold mb-6">
           Desde tu Arsenal de Plantillas
         </h2>
-        {templates.length > 0 ? (
+        {isLoadingTemplates ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Skeleton className="h-64" />
+            <Skeleton className="h-64" />
+            <Skeleton className="h-64" />
+          </div>
+        ) : templates.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.map((template) => (
               <TemplateCard
                 key={template.id}
                 template={template}
                 onSelect={() => handleTemplateSelect(template.id)}
-                isPending={isPending && selectedTemplateId === template.id}
+                isPending={
+                  isTemplateLoading && selectedTemplateId === template.id
+                }
               />
             ))}
           </div>
@@ -98,7 +128,7 @@ export function TemplateBrowser({ templates }: TemplateBrowserProps) {
           onClick={handleStartFromScratch}
           size="lg"
           variant="outline"
-          disabled={isPending}
+          disabled={isTemplateLoading}
         >
           Forjar desde Cero
         </Button>

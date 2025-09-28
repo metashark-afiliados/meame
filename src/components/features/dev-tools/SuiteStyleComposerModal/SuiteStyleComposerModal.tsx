@@ -1,8 +1,9 @@
-// RUTA: src/components/dev/SuiteStyleComposerModal.tsx
+// RUTA: src/components/features/dev-tools/SuiteStyleComposerModal/SuiteStyleComposerModal.tsx
 /**
  * @file SuiteStyleComposerModal.tsx
- * @description Orquestador modal para la composición de temas.
- * @version 12.0.0 (Sovereign Path Restoration)
+ * @description Orquestador modal para la composición de temas, refactorizado
+ *              a un componente de presentación puro que consume un hook de lógica.
+ * @version 12.0.0 (Sovereign Path Restoration & Atomic Refactor)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -17,8 +18,6 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui";
-// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-// Se actualizan las importaciones para apuntar a la SSoT canónica en la capa de features.
 import { useSuiteStyleComposer } from "@/components/features/dev-tools/SuiteStyleComposer/use-suite-style-composer";
 import {
   ComposerHeader,
@@ -31,7 +30,6 @@ import type {
   SuiteThemeConfig,
   LoadedFragments,
 } from "@/components/features/dev-tools/SuiteStyleComposer/types";
-// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import { SuiteStyleComposerContentSchema } from "@/shared/lib/schemas/components/dev/suite-style-composer.schema";
 import type { z } from "zod";
 import { logger } from "@/shared/lib/logging";
@@ -56,9 +54,10 @@ export function SuiteStyleComposerModal({
   content,
 }: SuiteStyleComposerModalProps) {
   logger.info(
-    "[SuiteStyleComposerModal] Renderizando v12.0 (Sovereign Path Restoration)."
+    "[SuiteStyleComposerModal] Renderizando v12.0 (Atomic Refactor)."
   );
 
+  // El componente ahora consume el hook "cerebro"
   const {
     localSuiteConfig,
     handlePresetChange,

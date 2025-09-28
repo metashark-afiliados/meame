@@ -1,14 +1,13 @@
 // RUTA: src/components/sections/index.ts
 /**
  * @file index.ts (Barrel File)
- * @description Fachada pública soberana y purificada para el módulo de
- *              componentes de sección genéricos.
- * @version 3.0.0 (Architectural Purity & Cohesion)
+ * @description Fachada pública y SSoT para el módulo de componentes de sección.
+ * @version 1.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
-
-// Exporta únicamente componentes que son secciones de página reutilizables.
+export * from "./ArticleBody";
 export * from "./BenefitsSection";
+export * from "./CommentSection";
 export * from "./CommunitySection";
 export * from "./ContactSection";
 export * from "./DoubleScrollingBanner";
@@ -23,17 +22,18 @@ export * from "./IngredientAnalysis";
 export * from "./NewsGrid";
 export * from "./OrderSection";
 export * from "./PricingSection";
+export * from "./ProductFilters";
+export * from "./ProductGallery";
+export * from "./ProductGrid";
+export * from "./ProductInfo";
 export * from "./ProductShowcase";
+export * from "./ScrollingBanner";
 export * from "./ServicesSection";
 export * from "./SocialProofLogos";
+export * from "./SocialProofLogosClient";
 export * from "./SponsorsSection";
 export * from "./TeamSection";
 export * from "./TestimonialCarouselSection";
 export * from "./TestimonialGrid";
 export * from "./TextSection";
 export * from "./ThumbnailCarousel";
-export * from "./ArticleBody";
-export * from "./CommentSection";
-export * from "./ScrollingBanner";
-// Los componentes especializados como ProductGrid, ProductFilters, etc.,
-// ya no se exportan desde aquí para mantener una alta cohesión del módulo.

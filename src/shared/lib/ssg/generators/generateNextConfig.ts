@@ -1,45 +1,61 @@
-// app/[locale]/(dev)/dev/campaign-suite/_actions/_generators/generateNextConfig.ts
+// RUTA: src/shared/lib/ssg/generators/generateNextConfig.ts
 /**
  * @file generateNextConfig.ts
  * @description Módulo generador soberano para el archivo next.config.mjs.
- * @version 1.0.0
+ * @version 3.0.0 (Holistic Refactor & Simplification)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server-only";
 
-import fs from "fs/promises";
+import { promises as fs } from "fs";
 import path from "path";
 import { logger } from "@/shared/lib/logging";
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
 
 /**
  * @function generateNextConfig
- * @description Genera y escribe un archivo next.config.mjs en el directorio de destino.
+ * @description Genera un archivo next.config.mjs estandarizado y robusto,
+ *              configurado para la exportación estática (`output: 'export'`).
  * @param {CampaignDraft} draft - El borrador de la campaña (reservado para uso futuro).
- * @param {string} targetDir - El directorio donde se guardará el archivo.
+ * @param {string} targetDir - El directorio raíz del proyecto exportado.
  * @returns {Promise<void>}
+ * @throws {Error} Si la operación de escritura de archivo falla.
  */
 export async function generateNextConfig(
-  draft: CampaignDraft, // Recibimos el draft para futuras configuraciones
+  draft: CampaignDraft,
   targetDir: string
 ): Promise<void> {
-  logger.trace("[Generator] Iniciando generación de next.config.mjs...");
+  logger.trace("[Generator] Iniciando generación de next.config.mjs (v3.0)...");
 
   const configContent = `
-/** @type {import('next').NextConfig} */
+/**
+ * @file next.config.mjs
+ * @description Configuración de Next.js para la campaña estática exportada.
+ *              Este archivo es generado automáticamente por el Motor de Forja.
+ * @version ${new Date().toISOString()}
+ */
 const nextConfig = {
-  // Configuración de Next.js para la campaña exportada.
-  // Se pueden añadir aquí configuraciones específicas como remotePatterns para imágenes si es necesario.
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;
 `;
 
-  const filePath = path.join(targetDir, "next.config.mjs");
-  await fs.writeFile(filePath, configContent.trim());
+  try {
+    const filePath = path.join(targetDir, "next.config.mjs");
+    await fs.writeFile(filePath, configContent.trim());
 
-  logger.trace(
-    `[Generator] Archivo next.config.mjs escrito exitosamente en: ${filePath}`
-  );
+    logger.trace(
+      `[Generator] Archivo next.config.mjs escrito exitosamente en: ${filePath}`
+    );
+  } catch (error) {
+    logger.error("[Generator] Fallo crítico al generar next.config.mjs.", {
+      error,
+    });
+    throw error;
+  }
 }
-// app/[locale]/(dev)/dev/campaign-suite/_actions/_generators/generateNextConfig.ts

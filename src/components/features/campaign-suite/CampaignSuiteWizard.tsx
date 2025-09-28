@@ -2,7 +2,7 @@
 /**
  * @file CampaignSuiteWizard.tsx
  * @description Orquestador de cliente principal ("cerebro") para la SDC.
- * @version 13.0.0 (ACS Alignment & Build Integrity Restoration)
+ * @version 15.0.0 (Data Flow Propagation)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -17,20 +17,22 @@ import {
 } from "@/shared/hooks/campaign-suite";
 import { WizardProvider } from "./_context/WizardContext";
 import { ProgressContext, type ProgressStep } from "./_context/ProgressContext";
-import { WizardClientLayout } from "./_components";
-import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
+import { WizardClientLayout } from "./_components/WizardClientLayout";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import type { LoadedFragments } from "@/shared/lib/actions/campaign-suite";
 
 interface CampaignSuiteWizardProps {
   children: React.ReactNode;
   content: NonNullable<Dictionary["campaignSuitePage"]>;
+  loadedFragments: LoadedFragments;
 }
 
 export function CampaignSuiteWizard({
   children,
   content,
+  loadedFragments,
 }: CampaignSuiteWizardProps): React.ReactElement {
-  logger.info("[CampaignSuiteWizard] Renderizando orquestador v13.0.");
+  logger.info("[CampaignSuiteWizard] Renderizando orquestador v15.0.");
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -105,22 +107,13 @@ export function CampaignSuiteWizard({
     [progressSteps, handleStepClick]
   );
 
-  if (!content.preview) {
-    const errorMessage = "Contrato i18n para 'campaignSuitePage' incompleto.";
-    return (
-      <DeveloperErrorDisplay
-        context="CampaignSuiteWizard"
-        errorMessage={errorMessage}
-      />
-    );
-  }
-
   return (
     <WizardProvider value={wizardContextValue}>
       <ProgressContext.Provider value={progressContextValue}>
         <WizardClientLayout
-          previewContent={content.preview}
+          previewContent={content.preview!}
           isLoadingDraft={isLoading}
+          loadedFragments={loadedFragments}
         >
           {children}
         </WizardClientLayout>
@@ -128,3 +121,4 @@ export function CampaignSuiteWizard({
     </WizardProvider>
   );
 }
+// RUTA: src/components/features/campaign-suite/CampaignSuiteWizard.tsx

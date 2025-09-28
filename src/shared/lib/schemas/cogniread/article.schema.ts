@@ -1,9 +1,9 @@
-// shared/lib/schemas/cogniread/article.schema.ts
+// RUTA: src/shared/lib/schemas/cogniread/article.schema.ts
 /**
  * @file article.schema.ts
  * @description SSoT para el contrato de datos de la entidad Artículo de CogniRead.
- *              Define la estructura para un documento en la colección 'articles' de MongoDB.
- * @version 1.0.0
+ *              Define la estructura para un documento en la tabla 'cogniread_articles' de Supabase.
+ * @version 2.0.0 (Manifesto Formalization & Supabase Migration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
@@ -29,24 +29,44 @@ export const ArticleTranslationSchema = z.object({
 /**
  * @const StudyDnaSchema
  * @description Valida la estructura de los datos extraídos del estudio científico.
- *              Esta es la materialización de nuestro "Prompt Maestro".
+ *              Esta es la materialización de nuestro "Prompt Maestro". Las descripciones
+ *              contienen pistas de UI para el renderizador de formularios dinámico.
  */
 export const StudyDnaSchema = z.object({
-  // Sección A: Identificación
-  originalTitle: z.string(),
-  authors: z.array(z.string()),
-  institution: z.string(),
-  publication: z.string(),
-  publicationDate: z.string().datetime(),
-  doi: z.string().url(),
-  fundingSource: z.string(),
-  // Secciones B, C, D...
-  objective: z.string(),
-  studyType: z.string(),
-  methodologySummary: z.string(),
-  mainResults: z.string(),
-  authorsConclusion: z.string(),
-  limitations: z.array(z.string()),
+  originalTitle: z
+    .string()
+    .min(1)
+    .describe("ui:label:Título Original del Estudio"),
+  authors: z.array(z.string().min(1)).min(1).describe("ui:label:Autores"),
+  institution: z.string().min(1).describe("ui:label:Institución Principal"),
+  publication: z.string().min(1).describe("ui:label:Revista o Publicación"),
+  publicationDate: z
+    .string()
+    .datetime()
+    .describe("ui:label:Fecha de Publicación"),
+  doi: z.string().url().describe("ui:label:Enlace DOI"),
+  fundingSource: z.string().min(1).describe("ui:label:Fuente de Financiación"),
+  objective: z
+    .string()
+    .min(1)
+    .describe("ui:label:Objetivo Principal|ui:control:textarea"),
+  studyType: z.string().min(1).describe("ui:label:Tipo de Estudio"),
+  methodologySummary: z
+    .string()
+    .min(1)
+    .describe("ui:label:Resumen de Metodología|ui:control:textarea"),
+  mainResults: z
+    .string()
+    .min(1)
+    .describe("ui:label:Resultados Principales|ui:control:textarea"),
+  authorsConclusion: z
+    .string()
+    .min(1)
+    .describe("ui:label:Conclusión de los Autores|ui:control:textarea"),
+  limitations: z
+    .array(z.string().min(1))
+    .min(1)
+    .describe("ui:label:Limitaciones del Estudio"),
 });
 
 /**
@@ -54,38 +74,19 @@ export const StudyDnaSchema = z.object({
  * @description El schema principal y soberano para un artículo en CogniRead.
  */
 export const CogniReadArticleSchema = z.object({
-  // --- Metadatos de CogniRead ---
   articleId: z.string().cuid2(),
   status: z.enum(["draft", "published", "archived"]),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-
-  // --- El ADN del Estudio (SSoT de Evidencia) ---
   studyDna: StudyDnaSchema,
-
-  // --- Contenido Multilingüe (SSoT de Divulgación) ---
-  content: z.record(z.enum(supportedLocales), ArticleTranslationSchema),
-
-  // --- Vínculos del Ecosistema ---
+  content: z.record(
+    z.enum(supportedLocales),
+    ArticleTranslationSchema.partial()
+  ),
   baviHeroImageId: z.string().optional(),
-  relatedPromptIds: z.array(z.string()).optional(),
+  relatedPromptIds: z.array(z.string().cuid2()).optional(),
 });
 
-/**
- * @type CogniReadArticle
- * @description Infiere el tipo TypeScript para un artículo completo de CogniRead.
- */
 export type CogniReadArticle = z.infer<typeof CogniReadArticleSchema>;
-
-/**
- * @type ArticleTranslation
- * @description Infiere el tipo TypeScript para el contenido de una traducción.
- */
 export type ArticleTranslation = z.infer<typeof ArticleTranslationSchema>;
-
-/**
- * @type StudyDna
- * @description Infiere el tipo TypeScript para el ADN del estudio.
- */
 export type StudyDna = z.infer<typeof StudyDnaSchema>;
-// shared/lib/schemas/cogniread/article.schema.ts

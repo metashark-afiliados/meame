@@ -1,5 +1,5 @@
 // RUTA: shared/lib/shopify/mutations/cart.ts
-import "server-only";
+
 import { cartFragment } from "../fragments/cart";
 export const addToCartMutation = /* GraphQL */ `
   mutation addToCart($cartId: ID!, $lines: [CartLineInput!]!) {

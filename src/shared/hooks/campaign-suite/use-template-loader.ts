@@ -3,7 +3,7 @@
  * @file use-template-loader.ts
  * @description Hook de élite para orquestar la carga de una plantilla y la
  *              hidratación de los stores atómicos de la SDC.
- * @version 1.0.0
+ * @version 2.0.0 (Atomic Store Hydration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,14 +12,13 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { loadTemplateAction } from "@/shared/lib/actions/campaign-suite";
 import { logger } from "@/shared/lib/logging";
-
-// Importación de todos los stores atómicos que necesitan ser hidratados
 import { useDraftMetadataStore } from "./use-draft-metadata.store";
 import { useStep0IdentityStore } from "./use-step0-identity.store";
 import { useStep1StructureStore } from "./use-step1-structure.store";
 import { useStep2LayoutStore } from "./use-step2-layout.store";
 import { useStep3ThemeStore } from "./use-step3-theme.store";
 import { useStep4ContentStore } from "./use-step4-content.store";
+import { generateDraftId } from "@/shared/lib/utils/campaign-suite/draft.utils";
 
 export function useTemplateLoader(onLoadSuccess: () => void) {
   const [isPending, startTransition] = useTransition();
@@ -41,12 +40,11 @@ export function useTemplateLoader(onLoadSuccess: () => void) {
         // Hidratar cada store atómico con su porción de datos
         useDraftMetadataStore.setState({
           baseCampaignId: draftData.baseCampaignId,
-          variantName: draftData.variantName,
+          variantName: `${draftData.variantName} (Copia)`, // Sugerir que es una copia
           seoKeywords: draftData.seoKeywords,
-          completedSteps: draftData.completedSteps,
+          completedSteps: [], // Resetear el progreso
           updatedAt: new Date().toISOString(),
-          // draftId se generará de nuevo basado en el baseCampaignId
-          draftId: `${draftData.baseCampaignId}-${Date.now()}`,
+          draftId: generateDraftId(draftData.baseCampaignId || "template"),
         });
         useStep0IdentityStore.setState({
           affiliateNetwork: draftData.affiliateNetwork,
@@ -63,7 +61,7 @@ export function useTemplateLoader(onLoadSuccess: () => void) {
         logger.endGroup();
         toast.success("Plantilla cargada con éxito.", {
           description:
-            "El asistente ha sido pre-configurado con los datos de la plantilla.",
+            "El asistente ha sido pre-configurado. ¡Ya puedes empezar a forjar!",
         });
 
         onLoadSuccess();

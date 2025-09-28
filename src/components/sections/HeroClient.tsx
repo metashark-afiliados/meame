@@ -1,16 +1,15 @@
 // RUTA: src/components/sections/HeroClient.tsx
 /**
  * @file HeroClient.tsx
- * @description Componente de Cliente para la sección Hero. Restaura la
- *              animación MEA/UX utilizando Framer Motion.
- * @version 1.0.0
+ * @description Componente de cliente puro ("Client Core") para la sección Hero.
+ * @version 1.0.0 (Forged)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
-
 import React from "react";
 import { motion, type Variants } from "framer-motion";
 import { Container } from "@/components/ui/Container";
+import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 type HeroContent = NonNullable<Dictionary["hero"]>;
@@ -52,6 +51,9 @@ const subtitleVariants: Variants = {
 };
 
 export function HeroClient({ content, backgroundImageUrl }: HeroClientProps) {
+  logger.info(
+    `[HeroClient v1.0] Renderizando UI con props recibidas del Server Shell.`
+  );
   const { title, subtitle } = content;
   const titleWords = title.split(" ");
 

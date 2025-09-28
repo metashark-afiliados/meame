@@ -2,17 +2,21 @@
 /**
  * @file validate-sdc-config.ts
  * @description Guardián de Integridad para la configuración de la SDC.
- * @version 4.0.0 (Build Integrity Restoration)
+ * @version 6.0.0 (Build Integrity Restoration - Path Fix)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { promises as fs } from "fs";
-import path from "path";
+import * as path from "path";
 import chalk from "chalk";
+// --- [INICIO DE REFACTORIZACIÓN DE RUTA] ---
+// Se corrige la ruta relativa para que apunte correctamente a la SSoT
+// desde el directorio de ejecución del script.
 import { stepsDataConfig } from "../../src/shared/lib/config/campaign-suite/wizard.data.config";
+// --- [FIN DE REFACTORIZACIÓN DE RUTA] ---
 
 async function main() {
   console.log(
-    chalk.blue.bold("🛡️  Ejecutando Guardián de Integridad de la SDC (v4.0)...")
+    chalk.blue.bold("🛡️  Ejecutando Guardián de Integridad de la SDC (v6.0)...")
   );
   let errorCount = 0;
 
@@ -26,14 +30,19 @@ async function main() {
 
       const i18nPath = path.resolve(
         process.cwd(),
-        `src/messages/pages/dev/campaign-suite/steps/${step.i18nKey}.i18n.json`
+        `src/messages/pages/dev/campaign-suite/steps/${String(
+          step.i18nKey
+        )}.i18n.json`
       );
 
       try {
         await fs.access(i18nPath);
         console.log(
           chalk.gray(
-            `     ✅ [i18n] Encontrado: ${path.relative(process.cwd(), i18nPath)}`
+            `     ✅ [i18n] Encontrado: ${path.relative(
+              process.cwd(),
+              String(i18nPath)
+            )}`
           )
         );
       } catch {
@@ -41,7 +50,7 @@ async function main() {
           chalk.red.bold(
             `     🔥 [i18n] ¡NO ENCONTRADO!: ${path.relative(
               process.cwd(),
-              i18nPath
+              String(i18nPath)
             )}`
           )
         );
@@ -73,3 +82,4 @@ async function main() {
 }
 
 main();
+// RUTA: scripts/validation/validate-sdc-config.ts

@@ -2,16 +2,14 @@
 /**
  * @file getPrompts.action.ts
  * @description Server Action de élite que actúa como un Agregador de Datos.
- *              Obtiene prompts y los enriquece con datos de la BAVI.
- * @version 8.0.0 (Production-Ready User Context)
+ *              Obtiene prompts y los enriquece con datos de la BAVI desde Supabase.
+ * @version 9.0.0 (Migración Completa a Supabase)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
 
 import { z } from "zod";
-import { type Filter, type Document } from "mongodb";
-import { connectToDatabase } from "@/shared/lib/mongodb";
-import { createServerClient } from "@/shared/lib/supabase/server"; // <-- IMPORTACIÓN CLAVE
+import { createServerClient } from "@/shared/lib/supabase/server";
 import {
   RaZPromptsEntrySchema,
   type RaZPromptsEntry,
@@ -32,7 +30,38 @@ export type EnrichedRaZPromptsEntry = RaZPromptsEntry & {
   primaryImageUrl?: string;
 };
 
-type MongoPipelineStage = Document;
+// --- Tipos internos para la respuesta de Supabase (snake_case) ---
+interface SupabasePromptVersion {
+  version: number;
+  promptText: string;
+  negativePrompt?: string;
+  parameters: any; // JSONB, se validará con Zod después
+  createdAt: string;
+}
+
+interface SupabaseRaZPromptsSesaTags {
+  ai: string;
+  sty?: string;
+  fmt?: string;
+  typ?: string;
+  sbj?: string;
+}
+
+interface SupabaseRaZPromptsEntry {
+  id: string; // UUID from Supabase, corresponds to Zod's promptId
+  user_id: string;
+  workspace_id: string;
+  title: string;
+  status: "pending_generation" | "generated" | "archived";
+  ai_service: string;
+  keywords: string[]; // text[]
+  versions: SupabasePromptVersion[]; // JSONB
+  tags: SupabaseRaZPromptsSesaTags; // JSONB
+  bavi_asset_ids: string[]; // text[]
+  created_at: string;
+  updated_at: string;
+}
+// --- Fin de tipos internos de Supabase ---
 
 const GetPromptsInputSchema = z.object({
   page: z.number().int().min(1).default(1),
@@ -43,9 +72,24 @@ const GetPromptsInputSchema = z.object({
 
 export type GetPromptsInput = z.infer<typeof GetPromptsInputSchema>;
 
-interface PromptsAggregationResult {
-  totalCount: [{ count: number }];
-  prompts: Document[];
+// Función de mapeo para transformar de Supabase (snake_case) a nuestro schema (camelCase)
+function mapSupabaseToRaZPromptsEntry(
+  supabaseEntry: SupabaseRaZPromptsEntry
+): RaZPromptsEntry {
+  return {
+    promptId: supabaseEntry.id,
+    userId: supabaseEntry.user_id,
+    workspaceId: supabaseEntry.workspace_id,
+    title: supabaseEntry.title,
+    status: supabaseEntry.status,
+    aiService: supabaseEntry.ai_service,
+    keywords: supabaseEntry.keywords,
+    versions: supabaseEntry.versions as any, // Ya validado por Zod, pero el tipo JSONB requiere aserción
+    tags: supabaseEntry.tags as any, // Ya validado por Zod
+    baviAssetIds: supabaseEntry.bavi_asset_ids,
+    createdAt: supabaseEntry.created_at,
+    updatedAt: supabaseEntry.updated_at,
+  };
 }
 
 export async function getPromptsAction(
@@ -53,7 +97,7 @@ export async function getPromptsAction(
 ): Promise<
   ActionResult<{ prompts: EnrichedRaZPromptsEntry[]; total: number }>
 > {
-  const traceId = logger.startTrace("getPromptsAction_v8.0");
+  const traceId = logger.startTrace("getPromptsAction_v9.0_Supabase");
   const supabase = createServerClient();
   const {
     data: { user },
@@ -61,64 +105,99 @@ export async function getPromptsAction(
 
   // --- GUARDIA DE SEGURIDAD SOBERANA ---
   if (!user) {
+    logger.warn("[Action] Intento no autorizado de obtener prompts.", {
+      traceId,
+    });
     return { success: false, error: "auth_required" };
   }
+  logger.info(
+    `[Action] Obteniendo prompts para usuario: ${user.id} (página ${input.page})`,
+    { traceId }
+  );
 
   try {
-    const { page, limit, query, tags } = GetPromptsInputSchema.parse(input);
-    const client = await connectToDatabase();
-    const db = client.db(process.env.MONGODB_DB_NAME);
-    const collection = db.collection<RaZPromptsEntry>("prompts");
-
-    // --- LÓGICA DE PRODUCCIÓN ---
-    // El `matchStage` ahora es seguro y contextual al usuario.
-    const matchStage: Filter<RaZPromptsEntry> = { userId: user.id };
-    if (query) matchStage.$text = { $search: query };
-    if (tags && Object.keys(tags).length > 0) {
-      for (const key in tags) {
-        matchStage[`tags.${key}`] = tags[key as keyof RaZPromptsSesaTags];
-      }
-    }
-
-    const pipeline: MongoPipelineStage[] = [
-      { $match: matchStage },
-      { $sort: { updatedAt: -1 } },
-      {
-        $facet: {
-          totalCount: [{ $count: "count" }],
-          prompts: [{ $skip: (page - 1) * limit }, { $limit: limit }],
-        },
-      },
-    ];
-
-    const result = await collection
-      .aggregate<PromptsAggregationResult>(pipeline)
-      .toArray();
-    const promptsFromDb = result[0]?.prompts ?? [];
-    const total = result[0]?.totalCount[0]?.count ?? 0;
-
-    const validation = z.array(RaZPromptsEntrySchema).safeParse(promptsFromDb);
-    if (!validation.success) {
-      logger.error("[getPromptsAction] Datos de prompts corruptos en la DB.", {
-        error: validation.error.flatten(),
+    const validatedInput = GetPromptsInputSchema.safeParse(input);
+    if (!validatedInput.success) {
+      logger.warn("[Action] Parámetros de búsqueda inválidos.", {
+        errors: validatedInput.error.flatten(),
         traceId,
       });
-      throw new Error("Los datos de la base de datos no son válidos.");
+      return { success: false, error: "Parámetros de búsqueda inválidos." };
+    }
+
+    const { page, limit, query, tags } = validatedInput.data;
+    const start = (page - 1) * limit;
+    const end = start + limit - 1;
+
+    let queryBuilder = supabase
+      .from("razprompts_entries")
+      .select("*, count()", { count: "exact" }) // count: 'exact' para obtener el total
+      .eq("user_id", user.id); // Asegura que solo se obtengan los prompts del usuario
+
+    // Aplicar filtro de búsqueda de texto (simplificado)
+    if (query) {
+      // Buscar en el título y en las palabras clave (convirtiendo el array a texto)
+      queryBuilder = queryBuilder.or(
+        `title.ilike.%${query}%,keywords.cs.{${query.split(" ").join(",")}}`
+      );
+    }
+
+    // Aplicar filtros de tags (JSONB)
+    if (tags && Object.keys(tags).length > 0) {
+      // Supabase .contains() requiere un objeto JSON para JSONB
+      // Esto filtra si el campo JSONB 'tags' contiene el sub-objeto especificado.
+      queryBuilder = queryBuilder.contains("tags", tags);
+    }
+
+    const { data, error, count } = await queryBuilder
+      .order("updated_at", { ascending: false }) // Ordenar por la actualización más reciente
+      .range(start, end);
+
+    if (error) {
+      logger.error("[Action] Error al obtener prompts de Supabase.", {
+        error: error.message,
+        traceId,
+      });
+      throw new Error(error.message);
+    }
+
+    // Mapear y validar los datos de Supabase a nuestro schema RaZPromptsEntry
+    const mappedPrompts: RaZPromptsEntry[] = (data || []).map(
+      mapSupabaseToRaZPromptsEntry
+    );
+    const validation = z.array(RaZPromptsEntrySchema).safeParse(mappedPrompts);
+
+    if (!validation.success) {
+      logger.error(
+        "[Action] Los datos de prompts de Supabase son inválidos según el esquema de Zod.",
+        {
+          errors: validation.error.flatten(),
+          traceId,
+        }
+      );
+      throw new Error(
+        "Formato de datos de prompts inesperado desde la base de datos."
+      );
     }
     const validatedPrompts = validation.data;
 
+    // Enriquecer con primaryImageUrl desde el manifiesto BAVI
     const baviManifest = await getBaviManifest();
     const enrichedPrompts = validatedPrompts.map(
       (prompt): EnrichedRaZPromptsEntry => {
+        // Asumimos que `baviAssetIds` en el esquema RaZPromptsEntry es un array de strings.
         const primaryAssetId = prompt.baviAssetIds?.[0];
         if (!primaryAssetId) return prompt;
+
         const asset = baviManifest.assets.find(
           (a: BaviAsset) => a.assetId === primaryAssetId
         );
         const publicId = asset?.variants.find(
           (v: BaviVariant) => v.state === "orig"
         )?.publicId;
+
         if (!publicId) return prompt;
+
         return {
           ...prompt,
           primaryImageUrl: `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,w_400/${publicId}`,
@@ -126,15 +205,25 @@ export async function getPromptsAction(
       }
     );
 
-    return { success: true, data: { prompts: enrichedPrompts, total } };
+    logger.success(
+      `[Action] Prompts obtenidos: ${enrichedPrompts.length} de ${count ?? 0}.`,
+      { traceId }
+    );
+    return {
+      success: true,
+      data: { prompts: enrichedPrompts, total: count ?? 0 },
+    };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[getPromptsAction] Fallo crítico.", {
+    logger.error("[Action] Fallo crítico al obtener prompts.", {
       error: errorMessage,
       traceId,
     });
-    return { success: false, error: "No se pudieron cargar los prompts." };
+    return {
+      success: false,
+      error: `No se pudieron cargar los prompts: ${errorMessage}`,
+    };
   } finally {
     logger.endTrace(traceId);
   }

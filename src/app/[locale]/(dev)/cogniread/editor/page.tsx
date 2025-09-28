@@ -2,10 +2,10 @@
 /**
  * @file page.tsx
  * @description Página "Shell" de servidor para el editor de artículos de CogniRead.
- *              v4.0.0 (Holistic & i18n Data Fetching): Orquesta la obtención de
- *              todos los datos de servidor (artículo y diccionario) y los
- *              pasa de forma segura a su componente de cliente.
- * @version 4.0.0
+ *              v5.0.0 (Holistic & Sovereign Path Restoration): Se refactoriza la
+ *              importación del componente de cliente para que apunte a su SSoT
+ *              canónica en la capa de features, resolviendo el error TS2307.
+ * @version 5.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -18,7 +18,10 @@ import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 import { getArticleByIdAction } from "@/shared/lib/actions/cogniread";
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+// La importación ahora apunta a la ruta soberana del componente en la capa de features.
 import { ArticleEditorClient } from "@/components/features/cogniread/editor/ArticleEditorClient";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
 interface ArticleEditorPageProps {
   params: { locale: Locale };
@@ -33,19 +36,15 @@ export default async function ArticleEditorPage({
   const isEditing = !!id;
 
   logger.info(
-    `[ArticleEditorPage] Renderizando v4.0. Modo: ${isEditing ? `Edición (ID: ${id})` : "Creación"}`
+    `[ArticleEditorPage] Renderizando v5.0. Modo: ${isEditing ? `Edición (ID: ${id})` : "Creación"}`
   );
 
-  // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: OBTENCIÓN DE DATOS SECUENCIAL Y RESILIENTE] ---
-  // 1. Obtener el diccionario, que siempre es necesario.
   const { dictionary, error: dictError } = await getDictionary(locale);
   const pageContent = dictionary.cogniReadEditor;
 
-  // 2. Guardia de Resiliencia para el contenido i18n.
   if (dictError || !pageContent) {
     const errorMessage =
       "Fallo al cargar el contenido i18n para el editor de CogniRead.";
-    logger.error(`[ArticleEditorPage] ${errorMessage}`, { error: dictError });
     if (process.env.NODE_ENV === "production") return notFound();
     return (
       <DeveloperErrorDisplay
@@ -58,7 +57,6 @@ export default async function ArticleEditorPage({
     );
   }
 
-  // 3. Obtener los datos del artículo SOLO si estamos en modo de edición.
   let initialArticleData: CogniReadArticle | null = null;
   let fetchError: string | null = null;
 
@@ -67,17 +65,13 @@ export default async function ArticleEditorPage({
     if (articleResult.success) {
       initialArticleData = articleResult.data.article;
       if (!initialArticleData) {
-        // Si la acción fue exitosa pero no se encontró el artículo, establecemos un error amigable.
         fetchError =
           pageContent.articleNotFoundError || "Artículo no encontrado.";
       }
     } else {
-      // Si la acción falló, TypeScript ahora sabe que `articleResult` es de tipo `ErrorResult`.
-      // El acceso a `articleResult.error` es 100% seguro.
       fetchError = articleResult.error;
     }
   }
-  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
   return (
     <>
@@ -107,3 +101,4 @@ export default async function ArticleEditorPage({
     </>
   );
 }
+// RUTA: src/app/[locale]/(dev)/cogniread/editor/page.tsx

@@ -2,7 +2,8 @@
 /**
  * @file use-prompt-creator.ts
  * @description Hook "cerebro" para la lógica de creación de prompts.
- * @version 5.0.0 (Code Hygiene & Elite Compliance)
+ *              Ahora es consciente del contexto del workspace.
+ * @version 6.0.0 (Workspace-Aware)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -17,6 +18,7 @@ import {
   RaZPromptsSesaTagsSchema,
   PromptParametersSchema,
 } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
+import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store"; // <-- IMPORTACIÓN DEL STORE
 
 export const CreatePromptFormSchema = z.object({
   title: z.string().min(3, "El título es requerido."),
@@ -31,6 +33,9 @@ export type CreatePromptFormData = z.infer<typeof CreatePromptFormSchema>;
 
 export function usePromptCreator() {
   const [isPending, startTransition] = useTransition();
+  const activeWorkspaceId = useWorkspaceStore(
+    (state) => state.activeWorkspaceId
+  ); // <-- OBTENER WORKSPACE ACTIVO
 
   const form = useForm<CreatePromptFormData>({
     resolver: zodResolver(CreatePromptFormSchema),
@@ -51,6 +56,14 @@ export function usePromptCreator() {
   });
 
   const onSubmit = (data: CreatePromptFormData) => {
+    // --- GUARDIA DE CONTEXTO ---
+    if (!activeWorkspaceId) {
+      toast.error("Error de contexto", {
+        description: "No hay un workspace activo seleccionado.",
+      });
+      return;
+    }
+
     startTransition(async () => {
       const result = await createPromptEntryAction({
         title: data.title,
@@ -70,11 +83,12 @@ export function usePromptCreator() {
           .split(",")
           .map((k) => k.trim())
           .filter(Boolean),
+        workspaceId: activeWorkspaceId, // <-- PASAR WORKSPACE ID
       });
 
       if (result.success) {
         toast.success("Genoma de Prompt creado!", {
-          description: `ID: ${result.data.promptId}. Ahora puedes vincularlo a un activo en BAVI.`,
+          description: `ID: ${result.data.promptId}.`,
           duration: 10000,
         });
         form.reset();
@@ -86,4 +100,3 @@ export function usePromptCreator() {
 
   return { form, onSubmit, isPending };
 }
-// RUTA: src/shared/hooks/raz-prompts/use-prompt-creator.ts

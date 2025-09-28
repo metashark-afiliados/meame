@@ -89,3 +89,4 @@ export function ArticleEditorClient({
     />
   );
 }
+// RUTA: src/components/features/cogniread/editor/ArticleEditorClient.tsx

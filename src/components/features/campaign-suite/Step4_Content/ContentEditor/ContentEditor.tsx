@@ -1,24 +1,23 @@
 // RUTA: src/components/features/campaign-suite/Step4_Content/ContentEditor/ContentEditor.tsx
 /**
  * @file ContentEditor.tsx
- * @description Orquestador del editor de contenido. Gestiona el estado del
- *              formulario, la lógica de guardado y la comunicación con el exterior.
- * @version 7.0.0 (ACS Path & Build Integrity Restoration)
+ * @description Orquestador de presentación puro para el editor de contenido.
+ *              Consume el hook 'useContentEditor' para separar la lógica de la vista.
+ * @version 8.0.0 (Atomic Refactor)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import React from "react";
 import { motion } from "framer-motion";
-import { defaultLocale, type Locale } from "@/shared/lib/i18n/i18n.config";
+import { z } from "zod";
+import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
 import { logger } from "@/shared/lib/logging";
 import { ContentEditorHeader } from "./ContentEditorHeader";
 import { ContentEditorBody } from "./ContentEditorBody";
 import { ContentEditorFooter } from "./ContentEditorFooter";
+import { useContentEditor } from "@/shared/hooks/campaign-suite/use-content-editor";
 
 interface ContentEditorProps {
   sectionName: string;
@@ -40,26 +39,19 @@ export function ContentEditor({
   onClose,
   onUpdateContent,
 }: ContentEditorProps): React.ReactElement {
-  logger.info(`[ContentEditor] Editor abierto para: ${sectionName} (v7.0)`);
+  logger.info(
+    `[ContentEditor] Renderizando orquestador puro para: ${sectionName} (v8.0)`
+  );
 
-  const [activeLocale, setActiveLocale] = useState<Locale>(defaultLocale);
-
-  const form = useForm<z.infer<typeof sectionSchema>>({
-    resolver: zodResolver(sectionSchema),
-    defaultValues: draft.contentData[sectionName]?.[activeLocale] || {},
-    mode: "onBlur",
-  });
-
-  const handlePersistChange = (field: string, value: unknown) => {
-    onUpdateContent(sectionName, activeLocale, field, value);
-  };
-
-  const onSubmit = () => {
-    logger.success(
-      `[ContentEditor] Contenido para ${sectionName} guardado. Cerrando panel.`
-    );
-    onClose();
-  };
+  // El componente consume el hook que encapsula toda la lógica
+  const { form, activeLocale, setActiveLocale, handlePersistChange, onSubmit } =
+    useContentEditor({
+      sectionName,
+      sectionSchema,
+      draft,
+      onUpdateContent,
+      onClose,
+    });
 
   return (
     <motion.div
@@ -70,19 +62,18 @@ export function ContentEditor({
       className="fixed top-0 right-0 h-full w-full max-w-2xl bg-background border-l shadow-2xl z-50 flex flex-col"
     >
       <ContentEditorHeader sectionName={sectionName} onClose={onClose} />
+
       <ContentEditorBody
         form={form}
         activeLocale={activeLocale}
         setActiveLocale={setActiveLocale}
         sectionSchema={sectionSchema}
         onPersistChange={handlePersistChange}
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={onSubmit}
         sectionName={sectionName}
       />
-      <ContentEditorFooter
-        onClose={onClose}
-        onSubmit={form.handleSubmit(onSubmit)}
-      />
+
+      <ContentEditorFooter onClose={onClose} onSubmit={onSubmit} />
     </motion.div>
   );
 }

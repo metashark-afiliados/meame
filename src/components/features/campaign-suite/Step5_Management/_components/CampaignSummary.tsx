@@ -2,12 +2,13 @@
 /**
  * @file CampaignSummary.tsx
  * @description Aparato atómico para la vista de resumen de la campaña en el Paso 5.
- * @version 1.0.0
+ * @version 2.0.0 (MEA/UX Injection & Resilience)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 import { logger } from "@/shared/lib/logging";
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
 import {
@@ -25,12 +26,25 @@ interface CampaignSummaryProps {
   placeholder: string;
 }
 
+const SummaryItem = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number | null;
+}) => (
+  <p>
+    {label}:{" "}
+    <span className="font-mono text-sm text-foreground">{value || "N/A"}</span>
+  </p>
+);
+
 export function CampaignSummary({
   draft,
   title,
   placeholder,
 }: CampaignSummaryProps): React.ReactElement {
-  logger.trace("[CampaignSummary] Renderizando resumen de campaña.");
+  logger.trace("[CampaignSummary] Renderizando resumen de campaña v2.0.");
 
   const hasHeader = draft.headerConfig?.useHeader;
   const headerName = draft.headerConfig?.componentName;
@@ -43,97 +57,77 @@ export function CampaignSummary({
     draft.themeConfig.radiusPreset;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{placeholder}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4 text-sm text-muted-foreground">
-        <div>
-          <h4 className="font-semibold text-foreground flex items-center mb-1">
-            <DynamicIcon name="LayoutGrid" className="h-4 w-4 mr-2" />
-            Identificación:
-          </h4>
-          <p>
-            ID Base:{" "}
-            <span className="font-medium text-foreground">
-              {draft.baseCampaignId || "N/A"}
-            </span>
-          </p>
-          <p>
-            Nombre Variante:{" "}
-            <span className="font-medium text-foreground">
-              {draft.variantName || "N/A"}
-            </span>
-          </p>
-          <p>
-            Keywords SEO:{" "}
-            <span className="font-medium text-foreground">
-              {draft.seoKeywords || "N/A"}
-            </span>
-          </p>
-        </div>
-        <div>
-          <h4 className="font-semibold text-foreground flex items-center mb-1">
-            <DynamicIcon name="BookOpen" className="h-4 w-4 mr-2" />
-            Estructura de Página:
-          </h4>
-          <p>
-            Encabezado:{" "}
-            {hasHeader ? (
-              <span className="font-medium text-foreground">
-                {headerName || "Seleccionado"}
-              </span>
-            ) : (
-              "No incluido"
-            )}
-          </p>
-          <p>
-            Pie de Página:{" "}
-            {hasFooter ? (
-              <span className="font-medium text-foreground">
-                {footerName || "Seleccionado"}
-              </span>
-            ) : (
-              "No incluido"
-            )}
-          </p>
-          <p>
-            Secciones de Contenido:{" "}
-            <span className="font-medium text-foreground">{numSections}</span>
-          </p>
-        </div>
-        <div>
-          <h4 className="font-semibold text-foreground flex items-center mb-1">
-            <DynamicIcon name="Palette" className="h-4 w-4 mr-2" />
-            Tema Visual:
-          </h4>
-          {themeConfigured ? (
-            <>
-              <p>
-                Colores:{" "}
-                <span className="font-medium text-foreground">
-                  {draft.themeConfig?.colorPreset}
-                </span>
-              </p>
-              <p>
-                Fuentes:{" "}
-                <span className="font-medium text-foreground">
-                  {draft.themeConfig?.fontPreset}
-                </span>
-              </p>
-              <p>
-                Geometría:{" "}
-                <span className="font-medium text-foreground">
-                  {draft.themeConfig?.radiusPreset}
-                </span>
-              </p>
-            </>
-          ) : (
-            <p>No configurado</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{placeholder}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4 text-sm text-muted-foreground">
+          <div>
+            <h4 className="font-semibold text-foreground flex items-center mb-2">
+              <DynamicIcon name="Fingerprint" className="h-4 w-4 mr-2" />
+              Identificación
+            </h4>
+            <div className="pl-6 border-l space-y-1">
+              <SummaryItem label="ID Base" value={draft.baseCampaignId} />
+              <SummaryItem label="Variante" value={draft.variantName} />
+              <SummaryItem label="Keywords" value={draft.seoKeywords} />
+              <SummaryItem label="Productor" value={draft.producer} />
+              <SummaryItem label="Tipo" value={draft.campaignType} />
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-foreground flex items-center mb-2">
+              <DynamicIcon name="Layers3" className="h-4 w-4 mr-2" />
+              Estructura
+            </h4>
+            <div className="pl-6 border-l space-y-1">
+              <SummaryItem
+                label="Header"
+                value={hasHeader ? headerName : "No Incluido"}
+              />
+              <SummaryItem
+                label="Footer"
+                value={hasFooter ? footerName : "No Incluido"}
+              />
+              <SummaryItem label="Secciones" value={numSections} />
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-foreground flex items-center mb-2">
+              <DynamicIcon name="Palette" className="h-4 w-4 mr-2" />
+              Tema Visual
+            </h4>
+            <div className="pl-6 border-l space-y-1">
+              {themeConfigured ? (
+                <>
+                  <SummaryItem
+                    label="Colores"
+                    value={draft.themeConfig?.colorPreset}
+                  />
+                  <SummaryItem
+                    label="Fuentes"
+                    value={draft.themeConfig?.fontPreset}
+                  />
+                  <SummaryItem
+                    label="Geometría"
+                    value={draft.themeConfig?.radiusPreset}
+                  />
+                </>
+              ) : (
+                <p>No configurado</p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }

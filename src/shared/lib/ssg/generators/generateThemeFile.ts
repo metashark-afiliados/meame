@@ -1,24 +1,17 @@
-// app/[locale]/(dev)/dev/campaign-suite/_actions/_generators/generateThemeFile.ts
+// RUTA: src/shared/lib/ssg/generators/generateThemeFile.ts
 /**
  * @file generateThemeFile.ts
  * @description Módulo generador soberano para el archivo de configuración de tema (layout).
- * @version 1.0.0
+ * @version 2.0.0 (Database-Driven Theming)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server-only";
 
-import fs from "fs/promises";
+import { promises as fs } from "fs";
 import path from "path";
 import { logger } from "@/shared/lib/logging";
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
 
-/**
- * @function generateThemeFile
- * @description Extrae el layout del borrador y lo escribe en un archivo theme.json.
- * @param {CampaignDraft} draft - El borrador de la campaña.
- * @param {string} targetDir - El directorio raíz del proyecto exportado.
- * @returns {Promise<void>}
- */
 export async function generateThemeFile(
   draft: CampaignDraft,
   targetDir: string
@@ -32,21 +25,20 @@ export async function generateThemeFile(
       },
     };
 
-    const contentDir = path.join(targetDir, "content");
+    const contentDir = path.join(targetDir, "src", "content");
     await fs.mkdir(contentDir, { recursive: true });
 
     const fileContent = JSON.stringify(themeObject, null, 2);
     const filePath = path.join(contentDir, "theme.json");
     await fs.writeFile(filePath, fileContent);
 
-    logger.trace(
-      `[Generator] Archivo theme.json escrito exitosamente en: ${filePath}`
-    );
+    logger.trace(`[Generator] Archivo theme.json escrito exitosamente.`);
   } catch (error) {
-    logger.error("[Generator] Fallo crítico al generar theme.json.", {
-      error,
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("Fallo crítico al generar theme.json.", {
+      error: errorMessage,
     });
     throw error;
   }
 }
-// app/[locale]/(dev)/dev/campaign-suite/_actions/_generators/generateThemeFile.ts

@@ -2,7 +2,7 @@
 /**
  * @file UserNavClient.tsx
  * @description Componente de cliente para la UI interactiva de UserNav.
- * @version 1.0.0
+ * @version 2.0.0 (Workspace Switcher Integration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/Button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { createClient } from "@/shared/lib/supabase/client";
 import { LastSignInInfo } from "./LastSignInInfo";
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher"; // <-- IMPORTACIÓN DEL NUEVO APARATO
 import type { User } from "@supabase/supabase-js";
 import type { UserProfileData } from "@/shared/lib/actions/account/get-current-user-profile.action";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
@@ -52,7 +53,7 @@ export function UserNavClient({
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast.info("Has cerrado sesión.");
-    router.refresh(); // Invalida la caché del servidor
+    router.refresh();
     router.push(`/${locale}/login`);
   };
 
@@ -99,6 +100,12 @@ export function UserNavClient({
             />
           </>
         )}
+
+        <DropdownMenuSeparator />
+
+        {/* --- INICIO DE INTEGRACIÓN DE WORKSPACE SWITCHER --- */}
+        <WorkspaceSwitcher />
+        {/* --- FIN DE INTEGRACIÓN DE WORKSPACE SWITCHER --- */}
 
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>

@@ -1,13 +1,16 @@
-// app/[locale]/(dev)/dev/campaign-suite/_actions/_generators/generatePackageJson.ts
+// RUTA: src/shared/lib/ssg/generators/generatePackageJson.ts
 /**
  * @file generatePackageJson.ts
  * @description Módulo generador soberano para el archivo package.json.
- * @version 2.0.0 (Type Contract Fix)
+ *              v3.0.0 (Dependency Symmetry): Refactorizado para leer
+ *              dinámicamente las dependencias del proyecto principal,
+ *              garantizando la simetría de versiones.
+ * @version 3.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server-only";
 
-import fs from "fs/promises";
+import { promises as fs } from "fs";
 import path from "path";
 import { logger } from "@/shared/lib/logging";
 import type { z } from "zod";
@@ -22,20 +25,71 @@ const sanitizeForPackageName = (name: string): string => {
     .replace(/[^a-z0-9-]/g, "");
 };
 
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
+
+const DEPENDENCY_WHITELIST = [
+  "next",
+  "react",
+  "react-dom",
+  "clsx",
+  "framer-motion",
+  "lucide-react",
+  "tailwind-merge",
+  "tailwindcss-animate",
+];
+
+const DEV_DEPENDENCY_WHITELIST = [
+  "@types/node",
+  "@types/react",
+  "@types/react-dom",
+  "autoprefixer",
+  "eslint",
+  "eslint-config-next",
+  "postcss",
+  "tailwindcss",
+  "typescript",
+];
+
+async function getProjectDependencies(): Promise<{
+  dependencies: Record<string, string>;
+  devDependencies: Record<string, string>;
+}> {
+  const mainPackageJsonPath = path.resolve(process.cwd(), "package.json");
+  const fileContent = await fs.readFile(mainPackageJsonPath, "utf-8");
+  const mainPackageJson = JSON.parse(fileContent);
+
+  const dependencies: Record<string, string> = {};
+  const devDependencies: Record<string, string> = {};
+
+  for (const pkg of DEPENDENCY_WHITELIST) {
+    if (mainPackageJson.dependencies[pkg]) {
+      dependencies[pkg] = mainPackageJson.dependencies[pkg];
+    }
+  }
+
+  for (const pkg of DEV_DEPENDENCY_WHITELIST) {
+    if (mainPackageJson.devDependencies[pkg]) {
+      devDependencies[pkg] = mainPackageJson.devDependencies[pkg];
+    }
+  }
+
+  return { dependencies, devDependencies };
+}
+
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
+
 export async function generatePackageJson(
-  draft: ValidatedDraft, // <-- TIPO CORREGIDO
+  draft: ValidatedDraft,
   targetDir: string
 ): Promise<void> {
-  // ... (lógica interna sin cambios)
-  logger.trace("[Generator] Iniciando generación de package.json...", {
-    variantName: draft.variantName,
-  });
+  logger.trace("[Generator] Iniciando generación de package.json (v3.0)...");
 
   const packageName = sanitizeForPackageName(draft.variantName || "campaign");
+  const projectDeps = await getProjectDependencies();
 
   const packageJsonTemplate = {
     name: packageName,
-    version: "0.1.0",
+    version: "1.0.0",
     private: true,
     scripts: {
       dev: "next dev",
@@ -43,27 +97,8 @@ export async function generatePackageJson(
       start: "next start",
       lint: "next lint",
     },
-    dependencies: {
-      next: "14.2.3",
-      react: "^18",
-      "react-dom": "^18",
-      clsx: "^2.1.1",
-      "framer-motion": "^11.2.10",
-      "lucide-react": "^0.394.0",
-      "tailwind-merge": "^2.3.0",
-      "tailwindcss-animate": "^1.0.7",
-    },
-    devDependencies: {
-      "@types/node": "^20",
-      "@types/react": "^18",
-      "@types/react-dom": "^18",
-      autoprefixer: "^10.4.19",
-      eslint: "^8",
-      "eslint-config-next": "14.2.3",
-      postcss: "^8",
-      tailwindcss: "^3.4.1",
-      typescript: "^5",
-    },
+    dependencies: projectDeps.dependencies,
+    devDependencies: projectDeps.devDependencies,
   };
 
   const fileContent = JSON.stringify(packageJsonTemplate, null, 2);
@@ -71,7 +106,6 @@ export async function generatePackageJson(
 
   await fs.writeFile(filePath, fileContent);
   logger.trace(
-    `[Generator] Archivo package.json escrito exitosamente en: ${filePath}`
+    `[Generator] Archivo package.json simétrico escrito exitosamente.`
   );
 }
-// app/[locale]/(dev)/dev/campaign-suite/_actions/_generators/generatePackageJson.ts

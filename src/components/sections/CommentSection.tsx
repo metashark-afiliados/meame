@@ -1,8 +1,8 @@
 // RUTA: src/components/sections/CommentSection.tsx
 /**
  * @file CommentSection.tsx
- * @description Componente de servidor que ensambla los datos para la sección de comentarios.
- * @version 2.0.0 (FSD Alignment & Elite Compliance)
+ * @description Componente de servidor ("Server Shell") para la sección de comentarios.
+ * @version 2.0.0 (Elite Shell Pattern)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -10,7 +10,6 @@ import { Container, Separator } from "@/components/ui";
 import { getCommentsByArticleIdAction } from "@/shared/lib/actions/cogniread";
 import { createServerClient } from "@/shared/lib/supabase/server";
 import { CommentSectionClient } from "./comments/CommentSectionClient";
-import { logger } from "@/shared/lib/logging";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
 import { defaultLocale } from "@/shared/lib/i18n/i18n.config";
 
@@ -23,26 +22,16 @@ export async function CommentSection({
   articleId,
   articleSlug,
 }: CommentSectionProps) {
-  logger.info(
-    `[CommentSection] Ensamblando datos para el artículo: ${articleId}`
-  );
-
   const [commentsResult, supabase, { dictionary }] = await Promise.all([
     getCommentsByArticleIdAction(articleId),
     createServerClient(),
-    getDictionary(defaultLocale), // Asumimos un locale por defecto o lo pasamos como prop.
+    getDictionary(defaultLocale),
   ]);
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
   const content = dictionary.commentSection;
-
-  if (!content) {
-    logger.error("[CommentSection] No se encontró contenido i18n.");
-    return null;
-  }
+  if (!content) return null;
 
   return (
     <section className="py-12 sm:py-16">

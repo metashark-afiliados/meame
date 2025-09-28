@@ -1,17 +1,19 @@
 // RUTA: src/components/features/cogniread/_components/ArticleList.tsx
 /**
  * @file ArticleList.tsx
- * @description Componente de cliente para mostrar una tabla de artículos de CogniRead.
- * @version 3.0.0 (FSD Alignment & Elite Compliance)
+ * @description Componente de cliente de élite para mostrar una tabla de artículos de CogniRead.
+ *              Inyectado con MEA/UX a través de animaciones de entrada en cascada
+ *              y construido para cumplir con los 7 Pilares de Calidad.
+ * @version 4.0.0 (Elite Forging & MEA Injection)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
 import Link from "next/link";
+import { motion, type Variants } from "framer-motion";
 import {
   Table,
-  TableBody,
   TableCell,
   TableHead,
   TableHeader,
@@ -23,13 +25,38 @@ import { DynamicIcon } from "@/components/ui";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 import { routes } from "@/shared/lib/navigation";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
+import { logger } from "@/shared/lib/logging";
 
 interface ArticleListProps {
   articles: CogniReadArticle[];
   locale: Locale;
 }
 
-export function ArticleList({ articles, locale }: ArticleListProps) {
+const tableVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05, // Anima la entrada de cada fila con un ligero retraso
+    },
+  },
+};
+
+const rowVariants: Variants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 100 },
+  },
+};
+
+export function ArticleList({
+  articles,
+  locale,
+}: ArticleListProps): React.ReactElement {
+  logger.info("[ArticleList] Renderizando v4.0 (Elite Forging).");
+
   const getStatusVariant = (status: CogniReadArticle["status"]) => {
     switch (status) {
       case "published":
@@ -61,9 +88,13 @@ export function ArticleList({ articles, locale }: ArticleListProps) {
           <TableHead className="text-right">Acciones</TableHead>
         </TableRow>
       </TableHeader>
-      <TableBody>
+      <motion.tbody variants={tableVariants} initial="hidden" animate="visible">
         {articles.map((article) => (
-          <TableRow key={article.articleId}>
+          <motion.tr
+            key={article.articleId}
+            variants={rowVariants}
+            className="hover:bg-muted/50"
+          >
             <TableCell>
               <Badge variant={getStatusVariant(article.status)}>
                 {article.status}
@@ -85,9 +116,10 @@ export function ArticleList({ articles, locale }: ArticleListProps) {
                 </Link>
               </Button>
             </TableCell>
-          </TableRow>
+          </motion.tr>
         ))}
-      </TableBody>
+      </motion.tbody>
     </Table>
   );
 }
+// RUTA: src/components/features/cogniread/_components/ArticleList.tsx

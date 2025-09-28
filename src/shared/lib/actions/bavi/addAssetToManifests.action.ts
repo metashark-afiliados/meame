@@ -1,8 +1,9 @@
 // RUTA: src/shared/lib/actions/bavi/addAssetToManifests.action.ts
 /**
  * @file addAssetToManifests.action.ts
- * @description Server Action atómica para registrar un nuevo activo DIRECTAMENTE en la DB de Supabase.
- * @version 4.0.0 (Supabase Production-Ready)
+ * @description Server Action atómica para registrar un nuevo activo en Supabase,
+ *              ahora consciente del contexto del workspace.
+ * @version 5.0.0 (Workspace-Aware)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -17,21 +18,23 @@ interface AddAssetToDbInput {
   metadata: AssetUploadMetadata;
   cloudinaryResponse: UploadApiResponse;
   userId: string;
+  workspaceId: string; // <-- PARÁMETRO DE CONTEXTO REQUERIDO
 }
 
 export async function addAssetToManifestsAction({
   metadata,
   cloudinaryResponse,
   userId,
+  workspaceId,
 }: AddAssetToDbInput): Promise<ActionResult<{ assetId: string }>> {
-  const traceId = logger.startTrace("addAssetToDb_v4.0");
+  const traceId = logger.startTrace("addAssetToDb_v5.0");
   const supabase = createServerClient();
 
   try {
-    // 1. Insertar el activo principal en `bavi_assets`
     const { error: assetError } = await supabase.from("bavi_assets").insert({
       asset_id: metadata.assetId,
-      user_id: userId, // <-- Propiedad Soberana
+      user_id: userId, // Mantenemos el creador por auditoría
+      workspace_id: workspaceId, // <-- PROPIEDAD DEL WORKSPACE
       provider: "cloudinary",
       prompt_id: metadata.promptId || null,
       tags: metadata.sesaTags,
@@ -47,7 +50,6 @@ export async function addAssetToManifestsAction({
       `Activo ${metadata.assetId} registrado en bavi_assets.`
     );
 
-    // 2. Insertar la variante inicial en `bavi_variants`
     const { error: variantError } = await supabase
       .from("bavi_variants")
       .insert({
@@ -67,9 +69,6 @@ export async function addAssetToManifestsAction({
       traceId,
       `Variante v1-orig para ${metadata.assetId} registrada.`
     );
-
-    // NOTA: La lógica para actualizar el search-index.json y RaZPrompts en MongoDB se mantiene por ahora,
-    // pero idealmente también migraría a la base de datos principal en el futuro.
 
     logger.success(
       `[Action] Activo ${metadata.assetId} persistido con éxito en Supabase.`,

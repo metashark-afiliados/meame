@@ -1,8 +1,9 @@
 // RUTA: src/components/features/campaign-suite/Step0_Identity/Step0Form.tsx
 /**
  * @file Step0Form.tsx
- * @description Componente de Presentación para el formulario del Paso 0.
- * @version 6.0.0 (ACS Path Restoration)
+ * @description Componente de Presentación para el formulario del Paso 0, ahora
+ *              con selectores de proveedor y tipo de campaña.
+ * @version 7.2.0 (Holistic & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -23,10 +24,12 @@ import { logger } from "@/shared/lib/logging";
 import {
   type Step0Data,
   type Step0ContentSchema,
-} from "@/shared/lib/schemas/campaigns/steps/step0.schema";
+} from "@/shared/lib/schemas/campaign-suite/steps/step0.schema";
 import { CampaignSelectField, VariantInputField } from "../_components/shared";
 import { WizardNavigation } from "@/components/features/campaign-suite/_components/WizardNavigation";
+import { producersConfig } from "@/shared/lib/config/campaign-suite/producers.config";
 
+// SSoT de Tipos para Props
 type Step0Content = z.infer<typeof Step0ContentSchema>;
 
 interface Step0FormProps {
@@ -34,8 +37,6 @@ interface Step0FormProps {
   content: Step0Content;
   baseCampaigns: string[];
   onSubmit: (data: Step0Data) => void;
-  onBack: () => void;
-  onNext: () => void;
 }
 
 export function Step0Form({
@@ -43,10 +44,15 @@ export function Step0Form({
   content,
   baseCampaigns,
   onSubmit,
-  onBack,
-  onNext,
 }: Step0FormProps): React.ReactElement {
-  logger.info("Renderizando Step0Form (v6.0 - ACS Path Restoration)");
+  // Pilar III (Observabilidad)
+  logger.info("Renderizando Step0Form v7.2 (Holistic).");
+
+  // Lógica de UI para el selector dependiente
+  const selectedProducer = form.watch("producer");
+  const campaignTypeOptions =
+    producersConfig.find((p) => p.id === selectedProducer)
+      ?.supportedCampaignTypes || [];
 
   return (
     <Card>
@@ -57,6 +63,29 @@ export function Step0Form({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-8">
+            {/* Selector de Proveedor */}
+            <CampaignSelectField
+              control={form.control}
+              name="producer"
+              label={content.producerLabel}
+              placeholder={content.producerPlaceholder}
+              options={producersConfig.map((p) => ({
+                value: p.id,
+                label: p.name,
+              }))}
+            />
+            {/* Selector de Tipo de Campaña (dependiente) */}
+            <CampaignSelectField
+              control={form.control}
+              name="campaignType"
+              label={content.campaignTypeLabel}
+              placeholder={content.campaignTypePlaceholder}
+              options={campaignTypeOptions.map((t) => ({
+                value: t.id,
+                label: t.name,
+              }))}
+            />
+            {/* Campos originales */}
             <CampaignSelectField
               control={form.control}
               name="baseCampaignId"
@@ -83,7 +112,11 @@ export function Step0Form({
             />
           </CardContent>
           <CardFooter>
-            <WizardNavigation onBack={onBack} onNext={onNext} />
+            {/* El botón "Atrás" se deshabilita en el primer paso */}
+            <WizardNavigation
+              onNext={form.handleSubmit(onSubmit)}
+              onBack={() => {}}
+            />
           </CardFooter>
         </form>
       </Form>

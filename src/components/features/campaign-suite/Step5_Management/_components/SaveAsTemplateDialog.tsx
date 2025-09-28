@@ -2,7 +2,7 @@
 /**
  * @file SaveAsTemplateDialog.tsx
  * @description Aparato atómico para el diálogo de "Guardar como Plantilla".
- * @version 1.0.0
+ * @version 2.0.0 (Elite Compliance & MEA/UX)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -22,6 +22,7 @@ import {
   DialogClose,
   DialogTrigger,
 } from "@/components/ui";
+import { logger } from "@/shared/lib/logging";
 
 interface SaveAsTemplateDialogProps {
   onSave: (name: string, description: string) => void;
@@ -47,12 +48,17 @@ export function SaveAsTemplateDialog({
   buttonText,
   content,
 }: SaveAsTemplateDialogProps): React.ReactElement {
+  logger.trace("[SaveAsTemplateDialog] Renderizando v2.0.");
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
   const handleSave = () => {
     onSave(name, description);
+    // No cerramos el diálogo inmediatamente; esperamos a que la operación termine.
+    // El padre controlará el estado `isSaving` y podría cerrar el diálogo después.
+    // Por ahora, para mantener la simplicidad, cerramos al confirmar.
     setIsOpen(false);
   };
 

@@ -2,11 +2,10 @@
 /**
  * @file cart.ts
  * @description SSoT para las mutaciones y consultas del carrito de Shopify.
- * @version 1.0.0
+ * @version 2.0.0 (Storefront Client Integration)
  * @author RaZ Podestá - MetaShark Tech
  */
-import "server-only";
-import { shopifyFetch } from "./client";
+import { shopifyStorefrontFetch } from "./storefront-client"; // <-- USAR EL CLIENTE DE STOREFRONT
 import { getCartQuery } from "./queries/cart";
 import {
   addToCartMutation,
@@ -25,7 +24,8 @@ import type {
 } from "./types";
 
 export async function createCart(): Promise<Cart> {
-  const res = await shopifyFetch<ShopifyCreateCartOperation>({
+  const res = await shopifyStorefrontFetch<ShopifyCreateCartOperation>({
+    // <-- USAR shopifyStorefrontFetch
     query: createCartMutation,
     cache: "no-store",
   });
@@ -36,7 +36,8 @@ export async function addToCart(
   cartId: string,
   lines: { merchandiseId: string; quantity: number }[]
 ): Promise<Cart> {
-  const res = await shopifyFetch<ShopifyAddToCartOperation>({
+  const res = await shopifyStorefrontFetch<ShopifyAddToCartOperation>({
+    // <-- USAR shopifyStorefrontFetch
     query: addToCartMutation,
     variables: { cartId, lines },
     cache: "no-store",
@@ -48,7 +49,8 @@ export async function removeFromCart(
   cartId: string,
   lineIds: string[]
 ): Promise<Cart> {
-  const res = await shopifyFetch<ShopifyRemoveFromCartOperation>({
+  const res = await shopifyStorefrontFetch<ShopifyRemoveFromCartOperation>({
+    // <-- USAR shopifyStorefrontFetch
     query: removeFromCartMutation,
     variables: { cartId, lineIds },
     cache: "no-store",
@@ -60,7 +62,8 @@ export async function updateCart(
   cartId: string,
   lines: { id: string; merchandiseId: string; quantity: number }[]
 ): Promise<Cart> {
-  const res = await shopifyFetch<ShopifyUpdateCartOperation>({
+  const res = await shopifyStorefrontFetch<ShopifyUpdateCartOperation>({
+    // <-- USAR shopifyStorefrontFetch
     query: editCartItemsMutation,
     variables: { cartId, lines },
     cache: "no-store",
@@ -71,7 +74,8 @@ export async function updateCart(
 export async function getShopifyCart(
   cartId: string
 ): Promise<Cart | undefined> {
-  const res = await shopifyFetch<ShopifyCartOperation>({
+  const res = await shopifyStorefrontFetch<ShopifyCartOperation>({
+    // <-- USAR shopifyStorefrontFetch
     query: getCartQuery,
     variables: { cartId },
     cache: "no-store",

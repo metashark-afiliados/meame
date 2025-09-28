@@ -1,10 +1,8 @@
 // RUTA: src/components/sections/SocialProofLogosClient.tsx
 /**
  * @file SocialProofLogosClient.tsx
- * @description Componente de cliente puro y de élite para la sección de prueba social.
- *              Es 100% data-driven y se encarga exclusivamente del renderizado.
- *              Cumple con los 7 Pilares de Calidad.
- * @version 1.0.0
+ * @description Componente "Client Core" para la sección de prueba social.
+ * @version 1.0.0 (Forged)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -15,7 +13,6 @@ import { CldImage } from "next-cloudinary";
 import { Container } from "@/components/ui/Container";
 import { logger } from "@/shared/lib/logging";
 
-// --- Pilar I (i18n) y Pilar IV (TSDoc): Contrato de Datos Explícito ---
 interface LogoData {
   alt: string;
   publicId: string;
@@ -32,13 +29,12 @@ export function SocialProofLogosClient({
   title,
   logos,
 }: SocialProofLogosClientProps) {
-  // --- Pilar III (Observabilidad) ---
+  // --- [INYECCIÓN DE LOGGING] ---
   logger.info(
-    "[SocialProofLogosClient] Renderizando componente de cliente puro."
+    `[SocialProofLogosClient v1.0] Renderizando UI con ${logos.length} logos recibidos del Server Shell.`
   );
 
   return (
-    // --- Pilar II (Theming) y Pilar VI (Resiliencia) ---
     <section
       aria-labelledby="social-proof-title"
       className="py-12 bg-background"

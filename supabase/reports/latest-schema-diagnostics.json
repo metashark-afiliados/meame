@@ -5,20 +5,92 @@
       "index_name": "notifications_pkey"
     },
     {
+      "table": "invitations",
+      "index_name": "invitations_pkey"
+    },
+    {
+      "table": "invitations",
+      "index_name": "invitations_token_key"
+    },
+    {
+      "table": "user_activity_events",
+      "index_name": "idx_user_activity_workspace_id"
+    },
+    {
+      "table": "user_activity_events",
+      "index_name": "user_activity_events_pkey"
+    },
+    {
+      "table": "user_activity_events",
+      "index_name": "idx_user_activity_user_id"
+    },
+    {
+      "table": "workspaces",
+      "index_name": "workspaces_pkey"
+    },
+    {
+      "table": "workspace_members",
+      "index_name": "workspace_members_pkey"
+    },
+    {
       "table": "campaign_templates",
       "index_name": "campaign_templates_pkey"
     },
     {
-      "table": "campaign_drafts",
-      "index_name": "campaign_drafts_pkey"
+      "table": "razprompts_entries",
+      "index_name": "razprompts_entries_pkey"
+    },
+    {
+      "table": "razprompts_entries",
+      "index_name": "idx_razprompts_user_id"
+    },
+    {
+      "table": "razprompts_entries",
+      "index_name": "idx_razprompts_workspace_id"
+    },
+    {
+      "table": "razprompts_entries",
+      "index_name": "idx_razprompts_status"
+    },
+    {
+      "table": "razprompts_entries",
+      "index_name": "idx_razprompts_keywords"
+    },
+    {
+      "table": "razprompts_entries",
+      "index_name": "idx_razprompts_tags"
+    },
+    {
+      "table": "razprompts_entries",
+      "index_name": "idx_razprompts_versions"
     },
     {
       "table": "bavi_assets",
       "index_name": "bavi_assets_pkey"
     },
     {
+      "table": "campaign_drafts",
+      "index_name": "campaign_drafts_pkey"
+    },
+    {
       "table": "bavi_variants",
       "index_name": "bavi_variants_pkey"
+    },
+    {
+      "table": "visitor_campaign_events",
+      "index_name": "campaign_events_pkey"
+    },
+    {
+      "table": "visitor_campaign_events",
+      "index_name": "idx_campaign_events_session_id"
+    },
+    {
+      "table": "visitor_campaign_events",
+      "index_name": "idx_campaign_events_workspace_id_campaign_id"
+    },
+    {
+      "table": "visitor_fingerprints",
+      "index_name": "visitor_fingerprints_pkey"
     },
     {
       "table": "profiles",
@@ -27,6 +99,78 @@
     {
       "table": "profiles",
       "index_name": "profiles_user_id_key"
+    },
+    {
+      "table": "anonymous_campaign_events",
+      "index_name": "anonymous_campaign_events_pkey"
+    },
+    {
+      "table": "anonymous_campaign_events",
+      "index_name": "idx_anon_events_fingerprint_id"
+    },
+    {
+      "table": "anonymous_campaign_events",
+      "index_name": "idx_anon_events_workspace_campaign"
+    },
+    {
+      "table": "cogniread_articles",
+      "index_name": "cogniread_articles_pkey"
+    },
+    {
+      "table": "cogniread_articles",
+      "index_name": "idx_cogniread_articles_status"
+    },
+    {
+      "table": "cogniread_articles",
+      "index_name": "idx_cogniread_articles_study_dna"
+    },
+    {
+      "table": "cogniread_articles",
+      "index_name": "idx_cogniread_articles_content"
+    },
+    {
+      "table": "community_comments",
+      "index_name": "community_comments_pkey"
+    },
+    {
+      "table": "community_comments",
+      "index_name": "idx_community_comments_article_id"
+    },
+    {
+      "table": "community_comments",
+      "index_name": "idx_community_comments_user_id"
+    },
+    {
+      "table": "community_comments",
+      "index_name": "idx_community_comments_parent_id"
+    },
+    {
+      "table": "community_comments",
+      "index_name": "idx_community_comments_created_at"
+    },
+    {
+      "table": "commerce_orders",
+      "index_name": "commerce_orders_pkey"
+    },
+    {
+      "table": "commerce_orders",
+      "index_name": "commerce_orders_stripe_payment_intent_id_key"
+    },
+    {
+      "table": "commerce_orders",
+      "index_name": "idx_commerce_orders_user_id"
+    },
+    {
+      "table": "commerce_orders",
+      "index_name": "idx_commerce_orders_payment_intent"
+    },
+    {
+      "table": "commerce_orders",
+      "index_name": "idx_commerce_orders_status"
+    },
+    {
+      "table": "commerce_orders",
+      "index_name": "idx_commerce_orders_created_at"
     }
   ],
   "triggers": [
@@ -81,52 +225,10 @@
   ],
   "rls_policies": [
     {
-      "table": "notifications",
-      "command": "UPDATE",
-      "definition": "(auth.uid() = user_id)",
-      "policy_name": "Los usuarios pueden marcar sus notificaciones como leídas"
-    },
-    {
-      "table": "notifications",
+      "table": "profiles",
       "command": "SELECT",
       "definition": "(auth.uid() = user_id)",
-      "policy_name": "Los usuarios pueden ver sus propias notificaciones"
-    },
-    {
-      "table": "campaign_templates",
-      "command": "ALL",
-      "definition": "(auth.uid() = user_id)",
-      "policy_name": "Los miembros pueden gestionar plantillas."
-    },
-    {
-      "table": "campaign_drafts",
-      "command": "ALL",
-      "definition": "(auth.uid() = user_id)",
-      "policy_name": "Los usuarios pueden gestionar sus propios borradores"
-    },
-    {
-      "table": "bavi_assets",
-      "command": "ALL",
-      "definition": "(auth.uid() = user_id)",
-      "policy_name": "Los propietarios pueden gestionar sus activos"
-    },
-    {
-      "table": "bavi_assets",
-      "command": "SELECT",
-      "definition": "true",
-      "policy_name": "Permitir acceso de lectura pública a los activos"
-    },
-    {
-      "table": "bavi_variants",
-      "command": "ALL",
-      "definition": "(auth.uid() = ( SELECT bavi_assets.user_id\n   FROM bavi_assets\n  WHERE (bavi_assets.asset_id = bavi_variants.asset_id)))",
-      "policy_name": "Los propietarios pueden gestionar sus variantes"
-    },
-    {
-      "table": "bavi_variants",
-      "command": "SELECT",
-      "definition": "true",
-      "policy_name": "Permitir acceso de lectura pública a las variantes"
+      "policy_name": "Users can view their own profile."
     },
     {
       "table": "profiles",
@@ -141,51 +243,192 @@
       "policy_name": "Users can update their own profile."
     },
     {
-      "table": "profiles",
+      "table": "notifications",
       "command": "SELECT",
       "definition": "(auth.uid() = user_id)",
-      "policy_name": "Users can view their own profile."
+      "policy_name": "Los usuarios pueden ver sus propias notificaciones"
+    },
+    {
+      "table": "notifications",
+      "command": "UPDATE",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Los usuarios pueden marcar sus notificaciones como leídas"
+    },
+    {
+      "table": "bavi_assets",
+      "command": "SELECT",
+      "definition": "true",
+      "policy_name": "Permitir acceso de lectura pública a los activos"
+    },
+    {
+      "table": "bavi_variants",
+      "command": "SELECT",
+      "definition": "true",
+      "policy_name": "Permitir acceso de lectura pública a las variantes"
+    },
+    {
+      "table": "workspaces",
+      "command": "ALL",
+      "definition": "public.is_workspace_member(id)",
+      "policy_name": "Los usuarios pueden gestionar sus workspaces"
+    },
+    {
+      "table": "workspace_members",
+      "command": "SELECT",
+      "definition": "public.is_workspace_member(workspace_id)",
+      "policy_name": "Los miembros pueden ver a otros miembros"
+    },
+    {
+      "table": "workspace_members",
+      "command": "ALL",
+      "definition": "(get_user_role_in_workspace(workspace_id) = 'owner'::text)",
+      "policy_name": "Los propietarios pueden gestionar miembros"
+    },
+    {
+      "table": "campaign_templates",
+      "command": "ALL",
+      "definition": "public.is_workspace_member(workspace_id)",
+      "policy_name": "Los miembros del workspace pueden gestionar plantillas"
+    },
+    {
+      "table": "bavi_assets",
+      "command": "ALL",
+      "definition": "public.is_workspace_member(workspace_id)",
+      "policy_name": "Los miembros del workspace pueden gestionar activos"
+    },
+    {
+      "table": "bavi_variants",
+      "command": "ALL",
+      "definition": "public.is_workspace_member(( SELECT bavi_assets.workspace_id\n   FROM bavi_assets\n  WHERE (bavi_assets.asset_id = bavi_variants.asset_id)))",
+      "policy_name": "Los miembros del workspace pueden gestionar variantes"
+    },
+    {
+      "table": "campaign_drafts",
+      "command": "ALL",
+      "definition": "is_workspace_member(workspace_id, 'member'::text)",
+      "policy_name": "Los miembros del workspace pueden gestionar borradores"
+    },
+    {
+      "table": "razprompts_entries",
+      "command": "SELECT",
+      "definition": "is_workspace_member(workspace_id, 'member'::text)",
+      "policy_name": "Los miembros del workspace pueden ver las entradas de prompt"
+    },
+    {
+      "table": "razprompts_entries",
+      "command": "INSERT",
+      "definition": null,
+      "policy_name": "Los miembros del workspace pueden crear entradas de prompt"
+    },
+    {
+      "table": "razprompts_entries",
+      "command": "UPDATE",
+      "definition": "is_workspace_member(workspace_id, 'member'::text)",
+      "policy_name": "Los miembros del workspace pueden actualizar sus entradas de pr"
+    },
+    {
+      "table": "razprompts_entries",
+      "command": "DELETE",
+      "definition": "is_workspace_member(workspace_id, 'member'::text)",
+      "policy_name": "Los miembros del workspace pueden eliminar sus entradas de prom"
+    },
+    {
+      "table": "cogniread_articles",
+      "command": "SELECT",
+      "definition": "true",
+      "policy_name": "Public articles are viewable by everyone"
+    },
+    {
+      "table": "commerce_orders",
+      "command": "UPDATE",
+      "definition": "(auth.role() = 'service_role'::text)",
+      "policy_name": "Service can update orders"
+    },
+    {
+      "table": "commerce_orders",
+      "command": "DELETE",
+      "definition": "false",
+      "policy_name": "No one can delete orders"
+    },
+    {
+      "table": "cogniread_articles",
+      "command": "INSERT",
+      "definition": null,
+      "policy_name": "Admin/Service can insert articles"
+    },
+    {
+      "table": "cogniread_articles",
+      "command": "UPDATE",
+      "definition": "((auth.role() = 'service_role'::text) OR (EXISTS ( SELECT 1\n   FROM workspace_members\n  WHERE ((workspace_members.user_id = auth.uid()) AND (workspace_members.role = 'owner'::text)))))",
+      "policy_name": "Admin/Service can update articles"
+    },
+    {
+      "table": "cogniread_articles",
+      "command": "DELETE",
+      "definition": "((auth.role() = 'service_role'::text) OR (EXISTS ( SELECT 1\n   FROM workspace_members\n  WHERE ((workspace_members.user_id = auth.uid()) AND (workspace_members.role = 'owner'::text)))))",
+      "policy_name": "Admin/Service can delete articles"
+    },
+    {
+      "table": "community_comments",
+      "command": "SELECT",
+      "definition": "true",
+      "policy_name": "Comments are viewable by everyone"
+    },
+    {
+      "table": "community_comments",
+      "command": "INSERT",
+      "definition": null,
+      "policy_name": "Authenticated users can insert their own comments"
+    },
+    {
+      "table": "community_comments",
+      "command": "UPDATE",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Authors can update their own comments"
+    },
+    {
+      "table": "community_comments",
+      "command": "DELETE",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Authors can delete their own comments"
+    },
+    {
+      "table": "commerce_orders",
+      "command": "SELECT",
+      "definition": "(auth.uid() = user_id)",
+      "policy_name": "Users can view their own orders"
+    },
+    {
+      "table": "commerce_orders",
+      "command": "INSERT",
+      "definition": null,
+      "policy_name": "Service and authenticated users can insert orders"
     }
   ],
   "schema_columns": [
     {
-      "type": "uuid",
-      "table": "notifications",
-      "column": "id"
-    },
-    {
-      "type": "uuid",
-      "table": "notifications",
-      "column": "user_id"
-    },
-    {
       "type": "timestamp with time zone",
-      "table": "campaign_templates",
-      "column": "created_at"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "campaign_templates",
+      "table": "commerce_orders",
       "column": "updated_at"
     },
     {
       "type": "uuid",
-      "table": "campaign_drafts",
+      "table": "notifications",
       "column": "user_id"
     },
     {
       "type": "jsonb",
-      "table": "campaign_drafts",
-      "column": "draft_data"
+      "table": "razprompts_entries",
+      "column": "tags"
     },
     {
       "type": "timestamp with time zone",
-      "table": "campaign_drafts",
+      "table": "razprompts_entries",
       "column": "created_at"
     },
     {
       "type": "timestamp with time zone",
-      "table": "campaign_drafts",
+      "table": "razprompts_entries",
       "column": "updated_at"
     },
     {
@@ -214,6 +457,36 @@
       "column": "user_id"
     },
     {
+      "type": "uuid",
+      "table": "bavi_assets",
+      "column": "workspace_id"
+    },
+    {
+      "type": "uuid",
+      "table": "campaign_drafts",
+      "column": "user_id"
+    },
+    {
+      "type": "jsonb",
+      "table": "campaign_drafts",
+      "column": "draft_data"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "campaign_drafts",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "campaign_drafts",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "campaign_drafts",
+      "column": "workspace_id"
+    },
+    {
       "type": "integer",
       "table": "bavi_variants",
       "column": "width"
@@ -227,6 +500,46 @@
       "type": "timestamp with time zone",
       "table": "bavi_variants",
       "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "visitor_campaign_events",
+      "column": "id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "visitor_campaign_events",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "visitor_campaign_events",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
+      "table": "visitor_campaign_events",
+      "column": "workspace_id"
+    },
+    {
+      "type": "jsonb",
+      "table": "visitor_campaign_events",
+      "column": "payload"
+    },
+    {
+      "type": "uuid",
+      "table": "visitor_fingerprints",
+      "column": "user_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "visitor_fingerprints",
+      "column": "first_seen_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "visitor_fingerprints",
+      "column": "linked_at"
     },
     {
       "type": "uuid",
@@ -249,6 +562,111 @@
       "column": "last_sign_in_at"
     },
     {
+      "type": "uuid",
+      "table": "anonymous_campaign_events",
+      "column": "id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "anonymous_campaign_events",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "anonymous_campaign_events",
+      "column": "workspace_id"
+    },
+    {
+      "type": "jsonb",
+      "table": "anonymous_campaign_events",
+      "column": "payload"
+    },
+    {
+      "type": "uuid",
+      "table": "cogniread_articles",
+      "column": "id"
+    },
+    {
+      "type": "jsonb",
+      "table": "cogniread_articles",
+      "column": "study_dna"
+    },
+    {
+      "type": "jsonb",
+      "table": "cogniread_articles",
+      "column": "content"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "cogniread_articles",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "cogniread_articles",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "community_comments",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "community_comments",
+      "column": "article_id"
+    },
+    {
+      "type": "uuid",
+      "table": "community_comments",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
+      "table": "community_comments",
+      "column": "parent_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "community_comments",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "community_comments",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "commerce_orders",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "commerce_orders",
+      "column": "user_id"
+    },
+    {
+      "type": "numeric",
+      "table": "commerce_orders",
+      "column": "amount"
+    },
+    {
+      "type": "jsonb",
+      "table": "commerce_orders",
+      "column": "items"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "commerce_orders",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "notifications",
+      "column": "id"
+    },
+    {
       "type": "boolean",
       "table": "notifications",
       "column": "is_read"
@@ -256,6 +674,81 @@
     {
       "type": "timestamp with time zone",
       "table": "notifications",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "invitations",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "invitations",
+      "column": "workspace_id"
+    },
+    {
+      "type": "uuid",
+      "table": "invitations",
+      "column": "invited_by_user_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "invitations",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "user_activity_events",
+      "column": "id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "user_activity_events",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "user_activity_events",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
+      "table": "user_activity_events",
+      "column": "workspace_id"
+    },
+    {
+      "type": "jsonb",
+      "table": "user_activity_events",
+      "column": "payload"
+    },
+    {
+      "type": "uuid",
+      "table": "workspaces",
+      "column": "id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "workspaces",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "workspaces",
+      "column": "owner_id"
+    },
+    {
+      "type": "uuid",
+      "table": "workspace_members",
+      "column": "workspace_id"
+    },
+    {
+      "type": "uuid",
+      "table": "workspace_members",
+      "column": "user_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "workspace_members",
       "column": "created_at"
     },
     {
@@ -272,6 +765,41 @@
       "type": "jsonb",
       "table": "campaign_templates",
       "column": "draft_data"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "campaign_templates",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "campaign_templates",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "campaign_templates",
+      "column": "workspace_id"
+    },
+    {
+      "type": "uuid",
+      "table": "razprompts_entries",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "razprompts_entries",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
+      "table": "razprompts_entries",
+      "column": "workspace_id"
+    },
+    {
+      "type": "jsonb",
+      "table": "razprompts_entries",
+      "column": "versions"
     },
     {
       "type": "text",
@@ -291,22 +819,132 @@
     {
       "type": "text",
       "table": "bavi_assets",
+      "column": "prompt_id"
+    },
+    {
+      "type": "text",
+      "table": "commerce_orders",
+      "column": "customer_email"
+    },
+    {
+      "type": "text",
+      "table": "commerce_orders",
+      "column": "currency"
+    },
+    {
+      "type": "text",
+      "table": "cogniread_articles",
+      "column": "status"
+    },
+    {
+      "type": "text",
+      "table": "community_comments",
+      "column": "author_name"
+    },
+    {
+      "type": "text",
+      "table": "invitations",
+      "column": "invitee_email"
+    },
+    {
+      "type": "text",
+      "table": "invitations",
+      "column": "token"
+    },
+    {
+      "type": "text",
+      "table": "invitations",
+      "column": "status"
+    },
+    {
+      "type": "text",
+      "table": "community_comments",
+      "column": "author_avatar_url"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "full_name"
+    },
+    {
+      "type": "text",
+      "table": "campaign_drafts",
+      "column": "draft_id"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "avatar_url"
+    },
+    {
+      "type": "text",
+      "table": "cogniread_articles",
+      "column": "bavi_hero_image_id"
+    },
+    {
+      "type": "text",
+      "table": "user_activity_events",
+      "column": "session_id"
+    },
+    {
+      "type": "text",
+      "table": "user_activity_events",
+      "column": "event_type"
+    },
+    {
+      "type": "ARRAY",
+      "table": "cogniread_articles",
+      "column": "related_prompt_ids"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "last_sign_in_ip"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "last_sign_in_location"
+    },
+    {
+      "type": "text",
+      "table": "workspaces",
+      "column": "name"
+    },
+    {
+      "type": "text",
+      "table": "bavi_variants",
+      "column": "variant_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_variants",
       "column": "asset_id"
     },
     {
       "type": "text",
-      "table": "bavi_assets",
-      "column": "provider"
+      "table": "bavi_variants",
+      "column": "public_id"
     },
     {
       "type": "text",
-      "table": "bavi_assets",
-      "column": "prompt_id"
+      "table": "workspace_members",
+      "column": "role"
     },
     {
       "type": "text",
       "table": "bavi_variants",
       "column": "state"
+    },
+    {
+      "type": "text",
+      "table": "community_comments",
+      "column": "comment_text"
+    },
+    {
+      "type": "text",
+      "table": "commerce_orders",
+      "column": "stripe_payment_intent_id"
     },
     {
       "type": "text",
@@ -325,43 +963,93 @@
     },
     {
       "type": "text",
-      "table": "profiles",
-      "column": "last_sign_in_location"
+      "table": "anonymous_campaign_events",
+      "column": "fingerprint_id"
     },
     {
       "type": "text",
-      "table": "profiles",
-      "column": "full_name"
+      "table": "anonymous_campaign_events",
+      "column": "session_id"
     },
     {
       "type": "text",
-      "table": "profiles",
-      "column": "avatar_url"
+      "table": "commerce_orders",
+      "column": "status"
     },
     {
       "type": "text",
-      "table": "campaign_drafts",
-      "column": "draft_id"
+      "table": "visitor_campaign_events",
+      "column": "session_id"
     },
     {
       "type": "text",
-      "table": "profiles",
-      "column": "last_sign_in_ip"
+      "table": "anonymous_campaign_events",
+      "column": "campaign_id"
     },
     {
       "type": "text",
-      "table": "bavi_variants",
+      "table": "anonymous_campaign_events",
       "column": "variant_id"
     },
     {
       "type": "text",
-      "table": "bavi_variants",
+      "table": "visitor_campaign_events",
+      "column": "campaign_id"
+    },
+    {
+      "type": "text",
+      "table": "razprompts_entries",
+      "column": "title"
+    },
+    {
+      "type": "text",
+      "table": "razprompts_entries",
+      "column": "status"
+    },
+    {
+      "type": "text",
+      "table": "razprompts_entries",
+      "column": "ai_service"
+    },
+    {
+      "type": "ARRAY",
+      "table": "razprompts_entries",
+      "column": "keywords"
+    },
+    {
+      "type": "text",
+      "table": "visitor_campaign_events",
+      "column": "variant_id"
+    },
+    {
+      "type": "text",
+      "table": "visitor_campaign_events",
+      "column": "event_type"
+    },
+    {
+      "type": "ARRAY",
+      "table": "razprompts_entries",
+      "column": "bavi_asset_ids"
+    },
+    {
+      "type": "text",
+      "table": "anonymous_campaign_events",
+      "column": "event_type"
+    },
+    {
+      "type": "text",
+      "table": "visitor_fingerprints",
+      "column": "fingerprint_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_assets",
       "column": "asset_id"
     },
     {
       "type": "text",
-      "table": "bavi_variants",
-      "column": "public_id"
+      "table": "bavi_assets",
+      "column": "provider"
     }
   ],
   "table_constraints": [
@@ -381,6 +1069,66 @@
       "constraint_name": "notifications_user_id_fkey"
     },
     {
+      "type": "PRIMARY KEY",
+      "table": "user_activity_events",
+      "constraint_name": "user_activity_events_pkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "user_activity_events",
+      "constraint_name": "user_activity_events_user_id_fkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "user_activity_events",
+      "constraint_name": "user_activity_events_workspace_id_fkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "invitations",
+      "constraint_name": "invitations_invited_by_user_id_fkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "invitations",
+      "constraint_name": "invitations_pkey"
+    },
+    {
+      "type": "CHECK",
+      "table": "invitations",
+      "constraint_name": "invitations_status_check"
+    },
+    {
+      "type": "UNIQUE",
+      "table": "invitations",
+      "constraint_name": "invitations_token_key"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "invitations",
+      "constraint_name": "invitations_workspace_id_fkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "workspace_members",
+      "constraint_name": "workspace_members_pkey"
+    },
+    {
+      "type": "CHECK",
+      "table": "workspace_members",
+      "constraint_name": "workspace_members_role_check"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "workspace_members",
+      "constraint_name": "workspace_members_user_id_fkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "workspace_members",
+      "constraint_name": "workspace_members_workspace_id_fkey"
+    },
+    {
       "type": "CHECK",
       "table": "campaign_templates",
       "constraint_name": "campaign_templates_name_check"
@@ -396,6 +1144,46 @@
       "constraint_name": "campaign_templates_user_id_fkey"
     },
     {
+      "type": "FOREIGN KEY",
+      "table": "campaign_templates",
+      "constraint_name": "campaign_templates_workspace_id_fkey"
+    },
+    {
+      "type": "CHECK",
+      "table": "workspaces",
+      "constraint_name": "workspaces_name_check"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "workspaces",
+      "constraint_name": "workspaces_owner_id_fkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "workspaces",
+      "constraint_name": "workspaces_pkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "razprompts_entries",
+      "constraint_name": "razprompts_entries_pkey"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "razprompts_entries_status_check"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "razprompts_entries",
+      "constraint_name": "razprompts_entries_user_id_fkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "razprompts_entries",
+      "constraint_name": "razprompts_entries_workspace_id_fkey"
+    },
+    {
       "type": "PRIMARY KEY",
       "table": "bavi_assets",
       "constraint_name": "bavi_assets_pkey"
@@ -404,6 +1192,11 @@
       "type": "FOREIGN KEY",
       "table": "bavi_assets",
       "constraint_name": "bavi_assets_user_id_fkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "bavi_assets",
+      "constraint_name": "bavi_assets_workspace_id_fkey"
     },
     {
       "type": "PRIMARY KEY",
@@ -417,6 +1210,11 @@
     },
     {
       "type": "FOREIGN KEY",
+      "table": "campaign_drafts",
+      "constraint_name": "campaign_drafts_workspace_id_fkey"
+    },
+    {
+      "type": "FOREIGN KEY",
       "table": "bavi_variants",
       "constraint_name": "bavi_variants_asset_id_fkey"
     },
@@ -424,6 +1222,21 @@
       "type": "PRIMARY KEY",
       "table": "bavi_variants",
       "constraint_name": "bavi_variants_pkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "visitor_campaign_events",
+      "constraint_name": "campaign_events_pkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "visitor_campaign_events",
+      "constraint_name": "campaign_events_user_id_fkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "visitor_campaign_events",
+      "constraint_name": "campaign_events_workspace_id_fkey"
     },
     {
       "type": "PRIMARY KEY",
@@ -439,6 +1252,76 @@
       "type": "UNIQUE",
       "table": "profiles",
       "constraint_name": "profiles_user_id_key"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "anonymous_campaign_events",
+      "constraint_name": "anonymous_campaign_events_pkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "anonymous_campaign_events",
+      "constraint_name": "anonymous_campaign_events_workspace_id_fkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "visitor_fingerprints",
+      "constraint_name": "visitor_fingerprints_pkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "visitor_fingerprints",
+      "constraint_name": "visitor_fingerprints_user_id_fkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "cogniread_articles",
+      "constraint_name": "cogniread_articles_pkey"
+    },
+    {
+      "type": "CHECK",
+      "table": "cogniread_articles",
+      "constraint_name": "cogniread_articles_status_check"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "community_comments",
+      "constraint_name": "community_comments_article_id_fkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "community_comments",
+      "constraint_name": "community_comments_parent_id_fkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "community_comments",
+      "constraint_name": "community_comments_pkey"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "community_comments",
+      "constraint_name": "community_comments_user_id_fkey"
+    },
+    {
+      "type": "PRIMARY KEY",
+      "table": "commerce_orders",
+      "constraint_name": "commerce_orders_pkey"
+    },
+    {
+      "type": "CHECK",
+      "table": "commerce_orders",
+      "constraint_name": "commerce_orders_status_check"
+    },
+    {
+      "type": "UNIQUE",
+      "table": "commerce_orders",
+      "constraint_name": "commerce_orders_stripe_payment_intent_id_key"
+    },
+    {
+      "type": "FOREIGN KEY",
+      "table": "commerce_orders",
+      "constraint_name": "commerce_orders_user_id_fkey"
     },
     {
       "type": "CHECK",
@@ -459,6 +1342,91 @@
       "type": "CHECK",
       "table": "notifications",
       "constraint_name": "2200_21804_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "user_activity_events",
+      "constraint_name": "2200_26118_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "user_activity_events",
+      "constraint_name": "2200_26118_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "user_activity_events",
+      "constraint_name": "2200_26118_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "user_activity_events",
+      "constraint_name": "2200_26118_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "user_activity_events",
+      "constraint_name": "2200_26118_5_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "user_activity_events",
+      "constraint_name": "2200_26118_6_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "invitations",
+      "constraint_name": "2200_25849_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "invitations",
+      "constraint_name": "2200_25849_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "invitations",
+      "constraint_name": "2200_25849_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "invitations",
+      "constraint_name": "2200_25849_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "invitations",
+      "constraint_name": "2200_25849_5_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "invitations",
+      "constraint_name": "2200_25849_6_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "invitations",
+      "constraint_name": "2200_25849_7_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "workspace_members",
+      "constraint_name": "2200_25830_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "workspace_members",
+      "constraint_name": "2200_25830_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "workspace_members",
+      "constraint_name": "2200_25830_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "workspace_members",
+      "constraint_name": "2200_25830_4_not_null"
     },
     {
       "type": "CHECK",
@@ -484,6 +1452,81 @@
       "type": "CHECK",
       "table": "campaign_templates",
       "constraint_name": "2200_24326_7_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "workspaces",
+      "constraint_name": "2200_25815_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "workspaces",
+      "constraint_name": "2200_25815_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "workspaces",
+      "constraint_name": "2200_25815_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "workspaces",
+      "constraint_name": "2200_25815_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "2200_26332_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "2200_26332_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "2200_26332_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "2200_26332_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "2200_26332_5_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "2200_26332_6_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "2200_26332_7_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "2200_26332_8_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "2200_26332_9_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "2200_26332_11_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "razprompts_entries",
+      "constraint_name": "2200_26332_12_not_null"
     },
     {
       "type": "CHECK",
@@ -557,6 +1600,41 @@
     },
     {
       "type": "CHECK",
+      "table": "visitor_campaign_events",
+      "constraint_name": "2200_25978_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "visitor_campaign_events",
+      "constraint_name": "2200_25978_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "visitor_campaign_events",
+      "constraint_name": "2200_25978_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "visitor_campaign_events",
+      "constraint_name": "2200_25978_5_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "visitor_campaign_events",
+      "constraint_name": "2200_25978_6_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "visitor_campaign_events",
+      "constraint_name": "2200_25978_7_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "visitor_campaign_events",
+      "constraint_name": "2200_25978_8_not_null"
+    },
+    {
+      "type": "CHECK",
       "table": "profiles",
       "constraint_name": "2200_21735_1_not_null"
     },
@@ -564,11 +1642,185 @@
       "type": "CHECK",
       "table": "profiles",
       "constraint_name": "2200_21735_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "anonymous_campaign_events",
+      "constraint_name": "2200_26066_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "anonymous_campaign_events",
+      "constraint_name": "2200_26066_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "anonymous_campaign_events",
+      "constraint_name": "2200_26066_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "anonymous_campaign_events",
+      "constraint_name": "2200_26066_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "anonymous_campaign_events",
+      "constraint_name": "2200_26066_5_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "anonymous_campaign_events",
+      "constraint_name": "2200_26066_6_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "anonymous_campaign_events",
+      "constraint_name": "2200_26066_7_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "anonymous_campaign_events",
+      "constraint_name": "2200_26066_8_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "visitor_fingerprints",
+      "constraint_name": "2200_26080_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "visitor_fingerprints",
+      "constraint_name": "2200_26080_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "visitor_fingerprints",
+      "constraint_name": "2200_26080_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "visitor_fingerprints",
+      "constraint_name": "2200_26080_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "cogniread_articles",
+      "constraint_name": "2200_26386_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "cogniread_articles",
+      "constraint_name": "2200_26386_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "cogniread_articles",
+      "constraint_name": "2200_26386_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "cogniread_articles",
+      "constraint_name": "2200_26386_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "cogniread_articles",
+      "constraint_name": "2200_26386_7_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "cogniread_articles",
+      "constraint_name": "2200_26386_8_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "community_comments",
+      "constraint_name": "2200_26426_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "community_comments",
+      "constraint_name": "2200_26426_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "community_comments",
+      "constraint_name": "2200_26426_3_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "community_comments",
+      "constraint_name": "2200_26426_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "community_comments",
+      "constraint_name": "2200_26426_6_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "community_comments",
+      "constraint_name": "2200_26426_8_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "community_comments",
+      "constraint_name": "2200_26426_9_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "commerce_orders",
+      "constraint_name": "2200_26480_1_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "commerce_orders",
+      "constraint_name": "2200_26480_2_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "commerce_orders",
+      "constraint_name": "2200_26480_4_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "commerce_orders",
+      "constraint_name": "2200_26480_5_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "commerce_orders",
+      "constraint_name": "2200_26480_6_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "commerce_orders",
+      "constraint_name": "2200_26480_7_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "commerce_orders",
+      "constraint_name": "2200_26480_8_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "commerce_orders",
+      "constraint_name": "2200_26480_9_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "commerce_orders",
+      "constraint_name": "2200_26480_10_not_null"
     }
   ],
   "functions_and_procedures": [
     {
       "name": "handle_template_update",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "get_user_role_in_workspace",
       "type": "FUNCTION"
     },
     {
@@ -588,6 +1840,14 @@
       "type": "FUNCTION"
     },
     {
+      "name": "is_workspace_member",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "handle_new_user_workspace",
+      "type": "FUNCTION"
+    },
+    {
       "name": "get_content_diagnostics",
       "type": "FUNCTION"
     },
@@ -596,7 +1856,15 @@
       "type": "FUNCTION"
     },
     {
+      "name": "get_user_activity_analytics",
+      "type": "FUNCTION"
+    },
+    {
       "name": "get_campaign_analytics",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "is_workspace_member",
       "type": "FUNCTION"
     }
   ]

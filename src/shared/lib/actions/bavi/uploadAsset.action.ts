@@ -2,9 +2,8 @@
 /**
  * @file uploadAsset.action.ts
  * @description Server Action orquestadora de élite para la ingesta completa
- *              de activos a producción. Gestiona la autenticación, la subida
- *              segura a Cloudinary y la persistencia de metadatos en la base de datos.
- * @version 8.0.0 (Production-Grade Resilience & Observability)
+ *              de activos, ahora consciente del contexto del workspace.
+ * @version 10.0.0 (Workspace-Aware Orchestration & Security)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -17,7 +16,6 @@ import { assetUploadMetadataSchema } from "@/shared/lib/schemas/bavi/upload.sche
 import { addAssetToManifestsAction } from "./addAssetToManifests.action";
 import { linkPromptToBaviAssetAction } from "@/shared/lib/actions/raz-prompts";
 
-// Configuración del SDK de Cloudinary. Falla rápido si las variables no están.
 if (
   !process.env.CLOUDINARY_CLOUD_NAME ||
   !process.env.CLOUDINARY_API_KEY ||
@@ -37,49 +35,60 @@ cloudinary.config({
 export async function uploadAssetAction(
   formData: FormData
 ): Promise<ActionResult<UploadApiResponse>> {
-  const traceId = logger.startTrace("uploadAssetOrchestration_v8.0");
+  const traceId = logger.startTrace("uploadAssetOrchestration_v10.0");
   const supabase = createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // --- 1. Guardia de Resiliencia: Autenticación ---
   if (!user) {
     logger.warn("[Action] Intento no autorizado de subir activo.", { traceId });
-    logger.endTrace(traceId, { status: "Unauthorized" });
     return { success: false, error: "auth_required" };
   }
 
-  logger.info(`[Action] Iniciando ingesta de activo para usuario: ${user.id}`, {
-    traceId,
-  });
-
   try {
-    // --- 2. Guardia de Resiliencia: Integridad del Payload ---
     const file = formData.get("file");
     const metadataString = formData.get("metadata") as string;
+    const workspaceId = formData.get("workspaceId") as string;
 
-    if (!file || !(file instanceof File) || !metadataString) {
-      throw new Error("Datos de subida incompletos o malformados.");
+    if (!file || !(file instanceof File) || !metadataString || !workspaceId) {
+      throw new Error("Datos de subida incompletos o falta el workspaceId.");
     }
 
-    // --- 3. Guardia de Resiliencia: Contrato de Datos (Zod) ---
+    // --- GUARDIA DE SEGURIDAD DE WORKSPACE ---
+    const { data: memberCheck, error: memberError } = await supabase.rpc(
+      "is_workspace_member",
+      { workspace_id_to_check: workspaceId }
+    );
+
+    if (memberError || !memberCheck) {
+      logger.error("[Action] Verificación de membresía fallida.", {
+        userId: user.id,
+        workspaceId,
+        error: memberError,
+        traceId,
+      });
+      throw new Error("Acceso denegado al workspace.");
+    }
+    logger.traceEvent(
+      traceId,
+      `Usuario ${user.id} verificado como miembro del workspace ${workspaceId}.`
+    );
+    // --- FIN DE LA GUARDIA DE SEGURIDAD ---
+
     const metadata = assetUploadMetadataSchema.parse(
       JSON.parse(metadataString)
     );
-    logger.traceEvent(traceId, "Metadatos parseados y validados con Zod.");
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = new Uint8Array(arrayBuffer);
 
-    // --- 4. Lógica de Negocio: Subida a Proveedor Externo ---
     const cloudinaryResponse = await new Promise<UploadApiResponse>(
       (resolve, reject) => {
         cloudinary.uploader
           .upload_stream(
             {
-              // Lógica de Producción: Ruta contextual con "Sello del Forjador"
-              folder: `webvork/assets/${user.id}/${metadata.assetId}`,
+              folder: `webvork/assets/${workspaceId}/${metadata.assetId}`,
               public_id: "v1-original",
               resource_type: "auto",
             },
@@ -94,30 +103,26 @@ export async function uploadAssetAction(
     );
     logger.traceEvent(traceId, "Subida a Cloudinary exitosa.");
 
-    // --- 5. Lógica de Negocio: Orquestación de Persistencia ---
     const manifestResult = await addAssetToManifestsAction({
       metadata,
       cloudinaryResponse,
-      userId: user.id, // Se pasa el ID del propietario
+      userId: user.id,
+      workspaceId: workspaceId,
     });
 
     if (!manifestResult.success) {
-      // Propaga el error del "notario" al orquestador.
       return manifestResult;
     }
-    logger.traceEvent(traceId, "Metadatos persistidos en Supabase (BAVI).");
 
-    // --- 6. Lógica de Negocio: Vinculación Simbiótica Condicional ---
     if (metadata.promptId) {
-      logger.traceEvent(traceId, "Iniciando vinculación con RaZPrompts...");
       const linkResult = await linkPromptToBaviAssetAction({
         promptId: metadata.promptId,
         baviAssetId: metadata.assetId,
         baviVariantId: "v1-orig",
         imageUrl: cloudinaryResponse.secure_url,
+        workspaceId: workspaceId,
       });
       if (!linkResult.success) return linkResult;
-      logger.traceEvent(traceId, "Vínculo con RaZPrompts completado.");
     }
 
     logger.success("[Action] Orquestación de ingesta completada con éxito.", {
@@ -125,7 +130,6 @@ export async function uploadAssetAction(
     });
     return { success: true, data: cloudinaryResponse };
   } catch (error) {
-    // --- 7. Guardia de Resiliencia: Manejo de Errores Centralizado ---
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
     logger.error("[Action] Fallo en la orquestación de ingesta de activo.", {
@@ -137,7 +141,6 @@ export async function uploadAssetAction(
       error: "Fallo el proceso de ingesta del activo.",
     };
   } finally {
-    // --- Observabilidad: Cierre de Trace ---
     logger.endTrace(traceId);
   }
 }

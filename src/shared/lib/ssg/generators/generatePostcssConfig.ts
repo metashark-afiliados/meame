@@ -1,22 +1,16 @@
-// app/[locale]/(dev)/dev/campaign-suite/_actions/_generators/generatePostcssConfig.ts
+// RUTA: src/shared/lib/ssg/generators/generatePostcssConfig.ts
 /**
  * @file generatePostcssConfig.ts
  * @description Módulo generador soberano para el archivo postcss.config.mjs.
- * @version 1.0.0
+ * @version 2.0.0 (Elite Compliance & v4 Syntax)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server-only";
 
-import fs from "fs/promises";
+import { promises as fs } from "fs";
 import path from "path";
 import { logger } from "@/shared/lib/logging";
 
-/**
- * @function generatePostcssConfig
- * @description Genera y escribe un archivo postcss.config.mjs en el directorio de destino.
- * @param {string} targetDir - El directorio donde se guardará el archivo.
- * @returns {Promise<void>}
- */
 export async function generatePostcssConfig(targetDir: string): Promise<void> {
   logger.trace("[Generator] Iniciando generación de postcss.config.mjs...");
 
@@ -24,19 +18,25 @@ export async function generatePostcssConfig(targetDir: string): Promise<void> {
 /** @type {import('postcss-load-config').Config} */
 const config = {
   plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
+    "@tailwindcss/postcss": {},
   },
 };
 
 export default config;
 `;
 
-  const filePath = path.join(targetDir, "postcss.config.mjs");
-  await fs.writeFile(filePath, configContent.trim());
-
-  logger.trace(
-    `[Generator] Archivo postcss.config.mjs escrito exitosamente en: ${filePath}`
-  );
+  try {
+    const filePath = path.join(targetDir, "postcss.config.mjs");
+    await fs.writeFile(filePath, configContent.trim());
+    logger.trace(
+      `[Generator] Archivo postcss.config.mjs escrito exitosamente.`
+    );
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("Fallo al generar postcss.config.mjs.", {
+      error: errorMessage,
+    });
+    throw error;
+  }
 }
-// app/[locale]/(dev)/dev/campaign-suite/_actions/_generators/generatePostcssConfig.ts

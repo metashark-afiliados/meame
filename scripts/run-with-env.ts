@@ -1,18 +1,54 @@
 // RUTA: scripts/run-with-env.ts
 /**
  * @file run-with-env.ts
- * @description Inyector de entorno de élite para ejecutar scripts de Node.js.
- * @version 2.1.0 (Robust Module Imports)
+ * @description Inyector de élite para entorno y resolución de rutas de TypeScript.
+ * @version 3.1.0 (Resilient JSON Parsing)
  * @author RaZ Podestá - MetaShark Tech
  * @usage tsx scripts/run-with-env.ts <ruta-al-script>
  */
-// --- [INICIO DE CORRECCIÓN DE ÉLITE] ---
-// Se utiliza la sintaxis de importación de espacio de nombres para máxima compatibilidad.
 import * as dotenv from "dotenv";
 import * as path from "path";
-// --- [FIN DE CORRECCIÓN DE ÉLITE] ---
 import chalk from "chalk";
 import { pathToFileURL } from "url";
+import { register } from "tsconfig-paths";
+import { readFileSync } from "fs";
+import { logger } from "../src/shared/lib/logging";
+
+// --- INICIO DE INYECCIÓN DE RESOLUCIÓN DE RUTAS (VERSIÓN RESILIENTE) ---
+try {
+  const tsconfigPath = path.resolve(process.cwd(), "tsconfig.scripts.json");
+  // Leer el archivo y eliminar los comentarios antes de parsear
+  const tsconfigFileContent = readFileSync(tsconfigPath, "utf-8").replace(
+    /\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
+    (m, g) => (g ? "" : m)
+  );
+
+  const tsconfig = JSON.parse(tsconfigFileContent);
+
+  if (tsconfig.compilerOptions && tsconfig.compilerOptions.paths) {
+    register({
+      baseUrl: path.resolve(
+        process.cwd(),
+        tsconfig.compilerOptions.baseUrl || "."
+      ),
+      paths: tsconfig.compilerOptions.paths,
+    });
+    logger.trace(
+      "[run-with-env] Resolución de alias de tsconfig registrada con éxito."
+    );
+  } else {
+    logger.warn(
+      "[run-with-env] No se encontraron 'paths' en tsconfig.scripts.json para registrar."
+    );
+  }
+} catch (error) {
+  logger.error(
+    "[run-with-env] Fallo crítico al registrar los alias de tsconfig.",
+    { error }
+  );
+  process.exit(1);
+}
+// --- FIN DE INYECCIÓN DE RESOLUCIÓN DE RUTAS ---
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
@@ -35,6 +71,8 @@ async function runScript() {
     console.log(
       chalk.blue(`🚀 Ejecutando script con entorno inyectado: ${scriptPath}`)
     );
+
+    process.env.NEXT_RUNTIME = "nodejs";
 
     const absolutePath = path.resolve(process.cwd(), scriptPath);
     const scriptUrl = pathToFileURL(absolutePath).href;

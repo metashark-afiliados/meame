@@ -1,138 +1,147 @@
 // RUTA: src/components/layout/SectionRenderer.tsx
 /**
  * @file SectionRenderer.tsx
- * @description Motor de renderizado soberano. Mapea nombres de sección a
- *              componentes y los renderiza con datos validados.
- * @version 26.0.0 (Component Mapping Decoupling)
+ * @description Motor de renderizado de secciones de élite. Mapea dinámicamente
+ *              los nombres de sección a sus componentes correspondientes y les
+ *              inyecta el contenido validado. Es el corazón de las páginas de campaña.
+ * @version 22.0.0 (Elite & Resilient Engine)
  * @author RaZ Podestá - MetaShark Tech
  */
-import * as React from "react";
-import {
-  sectionsConfig,
-  type SectionName,
-} from "@/shared/lib/config/sections.config";
-import * as Sections from "@/components/sections";
+"use client";
+
+import React, { forwardRef } from "react";
+import { motion, type Variants } from "framer-motion";
 import { logger } from "@/shared/lib/logging";
+import { sectionsConfig } from "@/shared/lib/config/sections.config";
+import {
+  BenefitsSection,
+  CommunitySection,
+  ContactSection,
+  DoubleScrollingBanner,
+  FaqAccordion,
+  FeaturedArticlesCarousel,
+  FeaturesSection,
+  GuaranteeSection,
+  Hero,
+  HeroNews,
+  IngredientAnalysis,
+  NewsGrid,
+  OrderSection,
+  PricingSection,
+  ProductShowcase,
+  ServicesSection,
+  SocialProofLogos,
+  SponsorsSection,
+  TeamSection,
+  TestimonialCarouselSection,
+  TestimonialGrid,
+  TextSection,
+  ThumbnailCarousel,
+  ScrollingBanner,
+  CommentSection,
+} from "@/components/sections";
+import { ValidationError } from "@/components/ui/ValidationError";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
-import { ValidationError } from "@/components/ui/ValidationError";
-import type { LayoutConfigItem } from "@/shared/lib/types/campaigns/draft.types";
-import { cn } from "@/shared/lib/utils/cn";
 
-// SSoT del Mapeo Componente-Nombre
 const componentMap = {
-  BenefitsSection: Sections.BenefitsSection,
-  CommunitySection: Sections.CommunitySection,
-  CommentSection: Sections.CommentSection,
-  ContactSection: Sections.ContactSection,
-  DoubleScrollingBanner: Sections.DoubleScrollingBanner,
-  FaqAccordion: Sections.FaqAccordion,
-  FeaturedArticlesCarousel: Sections.FeaturedArticlesCarousel,
-  FeaturesSection: Sections.FeaturesSection,
-  GuaranteeSection: Sections.GuaranteeSection,
-  Hero: Sections.Hero,
-  HeroClient: Sections.HeroClient,
-  HeroNews: Sections.HeroNews,
-  IngredientAnalysis: Sections.IngredientAnalysis,
-  NewsGrid: Sections.NewsGrid,
-  OrderSection: Sections.OrderSection,
-  PricingSection: Sections.PricingSection,
-  ProductShowcase: Sections.ProductShowcase,
-  ScrollingBanner: Sections.ScrollingBanner,
-  ServicesSection: Sections.ServicesSection,
-  SocialProofLogos: Sections.SocialProofLogos,
-  SponsorsSection: Sections.SponsorsSection,
-  TeamSection: Sections.TeamSection,
-  TestimonialCarouselSection: Sections.TestimonialCarouselSection,
-  TestimonialGrid: Sections.TestimonialGrid,
-  TextSection: Sections.TextSection,
-  ThumbnailCarousel: Sections.ThumbnailCarousel,
-  ArticleBody: Sections.ArticleBody,
+  BenefitsSection,
+  CommunitySection,
+  ContactSection,
+  DoubleScrollingBanner,
+  FaqAccordion,
+  FeaturedArticlesCarousel,
+  FeaturesSection,
+  GuaranteeSection,
+  Hero,
+  HeroNews,
+  IngredientAnalysis,
+  NewsGrid,
+  OrderSection,
+  PricingSection,
+  ProductShowcase,
+  ScrollingBanner,
+  ServicesSection,
+  SocialProofLogos,
+  SponsorsSection,
+  TeamSection,
+  TestimonialCarouselSection,
+  TestimonialGrid,
+  TextSection,
+  ThumbnailCarousel,
+  CommentSection,
 };
 
-type AnySectionComponent = React.ComponentType<{
-  content: unknown;
-  locale: Locale;
-  [key: string]: unknown;
-}>;
-
 interface SectionRendererProps {
-  sections: LayoutConfigItem[];
+  sections: { name: string }[];
   dictionary: Dictionary;
   locale: Locale;
-  dynamicData?: Record<string, unknown>;
-  focusedSection?: string | null;
-  sectionRefs?: React.MutableRefObject<Record<string, HTMLElement | null>>;
+  isFocused?: boolean;
 }
 
-export function SectionRenderer({
-  sections,
-  dictionary,
-  locale,
-  dynamicData = {},
-  focusedSection,
-  sectionRefs,
-}: SectionRendererProps): React.ReactElement {
-  logger.info("[SectionRenderer v26.0] Ensamblando con mapeo desacoplado.");
+const sectionVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" },
+  },
+};
 
-  return (
-    <>
-      {sections.map((section, index) => {
-        if (!section || !section.name) return null;
+export const SectionRenderer = forwardRef<HTMLElement, SectionRendererProps>(
+  ({ sections, dictionary, locale }, ref) => {
+    logger.info(
+      `[SectionRenderer] Renderizando ${sections.length} secciones (v22.0).`
+    );
 
-        const sectionName = section.name as SectionName;
-        const config = sectionsConfig[sectionName];
-        const Component = componentMap[
-          sectionName as keyof typeof componentMap
-        ] as AnySectionComponent | undefined;
+    return (
+      <motion.div initial="hidden" animate="visible" variants={{}}>
+        {sections.map((section, index) => {
+          const config =
+            sectionsConfig[section.name as keyof typeof sectionsConfig];
+          const Component =
+            componentMap[section.name as keyof typeof componentMap];
 
-        if (!config || !Component) return null;
+          if (!config || !Component) {
+            logger.warn(
+              `Componente para la sección "${section.name}" no encontrado.`
+            );
+            return null;
+          }
 
-        const { dictionaryKey, schema } = config;
-        const contentData = (dictionary as Record<string, unknown>)[
-          dictionaryKey
-        ];
-        const validation = schema.safeParse(contentData);
+          const contentData = (dictionary as Record<string, unknown>)[
+            config.dictionaryKey
+          ];
+          const validation = config.schema.safeParse(contentData);
 
-        if (!validation.success) {
-          if (process.env.NODE_ENV === "development") {
+          if (!validation.success) {
             return (
               <ValidationError
-                key={`${sectionName}-${index}-error`}
-                sectionName={sectionName}
+                key={`${section.name}-${index}-error`}
+                sectionName={section.name}
                 error={validation.error}
                 content={dictionary.validationError!}
               />
             );
           }
-          return null;
-        }
 
-        const componentProps = {
-          content: validation.data,
-          locale,
-          ...(dynamicData[sectionName] || {}),
-        };
+          const componentProps = {
+            content: validation.data,
+            locale: locale,
+          };
 
-        const sectionRef = (el: HTMLElement | null) => {
-          if (sectionRefs) sectionRefs.current[sectionName] = el;
-        };
-        const isCurrentlyFocused = focusedSection === sectionName;
-
-        return (
-          <div
-            key={`${sectionName}-${index}`}
-            ref={sectionRef}
-            className={cn(
-              "transition-all duration-300 rounded-lg",
-              isCurrentlyFocused &&
-                "ring-2 ring-primary ring-offset-4 ring-offset-background"
-            )}
-          >
-            <Component {...componentProps} />
-          </div>
-        );
-      })}
-    </>
-  );
-}
+          return (
+            <motion.div
+              key={`${section.name}-${index}`}
+              variants={sectionVariants}
+            >
+              {/* @ts-expect-error La aserción de tipos es deliberada para el renderizado dinámico. */}
+              <Component {...componentProps} />
+            </motion.div>
+          );
+        })}
+      </motion.div>
+    );
+  }
+);
+SectionRenderer.displayName = "SectionRenderer";

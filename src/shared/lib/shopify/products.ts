@@ -2,11 +2,10 @@
 /**
  * @file products.ts
  * @description SSoT para las consultas de productos de Shopify.
- * @version 1.0.0
+ * @version 2.0.0 (Storefront Client Integration)
  * @author RaZ Podestá - MetaShark Tech
  */
-import "server-only";
-import { shopifyFetch } from "./client";
+import { shopifyStorefrontFetch } from "./storefront-client"; // <-- USAR EL CLIENTE DE STOREFRONT
 import { getProductQuery, getProductsQuery } from "./queries/product";
 import { reshapeShopifyProducts, reshapeShopifyProduct } from "./shapers";
 import type {
@@ -16,7 +15,8 @@ import type {
 import type { Product } from "@/shared/lib/schemas/entities/product.schema";
 
 export async function getShopifyProducts(): Promise<Product[]> {
-  const res = await shopifyFetch<ShopifyProductsOperation>({
+  const res = await shopifyStorefrontFetch<ShopifyProductsOperation>({
+    // <-- USAR shopifyStorefrontFetch
     query: getProductsQuery,
   });
   const reshaped = reshapeShopifyProducts(
@@ -30,7 +30,8 @@ export async function getShopifyProducts(): Promise<Product[]> {
 export async function getShopifyProduct(
   handle: string
 ): Promise<Product | undefined> {
-  const res = await shopifyFetch<ShopifyProductOperation>({
+  const res = await shopifyStorefrontFetch<ShopifyProductOperation>({
+    // <-- USAR shopifyStorefrontFetch
     query: getProductQuery,
     variables: { handle },
   });

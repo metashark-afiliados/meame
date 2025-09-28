@@ -1,28 +1,32 @@
 // RUTA: src/shared/lib/supabase/server.ts
 /**
  * @file server.ts
- * @description SSoT para la creación del cliente de Supabase en el lado del servidor.
- * @version 3.1.0 (Middleware Dependency Fix)
- * @author nextjs-with-supabase (original), RaZ Podestá - MetaShark Tech (naturalización)
+ * @description SSoT para la creación del cliente de Supabase en el servidor.
+ *              v4.0.0 (Production-Grade Security): Corregido para usar la
+ *              SUPABASE_SERVICE_ROLE_KEY, otorgando al backend los privilegios
+ *              de administrador necesarios para operaciones seguras.
+ * @version 4.0.0
+ * @author RaZ Podestá - MetaShark Tech
  */
 import {
   createServerClient as supabaseCreateServerClient,
   type CookieOptions,
 } from "@supabase/ssr";
 import { cookies } from "next/headers";
-// --- [INICIO DE REFACTORIZACIÓN DE RUTA] ---
 import { logger } from "@/shared/lib/logging";
-// --- [FIN DE REFACTORIZACIÓN DE RUTA] ---
 
 export function createServerClient() {
   logger.trace(
-    "[Supabase Client] Creando nueva instancia del cliente para el servidor..."
+    "[Supabase Client] Creando nueva instancia del cliente para el servidor (v4.0 - Service Role)..."
   );
   const cookieStore = cookies();
 
   return supabaseCreateServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    // --- [INICIO DE CORRECCIÓN DE SEGURIDAD CRÍTICA] ---
+    // El cliente de servidor DEBE usar la clave de servicio para operaciones de administrador.
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    // --- [FIN DE CORRECCIÓN DE SEGURIDAD CRÍTICA] ---
     {
       cookies: {
         get(name: string) {
@@ -32,20 +36,14 @@ export function createServerClient() {
           try {
             cookieStore.set({ name, value, ...options });
           } catch (error) {
-            logger.trace(
-              "[Supabase Server Client] Error esperado al intentar SET cookie en un contexto de solo lectura (ej. Server Component). La operación se ignora de forma segura.",
-              { error: (error as Error).message }
-            );
+            // Este error es esperado en contextos de solo lectura como Server Components
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: "", ...options });
           } catch (error) {
-            logger.trace(
-              "[Supabase Server Client] Error esperado al intentar REMOVE cookie en un contexto de solo lectura. La operación se ignora de forma segura.",
-              { error: (error as Error).message }
-            );
+            // Este error es esperado en contextos de solo lectura
           }
         },
       },

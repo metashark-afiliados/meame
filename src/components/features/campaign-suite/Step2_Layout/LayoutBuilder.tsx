@@ -2,6 +2,7 @@
 /**
  * @file LayoutBuilder.tsx
  * @description Orquestador de lógica y estado para la composición de layouts.
+ *              Este componente "cerebro" maneja toda la interacción de dnd-kit.
  * @version 6.0.0 (ACS Path & Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -32,7 +33,7 @@ import { DynamicIcon } from "@/components/ui";
 import { detectStrategicCombos } from "@/shared/lib/utils/campaign-suite/combo.detector";
 import { showComboToast } from "@/components/ui/ComboToast";
 import { strategicCombos } from "@/shared/lib/config/strategic-combos.config";
-import type { Step2ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step2.schema";
+import type { Step2ContentSchema } from "@/shared/lib/schemas/campaign-suite/steps/step2.schema";
 import type { z } from "zod";
 
 const availableSections = Object.keys(sectionsConfig).map((name) => ({
@@ -130,7 +131,7 @@ export function LayoutBuilder({
     const lastSection =
       newLayout.length > 0
         ? (newLayout[newLayout.length - 1].name as SectionName)
-        : "Hero";
+        : "Hero"; // Placeholder, can be improved
     handleLayoutUpdate(newLayout, lastSection);
   };
 

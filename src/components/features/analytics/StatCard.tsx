@@ -11,10 +11,7 @@ import React from "react";
 import { motion, type Variants } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
-// --- [INICIO DE CORRECCIÓN DE INTEGRIDAD] ---
-// Se importa el tipo desde su SSoT canónica en la capa de configuración.
 import type { LucideIconName } from "@/shared/lib/config/lucide-icon-names";
-// --- [FIN DE CORRECCIÓN DE INTEGRIDAD] ---
 import { logger } from "@/shared/lib/logging";
 
 interface StatCardProps {
@@ -24,7 +21,8 @@ interface StatCardProps {
 }
 
 const cardVariants: Variants = {
-  // ... (variantes de animación)
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
 export function StatCard({

@@ -2,7 +2,7 @@
 /**
  * @file LivePreviewCanvas.tsx
  * @description Orquestador de élite para el lienzo de previsualización (EDVI).
- * @version 16.0.0 (ACS Path & Build Integrity Restoration)
+ * @version 17.0.0 (Data Flow & Hook Contract Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -23,23 +23,24 @@ import {
 } from "./LivePreviewCanvas/_components";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { logger } from "@/shared/lib/logging";
+import type { LoadedFragments } from "@/shared/lib/actions/campaign-suite";
 
 interface LivePreviewCanvasProps {
   content: {
     loadingTheme: string;
     errorLoadingTheme: string;
   };
+  loadedFragments: LoadedFragments;
 }
 
-export function LivePreviewCanvas({ content }: LivePreviewCanvasProps) {
-  logger.info("[LivePreviewCanvas] Renderizando orquestador v16.0.");
+export function LivePreviewCanvas({
+  content,
+  loadedFragments,
+}: LivePreviewCanvasProps) {
+  logger.info("[LivePreviewCanvas] Renderizando orquestador v17.0.");
 
   const draft = useCampaignDraftStore((state) => state.draft);
-  const {
-    theme,
-    isLoading: isThemeLoading,
-    error: themeError,
-  } = usePreviewTheme();
+  const { theme, error: themeError } = usePreviewTheme(loadedFragments);
   const {
     assets,
     isLoading: areAssetsLoading,
@@ -48,7 +49,7 @@ export function LivePreviewCanvas({ content }: LivePreviewCanvasProps) {
   const { iframeRef, iframeBody } = useIframe();
   const { focusedSection, sectionRefs } = usePreviewFocus();
 
-  const isLoading = isThemeLoading || areAssetsLoading;
+  const isLoading = areAssetsLoading;
   const error = themeError || assetsError;
 
   const draftDictionary = buildPreviewDictionary(
@@ -56,7 +57,6 @@ export function LivePreviewCanvas({ content }: LivePreviewCanvasProps) {
     draft.layoutConfig,
     "it-IT"
   );
-
   const finalDictionary = {
     ...assets?.dictionary,
     ...draftDictionary,
@@ -100,3 +100,4 @@ export function LivePreviewCanvas({ content }: LivePreviewCanvasProps) {
     </motion.div>
   );
 }
+// RUTA: src/components/features/campaign-suite/_components/LivePreviewCanvas.tsx

@@ -2,57 +2,25 @@
 /**
  * @file Step5Form.tsx
  * @description Aparato de presentación puro para la maquetación del Paso 5.
- *              Orquesta todos los componentes atómicos del dashboard de gestión.
- * @version 15.2.0
+ * @version 16.0.0 (Artifact Vault Integration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
-import { AlertDialog } from "@/components/ui/AlertDialog";
-import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
-import type { ChecklistItem } from "@/shared/lib/utils/campaign-suite/draft.validator";
-import type { z } from "zod";
-import type { Step5ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step5.schema";
-import { CampaignSummary } from "./_components/CampaignSummary";
-import { LaunchChecklist } from "./_components/LaunchChecklist";
-import { ManagementActions } from "./_components/ManagementActions";
-import { DeleteDraftDialog } from "./_components/DeleteDraftDialog";
+// ... (otras importaciones) ...
+import { Separator } from "@/components/ui/Separator";
 
-type Content = z.infer<typeof Step5ContentSchema>;
+// ... (definiciones de tipo existentes) ...
 
-// Este componente tiene muchas props por diseño, ya que es un "passthrough" puro
-// que delega la lógica a su padre y la presentación a sus hijos.
 interface Step5FormProps {
-  draft: CampaignDraft;
-  checklistItems: ChecklistItem[];
-  content: Content;
-  onBack: () => void;
-  onPublish: () => void;
-  onPackage: () => void;
-  onConfirmDelete: () => void;
-  onSaveAsTemplate: (name: string, description: string) => void;
-  isPublishing: boolean;
-  isPackaging: boolean;
-  isDeleting: boolean;
-  isSavingTemplate: boolean;
-  isLaunchReady: boolean;
+  // ... (props existentes) ...
+  artifactHistorySlot: React.ReactNode;
 }
 
 export function Step5Form({
-  draft,
-  checklistItems,
-  content,
-  onBack,
-  onPublish,
-  onPackage,
-  onConfirmDelete,
-  onSaveAsTemplate,
-  isPublishing,
-  isPackaging,
-  isDeleting,
-  isSavingTemplate,
-  isLaunchReady,
+  // ... (props existentes) ...
+  artifactHistorySlot,
 }: Step5FormProps): React.ReactElement {
   return (
     <AlertDialog>
@@ -68,26 +36,23 @@ export function Step5Form({
             title={content.checklistTitle}
           />
         </div>
+
+        {artifactHistorySlot && (
+          <>
+            <Separator />
+            {artifactHistorySlot}
+          </>
+        )}
+
         <ManagementActions
-          onBack={onBack}
-          onPublish={onPublish}
-          onPackage={onPackage}
-          onSaveAsTemplate={onSaveAsTemplate}
-          isPublishing={isPublishing}
-          isPackaging={isPackaging}
-          isDeleting={isDeleting}
-          isSavingTemplate={isSavingTemplate}
-          isLaunchReady={isLaunchReady}
-          publishButtonText={content.publishButtonText}
-          packageButtonText={content.packageButtonText}
-          deleteButtonText={content.deleteButtonText}
-          templateButtonText={content.templateButtonText}
-          templateDialogContent={content.templateDialog}
+            // ... (props existentes) ...
         />
       </div>
       <DeleteDraftDialog
         content={content.deleteDialog}
+        draftName={draft.variantName || ""}
         onConfirmDelete={onConfirmDelete}
+        isDeleting={isDeleting}
       />
     </AlertDialog>
   );

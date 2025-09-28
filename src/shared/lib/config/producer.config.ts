@@ -1,68 +1,54 @@
 // RUTA: src/shared/lib/config/producer.config.ts
 /**
  * @file producer.config.ts
- * @description Orquestador de Configuración y SSoT para el productor y tracking.
- *              Este módulo es EXCLUSIVO DEL SERVIDOR.
- * @version 4.0.0 (Server-Only Hardening & Elite Observability)
+ * @description SSoT para la configuración del productor (Webvork).
+ *              v4.1.0 (Isomorphic Fix): Se elimina la directiva "server-only"
+ *              para permitir el acceso seguro a variables NEXT_PUBLIC_ en el cliente.
+ * @version 4.1.0
  * @author RaZ Podestá - MetaShark Tech
  */
-"use server-only";
-
-import { z } from "zod";
 import { logger } from "@/shared/lib/logging";
 
-logger.trace(
-  "[ProducerConfig] Módulo de configuración del productor cargado (v4.0)."
-);
+// SSoT del Contrato de Datos para la Configuración
+interface ProducerConfig {
+  ACTION_URL: string;
+  LANDING_ID: string;
+  OFFER_ID: string;
+  TRACKING_ENABLED: boolean;
+  TRACKING: {
+    YANDEX_METRIKA_ID: string | null;
+    GOOGLE_ANALYTICS_ID: string | null;
+    TRUFFLE_PIXEL_ID: string | null;
+  };
+}
 
-const ProducerConfigSchema = z.object({
-  TRACKING_ENABLED: z.boolean(),
-  ACTION_URL: z
-    .string()
-    .url("La URL del endpoint del productor debe ser una URL válida."),
-  LANDING_ID: z.string().min(1, "El ID de la Landing Page es obligatorio."),
-  OFFER_ID: z.string().min(1, "El ID de la Oferta es obligatorio."),
-  TRACKING: z.object({
-    YANDEX_METRIKA_ID: z.string().optional(),
-    GOOGLE_ANALYTICS_ID: z.string().optional(),
-    TRUFFLE_PIXEL_ID: z.string().optional(),
-  }),
-});
+let producerConfigCache: ProducerConfig | null = null;
 
-type ProducerConfig = z.infer<typeof ProducerConfigSchema>;
-
-let cachedConfig: ProducerConfig | null = null;
-
+/**
+ * @function getProducerConfig
+ * @description Lee las variables de entorno una sola vez (lazy initialization)
+ *              y las devuelve como un objeto de configuración estructurado.
+ * @returns {ProducerConfig} El objeto de configuración del productor.
+ */
 export function getProducerConfig(): ProducerConfig {
-  if (cachedConfig) {
-    return cachedConfig;
+  if (producerConfigCache) {
+    return producerConfigCache;
   }
 
-  const configData = {
+  logger.trace("[ProducerConfig] Inicializando configuración del productor...");
+
+  producerConfigCache = {
+    ACTION_URL: process.env.NEXT_PUBLIC_PRODUCER_ACTION_URL || "",
+    LANDING_ID: process.env.NEXT_PUBLIC_LANDING_ID || "",
+    OFFER_ID: process.env.NEXT_PUBLIC_OFFER_ID || "",
     TRACKING_ENABLED:
       process.env.NEXT_PUBLIC_PRODUCER_TRACKING_ENABLED === "enabled",
-    ACTION_URL: process.env.NEXT_PUBLIC_PRODUCER_ACTION_URL,
-    LANDING_ID: process.env.NEXT_PUBLIC_LANDING_ID,
-    OFFER_ID: process.env.NEXT_PUBLIC_OFFER_ID,
     TRACKING: {
-      YANDEX_METRIKA_ID: process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID,
-      GOOGLE_ANALYTICS_ID: process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID,
-      TRUFFLE_PIXEL_ID: process.env.NEXT_PUBLIC_TRUFFLE_PIXEL_ID,
+      YANDEX_METRIKA_ID: process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID || null,
+      GOOGLE_ANALYTICS_ID: process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || null,
+      TRUFFLE_PIXEL_ID: process.env.NEXT_PUBLIC_TRUFFLE_PIXEL_ID || null,
     },
   };
 
-  const validation = ProducerConfigSchema.safeParse(configData);
-
-  if (!validation.success) {
-    logger.error(
-      "❌ CONFIGURACIÓN DE ENTORNO INVÁLIDA:",
-      validation.error.flatten().fieldErrors
-    );
-    throw new Error(
-      "Variables de ambiente del productor ausentes o inválidas. Verifique el archivo .env y .env.example."
-    );
-  }
-
-  cachedConfig = validation.data;
-  return cachedConfig;
+  return producerConfigCache;
 }

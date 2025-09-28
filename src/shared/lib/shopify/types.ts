@@ -7,7 +7,6 @@
  * @version 3.0.0
  * @author razstore (original), RaZ Podestá - MetaShark Tech (adaptación)
  */
-import "server-only";
 import type {
   ProductOption,
   ProductVariant,

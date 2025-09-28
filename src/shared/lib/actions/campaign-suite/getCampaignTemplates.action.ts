@@ -1,8 +1,8 @@
 // RUTA: src/shared/lib/actions/campaign-suite/getCampaignTemplates.action.ts
 /**
  * @file getCampaignTemplates.action.ts
- * @description Server Action de producción para obtener las plantillas de un usuario.
- * @version 2.0.0 (Supabase Production Ready)
+ * @description Server Action de producción para obtener las plantillas de un workspace.
+ * @version 3.0.0 (Workspace-Aware)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -16,10 +16,10 @@ import {
 } from "@/shared/lib/schemas/campaigns/template.schema";
 import { z } from "zod";
 
-export async function getCampaignTemplatesAction(): Promise<
-  ActionResult<CampaignTemplate[]>
-> {
-  const traceId = logger.startTrace("getCampaignTemplates_v2.0");
+export async function getCampaignTemplatesAction(
+  workspaceId: string
+): Promise<ActionResult<CampaignTemplate[]>> {
+  const traceId = logger.startTrace("getCampaignTemplates_v3.0");
   const supabase = createServerClient();
   const {
     data: { user },
@@ -32,24 +32,27 @@ export async function getCampaignTemplatesAction(): Promise<
     return { success: false, error: "auth_required" };
   }
 
-  logger.info(`[Action] Solicitando plantillas para el usuario: ${user.id}`);
+  logger.info(
+    `[Action] Solicitando plantillas para el workspace: ${workspaceId}`
+  );
 
   try {
+    // La seguridad está garantizada por la política RLS. La consulta solo devolverá
+    // plantillas si el usuario actual es miembro del workspaceId proporcionado.
     const { data: templates, error } = await supabase
       .from("campaign_templates")
       .select("*")
-      .eq("user_id", user.id) // <-- VULNERABILIDAD CORREGIDA
+      .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: false });
 
     if (error) {
       throw new Error(error.message);
     }
 
-    // Validamos la respuesta de la DB contra nuestro schema de Zod
     const validatedTemplates = z.array(CampaignTemplateSchema).parse(templates);
 
     logger.success(
-      `Se recuperaron ${validatedTemplates.length} plantillas para el usuario.`,
+      `Se recuperaron ${validatedTemplates.length} plantillas para el workspace.`,
       { traceId }
     );
     return { success: true, data: validatedTemplates };

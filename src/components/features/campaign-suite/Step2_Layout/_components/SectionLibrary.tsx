@@ -2,20 +2,23 @@
 /**
  * @file SectionLibrary.tsx
  * @description Aparato atómico para la biblioteca de secciones disponibles.
+ *              Es un componente de presentación puro y controlado.
  * @version 1.1.0 (Prop Contract Synchronization)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
+
 import React from "react";
 import { Button } from "@/components/ui/Button";
 import { DynamicIcon } from "@/components/ui/DynamicIcon";
 import { logger } from "@/shared/lib/logging";
 
+// SSoT de Tipos para Props
 interface SectionLibraryProps {
   availableSections: { id: string; name: string }[];
   onAddSection: (sectionName: string) => void;
   title: string;
-  emptyLibraryText: string; // <-- PROP AÑADIDA
+  emptyLibraryText: string;
 }
 
 export function SectionLibrary({
@@ -24,9 +27,11 @@ export function SectionLibrary({
   title,
   emptyLibraryText,
 }: SectionLibraryProps) {
+  // Pilar III (Observabilidad)
   logger.trace(
     "[SectionLibrary] Renderizando biblioteca v1.1 (Prop Contract Synced)."
   );
+
   return (
     <div className="md:col-span-1 p-4 border rounded-lg bg-muted/20">
       <h3 className="font-semibold mb-4">{title}</h3>
@@ -55,4 +60,3 @@ export function SectionLibrary({
     </div>
   );
 }
-// RUTA: src/components/features/campaign-suite/Step2_Layout/_components/SectionLibrary.tsx

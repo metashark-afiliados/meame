@@ -1,4 +1,4 @@
-// components/features/analytics/KPICharts.tsx
+// RUTA: src/components/features/analytics/KPICharts.tsx
 /**
  * @file KPICharts.tsx
  * @description Componente para la visualización de KPIs de analíticas.
@@ -95,4 +95,3 @@ export function KPICharts({ data }: KPIChartsProps): React.ReactElement {
     </div>
   );
 }
-// components/features/analytics/KPICharts.tsx

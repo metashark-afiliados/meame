@@ -1,9 +1,7 @@
 // RUTA: src/components/sections/SocialProofLogos.tsx
 /**
  * @file SocialProofLogos.tsx
- * @description Aparato "Server Shell" para la sección de prueba social. Su única
- *              responsabilidad es obtener los datos y delegar el renderizado
- *              al componente de cliente. Cumple con los 7 Pilares de Calidad.
+ * @description Aparato "Server Shell" para la sección de prueba social.
  * @version 8.0.0 (Server Shell Pattern)
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -32,15 +30,21 @@ type ResolvedLogo = {
 export async function SocialProofLogos({
   content,
 }: SocialProofLogosProps): Promise<React.ReactElement | null> {
-  logger.info("[SocialProofLogos Shell] Renderizando v8.0 (Server Shell).");
+  // --- [INYECCIÓN DE LOGGING] ---
+  logger.info(
+    `[SocialProofLogos Shell v8.0] Iniciando obtención de datos para logos.`
+  );
 
   if (!content || !content.logos || content.logos.length === 0) {
+    logger.warn(
+      "[SocialProofLogos Shell] No se proporcionó contenido o logos. No se renderizará."
+    );
     return null;
   }
 
+  // --- [INYECCIÓN DE RESILIENCIA] ---
   try {
     const baviManifest = await getBaviManifest();
-
     const resolvedLogos: ResolvedLogo[] = content.logos
       .map((logo) => {
         const baviAsset = baviManifest.assets.find(
@@ -48,15 +52,19 @@ export async function SocialProofLogos({
         );
         if (!baviAsset) {
           logger.warn(
-            `[BAVI] Activo no encontrado en manifiesto: ${logo.assetId}`
+            `[SocialProofLogos Shell] Logo assetId '${logo.assetId}' no encontrado en BAVI.`
           );
           return null;
         }
         const variant = baviAsset.variants.find(
           (v: BaviVariant) => v.state === "orig"
         );
-        if (!variant) return null;
-
+        if (!variant) {
+          logger.warn(
+            `[SocialProofLogos Shell] Variante 'orig' no encontrada para assetId '${logo.assetId}'.`
+          );
+          return null;
+        }
         return {
           alt: logo.alt,
           publicId: variant.publicId,
@@ -66,21 +74,26 @@ export async function SocialProofLogos({
       })
       .filter((logo): logo is ResolvedLogo => logo !== null);
 
-    // Delega el renderizado al componente de cliente, pasando los datos como props.
+    logger.trace(
+      `[SocialProofLogos Shell] Se resolvieron ${resolvedLogos.length} logos desde la BAVI.`
+    );
+
     return (
       <SocialProofLogosClient title={content.title} logos={resolvedLogos} />
     );
   } catch (error) {
-    logger.error("[SocialProofLogos Shell] Fallo al renderizar.", { error });
+    logger.error("[SocialProofLogos Shell] Fallo crítico al renderizar.", {
+      error,
+    });
     if (process.env.NODE_ENV === "development") {
       return (
         <DeveloperErrorDisplay
-          context="SocialProofLogos"
-          errorMessage="No se pudo cargar el manifiesto de la BAVI."
+          context="SocialProofLogos Server Shell"
+          errorMessage="No se pudo cargar o procesar el manifiesto de la BAVI."
           errorDetails={error instanceof Error ? error : String(error)}
         />
       );
     }
-    return null;
+    return null; // Falla silenciosamente en producción
   }
 }

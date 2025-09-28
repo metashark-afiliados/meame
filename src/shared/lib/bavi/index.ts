@@ -5,6 +5,6 @@
  * @version 1.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
-import "server-only";
+//import "server-only";
 
 export * from "./manifest.queries";

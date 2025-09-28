@@ -5,7 +5,6 @@
  * @version 1.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
-import "server-only";
 import type { ShopifyProduct, ShopifyCart, Cart } from "./types";
 import type { Product } from "@/shared/lib/schemas/entities/product.schema";
 

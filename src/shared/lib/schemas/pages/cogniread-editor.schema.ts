@@ -1,8 +1,8 @@
 // RUTA: src/shared/lib/schemas/pages/cogniread-editor.schema.ts
 /**
  * @file cogniread-editor.schema.ts
- * @description SSoT para el contrato de datos i18n de la página del editor de artículos de CogniRead.
- * @version 2.0.0 (Resilience Key Added)
+ * @description SSoT para el contrato i18n del editor de CogniRead.
+ * @version 2.1.0 (StudyDnaTab Contract Formalization)
  * @author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
@@ -19,6 +19,20 @@ export const CogniReadEditorContentSchema = z.object({
     content: z.string(),
     ecosystem: z.string(),
   }),
+  // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+  studyDnaTab: z.object({
+    extractor: z.object({
+      accordionTitle: z.string(),
+      title: z.string(),
+      description: z.string(),
+      textAreaLabel: z.string(),
+      textAreaPlaceholder: z.string(),
+      modelSelectLabel: z.string(),
+      extractButton: z.string(),
+      extractButtonLoading: z.string(),
+    }),
+  }),
+  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
   contentTab: z.object({
     titleLabel: z.string(),
     titlePlaceholder: z.string(),
@@ -40,9 +54,7 @@ export const CogniReadEditorContentSchema = z.object({
   }),
   saveButton: z.string(),
   saveButtonLoading: z.string(),
-  // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
-  articleNotFoundError: z.string(), // Clave de resiliencia añadida.
-  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
+  articleNotFoundError: z.string(),
 });
 
 export const CogniReadEditorLocaleSchema = z.object({

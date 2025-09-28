@@ -3,9 +3,8 @@
  * @file route.ts
  * @description Endpoint de API de élite y SSoT para recibir y manejar webhooks de Stripe.
  *              Este aparato es el guardián de la confirmación de pagos y el
- *              orquestador de la lógica post-compra. Está diseñado con una
- *              arquitectura de resiliencia y observabilidad de nivel de producción.
- * @version 5.0.0 (Elite Resilience & Observability)
+ *              orquestador de la lógica post-compra. Ahora persistente en Supabase.
+ * @version 6.0.0 (Migración a Supabase)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -17,7 +16,9 @@ import Stripe from "stripe";
 import { logger } from "@/shared/lib/logging";
 import { sendOrderConfirmationEmailAction } from "@/shared/lib/actions/notifications/send-order-confirmation.action";
 import { getShopifyCart } from "@/shared/lib/shopify";
-import { connectToDatabase } from "@/shared/lib/mongodb";
+// Se elimina la importación de MongoDB
+// import { connectToDatabase } from "@/shared/lib/mongodb";
+import { createServerClient } from "@/shared/lib/supabase/server"; // Importar el cliente Supabase
 import {
   OrderSchema,
   type Order,
@@ -36,8 +37,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(req: Request) {
-  const traceId = logger.startTrace("stripeWebhook_v5.0");
-  logger.info("[Stripe Webhook v5.0] Evento entrante recibido...", { traceId });
+  const traceId = logger.startTrace("stripeWebhook_v6.0_Supabase");
+  logger.info("[Stripe Webhook v6.0] Evento entrante recibido...", { traceId });
 
   const body = await req.text();
   const signature = headers().get("stripe-signature") as string;
@@ -65,6 +66,9 @@ export async function POST(req: Request) {
         );
 
         const cartId = paymentIntent.metadata.cartId;
+        // Asumimos que el userId podría venir en el metadata si la compra la inició un usuario autenticado
+        const userId = paymentIntent.metadata.userId || null;
+
         if (!cartId) {
           throw new Error(
             `PaymentIntent ${paymentIntent.id} no tiene un cartId en la metadata.`
@@ -87,14 +91,14 @@ export async function POST(req: Request) {
         }));
 
         const orderDocumentData: Order = {
-          orderId: createId(),
+          orderId: createId(), // Generar un CUID2 para el orderId lógico
           stripePaymentIntentId: paymentIntent.id,
-          userId: undefined,
-          amount: paymentIntent.amount / 100,
+          userId: userId, // Puede ser null
+          amount: paymentIntent.amount / 100, // Stripe devuelve en céntimos
           currency: paymentIntent.currency.toUpperCase(),
           status: "succeeded",
           customerEmail: paymentIntent.receipt_email!,
-          items: orderItems,
+          items: orderItems, // JSONB
           createdAt: now,
           updatedAt: now,
         };
@@ -102,14 +106,41 @@ export async function POST(req: Request) {
         const validatedOrder = OrderSchema.parse(orderDocumentData);
         logger.traceEvent(traceId, "Documento de la orden validado con Zod.");
 
-        const client = await connectToDatabase();
-        const db = client.db(process.env.MONGODB_DB_NAME);
-        const collection = db.collection<Order>("orders");
-        await collection.insertOne(validatedOrder);
+        // --- INTERACCIÓN CON SUPABASE ---
+        const supabase = createServerClient(); // Obtener el cliente de Supabase
+        const { data: insertedOrder, error: insertError } = await supabase
+          .from("commerce_orders")
+          .insert({
+            id: validatedOrder.orderId, // Mapear orderId de Zod a id de la tabla Supabase
+            stripe_payment_intent_id: validatedOrder.stripePaymentIntentId,
+            user_id: validatedOrder.userId,
+            amount: validatedOrder.amount,
+            currency: validatedOrder.currency,
+            status: validatedOrder.status,
+            customer_email: validatedOrder.customerEmail,
+            items: validatedOrder.items, // JSONB
+            created_at: validatedOrder.createdAt,
+            updated_at: validatedOrder.updatedAt,
+          })
+          .select("id") // Seleccionar el ID insertado
+          .single();
+
+        if (insertError) {
+          logger.error(
+            "[Stripe Webhook] Error de Supabase al insertar la orden.",
+            {
+              error: insertError.message,
+              validatedOrder,
+              traceId,
+            }
+          );
+          throw new Error(insertError.message);
+        }
+        // --- FIN INTERACCIÓN CON SUPABASE ---
 
         logger.success(
-          `[Stripe Webhook] Orden ${validatedOrder.orderId} persistida en la base de datos.`,
-          { traceId }
+          `[Stripe Webhook] Orden ${insertedOrder.id} persistida en Supabase.`,
+          { traceId, supabaseOrderId: insertedOrder.id }
         );
 
         const emailResult = await sendOrderConfirmationEmailAction({

@@ -1,10 +1,11 @@
 // RUTA: src/app/[locale]/(dev)/DevLayoutClient.tsx
 /**
  * @file DevLayoutClient.tsx
- * @description Límite de Cliente para el Layout del DCC. Orquesta los
- *              proveedores, el header y los efectos de MEA/UX, y ahora cumple
- *              con la Arquitectura Canónica Soberana.
- * @version 3.0.0 (Sovereign Path Restoration & ACS Compliance)
+ * @description Orquestador de cliente soberano para el layout del DCC.
+ *              v5.0.0 (Holistic Fusion & Production Ready): Fusiona la lógica del
+ *              snapshot con las últimas refactorizaciones, implementando el
+ *              tracking de actividad de usuario, gestión de tema y celebraciones.
+ * @version 5.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -12,11 +13,8 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import AppProviders from "@/components/layout/AppProviders";
-// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-// Se corrigen las importaciones para apuntar a la SSoT canónica en la capa de features.
 import DevHeader from "@/components/features/dev-tools/DevHeader";
 import { DevThemeSwitcher } from "@/components/features/dev-tools/DevThemeSwitcher";
-// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import { Container } from "@/components/ui/Container";
 import { WizardHeader } from "@/components/features/campaign-suite/_components/WizardHeader";
 import { useCelebrationStore } from "@/shared/lib/stores/use-celebration.store";
@@ -25,6 +23,8 @@ import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { LoadedFragments } from "@/components/features/dev-tools/SuiteStyleComposer/types";
 import { logger } from "@/shared/lib/logging";
+import { AuraTrackerInitializer } from "@/components/features/analytics/AuraTrackerInitializer";
+import { useAuth } from "@/shared/hooks/use-auth";
 
 interface DevLayoutClientProps {
   children: React.ReactNode;
@@ -40,20 +40,23 @@ export function DevLayoutClient({
   allLoadedFragments,
 }: DevLayoutClientProps) {
   logger.info(
-    `[DevLayoutClient] Hidratando layout del DCC v3.0 (ACS Compliant)`
+    `[DevLayoutClient] Hidratando layout del DCC v5.0 (Production Ready)`
   );
 
+  const { user } = useAuth();
   const { isCelebrating, endCelebration } = useCelebrationStore();
   const pathname = usePathname();
   const isCampaignSuite = pathname.includes("/creator/campaign-suite");
 
   // Guardia de resiliencia para el contenido, asegurando que las claves existan.
-  const devHeaderContent = dictionary.devHeader;
-  const devMenuContent = dictionary.devRouteMenu;
-  const toggleThemeContent = dictionary.toggleTheme;
-  const languageSwitcherContent = dictionary.languageSwitcher;
-  const suiteStyleComposerContent = dictionary.suiteStyleComposer;
-  const cookieConsentContent = dictionary.cookieConsentBanner;
+  const {
+    devHeader: devHeaderContent,
+    devRouteMenu: devMenuContent,
+    toggleTheme: toggleThemeContent,
+    languageSwitcher: languageSwitcherContent,
+    suiteStyleComposer: suiteStyleComposerContent,
+    cookieConsentBanner: cookieConsentContent,
+  } = dictionary;
 
   if (
     !devHeaderContent ||
@@ -63,7 +66,6 @@ export function DevLayoutClient({
     !suiteStyleComposerContent ||
     !cookieConsentContent
   ) {
-    // En un caso real, un componente de error más elegante sería ideal aquí.
     logger.error("[DevLayoutClient] Faltan claves de contenido i18n críticas.");
     return (
       <div className="bg-destructive text-destructive-foreground p-4">
@@ -75,6 +77,8 @@ export function DevLayoutClient({
 
   return (
     <AppProviders locale={locale} cookieConsentContent={cookieConsentContent}>
+      {user && <AuraTrackerInitializer scope="user" />}
+
       <DevHeader
         locale={locale}
         centerComponent={isCampaignSuite ? <WizardHeader /> : null}
@@ -92,8 +96,8 @@ export function DevLayoutClient({
       <main className="py-8 md:py-12">
         <Container>{children}</Container>
       </main>
+
       <DigitalConfetti isActive={isCelebrating} onComplete={endCelebration} />
     </AppProviders>
   );
 }
-// RUTA: src/app/[locale]/(dev)/DevLayoutClient.tsx

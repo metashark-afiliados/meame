@@ -25,7 +25,7 @@ import type {
 import { WizardNavigation } from "@/components/features/campaign-suite/_components/WizardNavigation";
 import { galleryConfig } from "@/shared/lib/config/campaign-suite/gallery.config";
 import { StructuralSectionConfig } from "./_components";
-import { Step1ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step1.schema";
+import { Step1ContentSchema } from "@/shared/lib/schemas/campaign-suite/steps/step1.schema";
 
 type Step1Content = z.infer<typeof Step1ContentSchema>;
 

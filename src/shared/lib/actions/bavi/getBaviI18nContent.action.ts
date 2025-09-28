@@ -1,9 +1,9 @@
-// app/[locale]/(dev)/bavi/_actions/getBaviI18nContent.action.ts
+// RUTA: src/shared/lib/actions/bavi/getBaviI18nContent.action.ts
 /**
  * @file getBaviI18nContent.action.ts
  * @description Server Action soberana para obtener todo el contenido i18n
  *              necesario para el ecosistema BAVI en el cliente.
- * @version 2.0.0 (FSD Architecture Alignment)
+ * @version 1.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
@@ -30,14 +30,7 @@ export async function getBaviI18nContentAction(
   const { dictionary, error } = await getDictionary(locale);
 
   if (error) {
-    logger.error(
-      "[getBaviI18nContentAction] Fallo al cargar el diccionario base.",
-      { error }
-    );
-    return {
-      success: false,
-      error: "No se pudo cargar el diccionario base.",
-    };
+    return { success: false, error: "No se pudo cargar el diccionario base." };
   }
 
   const { baviUploader, assetExplorer, promptCreator } = dictionary;
@@ -50,26 +43,18 @@ export async function getBaviI18nContentAction(
     ]
       .filter(Boolean)
       .join(", ");
-
-    logger.error(
-      `[getBaviI18nContentAction] Faltan claves de contenido i18n críticas: ${missingKeys}`
-    );
     return {
       success: false,
       error: `El contenido i18n para la BAVI está incompleto. Faltan: ${missingKeys}.`,
     };
   }
 
-  const contentPayload: BaviI18nContent = {
-    baviUploader,
-    assetExplorer,
-    sesaOptions: promptCreator.sesaOptions,
+  return {
+    success: true,
+    data: {
+      baviUploader,
+      assetExplorer,
+      sesaOptions: promptCreator.sesaOptions,
+    },
   };
-
-  logger.success(
-    "[getBaviI18nContentAction] Contenido i18n para BAVI ensamblado con éxito."
-  );
-
-  return { success: true, data: contentPayload };
 }
-// app/[locale]/(dev)/bavi/_actions/getBaviI18nContent.action.ts

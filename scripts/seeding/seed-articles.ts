@@ -1,120 +1,71 @@
-// RUTA: scripts/seeding/seed-articles.ts
+// RUTA: scripts/seeding/seed-cogniread-article.ts
 /**
- * @file seed-articles.ts
- * @description Script de "siembra" para poblar la colección de artículos de CogniRead.
- *              v3.0.0 (Holistic Build Integrity Restoration): Resuelve una cascada de
- *              errores de sintaxis, resolución de módulos y rutas de importación para
- *              garantizar la compatibilidad total con el entorno de ejecución de scripts.
- * @version 3.0.0
+ * @file seed-cogniread-article.ts
+ * @description Script de siembra para insertar un artículo de CogniRead en Supabase.
+ * @version 1.3.0 (Fix Definitivo de Resolución de Módulos con Alias Absolutos)
  * @author RaZ Podestá - MetaShark Tech
+ * @usage pnpm tsx scripts/run-with-env.ts scripts/seeding/seed-cogniread-article.ts <path/to/fixture.json>
  */
-import { promises as fs } from "fs";
-// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
-// Se corrige la sintaxis de importación de módulos y las rutas de los alias.
+import * as fs from "fs/promises";
 import * as path from "path";
 import chalk from "chalk";
-import { createId } from "@paralleldrive/cuid2";
-import { connectToDatabase } from "../../src/shared/lib/mongodb";
-import {
-  CogniReadArticleSchema,
-  type CogniReadArticle,
-} from "../../src/shared/lib/schemas/cogniread/article.schema";
+// --- INICIO DE CORRECCIÓN DEFINITIVA DE RUTAS DE IMPORTACIÓN (ALIAS ABSOLUTOS) ---
 import { logger } from "../../src/shared/lib/logging";
-// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
+import { createOrUpdateArticleAction } from "../../src/shared/lib/actions/cogniread/createOrUpdateArticle.action";
+import type { CogniReadArticle } from "../../src/shared/lib/schemas/cogniread/article.schema";
+import { loadEnvironment } from "../diagnostics/_utils";
+// --- FIN DE CORRECCIÓN DEFINITIVA DE RUTAS DE IMPORTACIÓN ---
 
-// --- Lógica de Base de Datos (replicada desde la Server Action) ---
-async function createOrUpdateArticle(
-  articleData: CogniReadArticle
-): Promise<{ success: boolean; articleId: string; error?: string }> {
-  const now = new Date().toISOString();
-  const articleId = articleData.articleId || createId();
-
-  const articleDocument: CogniReadArticle = {
-    ...articleData,
-    articleId,
-    updatedAt: now,
-    createdAt: articleData.createdAt || now,
-  };
-
-  const validation = CogniReadArticleSchema.safeParse(articleDocument);
-  if (!validation.success) {
-    return {
-      success: false,
-      articleId,
-      error: "Datos del artículo inválidos.",
-    };
-  }
-
-  try {
-    const client = await connectToDatabase();
-    const db = client.db(process.env.MONGODB_DB_NAME);
-    const collection = db.collection<CogniReadArticle>("articles");
-
-    await collection.updateOne(
-      { articleId: validation.data.articleId },
-      { $set: validation.data },
-      { upsert: true }
-    );
-
-    return { success: true, articleId };
-  } catch (error) {
-    return {
-      success: false,
-      articleId,
-      error:
-        error instanceof Error ? error.message : "Error desconocido en DB.",
-    };
-  }
-}
-// --- Fin de la Lógica de Base de Datos ---
-
-async function seedArticles() {
+async function seedSingleCogniReadArticle() {
   logger.startGroup(
-    "🌱 Iniciando siembra de DB CogniRead (v3.0 - Build Integrity)..."
+    "🌱 Iniciando siembra de artículo de CogniRead en Supabase..."
   );
+  loadEnvironment(["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]); // Pasar las claves requeridas
+
+  const fixturePathArgument = process.argv[3]; // El tercer argumento es la ruta al fixture
+
+  if (!fixturePathArgument) {
+    logger.error(
+      "❌ Error: No se especificó la ruta al archivo de fixture del artículo."
+    );
+    logger.error(
+      "   Uso: pnpm tsx scripts/run-with-env.ts scripts/seeding/seed-cogniread-article.ts <path/to/fixture.json>"
+    );
+    process.exit(1);
+  }
+
+  const fixturePath = path.resolve(process.cwd(), fixturePathArgument);
 
   try {
-    const fixturesDir = path.join(process.cwd(), "content/cogniread/fixtures");
-    const files = await fs.readdir(fixturesDir);
-    const articleFiles = files.filter((file) => file.endsWith(".article.json"));
+    const fileContent = await fs.readFile(fixturePath, "utf-8");
+    const articleData: CogniReadArticle = JSON.parse(fileContent);
 
-    if (articleFiles.length === 0) {
-      logger.warn(
-        "No se encontraron artículos de prueba en 'content/cogniread/fixtures'."
+    // Se asegura el status como 'published' para que aparezca en el frontend
+    articleData.status = "published";
+
+    logger.info(`   Procesando fixture: ${path.basename(fixturePath)}`);
+
+    const result = await createOrUpdateArticleAction(articleData);
+
+    if (result.success) {
+      console.log(
+        chalk.green(
+          `     ✅ Éxito: Artículo '${result.data.articleId}' sembrado/actualizado en Supabase.`
+        )
       );
-      return;
-    }
-
-    logger.info(
-      `   Encontrados ${articleFiles.length} artículos de prueba para sembrar...`
-    );
-
-    for (const fileName of articleFiles) {
-      const filePath = path.join(fixturesDir, fileName);
-      logger.trace(`   - Procesando: ${fileName}`);
-
-      const fileContent = await fs.readFile(filePath, "utf-8");
-      const articleData: CogniReadArticle = JSON.parse(fileContent);
-
-      const result = await createOrUpdateArticle(articleData);
-
-      if (result.success) {
-        console.log(
-          chalk.green(
-            `     ✅ Éxito: Artículo '${result.articleId}' sembrado/actualizado.`
-          )
-        );
-      } else {
-        console.error(
-          chalk.red.bold(`     🔥 Fallo al sembrar '${fileName}':`),
-          result.error
-        );
-      }
+    } else {
+      console.error(
+        chalk.red.bold(
+          `     🔥 Fallo al sembrar '${path.basename(fixturePath)}':`
+        ),
+        result.error
+      );
+      process.exit(1); // Salir con error si falla la siembra
     }
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("Error crítico durante el proceso de siembra:", {
+    logger.error("Error crítico durante el proceso de siembra de artículo:", {
       error: errorMessage,
     });
     process.exit(1);
@@ -123,7 +74,7 @@ async function seedArticles() {
   }
 }
 
-seedArticles().then(() => {
-  logger.success("✨ Proceso de siembra de artículos completado.");
+seedSingleCogniReadArticle().then(() => {
+  logger.success("✨ Proceso de siembra de artículo completado.");
   process.exit(0);
 });

@@ -2,9 +2,9 @@
 /**
  * @file use-truffle-pixel.ts
  * @description Hook Atómico de Efecto para el píxel de Truffle.bid.
- *              v4.0.0 (Lazy Config Initialization): Refactorizado para importar y
- *              llamar a la función `getProducerConfig`, asegurando una inicialización
- *              diferida y segura de las variables de entorno. Cumple con los 5 Pilares.
+ *              v4.0.0 (Lazy Config Initialization): Refactorizado para adherirse
+ *              al contrato de `getProducerConfig`, garantizando una carga
+ *              segura y diferida de las variables de entorno. Cumple con los 5 Pilares.
  * @version 4.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -25,7 +25,7 @@ export function useTrufflePixel(enabled: boolean): void {
       return;
     }
 
-    // Se invoca la función para obtener la configuración en el momento preciso.
+    // Obtención segura de la configuración.
     const producerConfig = getProducerConfig();
     const truffleId = producerConfig.TRACKING.TRUFFLE_PIXEL_ID;
 

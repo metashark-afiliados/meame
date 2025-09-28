@@ -4,16 +4,15 @@
   "compilerOptions": {
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "target": "es2022",
+    "noEmit": true,
     "types": ["node"],
-    "lib": ["ES2017", "DOM"],
-    "noEmit": true
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@scripts/*": ["scripts/*"]
+    }
   },
-  "include": [
-    "scripts/**/*.ts",
-    "src/shared/lib/types/**/*.d.ts",
-    "src/shared/lib/logging.ts",
-    "src/shared/lib/i18n/i18n.config.ts",
-    "src/shared/lib/schemas/i18n.schema.ts",
-    "src/shared/lib/dev/i18n-discoverer.ts"
-  ]
+  "include": ["scripts/**/*.ts", "src/shared/**/*.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
 }

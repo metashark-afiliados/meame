@@ -2,6 +2,7 @@
 /**
  * @file LayoutCanvas.tsx
  * @description Aparato atómico para el lienzo de layout reordenable, restaurado y nivelado.
+ *              Es un componente de presentación puro que renderiza los ítems y emite eventos.
  * @version 2.2.0 (Code Regression Restoration & Elite Leveling)
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -43,6 +44,7 @@ function SortableItem({
   isNextItemInCombo,
   onRemove,
 }: SortableItemProps) {
+  // Pilar III (Observabilidad)
   logger.trace(`[SortableItem] Renderizando para: ${id}`);
   const {
     attributes,
@@ -67,6 +69,7 @@ function SortableItem({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -50 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
+      // Pilar II (Theming)
       className={cn(
         "relative flex items-center justify-between p-3 border rounded-md bg-background shadow-sm touch-none transition-all duration-300",
         isComboPart && "border-primary ring-2 ring-primary/50"
@@ -84,6 +87,7 @@ function SortableItem({
       <Button variant="ghost" size="icon" onClick={() => onRemove(id)}>
         <DynamicIcon name="X" className="h-4 w-4 text-destructive" />
       </Button>
+      {/* MEA/UX: Conector visual para combos estratégicos */}
       {!isLastItem && (
         <div className="absolute left-5 -bottom-3 h-3 w-0.5 bg-border">
           {isNextItemInCombo && (
@@ -100,6 +104,7 @@ function SortableItem({
   );
 }
 
+// SSoT de Tipos para Props del componente principal
 interface LayoutCanvasProps {
   activeLayout: LayoutConfigItem[];
   comboSections: Set<string>;
@@ -115,6 +120,7 @@ export function LayoutCanvas({
   title,
   emptyCanvasText,
 }: LayoutCanvasProps) {
+  // Pilar III (Observabilidad)
   logger.trace("[LayoutCanvas] Renderizando lienzo v2.2 (Restored).");
   return (
     <div className="md:col-span-2 p-4 border rounded-lg bg-muted/20 min-h-[400px]">
@@ -125,6 +131,7 @@ export function LayoutCanvas({
           strategy={verticalListSortingStrategy}
         >
           <div className="space-y-4">
+            {/* Pilar VI (Resiliencia): Manejo del estado vacío */}
             {activeLayout.length > 0 ? (
               activeLayout.map((item, index) => {
                 const isComboPart = comboSections.has(item.name);

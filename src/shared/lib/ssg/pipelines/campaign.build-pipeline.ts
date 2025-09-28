@@ -3,10 +3,10 @@
  * @file campaign.build-pipeline.ts
  * @description SSoT para la definición de la "receta" de un build de campaña.
  *              Este módulo es una función pura que configura un pipeline de build.
- * @version 2.0.0 (Type-Safe Task Contract)
+ * @version 2.0.0 (Elite & Resilient)
  * @author RaZ Podestá - MetaShark Tech
  */
-import "server-only";
+"use server-only";
 
 import { BuildPipeline } from "@/shared/lib/ssg/engine/build-pipeline";
 import * as generators from "@/shared/lib/ssg/generators";
@@ -19,13 +19,6 @@ import type { z } from "zod";
 
 type ValidatedDraft = z.infer<typeof CampaignDraftDataSchema>;
 
-/**
- * @function defineCampaignBuildPipeline
- * @description Configura una instancia de BuildPipeline con todas las tareas
- *              necesarias para generar un paquete de campaña estático.
- * @param pipeline - La instancia de BuildPipeline a configurar.
- * @param traceId - El ID de traza para la observabilidad.
- */
 export function defineCampaignBuildPipeline(
   pipeline: BuildPipeline,
   traceId: string
@@ -33,12 +26,10 @@ export function defineCampaignBuildPipeline(
   pipeline
     .addTask({
       name: "Setup Directories",
-      // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
-      // Se utiliza un cuerpo de bloque para asegurar un retorno `void`.
       execute: async (ctx) => {
+        await fs.rm(ctx.tempDir, { recursive: true, force: true });
         await fs.mkdir(ctx.tempDir, { recursive: true });
       },
-      // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
     })
     .addTask({
       name: "Generate package.json",
@@ -61,19 +52,15 @@ export function defineCampaignBuildPipeline(
       execute: (ctx) => generators.generateTailwindConfig(ctx.tempDir),
     })
     .addTask({
-      name: "Generate globals.css",
+      name: "Generate src/app/globals.css",
       execute: (ctx) => generators.generateGlobalsCss(ctx.draft, ctx.tempDir),
     })
     .addTask({
-      name: "Generate Layout",
+      name: "Generate src/app/layout.tsx",
       execute: (ctx) => generators.generateLayout(ctx.draft, ctx.tempDir),
     })
     .addTask({
-      name: "Generate Page",
-      execute: (ctx) => generators.generatePage(ctx.draft, ctx.tempDir),
-    })
-    .addTask({
-      name: "Generate Content & Theme Files",
+      name: "Generate src/content/ files",
       execute: async (ctx) => {
         await generators.generateContentFile(ctx.draft, ctx.tempDir);
         await generators.generateThemeFile(ctx.draft, ctx.tempDir);
@@ -84,25 +71,19 @@ export function defineCampaignBuildPipeline(
       execute: (ctx) => copyComponentDependencies(ctx.draft, ctx.tempDir),
     })
     .addTask({
+      name: "Generate src/app/page.tsx",
+      execute: (ctx) => generators.generatePage(ctx.tempDir),
+    })
+    .addTask({
       name: "Run Next.js Build",
       execute: async (ctx) => {
-        if (!ctx.draft.baseCampaignId || !ctx.draft.draftId) {
-          throw new Error(
-            "Faltan IDs críticos (baseCampaignId o draftId) para el build."
-          );
-        }
-        await runScopedNextBuild(
-          ctx.draft.baseCampaignId,
-          ctx.draft.draftId,
-          ctx.tempDir,
-          traceId
-        );
+        await runScopedNextBuild(ctx.tempDir, traceId);
       },
     })
     .addTask({
       name: "Package Artifacts",
       execute: async (ctx) => {
-        await packageDirectory(ctx.buildDir, ctx.zipPath, traceId);
+        await packageDirectory(ctx.buildDir, ctx.zipPath);
       },
     });
 }

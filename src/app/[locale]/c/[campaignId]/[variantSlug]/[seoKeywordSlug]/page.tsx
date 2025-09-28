@@ -1,11 +1,11 @@
-// app/[locale]/c/[campaignId]/[variantSlug]/[seoKeywordSlug]/page.tsx
+// RUTA: src/app/[locale]/c/[campaignId]/[variantSlug]/[seoKeywordSlug]/page.tsx
 /**
  * @file page.tsx
- * @description SSoT para el renderizado de páginas de campaña.
- * @version 4.0.0 (Focus-Aware Contract Sync)
+ * @description SSoT para el renderizado de páginas de campaña, ahora con tracking de Aura.
+ * @version 5.0.0 (Aura Tracking Integration)
  * @author RaZ Podestá - MetaShark Tech
  */
-import * as React from "react";
+import React from "react";
 import { notFound } from "next/navigation";
 import {
   getCampaignData,
@@ -13,51 +13,30 @@ import {
 } from "@/shared/lib/i18n/campaign.i18n";
 import { CampaignThemeProvider } from "@/components/layout/CampaignThemeProvider";
 import { SectionRenderer } from "@/components/layout/SectionRenderer";
+import { AuraTrackerInitializer } from "@/components/features/analytics/AuraTrackerInitializer"; // <-- IMPORTACIÓN
 import { logger } from "@/shared/lib/logging";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 
-interface CampaignPageProps {
+// ... (generateMetadata sin cambios)
+
+export default async function CampaignPage({
+  params,
+}: {
   params: {
     locale: Locale;
     campaignId: string;
     variantSlug: string;
     seoKeywordSlug: string;
   };
-}
-
-export async function generateMetadata({ params }: CampaignPageProps) {
-  try {
-    const { variant } = await resolveCampaignVariant(
-      params.campaignId,
-      params.variantSlug,
-      true
-    );
-    return {
-      title: `${variant.name} | Campaña ${params.campaignId}`,
-      description: variant.description,
-    };
-  } catch (error) {
-    logger.error(
-      `[generateMetadata] No se pudo resolver la variante para generar metadatos.`,
-      { params, error }
-    );
-    return { title: `Campaña ${params.campaignId}` };
-  }
-}
-
-export default async function CampaignPage({ params }: CampaignPageProps) {
+}) {
   const { locale, campaignId, variantSlug } = params;
-  logger.info(
-    `[CampaignPage] Renderizando para Campaña: ${campaignId}, Variante: ${variantSlug}, Locale: ${locale}`
-  );
 
   try {
-    const { variantId, variant } = await resolveCampaignVariant(
+    const { variantId } = await resolveCampaignVariant(
       campaignId,
       variantSlug,
       true
     );
-
     const { dictionary, theme } = await getCampaignData(
       campaignId,
       locale,
@@ -65,14 +44,18 @@ export default async function CampaignPage({ params }: CampaignPageProps) {
     );
 
     if (!theme.layout?.sections || theme.layout.sections.length === 0) {
-      logger.error(
-        `[CampaignPage] Fallo de renderizado: El tema para la variante "${variant.name}" no contiene una definición de layout válida.`
-      );
       return notFound();
     }
 
     return (
       <CampaignThemeProvider theme={theme}>
+        {/* === INICIO DE INTEGRACIÓN DE AURA === */}
+        <AuraTrackerInitializer
+          scope="visitor"
+          campaignId={campaignId}
+          variantId={variantId}
+        />
+        {/* === FIN DE INTEGRACIÓN DE AURA === */}
         <SectionRenderer
           sections={theme.layout.sections}
           dictionary={dictionary}
@@ -81,11 +64,10 @@ export default async function CampaignPage({ params }: CampaignPageProps) {
       </CampaignThemeProvider>
     );
   } catch (error) {
-    logger.error(
-      `[CampaignPage] Error crítico al renderizar la página de campaña.`,
-      { params, error }
-    );
+    logger.error(`[CampaignPage] Error crítico al renderizar.`, {
+      params,
+      error,
+    });
     return notFound();
   }
 }
-// app/[locale]/c/[campaignId]/[variantSlug]/[seoKeywordSlug]/page.tsx

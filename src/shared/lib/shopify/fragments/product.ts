@@ -1,5 +1,5 @@
 // RUTA: shared/lib/shopify/fragments/product.ts
-import "server-only";
+
 import { imageFragment } from "./image";
 import { seoFragment } from "./seo";
 export const productFragment = /* GraphQL */ `

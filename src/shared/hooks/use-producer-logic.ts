@@ -13,7 +13,7 @@
 import { useState, useEffect } from "react";
 import { logger } from "@/shared/lib/logging";
 import { getProducerConfig } from "@/shared/lib/config/producer.config";
-import { useCookieConsent } from "@/shared/hooks/use-cookie-consent"; // <-- RUTA CORREGIDA
+import { useCookieConsent } from "@/shared/hooks/use-cookie-consent";
 import { useUtmTracker } from "@/shared/hooks/use-utm-tracker";
 import { useYandexMetrika } from "@/shared/hooks/use-yandex-metrika";
 import { useGoogleAnalytics } from "@/shared/hooks/use-google-analytics";

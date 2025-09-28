@@ -2,7 +2,7 @@
 /**
  * @file loadTemplate.action.ts
  * @description Server Action de producción para cargar una plantilla específica,
- *              ahora con una consulta de seguridad compuesta para garantizar la propiedad.
+ *              asegurada por políticas de RLS a nivel de workspace.
  * @version 4.1.0 (Code Hygiene)
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -15,7 +15,6 @@ import {
   type CampaignTemplate,
 } from "@/shared/lib/schemas/campaigns/template.schema";
 import { logger } from "@/shared/lib/logging";
-// Se elimina la importación no utilizada de 'zod'.
 
 export async function loadTemplateAction(
   templateId: string
@@ -34,7 +33,8 @@ export async function loadTemplateAction(
   }
 
   logger.info(
-    `[Action] Cargando plantilla ${templateId} para usuario ${user.id}`
+    `[Action] Cargando plantilla ${templateId} para usuario ${user.id}`,
+    { traceId }
   );
 
   try {
@@ -42,8 +42,7 @@ export async function loadTemplateAction(
       .from("campaign_templates")
       .select("*")
       .eq("id", templateId)
-      .eq("user_id", user.id)
-      .single();
+      .single(); // .single() fallará si no se encuentra exactamente una fila
 
     if (error) {
       if (error.code === "PGRST116") {

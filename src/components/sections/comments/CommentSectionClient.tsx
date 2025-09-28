@@ -1,12 +1,11 @@
 // RUTA: src/components/sections/comments/CommentSectionClient.tsx
 /**
  * @file CommentSectionClient.tsx
- * @description Componente "cerebro" para la sección de comentarios interactiva.
- * @version 2.1.0 (Correct Data Flow)
+ * @description Componente "cerebro" de cliente para la sección de comentarios interactiva.
+ * @version 1.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
-
 import React, { useState, useTransition } from "react";
 import { toast } from "sonner";
 import type { Comment } from "@/shared/lib/schemas/community/comment.schema";
@@ -39,8 +38,9 @@ export function CommentSectionClient({
   content,
   locale,
 }: CommentSectionClientProps) {
-  logger.info("[CommentSectionClient] Renderizando v2.1 (Correct Data Flow).");
-
+  logger.info(
+    "[CommentSectionClient] Renderizando componente de cliente puro."
+  );
   const [comments, setComments] = useState(initialComments);
   const [isPending, startTransition] = useTransition();
 
@@ -51,7 +51,6 @@ export function CommentSectionClient({
         articleSlug,
         commentText: data.commentText,
       });
-
       if (result.success) {
         toast.success(content.toast.success);
         setComments((prev) => [...prev, result.data.newComment]);

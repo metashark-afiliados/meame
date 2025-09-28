@@ -2,14 +2,12 @@
 /**
  * @file packageCampaign.action.ts
  * @description Server Action de élite que orquesta el "Motor de Forja" SSG.
- *              v5.0.0 (Atomic Refactor): Desacoplado de la definición del pipeline,
- *              ahora cumple estrictamente con el Principio de Responsabilidad Única.
- * @version 5.0.0
+ * @version 6.0.0 (Elite & Resilient Orchestrator)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use server";
 
-import fs from "fs/promises";
+import { promises as fs } from "fs";
 import path from "path";
 import { put } from "@vercel/blob";
 import { logger } from "@/shared/lib/logging";
@@ -32,7 +30,7 @@ export async function packageCampaignAction(
 
   const traceId = logger.startTrace(`packageCampaign:${draft.draftId}`);
   logger.info(
-    `[Action] Iniciando orquestación de empaquetado v5.0 para draft: ${draft.draftId}`
+    `[Action] Iniciando orquestación de empaquetado v6.0 para draft: ${draft.draftId}`
   );
 
   const draftValidation = CampaignDraftDataSchema.safeParse(draft);
@@ -44,25 +42,21 @@ export async function packageCampaignAction(
     return { success: false, error: "El borrador contiene datos corruptos." };
   }
 
+  const tempDir = path.join(process.cwd(), ".tmp", `campaign-${draft.draftId}`);
   const buildContext: BuildContext = {
-    draft: { ...draft, ...draftValidation.data, draftId: draft.draftId },
-    tempDir: path.join("/tmp", `campaign-${draft.draftId}`),
-    buildDir: path.join("/tmp", `campaign-${draft.draftId}`, "out"),
-    zipPath: path.join("/tmp", `campaign-${draft.draftId}.zip`),
+    draft: draft,
+    tempDir: tempDir,
+    buildDir: path.join(tempDir, "out"),
+    zipPath: path.join(process.cwd(), ".tmp", `campaign-${draft.draftId}.zip`),
   };
 
   try {
-    // 1. Crear una instancia del motor del pipeline.
     const pipeline = new BuildPipeline(buildContext);
-
-    // 2. Delegar la DEFINICIÓN de los pasos al módulo especializado.
     defineCampaignBuildPipeline(pipeline, traceId);
 
-    // 3. Orquestar la EJECUCIÓN del pipeline.
     const pipelineResult = await pipeline.run();
     if (!pipelineResult.success) return pipelineResult;
 
-    // 4. Subir el artefacto final.
     const zipBuffer = await fs.readFile(buildContext.zipPath);
     const blob = await put(
       `campaign-packages/${path.basename(buildContext.zipPath)}`,
@@ -84,7 +78,6 @@ export async function packageCampaignAction(
     });
     return { success: false, error: "No se pudo generar el paquete." };
   } finally {
-    // 5. Limpieza final.
     await fs
       .rm(buildContext.tempDir, { recursive: true, force: true })
       .catch(() => {});

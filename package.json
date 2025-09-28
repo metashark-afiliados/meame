@@ -38,7 +38,8 @@
     "diag:cloudinary:schema": "tsx --tsconfig tsconfig.scripts.json scripts/run-with-env.ts scripts/diagnostics/diag-cloudinary-schema.ts",
     "diag:cloudinary:content": "tsx --tsconfig tsconfig.scripts.json scripts/run-with-env.ts scripts/diagnostics/diag-cloudinary-content.ts",
     "diag:cloudinary:all": "pnpm diag:cloudinary:connect && pnpm diag:cloudinary:schema && pnpm diag:cloudinary:content",
-    "diag:all": "pnpm diag:supabase:all && pnpm diag:mongo:all && pnpm diag:cloudinary:all"
+    "diag:all": "pnpm diag:supabase:all && pnpm diag:mongo:all && pnpm diag:cloudinary:all",
+    "diag:shopify": "pnpm tsx scripts/run-with-env.ts scripts/diagnostics/diag-shopify.ts"
   },
   "dependencies": {
     "@devnomic/marquee": "^1.0.2",
@@ -47,6 +48,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@formatjs/intl-localematcher": "^0.6.1",
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.9.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@radix-ui/react-accordion": "^1.1.2",
@@ -140,6 +142,7 @@
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
     "chalk": "^5.6.2",
+    "cross-env": "^10.0.0",
     "dotenv": "^16.4.5",
     "eslint": "^9.35.0",
     "eslint-config-next": "15.5.3",
@@ -151,6 +154,7 @@
     "prettier": "^3.6.2",
     "server-only": "^0.0.1",
     "tailwindcss": "^4.1.13",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.20.5",
     "typescript": "^5",
     "typescript-eslint": "^8.44.0"

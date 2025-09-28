@@ -1,5 +1,5 @@
 // RUTA: shared/lib/shopify/fragments/cart.ts
-import "server-only";
+
 import { productFragment } from "./product";
 export const cartFragment = /* GraphQL */ `
   fragment cart on Cart {

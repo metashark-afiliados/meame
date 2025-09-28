@@ -1,8 +1,9 @@
-// Ruta correcta: src/shared/hooks/bavi/use-asset-uploader.ts
+// RUTA: src/shared/hooks/bavi/use-asset-uploader.ts
 /**
  * @file use-asset-uploader.ts
- * @description Hook "cerebro" soberano para la lógica de subida de activos a la BAVI.
- * @version 4.1.0 (Sovereign Path & Typo Restoration)
+ * @description Hook "cerebro" soberano para la lógica de subida de activos a la BAVI,
+ *              ahora consciente del contexto del workspace.
+ * @version 5.0.0 (Workspace-Aware)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -18,6 +19,7 @@ import {
   assetUploadMetadataSchema,
   type AssetUploadMetadata,
 } from "@/shared/lib/schemas/bavi/upload.schema";
+import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store"; // <-- IMPORTACIÓN DEL STORE
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 type UploaderContent = NonNullable<Dictionary["baviUploader"]>;
@@ -41,6 +43,9 @@ export function useAssetUploader({
   const [uploadResult, setUploadResult] = useState<UploadApiResponse | null>(
     null
   );
+  const activeWorkspaceId = useWorkspaceStore(
+    (state) => state.activeWorkspaceId
+  ); // <-- OBTENER WORKSPACE ACTIVO
 
   const form = useForm<AssetUploadMetadata>({
     resolver: zodResolver(assetUploadMetadataSchema),
@@ -89,11 +94,20 @@ export function useAssetUploader({
       toast.error("Nessun file selezionato.");
       return;
     }
+    // --- GUARDIA DE CONTEXTO ---
+    if (!activeWorkspaceId) {
+      toast.error("Error de contexto", {
+        description: "No hay un workspace activo seleccionado.",
+      });
+      return;
+    }
 
     startTransition(async () => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("metadata", JSON.stringify(data));
+      formData.append("workspaceId", activeWorkspaceId); // <-- AÑADIR WORKSPACE ID AL PAYLOAD
+
       const result = await uploadAssetAction(formData);
       if (result.success) {
         toast.success("Ingestione dell'asset completata!");
@@ -125,4 +139,3 @@ export function useAssetUploader({
     sesaContent: sesaContentForForm,
   };
 }
-// Ruta correcta: src/shared/hooks/bavi/use-asset-uploader.ts

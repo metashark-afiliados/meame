@@ -2,14 +2,10 @@
 /**
  * @file HeaderClient.tsx
  * @description Componente de Cliente para la cabecera principal.
- *              v35.0 (Module Integrity Restoration): Se restaura la integridad
- *              completa del módulo, corrigiendo importaciones rotas, añadiendo
- *              las faltantes y eliminando las no utilizadas.
- * @version 35.0.0
+ * @version 35.0.0 (Module Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
-
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,11 +16,7 @@ import { logger } from "@/shared/lib/logging";
 import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import { type Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { type UserProfileData } from "@/shared/lib/actions/account/get-current-user-profile.action";
-// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-// Se añade la importación faltante del componente Button y Container.
 import { Container, Button } from "@/components/ui";
-// Se eliminan las importaciones no utilizadas de 'cn' y 'DynamicIcon'.
-// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -37,10 +29,7 @@ import { ToggleTheme } from "../ui/ToggleTheme";
 import { CartTrigger } from "./CartTrigger";
 import { CartSheet } from "./CartSheet";
 import { UserNavClient } from "@/components/features/auth/_components/UserNavClient";
-// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-// Se corrige la ruta de importación para apuntar a la SSoT canónica.
 import { NotificationBell } from "@/components/features/notifications/NotificationBell/NotificationBell";
-// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
 export interface HeaderClientProps {
   user: User | null;
@@ -147,4 +136,3 @@ export default function HeaderClient({
     </motion.header>
   );
 }
-// RUTA: src/components/layout/HeaderClient.tsx

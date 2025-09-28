@@ -20,18 +20,13 @@ import { logger } from "@/shared/lib/logging";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { getBaviManifest } from "@/shared/lib/bavi";
 import { routes } from "@/shared/lib/navigation";
-import type {
-  BaviAsset,
-  BaviVariant,
-} from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
+import type { BaviAsset, BaviVariant } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 
 interface DevLoginPageProps {
   params: { locale: Locale };
 }
 
-export default async function DevLoginPage({
-  params: { locale },
-}: DevLoginPageProps) {
+export default async function DevLoginPage({ params: { locale } }: DevLoginPageProps) {
   logger.info(`[DevLoginPage] Renderizando v6.1 (Elite Code Hygiene)`);
 
   // --- [INICIO DE REFACTORIZACIÓN DE HIGIENE] ---
@@ -43,9 +38,7 @@ export default async function DevLoginPage({
   const [{ dictionary, error }, baviManifest] = await Promise.all([
     getDictionary(locale),
     getBaviManifest().catch((err) => {
-      logger.error("[DevLoginPage] No se pudo cargar el manifiesto BAVI.", {
-        error: err,
-      });
+      logger.error("[DevLoginPage] No se pudo cargar el manifiesto BAVI.", { error: err });
       return null;
     }),
   ]);
@@ -54,36 +47,26 @@ export default async function DevLoginPage({
   const headerContent = dictionary.header;
 
   if (error || !content || !headerContent) {
-    const errorMessage =
-      "Fallo al cargar el contenido i18n para la página de Login del DCC.";
+    const errorMessage = "Fallo al cargar el contenido i18n para la página de Login del DCC.";
     logger.error(`[DevLoginPage] ${errorMessage}`, { error });
     if (process.env.NODE_ENV === "production") return notFound();
     return (
       <DeveloperErrorDisplay
         context="DevLoginPage"
         errorMessage={errorMessage}
-        errorDetails={
-          error ||
-          "Las claves 'devLoginPage' o 'header' faltan en el diccionario."
-        }
+        errorDetails={error || "Las claves 'devLoginPage' o 'header' faltan en el diccionario."}
       />
     );
   }
 
   let backgroundImageUrl = "/img/dev/login/bg-1.png";
   if (baviManifest && content.backgroundImageAssetId) {
-    const asset = baviManifest.assets.find(
-      (a: BaviAsset) => a.assetId === content.backgroundImageAssetId
-    );
-    const publicId = asset?.variants.find(
-      (v: BaviVariant) => v.state === "orig"
-    )?.publicId;
+    const asset = baviManifest.assets.find((a: BaviAsset) => a.assetId === content.backgroundImageAssetId);
+    const publicId = asset?.variants.find((v: BaviVariant) => v.state === "orig")?.publicId;
     if (publicId) {
       backgroundImageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,w_1920/${publicId}`;
     } else {
-      logger.warn(
-        `[DevLoginPage] Asset ID '${content.backgroundImageAssetId}' no encontrado en BAVI. Usando fallback.`
-      );
+      logger.warn(`[DevLoginPage] Asset ID '${content.backgroundImageAssetId}' no encontrado en BAVI. Usando fallback.`);
     }
   }
 

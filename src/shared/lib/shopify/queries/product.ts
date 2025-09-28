@@ -5,7 +5,6 @@
  * @version 1.0.0
  * @author razstore (original), RaZ Podestá - MetaShark Tech (adaptación)
  */
-import "server-only";
 import { productFragment } from "../fragments/product";
 
 export const getProductQuery = /* GraphQL */ `

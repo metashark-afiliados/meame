@@ -1,55 +1,61 @@
-// app/[locale]/(dev)/cogniread/_actions/postComment.action.ts
-/**
- * @file postComment.action.ts
- * @description Server Action para publicar un nuevo comentario. Incluye una
- *              guardia de seguridad de autenticación no negociable.
- * @version 1.0.1 (Error Crítico de Importación Resuelto)
- * @author RaZ Podestá - MetaShark Tech
- */
+// RUTA: src/shared/lib/actions/cogniread/postComment.action.ts
 "use server";
 
 import { revalidatePath } from "next/cache";
 import { createId } from "@paralleldrive/cuid2";
-import { connectToDatabase } from "@/shared/lib/mongodb";
+import { createServerClient } from "@/shared/lib/supabase/server";
 import {
   CommentSchema,
   type Comment,
 } from "@/shared/lib/schemas/community/comment.schema";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
-import { logger } from "@/shared/lib/logging";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
-// Se ha corregido el nombre de la función importada para que coincida con la exportación real.
-import { createServerClient } from "@/shared/lib/supabase/server";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 interface PostCommentInput {
   articleId: string;
   commentText: string;
   parentId?: string | null;
-  articleSlug: string; // Necesario para revalidar la ruta correcta
+  articleSlug: string;
+}
+
+interface SupabaseComment {
+  id: string;
+  article_id: string;
+  user_id: string;
+  author_name: string;
+  author_avatar_url: string | null;
+  comment_text: string;
+  parent_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export function mapSupabaseToComment(
+  supabaseComment: SupabaseComment
+): Comment {
+  return {
+    commentId: supabaseComment.id,
+    articleId: supabaseComment.article_id,
+    userId: supabaseComment.user_id,
+    authorName: supabaseComment.author_name,
+    authorAvatarUrl: supabaseComment.author_avatar_url ?? undefined,
+    commentText: supabaseComment.comment_text,
+    parentId: supabaseComment.parent_id,
+    createdAt: supabaseComment.created_at,
+    updatedAt: supabaseComment.updated_at,
+  };
 }
 
 export async function postCommentAction(
   input: PostCommentInput
 ): Promise<ActionResult<{ newComment: Comment }>> {
-  const traceId = logger.startTrace("postCommentAction");
-
-  // --- GUARDIA DE SEGURIDAD DE AUTENTICACIÓN ---
-  const supabase = createServerClient(); // Se utiliza el nombre de la función correcta
+  const supabase = createServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    logger.warn(
-      "[postCommentAction] Intento de publicar comentario sin autenticación."
-    );
-    return { success: false, error: "auth_required" }; // Clave de error para la UI
+    return { success: false, error: "auth_required" };
   }
-
-  logger.info(
-    `[postCommentAction] Usuario autenticado: ${user.id}. Procediendo...`
-  );
 
   try {
     const now = new Date().toISOString();
@@ -59,9 +65,9 @@ export async function postCommentAction(
       commentId: newCommentId,
       articleId: input.articleId,
       userId: user.id,
-      // En una implementación real, el nombre y avatar vendrían del perfil del usuario en Supabase.
-      authorName: user.email || "Usuario Anónimo",
-      authorAvatarUrl: user.user_metadata.avatar_url,
+      authorName:
+        user.user_metadata.full_name || user.email || "Usuario Anónimo",
+      authorAvatarUrl: user.user_metadata.avatar_url || undefined,
       commentText: input.commentText,
       parentId: input.parentId || null,
       createdAt: now,
@@ -70,43 +76,44 @@ export async function postCommentAction(
 
     const validation = CommentSchema.safeParse(commentDocument);
     if (!validation.success) {
-      logger.error("[postCommentAction] Fallo de validación de Zod.", {
-        error: validation.error.flatten(),
-      });
       return {
         success: false,
-        error: "Los datos del comentario son inválidos.",
+        error: "Los datos del comentario son inválidos según el esquema.",
       };
     }
 
-    const client = await connectToDatabase();
-    const db = client.db(process.env.MONGODB_DB_NAME);
-    const collection = db.collection<Comment>("comments");
+    const supabasePayload = {
+      id: validation.data.commentId,
+      article_id: validation.data.articleId,
+      user_id: validation.data.userId,
+      author_name: validation.data.authorName,
+      author_avatar_url: validation.data.authorAvatarUrl,
+      comment_text: validation.data.commentText,
+      parent_id: validation.data.parentId,
+      created_at: validation.data.createdAt,
+      updated_at: validation.data.updatedAt,
+    };
 
-    const result = await collection.insertOne(validation.data);
+    const { data, error } = await supabase
+      .from("community_comments")
+      .insert(supabasePayload)
+      .select("*")
+      .single();
 
-    if (!result.acknowledged) {
-      throw new Error(
-        "La inserción del comentario en la base de datos no fue confirmada."
-      );
+    if (error) {
+      throw new Error(error.message);
     }
 
-    // Revalidamos la ruta del artículo para que el nuevo comentario aparezca inmediatamente.
-    revalidatePath(`/..*${input.articleSlug}`); // Usamos un patrón para revalidar todos los locales
+    const newComment = mapSupabaseToComment(data as SupabaseComment);
+    revalidatePath(`/news/${input.articleSlug}`);
 
-    logger.success(
-      `[postCommentAction] Nuevo comentario creado con ID: ${newCommentId}`
-    );
-    logger.endTrace(traceId);
-
-    return { success: true, data: { newComment: validation.data } };
+    return { success: true, data: { newComment } };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[postCommentAction] Fallo crítico en la acción.", {
-      error: errorMessage,
-    });
-    logger.endTrace(traceId);
-    return { success: false, error: "No se pudo publicar tu comentario." };
+    return {
+      success: false,
+      error: `No se pudo publicar tu comentario: ${errorMessage}`,
+    };
   }
 }

@@ -1,8 +1,8 @@
-// components/features/analytics/CampaignsTable.tsx
+// RUTA: src/components/features/analytics/CampaignsTable.tsx
 /**
  * @file CampaignsTable.tsx
  * @description Tabla de datos interactiva para mostrar las analíticas de campaña.
- * @version 1.0.0
+ * @version 2.0.0 (Client Component with Tanstack Table)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -13,7 +13,6 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   useReactTable,
-  type ColumnDef,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -24,35 +23,23 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 import { Button } from "@/components/ui/Button";
+import { getAnalyticsColumns } from "./CampaignsTable.columns";
 import type { CampaignAnalyticsData } from "@/shared/lib/schemas/analytics/campaign-analytics.schema";
-
-// Asumimos que las columnas están definidas en otro archivo, como se indica en el snapshot.
-// Por ahora, crearemos una versión simple aquí.
-export const columns: ColumnDef<CampaignAnalyticsData>[] = [
-  {
-    accessorKey: "variantName",
-    header: "Variante",
-  },
-  {
-    accessorKey: "summary.totalVisitors",
-    header: "Visitantes",
-  },
-  {
-    accessorKey: "summary.conversions",
-    header: "Conversiones",
-  },
-  {
-    accessorKey: "summary.bounceRate",
-    header: "Tasa de Rebote",
-    cell: ({ row }) => `${row.original.summary.bounceRate}%`,
-  },
-];
 
 interface CampaignsTableProps {
   data: CampaignAnalyticsData[];
 }
 
 export function CampaignsTable({ data }: CampaignsTableProps) {
+  const columns = React.useMemo(
+    () =>
+      getAnalyticsColumns({
+        actionsLabel: "Acciones",
+        viewDetailsLabel: "Ver detalles",
+      }),
+    []
+  );
+
   const table = useReactTable({
     data,
     columns,
@@ -67,28 +54,21 @@ export function CampaignsTable({ data }: CampaignsTableProps) {
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -133,4 +113,3 @@ export function CampaignsTable({ data }: CampaignsTableProps) {
     </div>
   );
 }
-// components/features/analytics/CampaignsTable.tsx

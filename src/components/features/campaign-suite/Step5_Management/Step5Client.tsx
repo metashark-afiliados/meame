@@ -3,7 +3,7 @@
  * @file Step5Client.tsx
  * @description Orquestador de cliente para el Paso 5. Ensambla el borrador
  *              final a partir de los stores atómicos y gestiona el ciclo de vida.
- * @version 4.0.0 (ACS Path & Build Integrity Restoration)
+ * @version 5.0.0 (Holistic & Elite Compliance)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -26,6 +26,7 @@ import { useStep2LayoutStore } from "@/shared/hooks/campaign-suite/use-step2-lay
 import { useStep3ThemeStore } from "@/shared/hooks/campaign-suite/use-step3-theme.store";
 import { useStep4ContentStore } from "@/shared/hooks/campaign-suite/use-step4-content.store";
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
+import { logger } from "@/shared/lib/logging";
 
 type Content = z.infer<typeof Step5ContentSchema>;
 
@@ -38,6 +39,8 @@ export function Step5Client({
   locale,
   stepContent,
 }: Step5ClientProps): React.ReactElement {
+  logger.info("[Step5Client] Renderizando orquestador de cliente v5.0.");
+
   const metadata = useDraftMetadataStore();
   const identity = useStep0IdentityStore();
   const structure = useStep1StructureStore();
@@ -45,28 +48,27 @@ export function Step5Client({
   const theme = useStep3ThemeStore();
   const content = useStep4ContentStore();
   const { isCelebrating, endCelebration } = useCelebrationStore();
-
   const { goToPrevStep } = useWizard();
 
-  const assembledDraft = useMemo(
-    (): CampaignDraft => ({
+  const assembledDraft = useMemo((): CampaignDraft => {
+    logger.trace("[Step5Client] Ensamblando borrador final desde stores...");
+    return {
       draftId: metadata.draftId,
       baseCampaignId: metadata.baseCampaignId,
       variantName: metadata.variantName,
       seoKeywords: metadata.seoKeywords,
       completedSteps: metadata.completedSteps,
       updatedAt: metadata.updatedAt,
-      affiliateNetwork: identity.affiliateNetwork,
-      affiliateUrl: identity.affiliateUrl,
+      producer: identity.producer,
+      campaignType: identity.campaignType,
       headerConfig: structure.headerConfig,
       footerConfig: structure.footerConfig,
       layoutConfig: layout.layoutConfig,
       themeConfig: theme.themeConfig,
       contentData: content.contentData,
       step: 5,
-    }),
-    [metadata, identity, structure, layout, theme, content]
-  );
+    };
+  }, [metadata, identity, structure, layout, theme, content]);
 
   const {
     onPublish,
