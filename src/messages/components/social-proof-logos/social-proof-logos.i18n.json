@@ -1,4 +1,27 @@
 {
+  "it-IT": {
+    "socialProofLogos": {
+      "title": "Scelto dalle principali autorità del benessere",
+      "logos": [
+        {
+          "assetId": "i-sybl-wellness-insider-01",
+          "alt": "Logo di Wellness Insider"
+        },
+        {
+          "assetId": "i-sybl-health-journal-01",
+          "alt": "Logo di The Health Journal"
+        },
+        {
+          "assetId": "i-sybl-bio-innovate-01",
+          "alt": "Logo del Bio-Innovate Forum"
+        },
+        {
+          "assetId": "i-sybl-nutrition-council-01",
+          "alt": "Logo del Nutrition Council"
+        }
+      ]
+    }
+  },
   "es-ES": {
     "socialProofLogos": {
       "title": "Con la confianza de las principales autoridades del bienestar",
@@ -22,25 +45,48 @@
       ]
     }
   },
-  "it-IT": {
+  "en-US": {
     "socialProofLogos": {
-      "title": "Scelto dalle principali autorità del benessere",
+      "title": "Trusted by leading wellness authorities",
       "logos": [
         {
           "assetId": "i-sybl-wellness-insider-01",
-          "alt": "Logo di Wellness Insider"
+          "alt": "Wellness Insider Logo"
         },
         {
           "assetId": "i-sybl-health-journal-01",
-          "alt": "Logo di The Health Journal"
+          "alt": "The Health Journal Logo"
         },
         {
           "assetId": "i-sybl-bio-innovate-01",
-          "alt": "Logo del Bio-Innovate Forum"
+          "alt": "Bio-Innovate Forum Logo"
         },
         {
           "assetId": "i-sybl-nutrition-council-01",
-          "alt": "Logo del Nutrition Council"
+          "alt": "Nutrition Council Logo"
+        }
+      ]
+    }
+  },
+  "pt-BR": {
+    "socialProofLogos": {
+      "title": "Com a confiança das principais autoridades de bem-estar",
+      "logos": [
+        {
+          "assetId": "i-sybl-wellness-insider-01",
+          "alt": "Logo da Wellness Insider"
+        },
+        {
+          "assetId": "i-sybl-health-journal-01",
+          "alt": "Logo do The Health Journal"
+        },
+        {
+          "assetId": "i-sybl-bio-innovate-01",
+          "alt": "Logo do Bio-Innovate Forum"
+        },
+        {
+          "assetId": "i-sybl-nutrition-council-01",
+          "alt": "Logo do Nutrition Council"
         }
       ]
     }

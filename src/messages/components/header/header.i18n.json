@@ -1,19 +1,4 @@
 {
-  "es-ES": {
-    "header": {
-      "logoUrl": "/img/layout/header/globalfitwell-logo-v2.svg",
-      "logoAlt": "Logo de Global Fitwell",
-      "navLinks": [
-        { "label": "Inicio", "href": "/" },
-        { "label": "Tienda", "href": "/store" },
-        { "label": "Sobre Nosotros", "href": "/about" }
-      ],
-      "ctaButton": {
-        "label": "Ver Campaña",
-        "href": "/campaigns/12157"
-      }
-    }
-  },
   "it-IT": {
     "header": {
       "logoUrl": "/img/layout/header/globalfitwell-logo-v2.svg",
@@ -23,9 +8,22 @@
         { "label": "Negozio", "href": "/store" },
         { "label": "Chi Siamo", "href": "/about" }
       ],
-      "ctaButton": {
-        "label": "Vedi Campagna",
-        "href": "/campaigns/12157"
+      "signUpButton": {
+        "label": "Registrati"
+      }
+    }
+  },
+  "es-ES": {
+    "header": {
+      "logoUrl": "/img/layout/header/globalfitwell-logo-v2.svg",
+      "logoAlt": "Logo de Global Fitwell",
+      "navLinks": [
+        { "label": "Inicio", "href": "/" },
+        { "label": "Tienda", "href": "/store" },
+        { "label": "Sobre Nosotros", "href": "/about" }
+      ],
+      "signUpButton": {
+        "label": "Registrarse"
       }
     }
   },
@@ -38,9 +36,8 @@
         { "label": "Store", "href": "/store" },
         { "label": "About Us", "href": "/about" }
       ],
-      "ctaButton": {
-        "label": "View Campaign",
-        "href": "/campaigns/12157"
+      "signUpButton": {
+        "label": "Sign Up"
       }
     }
   },
@@ -53,9 +50,8 @@
         { "label": "Loja", "href": "/store" },
         { "label": "Sobre Nós", "href": "/about" }
       ],
-      "ctaButton": {
-        "label": "Ver Campanha",
-        "href": "/campaigns/12157"
+      "signUpButton": {
+        "label": "Cadastre-se"
       }
     }
   }

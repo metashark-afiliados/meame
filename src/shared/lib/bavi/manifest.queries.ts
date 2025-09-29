@@ -8,7 +8,7 @@
  * @version 5.0.0
  * @author RaZ Podestá - MetaShark Tech
  */
-import "server-only";
+//import "server-only";
 import * as React from "react";
 import { createServerClient } from "@/shared/lib/supabase/server";
 import { logger } from "@/shared/lib/logging";

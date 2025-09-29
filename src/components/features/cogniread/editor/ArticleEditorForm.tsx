@@ -9,7 +9,16 @@
 
 import React from "react";
 import type { UseFormReturn } from "react-hook-form";
-import { Button, DynamicIcon, Card, CardContent, Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui";
+import {
+  Button,
+  DynamicIcon,
+  Card,
+  CardContent,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 import { StudyDnaTab, ContentTab, EcosystemTab } from "./tabs";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
@@ -23,7 +32,12 @@ interface ArticleEditorFormProps {
   content: EditorContent;
 }
 
-export function ArticleEditorForm({ form, onSubmit, isPending, content }: ArticleEditorFormProps) {
+export function ArticleEditorForm({
+  form,
+  onSubmit,
+  isPending,
+  content,
+}: ArticleEditorFormProps) {
   return (
     <form onSubmit={onSubmit}>
       <Card>
@@ -32,13 +46,13 @@ export function ArticleEditorForm({ form, onSubmit, isPending, content }: Articl
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="dna">{content.tabs.dna}</TabsTrigger>
               <TabsTrigger value="content">{content.tabs.content}</TabsTrigger>
-              <TabsTrigger value="ecosystem">{content.tabs.ecosystem}</TabsTrigger>
+              <TabsTrigger value="ecosystem">
+                {content.tabs.ecosystem}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="dna" className="mt-6">
-              {/* --- [INICIO DE CORRECCIÓN DE CONTRATO] --- */}
               <StudyDnaTab form={form} content={content.studyDnaTab} />
-              {/* --- [FIN DE CORRECCIÓN DE CONTRATO] --- */}
             </TabsContent>
 
             <TabsContent value="content" className="mt-6">
@@ -53,7 +67,12 @@ export function ArticleEditorForm({ form, onSubmit, isPending, content }: Articl
       </Card>
       <div className="flex justify-end mt-6">
         <Button type="submit" disabled={isPending} size="lg">
-          {isPending && <DynamicIcon name="LoaderCircle" className="mr-2 h-4 w-4 animate-spin" />}
+          {isPending && (
+            <DynamicIcon
+              name="LoaderCircle"
+              className="mr-2 h-4 w-4 animate-spin"
+            />
+          )}
           {isPending ? content.saveButtonLoading : content.saveButton}
         </Button>
       </div>

@@ -1,9 +1,12 @@
 // RUTA: src/shared/lib/actions/cogniread/getArticleById.action.ts
 /**
  * @file getArticleById.action.ts
- * @description Server Action para obtener un único artículo de CogniRead por su CUID2 (ID) desde Supabase.
- * @version 2.1.0 (Holistic Elite Leveling)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Server Action soberana para obtener un único artículo de CogniRead por su CUID2.
+ *              Esta es una acción de lectura fundamental para el ecosistema, utilizada por
+ *              el editor de artículos y cualquier otro servicio que necesite un activo
+ *              de conocimiento específico.
+ * @version 4.0.0 (Architecturally Pure & Holistically Aligned)
+ * @author L.I.A. Legacy - Asistente de Refactorización
  */
 "use server";
 
@@ -17,12 +20,12 @@ import { logger } from "@/shared/lib/logging";
 import {
   mapSupabaseToCogniReadArticle,
   type SupabaseCogniReadArticle,
-} from "./getAllArticles.action";
+} from "./_shapers/cogniread.shapers";
 
 export async function getArticleByIdAction(
   articleId: string
 ): Promise<ActionResult<{ article: CogniReadArticle | null }>> {
-  const traceId = logger.startTrace("getArticleByIdAction_v2.1_Supabase");
+  const traceId = logger.startTrace("getArticleByIdAction_v4.0_Pure");
   logger.info(`[CogniReadAction] Obteniendo artículo por ID: ${articleId}...`, {
     traceId,
   });
@@ -38,6 +41,7 @@ export async function getArticleByIdAction(
 
     if (error) {
       if (error.code === "PGRST116") {
+        // "PGRST116" significa "0 filas devueltas"
         logger.warn(
           `[CogniReadAction] No se encontró artículo para el ID: ${articleId}.`,
           { traceId }
@@ -53,13 +57,21 @@ export async function getArticleByIdAction(
     const validation = CogniReadArticleSchema.safeParse(mappedArticle);
 
     if (!validation.success) {
+      logger.error(
+        "[CogniReadAction] El artículo de la base de datos está corrupto.",
+        {
+          articleId,
+          errors: validation.error.flatten(),
+          traceId,
+        }
+      );
       throw new Error(
         "Formato de datos de artículo inesperado desde la base de datos."
       );
     }
 
     logger.success(
-      `[CogniReadAction] Artículo encontrado para el ID: ${articleId}.`
+      `[CogniReadAction] Artículo encontrado y validado para el ID: ${articleId}.`
     );
     return { success: true, data: { article: validation.data } };
   } catch (error) {
@@ -67,10 +79,7 @@ export async function getArticleByIdAction(
       error instanceof Error ? error.message : "Error desconocido.";
     logger.error(
       "[CogniReadAction] Fallo crítico al obtener artículo por ID.",
-      {
-        error: errorMessage,
-        traceId,
-      }
+      { error: errorMessage, traceId }
     );
     return {
       success: false,

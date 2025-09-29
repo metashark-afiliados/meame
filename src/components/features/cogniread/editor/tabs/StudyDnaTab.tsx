@@ -3,7 +3,7 @@
  * @file StudyDnaTab.tsx
  * @description Componente de presentación para la pestaña "ADN del Estudio",
  *              ahora con la funcionalidad de extracción por IA integrada.
- * @version 4.0.0 (AI Extractor Integration)
+ * @version 4.1.0 (Build Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 "use client";
@@ -29,7 +29,7 @@ import { StudyDnaExtractor } from "./StudyDnaExtractor";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 type StudyDnaTabContent = NonNullable<
-  Dictionary["cognireadEditor"]
+  Dictionary["cogniReadEditor"]
 >["studyDnaTab"];
 
 interface StudyDnaTabProps {
@@ -38,6 +38,7 @@ interface StudyDnaTabProps {
 }
 
 export function StudyDnaTab({ form, content }: StudyDnaTabProps) {
+  logger.info("[StudyDnaTab] Renderizando v4.1 (Build Integrity Restoration).");
   const dnaFields = Object.keys(StudyDnaSchema.shape) as (keyof StudyDna)[];
 
   const handleExtractionSuccess = (extractedData: StudyDna) => {

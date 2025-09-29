@@ -2,11 +2,19 @@
 /**
  * @file bavi.manifest.schema.ts
  * @description SSoT para el contrato de datos del manifiesto BAVI.
- * @version 3.0.0 (Sovereign Schema Export)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 4.0.0 (Holistic & Unabbreviated)
+ * @author L.I.A. Legacy
  */
 import { z } from "zod";
-import { RaZPromptsSesaTagsSchema } from "../raz-prompts/atomic.schema";
+
+// Sigue utilizando los valores de SESA, pero las claves ahora son descriptivas.
+const SesaTagsDescriptiveSchema = z.object({
+  aiEngine: z.string().optional(),
+  visualStyle: z.string().optional(),
+  aspectRatio: z.string().optional(),
+  assetType: z.string().optional(),
+  subject: z.string().optional(),
+});
 
 const BaviVariantSchema = z.object({
   versionId: z.string(),
@@ -18,22 +26,20 @@ const BaviVariantSchema = z.object({
   }),
 });
 
-// --- [INICIO DE REFACTORIZACIÓN SOBERANA] ---
-// Se exporta el schema para que pueda ser consumido por otros módulos para validación.
 export const BaviAssetSchema = z.object({
   assetId: z.string(),
+  status: z.enum(["active", "archived", "pending"]),
   provider: z.enum(["cloudinary"]),
-  promptId: z.string().optional(),
-  tags: RaZPromptsSesaTagsSchema.partial().optional(), // tags ahora es opcional
+  description: z.string().optional(),
+  tags: SesaTagsDescriptiveSchema.optional(),
   variants: z.array(BaviVariantSchema).min(1),
   metadata: z.object({
     altText: z.record(z.string()),
   }),
-  imageUrl: z.string().url().optional(),
-  createdAt: z.string().datetime().optional(),
-  updatedAt: z.string().datetime().optional(),
+  promptId: z.string().cuid2().optional(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
-// --- [FIN DE REFACTORIZACIÓN SOBERANA] ---
 
 export const BaviManifestSchema = z.object({
   assets: z.array(BaviAssetSchema),

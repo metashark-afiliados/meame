@@ -1,10 +1,10 @@
 // RUTA: src/components/sections/NewsGrid.tsx
 /**
  * @file NewsGrid.tsx
- * @description Cuadrícula de noticias, ahora data-driven desde CogniRead, con
- *              seguridad de tipos y rutas de importación soberanas.
- * @version 7.1.0 (Definitive Build Fix)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Cuadrícula de noticias, ahora blindada con guardianes de resiliencia
+ *              para un renderizado seguro y sin errores de tipo.
+ * @version 8.0.0 (Resilient & Type-Safe)
+ * @author L.I.A. Legacy - Asistente de Refactorización
  */
 "use client";
 
@@ -29,9 +29,7 @@ const gridVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
+    transition: { staggerChildren: 0.1 },
   },
 };
 
@@ -45,7 +43,7 @@ export function NewsGrid({
   locale,
   content,
 }: NewsGridProps): React.ReactElement {
-  logger.info("[NewsGrid] Renderizando v7.1 (Definitive Build Fix).");
+  logger.info("[NewsGrid] Renderizando v8.0 (Resilient & Type-Safe).");
 
   return (
     <section className="py-16 sm:py-24 bg-background">
@@ -65,9 +63,10 @@ export function NewsGrid({
         >
           {articles.map((article) => {
             const articleContent = article.content[locale];
-            if (!articleContent) {
+
+            if (!articleContent || !articleContent.slug) {
               logger.warn(
-                `[NewsGrid] No se encontró traducción para el locale '${locale}' en el artículo '${article.articleId}'. Se omite el renderizado.`
+                `[NewsGrid] Artículo ${article.articleId} omitido por falta de contenido o slug en locale '${locale}'.`
               );
               return null;
             }
@@ -86,7 +85,7 @@ export function NewsGrid({
                       {article.baviHeroImageId ? (
                         <CldImage
                           src={article.baviHeroImageId}
-                          alt={articleContent.title}
+                          alt={articleContent.title || "Imagen del artículo"}
                           width={400}
                           height={225}
                           crop="fill"

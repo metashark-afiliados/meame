@@ -23,7 +23,7 @@ import {
   SelectContent,
   SelectItem,
   Label,
-  DynamicIcon
+  DynamicIcon,
 } from "@/components/ui";
 import { GEMINI_MODELS } from "@/shared/lib/ai/models.config";
 import { extractStudyDnaAction } from "@/shared/lib/actions/cogniread/extractStudyDna.action";
@@ -42,14 +42,20 @@ interface StudyDnaExtractorProps {
   };
 }
 
-export function StudyDnaExtractor({ onExtractionSuccess, content }: StudyDnaExtractorProps) {
+export function StudyDnaExtractor({
+  onExtractionSuccess,
+  content,
+}: StudyDnaExtractorProps) {
   const [studyText, setStudyText] = useState("");
   const [selectedModel, setSelectedModel] = useState(GEMINI_MODELS[0].id);
   const [isPending, startTransition] = useTransition();
 
   const handleExtract = () => {
     startTransition(async () => {
-      const result = await extractStudyDnaAction({ studyText, modelId: selectedModel });
+      const result = await extractStudyDnaAction({
+        studyText,
+        modelId: selectedModel,
+      });
       if (result.success) {
         toast.success("¡ADN del Estudio extraído con éxito!");
         onExtractionSuccess(result.data);
@@ -86,14 +92,23 @@ export function StudyDnaExtractor({ onExtractionSuccess, content }: StudyDnaExtr
               <SelectContent>
                 {GEMINI_MODELS.map((model) => (
                   <SelectItem key={model.id} value={model.id}>
-                    {model.name} - ({model.description})
+                    {model.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={handleExtract} disabled={isPending || studyText.length < 100} size="lg">
-            {isPending && <DynamicIcon name="LoaderCircle" className="mr-2 h-4 w-4 animate-spin" />}
+          <Button
+            onClick={handleExtract}
+            disabled={isPending || studyText.length < 100}
+            size="lg"
+          >
+            {isPending && (
+              <DynamicIcon
+                name="LoaderCircle"
+                className="mr-2 h-4 w-4 animate-spin"
+              />
+            )}
             {isPending ? content.extractButtonLoading : content.extractButton}
           </Button>
         </div>

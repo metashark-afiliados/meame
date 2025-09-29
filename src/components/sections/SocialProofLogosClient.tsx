@@ -2,8 +2,8 @@
 /**
  * @file SocialProofLogosClient.tsx
  * @description Componente "Client Core" para la sección de prueba social.
- * @version 1.0.0 (Forged)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.0.0 (Client Core Pattern)
+ * @author L.I.A. Legacy - Asistente de Refactorización
  */
 "use client";
 
@@ -19,7 +19,6 @@ interface LogoData {
   width: number;
   height: number;
 }
-
 interface SocialProofLogosClientProps {
   title: string;
   logos: LogoData[];
@@ -29,11 +28,9 @@ export function SocialProofLogosClient({
   title,
   logos,
 }: SocialProofLogosClientProps) {
-  // --- [INYECCIÓN DE LOGGING] ---
   logger.info(
-    `[SocialProofLogosClient v1.0] Renderizando UI con ${logos.length} logos recibidos del Server Shell.`
+    `[SocialProofLogosClient] Renderizando UI con ${logos.length} logos.`
   );
-
   return (
     <section
       aria-labelledby="social-proof-title"

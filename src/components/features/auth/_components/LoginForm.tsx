@@ -43,7 +43,7 @@ import {
   LoginSchema,
   type LoginFormData,
 } from "@/shared/lib/schemas/auth/login.schema";
-import { loginWithPasswordAction } from "@/shared/lib/actions/auth/auth.actions";
+import { loginWithPasswordAction } from "./src/lib/shared/lib/actions/auth/auth.actions";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 
 type LoginFormContent = NonNullable<Dictionary["devLoginPage"]>;

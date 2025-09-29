@@ -1,4 +1,10 @@
 // RUTA: src/shared/lib/actions/cogniread/postComment.action.ts
+/**
+ * @file postComment.action.ts
+ * @description Server Action para publicar un nuevo comentario en un artículo.
+ * @version 3.0.0 (Architecturally Pure)
+ * @author L.I.A. Legacy - Asistente de Refactorización
+ */
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -9,40 +15,16 @@ import {
   type Comment,
 } from "@/shared/lib/schemas/community/comment.schema";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
+import {
+  mapSupabaseToComment,
+  type SupabaseComment,
+} from "./_shapers/cogniread.shapers";
 
 interface PostCommentInput {
   articleId: string;
   commentText: string;
   parentId?: string | null;
   articleSlug: string;
-}
-
-interface SupabaseComment {
-  id: string;
-  article_id: string;
-  user_id: string;
-  author_name: string;
-  author_avatar_url: string | null;
-  comment_text: string;
-  parent_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export function mapSupabaseToComment(
-  supabaseComment: SupabaseComment
-): Comment {
-  return {
-    commentId: supabaseComment.id,
-    articleId: supabaseComment.article_id,
-    userId: supabaseComment.user_id,
-    authorName: supabaseComment.author_name,
-    authorAvatarUrl: supabaseComment.author_avatar_url ?? undefined,
-    commentText: supabaseComment.comment_text,
-    parentId: supabaseComment.parent_id,
-    createdAt: supabaseComment.created_at,
-    updatedAt: supabaseComment.updated_at,
-  };
 }
 
 export async function postCommentAction(

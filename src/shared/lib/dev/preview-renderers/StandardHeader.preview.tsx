@@ -3,9 +3,9 @@
  * @file StandardHeader.preview.tsx
  * @description Renderizador de previsualización atómico, purificado y desacoplado
  *              para el componente StandardHeader. Consume la SSoT de estilos para
- *              un theming completo. Cumple con los 7 Pilares de Calidad.
- * @version 4.0.0 (Module Export Fix & Theming Integration)
- * @author RaZ Podestá - MetaShark Tech
+ *              un theming completo y se alinea con el contrato de datos v7.1.0.
+ * @version 4.1.0 (API Contract Alignment)
+ * @author L.I.A. Legacy
  */
 import * as React from "react";
 import type { PreviewRenderResult, PreviewRenderer } from "./_types";
@@ -20,7 +20,7 @@ export const StandardHeaderPreview: PreviewRenderer = async (
 ): Promise<PreviewRenderResult | null> => {
   // Pilar III (Observabilidad)
   logger.trace(
-    `[StandardHeader.preview] Renderizando para locale: ${locale} (v4.0)`
+    `[StandardHeader.preview] Renderizando para locale: ${locale} (v4.1)`
   );
   const { dictionary } = await getEdgeDictionary(locale);
   // Pilar I (i18n): Guardia de resiliencia
@@ -71,7 +71,7 @@ export const StandardHeaderPreview: PreviewRenderer = async (
             fontWeight: 500,
           }}
         >
-          {content.ctaButton.label}
+          {content.signUpButton.label}
         </div>
       </div>
     ),

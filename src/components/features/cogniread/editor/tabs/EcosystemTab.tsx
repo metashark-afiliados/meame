@@ -10,26 +10,16 @@
 import React, { useState } from "react";
 import { CldImage } from "next-cloudinary";
 import type { UseFormReturn } from "react-hook-form";
-import {
-  Button,
-  DynamicIcon,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui";
+import { usePathname } from "next/navigation";
+import { Button, DynamicIcon, Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui";
 import { AssetSelectorModal } from "@/components/features/bavi/_components/AssetSelectorModal";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 import type { BaviAsset } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
-import { usePathname } from "next/navigation";
 import { getCurrentLocaleFromPathname } from "@/shared/lib/utils/i18n/i18n.utils";
 
-type EcosystemTabContent = NonNullable<
-  Dictionary["cogniReadEditor"]
->["ecosystemTab"];
+type EcosystemTabContent = NonNullable<Dictionary["cogniReadEditor"]>["ecosystemTab"];
 
 interface EcosystemTabProps {
   form: UseFormReturn<CogniReadArticle>;
@@ -45,15 +35,11 @@ export function EcosystemTab({ form, content }: EcosystemTabProps) {
   const handleAssetSelect = (asset: BaviAsset) => {
     const primaryVariant = asset.variants.find((v) => v.state === "orig");
     if (primaryVariant) {
-      form.setValue("baviHeroImageId", primaryVariant.publicId, {
-        shouldDirty: true,
-      });
+      form.setValue("baviHeroImageId", primaryVariant.publicId, { shouldDirty: true });
       setIsSelectorOpen(false);
       logger.info(`[EcosystemTab] Activo BAVI seleccionado: ${asset.assetId}`);
     } else {
-      logger.warn(
-        `[EcosystemTab] El activo ${asset.assetId} no tiene variante original.`
-      );
+      logger.warn(`[EcosystemTab] El activo ${asset.assetId} no tiene variante original.`);
     }
   };
 
@@ -83,11 +69,7 @@ export function EcosystemTab({ form, content }: EcosystemTabProps) {
               </div>
             )}
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setIsSelectorOpen(true)}
-          >
+          <Button type="button" variant="outline" onClick={() => setIsSelectorOpen(true)}>
             <DynamicIcon name="LibraryBig" className="mr-2 h-4 w-4" />
             {content.selectFromBaviButton}
           </Button>
@@ -96,9 +78,7 @@ export function EcosystemTab({ form, content }: EcosystemTabProps) {
 
       <Card className="border-dashed opacity-50">
         <CardHeader>
-          <CardTitle className="text-muted-foreground">
-            {content.relatedPromptsTitle}
-          </CardTitle>
+          <CardTitle className="text-muted-foreground">{content.relatedPromptsTitle}</CardTitle>
           <CardDescription>{content.relatedPromptsDescription}</CardDescription>
         </CardHeader>
       </Card>

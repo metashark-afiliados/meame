@@ -2,9 +2,10 @@
 /**
  * @file use-prompt-creator.ts
  * @description Hook "cerebro" para la lógica de creación de prompts.
- *              Ahora es consciente del contexto del workspace.
- * @version 6.0.0 (Workspace-Aware)
- * @author RaZ Podestá - MetaShark Tech
+ *              Ahora incluye 'aiService' en el payload para cumplir
+ *              con el contrato de la Server Action.
+ * @version 7.0.0 (API Contract Compliance)
+ * @author L.I.A. Legacy - Asistente de Refactorización
  */
 "use client";
 
@@ -18,7 +19,7 @@ import {
   RaZPromptsSesaTagsSchema,
   PromptParametersSchema,
 } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
-import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store"; // <-- IMPORTACIÓN DEL STORE
+import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store";
 
 export const CreatePromptFormSchema = z.object({
   title: z.string().min(3, "El título es requerido."),
@@ -35,7 +36,7 @@ export function usePromptCreator() {
   const [isPending, startTransition] = useTransition();
   const activeWorkspaceId = useWorkspaceStore(
     (state) => state.activeWorkspaceId
-  ); // <-- OBTENER WORKSPACE ACTIVO
+  );
 
   const form = useForm<CreatePromptFormData>({
     resolver: zodResolver(CreatePromptFormSchema),
@@ -56,7 +57,6 @@ export function usePromptCreator() {
   });
 
   const onSubmit = (data: CreatePromptFormData) => {
-    // --- GUARDIA DE CONTEXTO ---
     if (!activeWorkspaceId) {
       toast.error("Error de contexto", {
         description: "No hay un workspace activo seleccionado.",
@@ -65,8 +65,12 @@ export function usePromptCreator() {
     }
 
     startTransition(async () => {
+      // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+      // Se extrae el valor de 'ai' de los tags y se añade al payload
+      // principal para cumplir con el contrato de la Server Action.
       const result = await createPromptEntryAction({
         title: data.title,
+        aiService: data.tags.ai, // <-- CAMPO AÑADIDO Y OBLIGATORIO
         versions: [
           {
             version: 1,
@@ -83,8 +87,9 @@ export function usePromptCreator() {
           .split(",")
           .map((k) => k.trim())
           .filter(Boolean),
-        workspaceId: activeWorkspaceId, // <-- PASAR WORKSPACE ID
+        workspaceId: activeWorkspaceId,
       });
+      // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
 
       if (result.success) {
         toast.success("Genoma de Prompt creado!", {

@@ -1,9 +1,9 @@
-// app/[locale]/(dev)/bavi/_components/AssetCard.tsx
+// RUTA: src/components/features/bavi/_components/AssetCard.tsx
 /**
  * @file AssetCard.tsx
  * @description Componente de presentación puro para visualizar un activo de BAVI.
- * @version 4.0.0 (FSD Architecture Alignment)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 5.1.0 (Holistic Type Safety & Contract Alignment)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -27,13 +27,16 @@ import type { PromptCreatorContentSchema } from "@/shared/lib/schemas/raz-prompt
 import type { z } from "zod";
 
 type CreatorContent = z.infer<typeof PromptCreatorContentSchema>;
+type SesaOptions = CreatorContent["sesaOptions"];
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: CONTRATOS DE TIPO EXPLÍCITOS] ---
+type DescriptiveTagKey = keyof NonNullable<BaviAsset["tags"]>;
 
 interface AssetCardProps {
   asset: BaviAsset;
   locale: Locale;
   onViewDetails: (assetId: string) => void;
   onSelectAsset?: (asset: BaviAsset) => void;
-  sesaOptions: CreatorContent["sesaOptions"];
+  sesaOptions: SesaOptions;
   selectButtonText?: string;
 }
 
@@ -46,7 +49,7 @@ export function AssetCard({
   selectButtonText,
 }: AssetCardProps): React.ReactElement {
   logger.trace(
-    `[AssetCard] Renderizando tarjeta para activo: ${asset.assetId}`
+    `[AssetCard] Renderizando tarjeta v5.1 para activo: ${asset.assetId}`
   );
 
   const mainVariant = asset.variants[0];
@@ -54,11 +57,24 @@ export function AssetCard({
     asset.createdAt || new Date()
   ).toLocaleDateString();
 
-  const getTagLabel = (category: keyof typeof sesaOptions, value: string) => {
+  const getTagLabel = (category: DescriptiveTagKey, value: string) => {
+    // Este mapa traduce las claves descriptivas del manifiesto a las claves
+    // abreviadas que utiliza el objeto de contenido i18n (sesaOptions).
+    const keyMap: Record<DescriptiveTagKey, keyof SesaOptions> = {
+      aiEngine: "ai",
+      visualStyle: "sty",
+      aspectRatio: "fmt",
+      assetType: "typ",
+      subject: "sbj",
+    };
+    const shortKey = keyMap[category];
+    if (!shortKey) return value; // Fallback seguro
+
     return (
-      sesaOptions[category]?.find((opt) => opt.value === value)?.label || value
+      sesaOptions[shortKey]?.find((opt) => opt.value === value)?.label || value
     );
   };
+  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
   return (
     <Card className="h-full flex flex-col hover:shadow-primary/20 transition-all duration-200 ease-in-out">
@@ -100,29 +116,29 @@ export function AssetCard({
       </CardContent>
       <CardFooter className="flex flex-wrap items-center justify-between pt-0 gap-2">
         <div className="flex flex-wrap gap-1">
-          {asset.tags?.ai && (
-            <Badge variant="secondary" className="mr-1">
-              {getTagLabel("ai", asset.tags.ai)}
+          {asset.tags?.aiEngine && (
+            <Badge variant="secondary">
+              {getTagLabel("aiEngine", asset.tags.aiEngine)}
             </Badge>
           )}
-          {asset.tags?.sty && (
-            <Badge variant="secondary" className="mr-1">
-              {getTagLabel("sty", asset.tags.sty)}
+          {asset.tags?.visualStyle && (
+            <Badge variant="secondary">
+              {getTagLabel("visualStyle", asset.tags.visualStyle)}
             </Badge>
           )}
-          {asset.tags?.fmt && (
-            <Badge variant="secondary" className="mr-1">
-              {getTagLabel("fmt", asset.tags.fmt)}
+          {asset.tags?.aspectRatio && (
+            <Badge variant="secondary">
+              {getTagLabel("aspectRatio", asset.tags.aspectRatio)}
             </Badge>
           )}
-          {asset.tags?.typ && (
-            <Badge variant="secondary" className="mr-1">
-              {getTagLabel("typ", asset.tags.typ)}
+          {asset.tags?.assetType && (
+            <Badge variant="secondary">
+              {getTagLabel("assetType", asset.tags.assetType)}
             </Badge>
           )}
-          {asset.tags?.sbj && (
-            <Badge variant="secondary" className="mr-1">
-              {getTagLabel("sbj", asset.tags.sbj)}
+          {asset.tags?.subject && (
+            <Badge variant="secondary">
+              {getTagLabel("subject", asset.tags.subject)}
             </Badge>
           )}
         </div>
@@ -150,4 +166,3 @@ export function AssetCard({
     </Card>
   );
 }
-// app/[locale]/(dev)/bavi/_components/AssetCard.tsx

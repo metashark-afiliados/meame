@@ -1,9 +1,9 @@
 // RUTA: src/shared/lib/actions/cogniread/getArticleBySlug.action.ts
 /**
  * @file getArticleBySlug.action.ts
- * @description Server Action para obtener un único artículo publicado por su slug y locale desde Supabase.
- * @version 2.1.0 (Holistic Elite Leveling)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Server Action para obtener un único artículo publicado por su slug.
+ * @version 3.0.0 (Architecturally Pure)
+ * @author L.I.A. Legacy - Asistente de Refactorización
  */
 "use server";
 
@@ -15,20 +15,16 @@ import {
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
-// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
-// Se importa la función de mapeo y los tipos soberanos desde su SSoT.
 import {
   mapSupabaseToCogniReadArticle,
   type SupabaseCogniReadArticle,
-} from "./getAllArticles.action";
-// Se elimina la importación no utilizada de `zod`.
-// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
+} from "./_shapers/cogniread.shapers";
 
 export async function getArticleBySlugAction(
   slug: string,
   locale: Locale
 ): Promise<ActionResult<{ article: CogniReadArticle | null }>> {
-  const traceId = logger.startTrace("getArticleBySlugAction_v2.1_Supabase");
+  const traceId = logger.startTrace("getArticleBySlugAction_v3.0_Pure");
   logger.info(
     `[CogniReadAction] Obteniendo artículo por slug: "${slug}", locale: ${locale}...`,
     { traceId }
@@ -55,7 +51,6 @@ export async function getArticleBySlugAction(
       throw new Error(error.message);
     }
 
-    // Se aplica el tipo soberano y se mapea de forma segura.
     const mappedArticle = mapSupabaseToCogniReadArticle(
       data as SupabaseCogniReadArticle
     );
@@ -77,10 +72,7 @@ export async function getArticleBySlugAction(
       error instanceof Error ? error.message : "Error desconocido.";
     logger.error(
       "[CogniReadAction] Fallo crítico al obtener artículo por slug.",
-      {
-        error: errorMessage,
-        traceId,
-      }
+      { error: errorMessage, traceId }
     );
     return {
       success: false,

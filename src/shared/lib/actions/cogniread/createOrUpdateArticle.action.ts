@@ -1,9 +1,7 @@
 // RUTA: src/shared/lib/actions/cogniread/createOrUpdateArticle.action.ts
 /**
  * @file createOrUpdateArticle.action.ts
- * @description Server Action para crear o actualizar una entrada de artículo en CogniRead.
- *              Esta versión es isomórfica y puede operar tanto en un contexto de
- *              petición Next.js como en un entorno de script de backend.
+ * @description Server Action para crear o actualizar un artículo, ahora isomórfica.
  * @version 3.1.0 (Isomorphic & Context-Aware)
  * @author RaZ Podestá - MetaShark Tech
  */
@@ -34,22 +32,20 @@ export async function createOrUpdateArticleAction(
   supabaseOverride?: SupabaseClient
 ): Promise<ActionResult<{ articleId: string }>> {
   const traceId = logger.startTrace("createOrUpdateArticleAction_v3.1");
-
-  // Determina qué cliente de Supabase usar: el inyectado (para scripts) o el
-  // basado en cookies (para la app Next.js).
   const supabase = supabaseOverride || createNextServerClient();
 
   try {
-    // Solo en el contexto de Next.js intentamos obtener un usuario.
-    // En el contexto de un script, operamos con privilegios de servicio.
     if (!supabaseOverride) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        return { success: false, error: "auth_required" };
-      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return { success: false, error: "auth_required" };
     }
 
-    logger.info(`[CogniReadAction] Iniciando creación/actualización para: ${input.articleId || "nuevo artículo"}`, { traceId });
+    logger.info(
+      `[CogniReadAction] Iniciando creación/actualización para: ${input.articleId || "nuevo artículo"}`,
+      { traceId }
+    );
 
     const now = new Date().toISOString();
     const articleId = input.articleId || createId();
@@ -65,10 +61,11 @@ export async function createOrUpdateArticleAction(
 
     const validation = CogniReadArticleSchema.safeParse(articleDocument);
     if (!validation.success) {
-      logger.error("[CogniReadAction] Los datos del artículo son inválidos.", { errors: validation.error.flatten(), traceId });
-      return { success: false, error: "Los datos del artículo son inválidos según el esquema." };
+      return {
+        success: false,
+        error: "Los datos del artículo son inválidos según el esquema.",
+      };
     }
-
     const { data: validatedData } = validation;
 
     const supabasePayload = {
@@ -88,28 +85,32 @@ export async function createOrUpdateArticleAction(
       .select("id")
       .single();
 
-    if (error) {
-      throw new Error(error.message);
-    }
+    if (error) throw new Error(error.message);
 
-    // La revalidación de ruta solo tiene sentido en el contexto de Next.js
     if (!supabaseOverride) {
-        revalidatePath("/news");
-        for (const locale of supportedLocales) {
-            const slug = validatedData.content[locale]?.slug;
-            if (slug) {
-                revalidatePath(`/${locale}/news/${slug}`);
-            }
-        }
+      revalidatePath("/news");
+      for (const locale of supportedLocales) {
+        const slug = validatedData.content[locale]?.slug;
+        if (slug) revalidatePath(`/${locale}/news/${slug}`);
+      }
     }
 
-    logger.success(`[CogniReadAction] Artículo ${data.id} guardado con éxito en Supabase.`, { traceId });
+    logger.success(
+      `[CogniReadAction] Artículo ${data.id} guardado con éxito.`,
+      { traceId }
+    );
     return { success: true, data: { articleId: data.id } };
-
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[CogniReadAction] Fallo crítico al guardar el artículo.", { error: errorMessage, traceId });
-    return { success: false, error: `No se pudo guardar el artículo: ${errorMessage}` };
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("[CogniReadAction] Fallo crítico al guardar el artículo.", {
+      error: errorMessage,
+      traceId,
+    });
+    return {
+      success: false,
+      error: `No se pudo guardar el artículo: ${errorMessage}`,
+    };
   } finally {
     logger.endTrace(traceId);
   }

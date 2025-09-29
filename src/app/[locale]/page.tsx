@@ -1,61 +1,85 @@
 // RUTA: src/app/[locale]/page.tsx
 /**
  * @file page.tsx
- * @description Página de inicio del portal, ahora dinámica y alimentada por CogniRead.
- * @version 3.0.0 (CogniRead Dynamic Data Integration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Homepage del portal. Actúa como un "Server Shell" de élite,
+ *              un guardián de datos que asegura la integridad del contenido
+ *              antes de delegar al "Client Core".
+ * @version 8.0.0 (Data Guardian & Elite Error Handling)
+ * @author L.I.A. Legacy - Asistente de Refactorización
  */
 import React from "react";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
-import { HeroNews } from "@/components/sections/HeroNews";
-import { NewsGrid } from "@/components/sections/NewsGrid";
-import { SocialProofLogos } from "@/components/sections/SocialProofLogos";
-import { CommunitySection } from "@/components/sections/CommunitySection";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
+import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { logger } from "@/shared/lib/logging";
-import { getPublishedArticlesAction } from "@/shared/lib/actions/cogniread";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { SectionAnimator } from "@/components/layout/SectionAnimator";
+import { SocialProofLogos, CommunitySection } from "@/components/sections";
+import { HomePageClient } from "./HomePageClient";
 
 interface HomePageProps {
   params: { locale: Locale };
 }
 
 export default async function HomePage({ params: { locale } }: HomePageProps) {
-  logger.info(`[HomePage] Renderizando v3.0 (Dynamic) para locale: ${locale}`);
+  logger.info(`[HomePage Shell] Renderizando v8.0 para locale: ${locale}`);
 
-  // Obtenemos el contenido estático y los artículos dinámicos en paralelo
-  const [{ dictionary }, articlesResult] = await Promise.all([
-    getDictionary(locale),
-    getPublishedArticlesAction({ page: 1, limit: 3 }), // Obtenemos los 3 más recientes
-  ]);
+  try {
+    const { dictionary, error: dictError } = await getDictionary(locale);
 
-  const { heroNews, socialProofLogos, communitySection, newsGrid } = dictionary;
+    // --- [INICIO DE REFACTORIZACIÓN: GUARDIÁN DE CONTRATO] ---
+    // Verificamos explícitamente que todas las claves necesarias para el renderizado
+    // del cliente y los componentes del servidor estén presentes.
+    const { socialProofLogos, heroNews, newsGrid, communitySection } =
+      dictionary;
+    if (
+      dictError ||
+      !socialProofLogos ||
+      !heroNews ||
+      !newsGrid ||
+      !communitySection
+    ) {
+      const missingKeys = [
+        !socialProofLogos && "socialProofLogos",
+        !heroNews && "heroNews",
+        !newsGrid && "newsGrid",
+        !communitySection && "communitySection",
+      ]
+        .filter(Boolean)
+        .join(", ");
 
-  if (!articlesResult.success) {
+      throw new Error(
+        `Faltan datos de i18n esenciales para el Homepage. Claves ausentes: ${missingKeys}`
+      );
+    }
+    // A partir de aquí, TypeScript sabe que 'dictionary' es un 'Dictionary' completo.
+    const fullDictionary = dictionary as Dictionary;
+    // --- [FIN DE REFACTORIZACIÓN: GUARDIÁN DE CONTRATO] ---
+
+    return (
+      <SectionAnimator>
+        <SocialProofLogos content={socialProofLogos} />
+        {/* El "Client Core" recibe el diccionario completo para la lógica del lado del cliente */}
+        <HomePageClient locale={locale} dictionary={fullDictionary} />
+        {/* La CommunitySection, que puede ser un Server Component, se renderiza aquí */}
+        <CommunitySection content={communitySection} />
+      </SectionAnimator>
+    );
+  } catch (error) {
+    const errorMessage =
+      "Fallo crítico al renderizar el Server Shell del Homepage.";
+    logger.error(`[HomePage Shell] ${errorMessage}`, { error });
+
+    // --- [INICIO DE REFACTORIZACIÓN: MANEJO DE ERRORES DE ÉLITE] ---
+    // Se verifica el tipo de la variable 'error' antes de pasarla.
+    const errorDetails = error instanceof Error ? error : String(error);
     return (
       <DeveloperErrorDisplay
-        context="HomePage"
-        errorMessage="No se pudieron cargar los artículos desde CogniRead."
-        errorDetails={articlesResult.error}
+        context="HomePage Server Shell"
+        errorMessage={errorMessage}
+        errorDetails={errorDetails}
       />
     );
+    // --- [FIN DE REFACTORIZACIÓN: MANEJO DE ERRORES DE ÉLITE] ---
   }
-
-  return (
-    <SectionAnimator>
-      {heroNews && <HeroNews content={heroNews} />}
-      {socialProofLogos && <SocialProofLogos content={socialProofLogos} />}
-
-      {newsGrid && (
-        <NewsGrid
-          articles={articlesResult.data.articles}
-          locale={locale}
-          content={newsGrid}
-        />
-      )}
-
-      {communitySection && <CommunitySection content={communitySection} />}
-    </SectionAnimator>
-  );
 }

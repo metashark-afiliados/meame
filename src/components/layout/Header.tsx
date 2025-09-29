@@ -1,34 +1,33 @@
 // RUTA: src/components/layout/Header.tsx
 /**
  * @file Header.tsx
- * @description Componente "Server Shell" para la cabecera principal, ahora
- *              inyectado con resiliencia y observabilidad de élite.
- * @version 35.0.0 (Elite & Resilient Shell Pattern)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente "Server Shell" para la cabecera, ahora obtiene el logo desde la BAVI.
+ * @version 36.0.0 (BAVI-Driven Logo)
+ * @author L.I.A. Legacy
  */
 import React from "react";
 import { createServerClient } from "@/shared/lib/supabase/server";
 import { getCurrentUserProfile_Action } from "@/shared/lib/actions/account/get-current-user-profile.action";
+import { getBaviManifest } from "@/shared/lib/bavi";
 import { logger } from "@/shared/lib/logging";
 import HeaderClient, { type HeaderClientProps } from "./HeaderClient";
-import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 
-type HeaderShellProps = Omit<HeaderClientProps, "user" | "profile">;
+type HeaderShellProps = Omit<HeaderClientProps, "user" | "profile" | "logoUrl">;
 
 export default async function Header({
   content,
   currentLocale,
   supportedLocales,
 }: HeaderShellProps) {
-  // --- [INYECCIÓN DE LOGGING] ---
   logger.info(
-    "[Header Shell v35.0] Iniciando obtención de datos de sesión y perfil."
+    "[Header Shell v36.0] Obteniendo datos de sesión, perfil y logo BAVI."
   );
 
   let user = null;
   let profile = null;
+  let logoUrl = content.header.logoUrl; // Fallback a la URL de i18n
 
-  // --- [INYECCIÓN DE RESILIENCIA] ---
   try {
     const supabase = createServerClient();
     const {
@@ -37,33 +36,30 @@ export default async function Header({
 
     if (sessionUser) {
       user = sessionUser;
-      logger.trace(
-        `[Header Shell] Usuario autenticado encontrado: ${user.email}`
-      );
       const profileResult = await getCurrentUserProfile_Action();
-      if (profileResult.success) {
-        profile = profileResult.data;
-        logger.trace(`[Header Shell] Perfil de usuario cargado exitosamente.`);
-      } else {
-        // No se lanza error, se registra y se continúa.
-        logger.warn(
-          "[Header Shell] Sesión de usuario encontrada, pero no se pudo cargar el perfil.",
-          { error: profileResult.error }
-        );
-      }
-    } else {
-      logger.trace("[Header Shell] No se encontró sesión de usuario activa.");
+      if (profileResult.success) profile = profileResult.data;
     }
+
+    // --- LÓGICA DE OBTENCIÓN DE LOGO DESDE BAVI ---
+    const baviManifest = await getBaviManifest();
+    const logoAsset = baviManifest.assets.find(
+      (a) => a.assetId === "i-sybl-global-fitwell-logo-01"
+    );
+    const logoVariant = logoAsset?.variants.find((v) => v.state === "orig");
+    if (logoVariant?.publicId) {
+      logoUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,h_56/${logoVariant.publicId}`;
+    }
+    // --- FIN DE LÓGICA ---
   } catch (error) {
     logger.error(
-      "[Header Shell] Fallo crítico durante la obtención de datos de sesión.",
+      "[Header Shell] Fallo crítico durante la obtención de datos.",
       { error }
     );
     if (process.env.NODE_ENV === "development") {
       return (
         <DeveloperErrorDisplay
           context="Header Server Shell"
-          errorMessage="No se pudieron obtener los datos de la sesión del usuario."
+          errorMessage="No se pudieron obtener los datos para el Header."
           errorDetails={error instanceof Error ? error : String(error)}
         />
       );
@@ -74,6 +70,7 @@ export default async function Header({
     <HeaderClient
       user={user}
       profile={profile}
+      logoUrl={logoUrl}
       content={content}
       currentLocale={currentLocale}
       supportedLocales={supportedLocales}

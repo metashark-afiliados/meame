@@ -1,11 +1,12 @@
 // RUTA: src/components/layout/HeaderClient.tsx
 /**
  * @file HeaderClient.tsx
- * @description Componente de Cliente para la cabecera principal.
- * @version 35.0.0 (Module Integrity Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente de Cliente para la cabecera principal, con navegación animada.
+ * @version 36.1.0 (Code Hygiene & Active Link Fix)
+ * @author L.I.A. Legacy
  */
 "use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -25,7 +26,6 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/NavigationMenu";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { ToggleTheme } from "../ui/ToggleTheme";
 import { CartTrigger } from "./CartTrigger";
 import { CartSheet } from "./CartSheet";
 import { UserNavClient } from "@/components/features/auth/_components/UserNavClient";
@@ -34,9 +34,9 @@ import { NotificationBell } from "@/components/features/notifications/Notificati
 export interface HeaderClientProps {
   user: User | null;
   profile: UserProfileData | null;
+  logoUrl: string;
   content: {
     header: NonNullable<Dictionary["header"]>;
-    toggleTheme: NonNullable<Dictionary["toggleTheme"]>;
     languageSwitcher: NonNullable<Dictionary["languageSwitcher"]>;
     cart: NonNullable<Dictionary["cart"]>;
     userNav: NonNullable<Dictionary["userNav"]>;
@@ -50,11 +50,12 @@ export interface HeaderClientProps {
 export default function HeaderClient({
   user,
   profile,
+  logoUrl,
   content,
   currentLocale,
   supportedLocales,
 }: HeaderClientProps): React.ReactElement {
-  logger.info("[HeaderClient] Renderizando v35.0 (Module Integrity).");
+  logger.info("[HeaderClient] Renderizando v36.1.");
   const pathname = usePathname();
   const [isCartOpen, setIsCartOpen] = useState(false);
 
@@ -72,7 +73,7 @@ export default function HeaderClient({
             className="mr-6 flex items-center space-x-2"
           >
             <Image
-              src={content.header.logoUrl}
+              src={logoUrl}
               alt={content.header.logoAlt}
               width={150}
               height={28}
@@ -80,6 +81,7 @@ export default function HeaderClient({
               priority
             />
           </Link>
+
           <NavigationMenu>
             <NavigationMenuList>
               {content.header.navLinks.map((link) => (
@@ -100,13 +102,13 @@ export default function HeaderClient({
               ))}
             </NavigationMenuList>
           </NavigationMenu>
+
           <div className="ml-auto flex items-center gap-2">
             <LanguageSwitcher
               currentLocale={currentLocale}
               supportedLocales={supportedLocales}
               content={content.languageSwitcher}
             />
-            <ToggleTheme content={content.toggleTheme} />
             <CartTrigger
               onClick={() => setIsCartOpen(true)}
               content={content.cart}
@@ -125,11 +127,13 @@ export default function HeaderClient({
               loginContent={content.devLoginPage}
               locale={currentLocale}
             />
-            <Button asChild>
-              <Link href={`/${currentLocale}${content.header.ctaButton.href}`}>
-                {content.header.ctaButton.label}
-              </Link>
-            </Button>
+            {!user && (
+              <Button asChild variant="ghost" size="sm">
+                <Link href={`/${currentLocale}/login?view=signup`}>
+                  {content.header.signUpButton.label}
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </Container>

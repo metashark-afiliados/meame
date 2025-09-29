@@ -1,9 +1,12 @@
 // RUTA: src/shared/lib/actions/cogniread/getArticlesByIds.action.ts
 /**
  * @file getArticlesByIds.action.ts
- * @description Server Action para obtener un lote de artículos de CogniRead por sus IDs desde Supabase.
- * @version 2.2.0 (Elite Code Hygiene)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Server Action de alto rendimiento para obtener un lote de artículos
+ *              de CogniRead por sus IDs. Esencial para funcionalidades del ecosistema
+ *              que requieren la hidratación de múltiples activos de conocimiento
+ *              en una sola operación (ej. prompts relacionados, colecciones).
+ * @version 4.0.0 (Architecturally Pure & Holistically Aligned)
+ * @author L.I.A. Legacy - Asistente de Refactorización
  */
 "use server";
 
@@ -18,14 +21,14 @@ import { logger } from "@/shared/lib/logging";
 import {
   mapSupabaseToCogniReadArticle,
   type SupabaseCogniReadArticle,
-} from "./getAllArticles.action";
+} from "./_shapers/cogniread.shapers";
 
 export async function getArticlesByIdsAction(
   articleIds: string[]
 ): Promise<ActionResult<{ articles: CogniReadArticle[] }>> {
-  const traceId = logger.startTrace("getArticlesByIdsAction_v2.2_Supabase");
+  const traceId = logger.startTrace("getArticlesByIdsAction_v4.0_Pure");
   logger.info(
-    `[getArticlesByIdsAction] Solicitando ${articleIds.length} artículos por IDs...`,
+    `[CogniReadAction] Solicitando ${articleIds.length} artículos por IDs...`,
     { traceId }
   );
 
@@ -34,7 +37,10 @@ export async function getArticlesByIdsAction(
   try {
     const validation = z.array(z.string().cuid2()).safeParse(articleIds);
     if (!validation.success) {
-      return { success: false, error: "Los IDs proporcionados son inválidos." };
+      return {
+        success: false,
+        error: "Uno o más de los IDs proporcionados son inválidos.",
+      };
     }
 
     const validIds = validation.data;
@@ -60,6 +66,13 @@ export async function getArticlesByIdsAction(
       .safeParse(mappedArticles);
 
     if (!validationResult.success) {
+      logger.error(
+        "[CogniReadAction] Uno o más artículos de la base de datos están corruptos.",
+        {
+          errors: validationResult.error.flatten(),
+          traceId,
+        }
+      );
       throw new Error(
         "Formato de datos de artículos inesperado desde la base de datos."
       );

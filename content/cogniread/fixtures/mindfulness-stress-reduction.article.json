@@ -11,43 +11,30 @@
     "publicationDate": "2024-06-15T00:00:00.000Z",
     "doi": "https://doi.org/10.5678/mhj.2024.987",
     "fundingSource": "National Health Fund",
-    "objective": "To evaluate the overall effectiveness of various mindfulness-based interventions in reducing psychological stress across diverse populations.",
+    "objective": "To evaluate the overall effectiveness of various mindfulness-based interventions...",
     "studyType": "Meta-Analysis",
-    "methodologySummary": "Systematic review and meta-analysis of 50 randomized controlled trials (RCTs) involving 5,000 participants. Interventions included MBSR, MBCT, and other mindfulness practices. Stress levels measured via validated psychological scales.",
-    "mainResults": "Mindfulness-based interventions demonstrated a moderate to large effect size in reducing perceived stress and improving emotional regulation. Benefits were consistent across different age groups and clinical conditions.",
-    "authorsConclusion": "Mindfulness practices are effective and valuable tools for stress reduction and should be widely implemented as part of mental health strategies.",
+    "methodologySummary": "Systematic review and meta-analysis of 50 randomized controlled trials (RCTs)...",
+    "mainResults": "Mindfulness-based interventions demonstrated a moderate to large effect size...",
+    "authorsConclusion": "Mindfulness practices are effective and valuable tools for stress reduction...",
     "limitations": [
-      "Heterogeneity in study designs and intervention durations.",
-      "Potential publication bias.",
-      "Self-reported nature of some stress measures."
+      "Heterogeneity in study designs and intervention durations."
     ]
   },
   "content": {
     "es-ES": {
       "title": "Mindfulness y Reducción del Estrés: El Camino Hacia la Calma Interior",
       "slug": "mindfulness-reduccion-estres-camino-calma",
-      "summary": "Descubre cómo las prácticas de mindfulness, respaldadas por la ciencia, pueden ser una herramienta poderosa para manejar el estrés diario y mejorar tu bienestar mental.",
-      "body": "En la vorágine de la vida moderna, el estrés se ha convertido en un compañero constante para muchos. Sin embargo, existe una práctica milenaria que la ciencia moderna está validando como una herramienta efectiva para cultivar la calma interior: el mindfulness. Una reciente meta-análisis de 50 estudios ha demostrado su eficacia.\\n\\n## ¿Qué es el Mindfulness?\\n\\nEl mindfulness, o atención plena, es la capacidad de prestar atención al momento presente sin juicio. Se trata de observar tus pensamientos, emociones y sensaciones corporales tal como son, sin intentar cambiarlos o aferrarte a ellos. Es una habilidad que se puede entrenar a través de la meditación y otras prácticas.\\n\\n## Beneficios Comprobados\\n\\nLa investigación ha revelado que las intervenciones basadas en mindfulness pueden reducir significativamente los niveles de estrés, mejorar la regulación emocional y aumentar la resiliencia psicológica. Además, se ha asociado con mejoras en la calidad del sueño, la concentración y una mayor sensación de bienestar general."
-    },
-    "en-US": {
-      "title": "Mindfulness and Stress Reduction: The Path to Inner Calm",
-      "slug": "mindfulness-stress-reduction-path-calm",
-      "summary": "Discover how mindfulness practices, backed by science, can be a powerful tool to manage daily stress and enhance your mental well-being.",
-      "body": "In the whirlwind of modern life, stress has become a constant companion for many. However, there's an ancient practice that modern science is validating as an effective tool to cultivate inner calm: mindfulness. A recent meta-analysis of 50 studies has shown its efficacy.\\n\\n## What is Mindfulness?\\n\\nMindfulness, or present-moment awareness, is the ability to pay attention to the present moment without judgment. It's about observing your thoughts, emotions, and bodily sensations as they are, without trying to change them or cling to them. It's a skill that can be trained through meditation and other practices.\\n\\n## Proven Benefits\\n\\nResearch has revealed that mindfulness-based interventions can significantly reduce stress levels, improve emotional regulation, and increase psychological resilience. Furthermore, it has been associated with improvements in sleep quality, concentration, and a greater sense of overall well-being."
-    },
-    "it-IT": {
-      "title": "Mindfulness e Riduzione dello Stress: Il Sentiero verso la Calma Interiore",
-      "slug": "mindfulness-riduzione-stress-sentiero-calma",
-      "summary": "Scopri come le pratiche di mindfulness, supportate dalla scienza, possono essere uno strumento potente per gestire lo stress quotidiano e migliorare il tuo benessere mentale.",
-      "body": "Nel vortice della vita moderna, lo stress è diventato un compagno costante per molti. Tuttavia, esiste una pratica millenaria che la scienza moderna sta convalidando come uno strumento efficace per coltivare la calma interiore: la mindfulness. Una recente meta-analisi di 50 studi ne ha dimostrato l'efficacia.\\n\\n## Cos'è la Mindfulness?\\n\\nLa mindfulness, o consapevolezza, è la capacità di prestare attenzione al momento presente senza giudizio. Si tratta di osservare i tuoi pensieri, emozioni e sensazioni corporee così come sono, senza cercare di cambiarli o di attaccarti ad essi. È un'abilità che può essere allenata attraverso la meditazione e altre pratiche.\\n\\n## Benefici Comprovati\\n\\nLa ricerca ha rivelato che gli interventi basati sulla mindfulness possono ridurre significativamente i livelli di stress, migliorare la regolazione emotiva e aumentare la resilienza psicologica. Inoltre, è stata associata a miglioramenti nella qualità del sonno, nella concentrazione e a una maggiore sensazione di benessere generale."
-    },
-    "pt-BR": {
-      "title": "Mindfulness e Redução do Estresse: O Caminho para a Calma Interior",
-      "slug": "mindfulness-reducao-estresse-caminho-calma",
-      "summary": "Descubra como as práticas de mindfulness, apoiadas pela ciência, podem ser uma ferramenta poderosa para gerenciar o estresse diário e melhorar seu bem-estar mental.",
-      "body": "No turbilhão da vida moderna, o estresse tornou-se um companheiro constante para muitos. No entanto, existe uma prática milenar que a ciência moderna está validando como uma ferramenta eficaz para cultivar a calma interior: o mindfulness. Uma recente meta-análise de 50 estudos demonstrou sua eficácia.\\n\\n## O que é Mindfulness?\\n\\nMindfulness, ou atenção plena, é a capacidade de prestar atenção ao momento presente sem julgamento. Trata-se de observar seus pensamentos, emoções e sensações corporais como eles são, sem tentar mudá-los ou se apegar a eles. É uma habilidade que pode ser treinada através da meditação e outras práticas.\\n\\n## Benefícios Comprovados\\n\\nA pesquisa revelou que intervenções baseadas em mindfulness podem reduzir significativamente os níveis de estresse, melhorar a regulação emocional e aumentar a resiliência psicológica. Além disso, tem sido associada a melhorias na qualidade do sono, concentração e uma maior sensação de bem-estar geral."
+      "summary": "Descubre cómo las prácticas de mindfulness, respaldadas por la ciencia, pueden ser una herramienta poderosa...",
+      "body": "En la vorágine de la vida moderna, el estrés se ha convertido en un compañero constante..."
     }
   },
-  "baviHeroImageId": "webvork/assets/i-lfsy-mindfulness-meditation-01/v1-original.jpg",
-  "relatedPromptIds": []
+  "baviHeroImageId": "i-lfsy-mindfulness-meditation-01",
+  "relatedPromptIds": [],
+  "tags": [
+    "mindfulness",
+    "meditacion",
+    "bienestar-mental",
+    "reduccion-estres",
+    "salud-mental"
+  ]
 }

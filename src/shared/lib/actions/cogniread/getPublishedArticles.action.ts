@@ -1,9 +1,9 @@
 // RUTA: src/shared/lib/actions/cogniread/getPublishedArticles.action.ts
 /**
  * @file getPublishedArticles.action.ts
- * @description Server Action para obtener una lista paginada de artículos publicados desde Supabase.
- * @version 2.2.0 (Holistic Elite Leveling & Type Integrity)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Server Action para obtener una lista paginada de artículos publicados.
+ * @version 4.0.0 (RLS-Compliant & Resilient)
+ * @author L.I.A. Legacy - Asistente de Refactorización
  */
 "use server";
 
@@ -15,13 +15,10 @@ import {
 } from "@/shared/lib/schemas/cogniread/article.schema";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 import { logger } from "@/shared/lib/logging";
-// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
-// Se importa explícitamente el tipo soberano junto con la función de mapeo.
 import {
   mapSupabaseToCogniReadArticle,
   type SupabaseCogniReadArticle,
-} from "./getAllArticles.action";
-// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
+} from "./_shapers/cogniread.shapers";
 
 const GetArticlesInputSchema = z.object({
   page: z.number().int().min(1).default(1),
@@ -33,7 +30,9 @@ type GetArticlesInput = z.infer<typeof GetArticlesInputSchema>;
 export async function getPublishedArticlesAction(
   input: GetArticlesInput
 ): Promise<ActionResult<{ articles: CogniReadArticle[]; total: number }>> {
-  const traceId = logger.startTrace("getPublishedArticlesAction_v2.2_Supabase");
+  const traceId = logger.startTrace(
+    "getPublishedArticlesAction_v4.0_RLS_Compliant"
+  );
   logger.info(
     `[CogniReadAction] Obteniendo artículos publicados (página ${input.page})...`,
     { traceId }
@@ -51,15 +50,16 @@ export async function getPublishedArticlesAction(
     const start = (page - 1) * limit;
     const end = start + limit - 1;
 
+    // --- [INICIO DE SOLUCIÓN DEFINITIVA: CONSULTAS SEPARADAS] ---
+    // 1. Obtener el conteo total de forma segura y compatible con RLS.
     const { count, error: countError } = await supabase
       .from("cogniread_articles")
       .select("*", { count: "exact", head: true })
       .eq("status", "published");
 
-    if (countError) {
-        throw new Error(countError.message);
-    }
+    if (countError) throw new Error(countError.message);
 
+    // 2. Obtener los datos de la página actual.
     const { data, error: dataError } = await supabase
       .from("cogniread_articles")
       .select("*")
@@ -67,13 +67,12 @@ export async function getPublishedArticlesAction(
       .order("study_dna->>publicationDate", { ascending: false })
       .range(start, end);
 
-    if (dataError) {
-      throw new Error(dataError.message);
-    }
+    if (dataError) throw new Error(dataError.message);
+    // --- [FIN DE SOLUCIÓN DEFINITIVA] ---
 
-    const mappedArticles: CogniReadArticle[] = (data as SupabaseCogniReadArticle[] || []).map(
-      mapSupabaseToCogniReadArticle
-    );
+    const mappedArticles: CogniReadArticle[] = (
+      (data as SupabaseCogniReadArticle[]) || []
+    ).map(mapSupabaseToCogniReadArticle);
     const validationResult = z
       .array(CogniReadArticleSchema)
       .safeParse(mappedArticles);
@@ -93,10 +92,7 @@ export async function getPublishedArticlesAction(
       error instanceof Error ? error.message : "Error desconocido.";
     logger.error(
       "[CogniReadAction] Fallo crítico al obtener artículos publicados.",
-      {
-        error: errorMessage,
-        traceId,
-      }
+      { error: errorMessage, traceId }
     );
     return {
       success: false,

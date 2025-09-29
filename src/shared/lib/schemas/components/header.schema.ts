@@ -1,10 +1,11 @@
-// lib/schemas/components/header.schema.ts
+// RUTA: src/shared/lib/schemas/components/header.schema.ts
 /**
  * @file header.schema.ts
- * @description Esquema de Zod que define el contrato de datos para el contenido del Header.
- *              Resuelve la definición de tipo recursiva para sub-enlaces anidados.
- * @version 7.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description SSoT para el contrato de datos del Header. Resuelve la
+ *              definición de tipo recursiva para sub-enlaces anidados y se alinea
+ *              con la arquitectura de autenticación actual.
+ * @version 7.1.0 (Sign Up Button Integration & Elite Compliance)
+ * @author L.I.A. Legacy
  */
 import { z } from "zod";
 
@@ -21,8 +22,7 @@ const baseNavLinkSchema = z.object({
 /**
  * @type NavLink
  * @description Define el tipo TypeScript para un enlace de navegación, incluyendo la
- *              posibilidad de sub-enlaces anidados. Se define explícitamente para
- *              permitir la recursividad en el schema de Zod.
+ *              posibilidad de sub-enlaces anidados.
  */
 type NavLink = z.infer<typeof baseNavLinkSchema> & {
   subLinks?: NavLink[];
@@ -32,13 +32,11 @@ type NavLink = z.infer<typeof baseNavLinkSchema> & {
  * @const NavLinkSchema
  * @description Schema de Zod para un enlace de navegación. Utiliza `z.lazy()` para
  *              manejar correctamente la definición de tipo recursiva para `subLinks`.
- *              Esta es la SSoT para la validación de la estructura de navegación.
  */
 const NavLinkSchema: z.ZodType<NavLink> = baseNavLinkSchema.extend({
   subLinks: z.lazy(() => z.array(NavLinkSchema)).optional(),
 });
 
-// Exporta el tipo corregido para ser consumido por componentes.
 export type { NavLink };
 
 /**
@@ -51,9 +49,10 @@ export const HeaderLocaleSchema = z.object({
       logoUrl: z.string().startsWith("/"),
       logoAlt: z.string(),
       navLinks: z.array(NavLinkSchema),
-      ctaButton: z.object({
+      // --- REFACTORIZACIÓN DE CONTRATO ---
+      // ctaButton ha sido reemplazado por signUpButton para alinearse con la lógica de UI actual.
+      signUpButton: z.object({
         label: z.string(),
-        href: z.string(),
       }),
     })
     .optional(),
@@ -69,4 +68,3 @@ export const HeaderI18nSchema = z.object({
   "en-US": HeaderLocaleSchema,
   "it-IT": HeaderLocaleSchema,
 });
-// lib/schemas/components/header.schema.ts
