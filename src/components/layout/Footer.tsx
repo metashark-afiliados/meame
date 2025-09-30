@@ -1,9 +1,9 @@
 // RUTA: src/components/layout/Footer.tsx
 /**
  * @file Footer.tsx
- * @description Componente de pie de página principal del portal.
- * @version 6.2.0 (Holistic Type & Path Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente de pie de página principal, ahora con guardián de resiliencia.
+ * @version 7.0.0 (Resilient & Observable)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -22,18 +22,16 @@ import {
 } from "@/components/ui/Tooltip";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
 import type {
   LinkColumn,
   LinkType,
   SocialLink,
 } from "@/shared/lib/schemas/components/footer.schema";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 type FooterContent = NonNullable<Dictionary["footer"]>;
 
 interface FooterProps {
-  content: FooterContent;
+  content?: FooterContent; // La prop ahora es opcional
 }
 
 const footerVariants: Variants = {
@@ -49,14 +47,16 @@ const footerVariants: Variants = {
 };
 
 export function Footer({ content }: FooterProps): React.ReactElement | null {
-  logger.info("[Footer] Renderizando componente v6.2 (Holistic Restoration).");
+  logger.info("[Observabilidad][CLIENTE] Renderizando Footer v7.0.");
 
+  // --- INICIO: GUARDIÁN DE RESILIENCIA ---
   if (!content) {
     logger.warn(
-      "[Footer] No se proporcionó contenido. El footer no se renderizará."
+      "[Guardián de Resiliencia] No se proporcionó contenido a Footer. No se renderizará."
     );
     return null;
   }
+  // --- FIN: GUARDIÁN DE RESILIENCIA ---
 
   const {
     newsletter,
@@ -121,7 +121,7 @@ export function Footer({ content }: FooterProps): React.ReactElement | null {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {developerLink.label} {/* <-- CORRECCIÓN A .label */}
+                  {developerLink.label}
                 </Link>
               )}
             </p>

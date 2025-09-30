@@ -2,9 +2,7 @@
 /**
  * @file draft.types.ts
  * @description SSoT para los contratos de tipos del borrador de campaña y su estado en Zustand.
- *              v6.0.0 (Holistic & Coherent Data Model v2): Se alinea el contrato de CampaignDraft
- *              con todos los stores atómicos, incluyendo los datos de identidad del Paso 0.
- * @version 6.0.0
+ * @version 6.0.0 (Holistic & Coherent Data Model v2)
  * @author L.I.A. Legacy
  */
 import type { z } from "zod";

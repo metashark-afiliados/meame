@@ -1,9 +1,10 @@
 // RUTA: src/components/features/campaign-suite/Step1_Structure/Step1Form.tsx
 /**
  * @file Step1Form.tsx
- * @description Componente de Presentación para la UI del Paso 1.
- * @version 8.0.0 (ACS Path & Build Integrity Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente de Presentación para la UI del Paso 1, ahora blindado
+ *              con un Guardián de Resiliencia de múltiples fases y observabilidad de élite.
+ * @version 9.0.0 (Elite Resilience & Full Observability)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -25,7 +26,11 @@ import type {
 import { WizardNavigation } from "@/components/features/campaign-suite/_components/WizardNavigation";
 import { galleryConfig } from "@/shared/lib/config/campaign-suite/gallery.config";
 import { StructuralSectionConfig } from "./_components";
-import { Step1ContentSchema } from "@/shared/lib/schemas/campaign-suite/steps/step1.schema";
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA (CORRECCIÓN TS2307)] ---
+// Se corrige la ruta de importación para que apunte a la SSoT canónica del schema.
+import { Step1ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step1.schema";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
 type Step1Content = z.infer<typeof Step1ContentSchema>;
 
@@ -48,8 +53,51 @@ export function Step1Form({
   onBack,
   onNext,
 }: Step1FormProps): React.ReactElement {
-  logger.info("Renderizando Step1Form (v8.0 - ACS Aligned)");
+  const traceId = logger.startTrace("Step1Form_Render_v9.0");
+  logger.info("[Step1Form] Renderizando orquestador de presentación v9.0.", {
+    traceId,
+  });
+  logger.trace("[Step1Form] Props recibidas:", {
+    content,
+    headerConfig,
+    footerConfig,
+  });
 
+  // --- [INICIO: GUARDIÁN DE RESILIENCIA DE MÚLTIPLES FASES] ---
+  if (!content) {
+    const errorMsg =
+      "Contrato de UI violado: La prop 'content' es nula o indefinida.";
+    logger.error(`[Guardián de Resiliencia][Step1Form] ${errorMsg}`, {
+      traceId,
+    });
+    logger.endTrace(traceId);
+    return (
+      <DeveloperErrorDisplay
+        context="Step1Form Guardián de Contenido"
+        errorMessage={errorMsg}
+      />
+    );
+  }
+
+  const areCallbacksValid =
+    typeof onBack === "function" && typeof onNext === "function";
+  if (!areCallbacksValid) {
+    const errorMsg =
+      "Contrato de UI violado: Las props 'onBack' u 'onNext' no son funciones.";
+    logger.error(`[Guardián de Resiliencia][Step1Form] ${errorMsg}`, {
+      traceId,
+    });
+    logger.endTrace(traceId);
+    return (
+      <DeveloperErrorDisplay
+        context="Step1Form Guardián de Callbacks"
+        errorMessage={errorMsg}
+      />
+    );
+  }
+  // --- [FIN: GUARDIÁN DE RESILIENCIA] ---
+
+  logger.endTrace(traceId);
   return (
     <Card className="flex flex-col h-full">
       <CardHeader>
@@ -87,7 +135,19 @@ export function Step1Form({
         </div>
       </CardContent>
       <CardFooter className="sticky bottom-0 bg-background/95 backdrop-blur-sm py-4 border-t z-10">
-        <WizardNavigation onBack={onBack} onNext={onNext} />
+        <WizardNavigation
+          onBack={() => {
+            logger.traceEvent(traceId, "Interacción: Botón 'Atrás' clickeado.");
+            onBack();
+          }}
+          onNext={() => {
+            logger.traceEvent(
+              traceId,
+              "Interacción: Botón 'Siguiente' clickeado."
+            );
+            onNext();
+          }}
+        />
       </CardFooter>
     </Card>
   );

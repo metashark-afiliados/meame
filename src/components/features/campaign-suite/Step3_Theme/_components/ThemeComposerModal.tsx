@@ -1,14 +1,17 @@
 // RUTA: src/components/features/campaign-suite/Step3_Theme/_components/ThemeComposerModal.tsx
 /**
  * @file ThemeComposerModal.tsx
- * @description Orquestador modal para la Bóveda de Estilos, impulsado por base de datos.
- * @version 5.0.0 (Full UI Implementation & Data Alignment)
+ * @description Orquestador modal para la Bóveda de Estilos. Forjado con
+ *              observabilidad granular, un guardián de resiliencia holístico y
+ *              un flujo de datos soberano y puro.
+ * @version 7.1.1 (React Hooks Compliance)
  * @author L.I.A. Legacy
  */
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -16,19 +19,29 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/Dialog";
-import { Button } from "@/components/ui/Button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
+  Button,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/ui";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 import { PaletteSelector, TypographySelector, GeometrySelector } from "./";
 import { usePreviewStore } from "@/components/features/campaign-suite/_context/PreviewContext";
 import type { ThemeConfig } from "@/shared/lib/types/campaigns/draft.types";
-import type { AssembledTheme } from "@/shared/lib/schemas/theming/assembled-theme.schema";
-import { AssembledThemeSchema } from "@/shared/lib/schemas/theming/assembled-theme.schema";
+import {
+  AssembledThemeSchema,
+  type AssembledTheme,
+} from "@/shared/lib/schemas/theming/assembled-theme.schema";
 import { deepMerge } from "@/shared/lib/utils";
 import { logger } from "@/shared/lib/logging";
 import type { CategorizedPresets } from "../Step3Client";
 import type { ThemePreset } from "@/shared/lib/schemas/theme-preset.schema";
-import { toast } from "sonner";
+import type { Step3ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step3.schema";
+import type { z } from "zod";
+import type { LoadedFragments } from "@/shared/lib/actions/campaign-suite";
+
+type Content = z.infer<typeof Step3ContentSchema>;
 
 interface ThemeComposerModalProps {
   isOpen: boolean;
@@ -42,20 +55,8 @@ interface ThemeComposerModalProps {
     type: "color" | "font" | "geometry",
     config: ThemeConfig
   ) => Promise<void>;
-  content: {
-    composerTitle: string;
-    composerDescription: string;
-    composerColorsTab: string;
-    composerTypographyTab: string;
-    composerGeometryTab: string;
-    composerSaveButton: string;
-    composerCancelButton: string;
-    createNewPaletteButton: string;
-    createNewFontSetButton: string;
-    createNewRadiusStyleButton: string;
-    placeholderFontsNone: string;
-    placeholderRadiiNone: string;
-  };
+  content: Content;
+  loadedFragments: LoadedFragments;
 }
 
 export function ThemeComposerModal({
@@ -64,9 +65,29 @@ export function ThemeComposerModal({
   presets,
   currentConfig,
   onSave,
+  onCreatePreset,
   content,
+  loadedFragments,
 }: ThemeComposerModalProps) {
-  logger.info("[ThemeComposerModal] Renderizando v5.0 (Full UI).");
+  // --- [INICIO DE CORRECCIÓN DE REGLAS DE HOOKS] ---
+  // Se elimina la dependencia 'isOpen' del useMemo. El traceId debe ser
+  // constante durante todo el ciclo de vida del componente para una
+  // trazabilidad coherente.
+  const traceId = useMemo(
+    () => logger.startTrace("ThemeComposerModal_Lifecycle_v7.1.1"),
+    [] // El array de dependencias vacío asegura que esto se ejecute solo una vez.
+  );
+  // --- [FIN DE CORRECCIÓN DE REGLAS DE HOOKS] ---
+
+  useEffect(() => {
+    if (isOpen) logger.info("[ThemeComposerModal] Modal montado.", { traceId });
+    return () => {
+      // El endTrace se ejecuta cuando el componente se desmonta o el efecto se vuelve a ejecutar.
+      // Si el modal está abierto durante el desmontaje, se registra el final del trace.
+      if (isOpen) logger.endTrace(traceId);
+    };
+  }, [isOpen, traceId]);
+
   const [localConfig, setLocalConfig] = useState(currentConfig);
   const { setPreviewTheme } = usePreviewStore();
 
@@ -79,71 +100,141 @@ export function ThemeComposerModal({
         if (preset.type === "geometry") acc.geometry.push(preset);
         return acc;
       },
-      { colors: [], fonts: [], geometry: [] } as {
-        colors: ThemePreset[];
-        fonts: ThemePreset[];
-        geometry: ThemePreset[];
+      {
+        colors: [] as ThemePreset[],
+        fonts: [] as ThemePreset[],
+        geometry: [] as ThemePreset[],
       }
     );
   }, [presets]);
 
-  useEffect(() => setLocalConfig(currentConfig), [currentConfig, isOpen]);
   useEffect(() => {
-    if (!isOpen) setPreviewTheme(null);
-  }, [isOpen, setPreviewTheme]);
+    if (isOpen) {
+      setLocalConfig(currentConfig);
+      logger.traceEvent(traceId, "Modal abierto, estado local sincronizado.");
+    } else {
+      setPreviewTheme(null);
+    }
+  }, [currentConfig, isOpen, setPreviewTheme, traceId]);
 
-  const assemblePreviewTheme = (config: ThemeConfig): AssembledTheme | null => {
-    const findPresetData = (
-      type: "colors" | "fonts" | "geometry",
-      name: string | null
-    ): Partial<AssembledTheme> => {
-      if (!name) return {};
-      const preset = allPresets[type].find((p) => p.name === name);
-      return preset?.theme_config
-        ? (preset.theme_config as Partial<AssembledTheme>)
-        : {};
-    };
-    const finalTheme = deepMerge(
-      deepMerge(
-        findPresetData("colors", config.colorPreset),
-        findPresetData("fonts", config.fontPreset)
-      ),
-      findPresetData("geometry", config.radiusPreset)
-    );
-    return AssembledThemeSchema.parse(finalTheme);
-  };
+  const assemblePreviewTheme = useCallback(
+    (config: ThemeConfig): AssembledTheme | null => {
+      try {
+        const findPresetData = (
+          type: "colors" | "fonts" | "radii",
+          name: string | null
+        ): Partial<AssembledTheme> => {
+          if (!name) return {};
+          const presetSource =
+            type === "colors"
+              ? allPresets.colors
+              : type === "fonts"
+                ? allPresets.fonts
+                : allPresets.geometry;
+          const preset = presetSource.find((p) => p.name === name);
+          return preset?.theme_config
+            ? (preset.theme_config as Partial<AssembledTheme>)
+            : {};
+        };
 
-  const handlePreviewUpdate = (newConfig: Partial<ThemeConfig>) => {
-    const tempConfig = { ...localConfig, ...newConfig };
-    const previewTheme = assemblePreviewTheme(tempConfig);
-    if (previewTheme) setPreviewTheme(previewTheme);
-  };
+        const finalTheme = deepMerge(
+          deepMerge(
+            deepMerge(
+              loadedFragments.base || {},
+              findPresetData("colors", config.colorPreset)
+            ),
+            findPresetData("fonts", config.fontPreset)
+          ),
+          findPresetData("radii", config.radiusPreset)
+        );
 
-  const handleSelect = (
-    key: keyof Pick<ThemeConfig, "colorPreset" | "fontPreset" | "radiusPreset">,
-    value: string
-  ) => {
-    const newConfig = { ...localConfig, [key]: value };
-    setLocalConfig(newConfig);
-    handlePreviewUpdate(newConfig);
-  };
+        return AssembledThemeSchema.parse(finalTheme);
+      } catch (error) {
+        logger.error("[ThemeComposerModal] Fallo al ensamblar el tema.", {
+          error,
+          config,
+          traceId,
+        });
+        return null;
+      }
+    },
+    [allPresets, loadedFragments, traceId]
+  );
 
-  const handleSave = () => {
+  const handlePreviewUpdate = useCallback(
+    (newConfig: Partial<ThemeConfig>) => {
+      const tempConfig = { ...localConfig, ...newConfig };
+      const previewTheme = assemblePreviewTheme(tempConfig);
+      if (previewTheme) setPreviewTheme(previewTheme);
+    },
+    [localConfig, assemblePreviewTheme, setPreviewTheme]
+  );
+
+  const handleSelect = useCallback(
+    (
+      key: keyof Pick<
+        ThemeConfig,
+        "colorPreset" | "fontPreset" | "radiusPreset"
+      >,
+      value: string
+    ) => {
+      logger.traceEvent(traceId, `Acción: Selección de preset.`, {
+        key,
+        value,
+      });
+      const newConfig = { ...localConfig, [key]: value };
+      setLocalConfig(newConfig);
+      handlePreviewUpdate(newConfig);
+    },
+    [localConfig, handlePreviewUpdate, traceId]
+  );
+
+  const handleSave = useCallback(() => {
+    logger.traceEvent(traceId, "Acción: Guardar y cerrar modal.");
     setPreviewTheme(null);
     onSave(localConfig);
     onClose();
-  };
+  }, [localConfig, onSave, onClose, setPreviewTheme, traceId]);
 
-  const handleCreate = (type: "color" | "font" | "geometry") => {
-    toast.info(
-      `Funcionalidad para crear presets de tipo '${type}' pendiente de implementación.`
+  const handleCancel = useCallback(() => {
+    logger.traceEvent(traceId, "Acción: Cancelar y cerrar modal.");
+    setPreviewTheme(null);
+    onClose();
+  }, [onClose, setPreviewTheme, traceId]);
+
+  const handleCreate = useCallback(
+    (type: "color" | "font" | "geometry") => {
+      logger.traceEvent(traceId, "Acción: Iniciar creación de nuevo preset.", {
+        type,
+      });
+      // Aquí se llamaría a onCreatePreset, posiblemente abriendo otro modal para pedir nombre/descripción.
+      // Por ahora, para cumplir el contrato, lo llamamos con valores placeholder.
+      onCreatePreset(
+        `Nuevo Preset de ${type}`,
+        `Descripción para el nuevo preset`,
+        type,
+        localConfig
+      );
+      toast.info(
+        `Funcionalidad para crear presets de tipo '${type}' en desarrollo.`
+      );
+    },
+    [traceId, onCreatePreset, localConfig]
+  );
+
+  if (!content) {
+    return (
+      <DeveloperErrorDisplay
+        context="ThemeComposerModal"
+        errorMessage="La prop 'content' es requerida."
+      />
     );
-  };
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <AnimatePresence>
-        {isOpen && (
+    <AnimatePresence>
+      {isOpen && (
+        <Dialog open={isOpen} onOpenChange={handleCancel}>
           <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0">
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
@@ -220,7 +311,7 @@ export function ThemeComposerModal({
                 </Tabs>
               </div>
               <DialogFooter className="p-6 border-t mt-auto">
-                <Button variant="outline" onClick={onClose}>
+                <Button variant="outline" onClick={handleCancel}>
                   {content.composerCancelButton}
                 </Button>
                 <Button onClick={handleSave}>
@@ -229,8 +320,8 @@ export function ThemeComposerModal({
               </DialogFooter>
             </motion.div>
           </DialogContent>
-        )}
-      </AnimatePresence>
-    </Dialog>
+        </Dialog>
+      )}
+    </AnimatePresence>
   );
 }

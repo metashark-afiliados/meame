@@ -62,30 +62,11 @@ export default function DevHeader({
   // --- FIN: REFACTORIZACIÓN DE REGLAS DE HOOKS ---
 
   // --- INICIO: GUARDIÁN DE RESILIENCIA ---
-  const {
-    devHeader,
-    toggleTheme,
-    languageSwitcher,
-    userNav,
-    notificationBell,
-    devLoginPage,
-  } = content;
-  if (
-    !devHeader ||
-    !toggleTheme ||
-    !languageSwitcher ||
-    !userNav ||
-    !notificationBell ||
-    !devLoginPage
-  ) {
-    const errorMessage =
-      "La prop 'content' para DevHeader es incompleta o inválida.";
-    logger.error(`[Guardián de Resiliencia] ${errorMessage}`, {
-      receivedContent: content,
-    });
-    return (
-      <DeveloperErrorDisplay context="DevHeader" errorMessage={errorMessage} />
-    );
+  const { devHeader, toggleTheme, languageSwitcher, userNav, notificationBell, devLoginPage } = content;
+  if (!devHeader || !toggleTheme || !languageSwitcher || !userNav || !notificationBell || !devLoginPage) {
+    const errorMessage = "La prop 'content' para DevHeader es incompleta o inválida.";
+    logger.error(`[Guardián de Resiliencia] ${errorMessage}`, { receivedContent: content });
+    return <DeveloperErrorDisplay context="DevHeader" errorMessage={errorMessage} />;
   }
   // --- FIN: GUARDIÁN DE RESILIENCIA ---
 

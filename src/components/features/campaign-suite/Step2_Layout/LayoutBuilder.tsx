@@ -33,7 +33,7 @@ import { DynamicIcon } from "@/components/ui";
 import { detectStrategicCombos } from "@/shared/lib/utils/campaign-suite/combo.detector";
 import { showComboToast } from "@/components/ui/ComboToast";
 import { strategicCombos } from "@/shared/lib/config/strategic-combos.config";
-import type { Step2ContentSchema } from "@/shared/lib/schemas/campaign-suite/steps/step2.schema";
+import type { Step2ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step2.schema";
 import type { z } from "zod";
 
 const availableSections = Object.keys(sectionsConfig).map((name) => ({

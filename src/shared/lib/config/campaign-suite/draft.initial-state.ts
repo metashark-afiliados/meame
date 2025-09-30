@@ -1,21 +1,26 @@
-// Ruta correcta: src/shared/lib/config/campaign-suite/draft.initial-state.ts
+// RUTA: src/shared/lib/config/campaign-suite/draft.initial-state.ts
 /**
  * @file draft.initial-state.ts
- * @description SSoT para el estado inicial del borrador de campaña.
- * @version 4.1.0 (Holistic Integrity & FSD Alignment - Re-validated)
- * @author RaZ Podestá - MetaShark Tech
+ * @description SSoT para el estado inicial del borrador de campaña, ahora alineado
+ *              con el contrato de tipo soberano.
+ * @version 5.0.0 (Contract Aligned)
+ * @author L.I.A. Legacy
  */
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
+import { logger } from "@/shared/lib/logging";
+
+logger.trace(
+  "[draft.initial-state.ts] Módulo de estado inicial de borrador v5.0 cargado."
+);
 
 export const initialCampaignDraftState: CampaignDraft = {
   draftId: null,
-  step: 0,
   completedSteps: [],
   baseCampaignId: null,
   variantName: null,
   seoKeywords: null,
-  affiliateNetwork: null,
-  affiliateUrl: null,
+  producer: null,
+  campaignType: null,
   headerConfig: { useHeader: true, componentName: null, logoPath: null },
   footerConfig: { useFooter: true, componentName: null },
   layoutConfig: [],
@@ -28,4 +33,3 @@ export const initialCampaignDraftState: CampaignDraft = {
   contentData: {},
   updatedAt: new Date(0).toISOString(),
 };
-// Ruta correcta: src/shared/lib/config/campaign-suite/draft.initial-state.ts

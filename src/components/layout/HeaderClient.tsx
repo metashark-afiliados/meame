@@ -57,46 +57,17 @@ export default function HeaderClient({
   currentLocale,
   supportedLocales,
 }: HeaderClientProps): React.ReactElement {
-  logger.info(
-    "[Observabilidad][CLIENTE] Renderizando HeaderClient (Público) v39.1."
-  );
+  logger.info("[Observabilidad][CLIENTE] Renderizando HeaderClient (Público) v39.1.");
 
-  // --- INICIO: REFACTORIZACIÓN DE REGLAS DE HOOKS ---
-  // Los hooks se mueven al nivel superior, antes de cualquier retorno condicional.
   const pathname = usePathname();
   const [isCartOpen, setIsCartOpen] = useState(false);
-  // --- FIN: REFACTORIZACIÓN DE REGLAS DE HOOKS ---
 
-  // --- INICIO: GUARDIÁN DE RESILIENCIA ---
-  const {
-    header,
-    languageSwitcher,
-    cart,
-    userNav,
-    notificationBell,
-    devLoginPage,
-  } = content;
-  if (
-    !header ||
-    !languageSwitcher ||
-    !cart ||
-    !userNav ||
-    !notificationBell ||
-    !devLoginPage
-  ) {
-    const errorMessage =
-      "La prop 'content' para HeaderClient es incompleta o inválida.";
-    logger.error(`[Guardián de Resiliencia] ${errorMessage}`, {
-      receivedContent: content,
-    });
-    return (
-      <DeveloperErrorDisplay
-        context="HeaderClient"
-        errorMessage={errorMessage}
-      />
-    );
+  const { header, languageSwitcher, cart, userNav, notificationBell, devLoginPage } = content;
+  if (!header || !languageSwitcher || !cart || !userNav || !notificationBell || !devLoginPage) {
+    const errorMessage = "La prop 'content' para HeaderClient es incompleta o inválida.";
+    logger.error(`[Guardián de Resiliencia] ${errorMessage}`, { receivedContent: content });
+    return <DeveloperErrorDisplay context="HeaderClient" errorMessage={errorMessage} />;
   }
-  // --- FIN: GUARDIÁN DE RESILIENCIA ---
 
   return (
     <motion.header
@@ -148,7 +119,10 @@ export default function HeaderClient({
               supportedLocales={supportedLocales}
               content={languageSwitcher}
             />
-            <CartTrigger onClick={() => setIsCartOpen(true)} content={cart} />
+            <CartTrigger
+              onClick={() => setIsCartOpen(true)}
+              content={cart}
+            />
             <CartSheet
               isOpen={isCartOpen}
               onOpenChange={setIsCartOpen}

@@ -1,16 +1,15 @@
-// components/ui/FlagIcon.tsx
+// RUTA: src/components/ui/FlagIcon.tsx
 /**
  * @file FlagIcon.tsx
- * @description Componente despachador inteligente para renderizar iconos de banderas.
- *              Mapea un código de locale a su componente SVG de bandera correspondiente.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente despachador inteligente para iconos de banderas, ahora resiliente.
+ * @version 2.0.0 (Resilient Fallback)
+ * @author L.I.A. Legacy
  */
 "use client";
 
 import React from "react";
 import { type SVGProps } from "react";
-import { type Locale } from "@/shared/lib/i18n/i18n.config";
+import { type Locale, defaultLocale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 import IT from "@/components/icons/flags/IT";
 import ES from "@/components/icons/flags/ES";
@@ -35,8 +34,27 @@ export function FlagIcon({
   locale,
   ...props
 }: FlagIconProps): React.ReactElement {
-  logger.trace(`[FlagIcon] Renderizando bandera para el locale: ${locale}`);
-  const FlagComponent = localeToFlagMap[locale];
+  // --- INICIO: GUARDIÁN DE RESILIENCIA ---
+  const validLocale = locale in localeToFlagMap ? locale : defaultLocale;
+  if (!(locale in localeToFlagMap)) {
+    logger.warn(
+      `[Guardián de Resiliencia][FlagIcon] Locale inválido o no soportado: "${locale}". Usando fallback a "${defaultLocale}".`
+    );
+  }
+  // --- FIN: GUARDIÁN DE RESILIENCIA ---
+
+  logger.info(
+    `[Observabilidad][CLIENTE] Renderizando FlagIcon para el locale: ${validLocale}`
+  );
+  const FlagComponent = localeToFlagMap[validLocale];
+
+  // Guardia final para el caso improbable de que el mapeo falle
+  if (!FlagComponent) {
+    logger.error(
+      `[Guardián de Resiliencia][FlagIcon] No se encontró componente de bandera para el locale de fallback: ${validLocale}.`
+    );
+    return <div className="w-5 h-5 bg-red-500" />;
+  }
+
   return <FlagComponent {...props} />;
 }
-// components/ui/FlagIcon.tsx

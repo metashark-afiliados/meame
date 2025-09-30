@@ -1,10 +1,11 @@
 // RUTA: src/components/features/campaign-suite/Step3_Theme/Step3.tsx
 /**
  * @file Step3.tsx
- * @description Ensamblador de Servidor para el Paso 3, que ahora actúa como un
- *              "passthrough" de datos hacia su cliente.
- * @version 8.0.0 (Data Flow Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Ensamblador de Servidor para el Paso 3. Actúa como un "Server Shell"
+ *              que obtiene los fragmentos de tema y los delega a su cliente,
+ *              blindado con un Guardián de Resiliencia y observabilidad de élite.
+ * @version 9.0.0 (Resilient Data Provider & Elite Compliance)
+ * @author L.I.A. Legacy
  */
 import React from "react";
 import { logger } from "@/shared/lib/logging";
@@ -20,28 +21,51 @@ type Content = z.infer<typeof Step3ContentSchema>;
 export default async function Step3({
   content,
 }: StepProps<Content>): Promise<React.ReactElement> {
-  logger.info("[Step3 Ensamblador] Obteniendo datos para el Paso 3 (v8.0)...");
+  const traceId = logger.startTrace("Step3_ServerShell_Render_v9.0");
+  logger.startGroup(
+    "[Step3 Shell] Ensamblando datos para el Paso 3...",
+    `traceId: ${traceId}`
+  );
 
-  // Este componente de servidor ahora es el responsable de cargar los fragmentos.
-  const fragmentsResult = await loadAllThemeFragmentsAction();
+  try {
+    if (!content) {
+      throw new Error("Contrato de UI violado: La prop 'content' es nula.");
+    }
+    logger.traceEvent(traceId, "Contenido i18n validado.");
 
-  if (!fragmentsResult.success) {
+    const fragmentsResult = await loadAllThemeFragmentsAction();
+
+    if (!fragmentsResult.success) {
+      // Lanzamos el error para que sea capturado por el Guardián holístico.
+      throw new Error(fragmentsResult.error);
+    }
+    logger.traceEvent(traceId, "Fragmentos de tema cargados con éxito.");
+
     return (
-      <DeveloperErrorDisplay
-        context="Step3 Server Component"
-        errorMessage="No se pudieron cargar los recursos para el compositor de temas."
-        errorDetails={fragmentsResult.error}
+      <Step3Client
+        content={content}
+        loadedFragments={fragmentsResult.data}
+        fetchError={null}
       />
     );
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("[Guardián de Resiliencia][Step3] Fallo crítico.", {
+      error: errorMessage,
+      traceId,
+    });
+    // En desarrollo, renderizamos un error explícito.
+    // El 'return' aquí es crucial para no seguir ejecutando.
+    return (
+      <DeveloperErrorDisplay
+        context="Step3 Server Shell"
+        errorMessage="No se pudieron cargar los recursos necesarios para el compositor de temas."
+        errorDetails={error instanceof Error ? error : errorMessage}
+      />
+    );
+  } finally {
+    logger.endGroup();
+    logger.endTrace(traceId);
   }
-
-  // Pasa los datos cargados al componente de cliente.
-  return (
-    <Step3Client
-      content={content}
-      loadedFragments={fragmentsResult.data}
-      fetchError={null}
-    />
-  );
 }
-// RUTA: src/components/features/campaign-suite/Step3_Theme/Step3.tsx
