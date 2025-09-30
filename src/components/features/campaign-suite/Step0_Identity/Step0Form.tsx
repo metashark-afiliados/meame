@@ -24,7 +24,7 @@ import { logger } from "@/shared/lib/logging";
 import {
   type Step0Data,
   type Step0ContentSchema,
-} from "@/shared/lib/schemas/campaign-suite/steps/step0.schema";
+} from "@/shared/lib/schemas/campaigns/steps/step0.schema";
 import { CampaignSelectField, VariantInputField } from "../_components/shared";
 import { WizardNavigation } from "@/components/features/campaign-suite/_components/WizardNavigation";
 import { producersConfig } from "@/shared/lib/config/campaign-suite/producers.config";

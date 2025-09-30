@@ -18,7 +18,6 @@ import {
 import { DynamicIcon } from "@/components/ui";
 import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store";
 import { getWorkspacesForUserAction } from "@/shared/lib/actions/workspaces/getWorkspacesForUser.action";
-import { logger } from "@/shared/lib/logging";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 export function WorkspaceSwitcher() {

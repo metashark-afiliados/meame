@@ -68,8 +68,6 @@ export async function SocialProofLogos({
     });
 
     if (process.env.NODE_ENV === "development") {
-      // --- [INICIO DE REFACTORIZACIÓN DE MANEJO DE ERRORES] ---
-      // Se verifica explícitamente el tipo del error antes de pasarlo.
       const errorDetails = error instanceof Error ? error : String(error);
       return (
         <DeveloperErrorDisplay
@@ -78,8 +76,7 @@ export async function SocialProofLogos({
           errorDetails={errorDetails}
         />
       );
-      // --- [FIN DE REFACTORIZACIÓN DE MANEJO DE ERRORES] ---
     }
-    return null; // Falla silenciosamente en producción
+    return null;
   }
 }

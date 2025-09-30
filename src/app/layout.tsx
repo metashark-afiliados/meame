@@ -1,56 +1,118 @@
-// RUTA: src/app/layout.tsx
+// RUTA: src/app/[locale]/layout.tsx
 /**
  * @file layout.tsx
- * @description Layout Raíz Soberano de la aplicación. SSoT para la estructura
- *              HTML base, la inyección de estilos globales y los proveedores
- *              de contexto del lado del cliente.
- * @version 4.0.0 (Architectural Leveling)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Layout Localizado y Guardián de Contexto, ahora con observabilidad de élite.
+ * @version 24.1.0 (Elite Observability Injection)
+ * @author L.I.A. Legacy
  */
-import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
-import { Toaster } from "sonner";
-import { logger } from "@/shared/lib/logging";
-import AppProviders from "@/components/layout/AppProviders";
+import "server-only";
+import React from "react";
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
-import { defaultLocale } from "@/shared/lib/i18n/i18n.config";
-import "@/app/globals.css"; // <-- ¡CORRECCIÓN CRÍTICA!
+import { type Locale, supportedLocales } from "@/shared/lib/i18n/i18n.config";
+import { logger } from "@/shared/lib/logging";
+import Header from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { getCart } from "@/shared/lib/commerce/cart";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
+import CartStoreInitializer from "@/shared/lib/stores/CartStoreInitializer";
+import type { CartItem as ZustandCartItem } from "@/shared/lib/stores/useCartStore";
+import type { CartItem as ShopifyCartItem } from "@/shared/lib/shopify/types";
+import { reshapeShopifyProduct } from "@/shared/lib/shopify";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { dictionary } = await getDictionary(defaultLocale);
-  return {
-    title: dictionary.metadata?.title || "Global Fitwell",
-    description: dictionary.metadata?.description || "El futuro del bienestar.",
-  };
+interface LocaleLayoutProps {
+  children: React.ReactNode;
+  params: { locale: Locale };
 }
 
-export default async function RootLayout({
+export default async function LocaleLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
-  logger.info("[RootLayout] Renderizando v4.0 (Architectural Leveling).");
+  params: { locale },
+}: LocaleLayoutProps) {
+  const traceId = logger.startTrace(`LocaleLayout:${locale}`);
+  logger.info(`[Observabilidad][SERVIDOR] Renderizando LocaleLayout v24.1 para locale: [${locale}]`, {
+    traceId,
+  });
 
-  // Se obtiene el contenido para el banner de cookies aquí, en el servidor.
-  const { dictionary } = await getDictionary(defaultLocale);
-  const cookieConsentContent = dictionary.cookieConsentBanner;
+  try {
+    const pathname = headers().get("x-next-pathname") || "";
+    const isDevRoute =
+      pathname.startsWith(`/${locale}/dev`) ||
+      pathname.startsWith(`/${locale}/creator`) ||
+      pathname.startsWith(`/${locale}/login`);
 
-  return (
-    <html
-      lang={defaultLocale}
-      className={`${GeistSans.variable} ${GeistMono.variable}`}
-      suppressHydrationWarning
-    >
-      <body>
-        <AppProviders
-          locale={defaultLocale}
-          cookieConsentContent={cookieConsentContent}
-        >
-          {children}
-          <Toaster />
-        </AppProviders>
-      </body>
-    </html>
-  );
+    logger.traceEvent(traceId, "Análisis de ruta completado.", {
+      pathname,
+      isDevRoute,
+    });
+
+    const [{ dictionary, error }, cartFromShopify] = await Promise.all([
+      getDictionary(locale),
+      getCart(),
+    ]);
+
+    const {
+      footer,
+      header,
+      toggleTheme,
+      languageSwitcher,
+      cart,
+      userNav,
+      notificationBell,
+      devLoginPage,
+    } = dictionary;
+
+    if (
+      error || !footer || !header || !toggleTheme || !languageSwitcher ||
+      !cart || !userNav || !notificationBell || !devLoginPage
+    ) {
+      const missingKeys = [
+        !footer && "footer", !header && "header", /* ... */
+      ].filter(Boolean).join(", ");
+      const errorMessage = `Faltan claves de i18n. Ausentes: ${missingKeys}`;
+      logger.error(`[Guardián de Resiliencia] ${errorMessage}`, { error, traceId });
+      throw new Error(errorMessage);
+    }
+
+    const initialCartItems: ZustandCartItem[] =
+      cartFromShopify?.lines.map((line: ShopifyCartItem) => {
+        const reshapedProduct = reshapeShopifyProduct(line.merchandise.product);
+        return { ...reshapedProduct, quantity: line.quantity };
+      }) || [];
+
+    const headerContentBundle = {
+      header, toggleTheme, languageSwitcher, cart, userNav, notificationBell, devLoginPage,
+    };
+
+    return (
+      <>
+        <CartStoreInitializer items={initialCartItems} />
+        {!isDevRoute && (
+          <Header
+            content={headerContentBundle}
+            currentLocale={locale}
+            supportedLocales={supportedLocales}
+          />
+        )}
+        <main className={!isDevRoute ? "pt-16" : ""}>{children}</main>
+        {!isDevRoute && <Footer content={footer} />}
+      </>
+    );
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
+    logger.error(`[LocaleLayout] Fallo crítico.`, { error: errorMessage, traceId });
+    if (process.env.NODE_ENV === "development") {
+      return (
+        <DeveloperErrorDisplay
+          context="LocaleLayout v24.1"
+          errorMessage="No se pudieron obtener los datos esenciales para el layout."
+          errorDetails={error instanceof Error ? error : errorMessage}
+        />
+      );
+    }
+    return notFound();
+  } finally {
+    logger.endTrace(traceId);
+  }
 }

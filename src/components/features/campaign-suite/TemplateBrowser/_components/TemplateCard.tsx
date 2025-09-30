@@ -1,9 +1,9 @@
 // RUTA: src/components/features/campaign-suite/TemplateBrowser/_components/TemplateCard.tsx
 /**
  * @file TemplateCard.tsx
- * @description Componente de presentación atómico para una tarjeta de plantilla.
- * @version 2.0.0 (MEA/UX Injection)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente de presentación atómico, con observabilidad y resiliencia.
+ * @version 3.0.0 (Resilient & Observable)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/Button";
 import { DynamicIcon } from "@/components/ui";
 import { TiltCard } from "@/components/ui/TiltCard";
 import type { CampaignTemplate } from "@/shared/lib/schemas/campaigns/template.schema";
+import { logger } from "@/shared/lib/logging";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
 interface TemplateCardProps {
   template: CampaignTemplate;
@@ -32,7 +34,32 @@ export function TemplateCard({
   onSelect,
   isPending,
 }: TemplateCardProps) {
-  const formattedDate = new Date(template.created_at).toLocaleDateString();
+  // --- INICIO: PILAR III (FULL OBSERVABILIDAD) ---
+  // El logging ahora está correctamente formateado dentro de la función.
+  logger.info(
+    `[Observabilidad][CLIENTE] Renderizando TemplateCard para: ${template?.name || "Plantilla Desconocida"}`
+  );
+  // --- FIN: PILAR III ---
+
+  // --- INICIO: GUARDIÁN DE RESILIENCIA ---
+  if (!template || !template.name || !template.createdAt) {
+    const errorMessage = "Datos de plantilla incompletos o inválidos.";
+    logger.error(`[Guardián de Resiliencia] ${errorMessage}`, {
+      templateData: template,
+    });
+    return (
+      <Card className="h-full flex items-center justify-center p-4 border-destructive">
+        <DeveloperErrorDisplay
+          context="TemplateCard"
+          errorMessage={errorMessage}
+        />
+      </Card>
+    );
+  }
+  // --- FIN: GUARDIÁN DE RESILIENCIA ---
+
+  const formattedDate = new Date(template.createdAt).toLocaleDateString();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

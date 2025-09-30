@@ -4,14 +4,17 @@
  * @description Store atómico para el Paso 0, ahora con estado de proveedor y tipo de campaña.
  *              No utiliza persistencia directa; en su lugar, notifica al store orquestador
  *              para centralizar la lógica de guardado.
- * @version 2.1.0 (Holistic & Elite Compliance)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.2.0 (Build Integrity Fix)
+ * @author L.I.A. Legacy
  */
 "use client";
 
 import { create } from "zustand";
 import { logger } from "@/shared/lib/logging";
-import { useCampaignDraftContext } from "./use-campaign-draft-context.store";
+// --- [INICIO DE CORRECCIÓN DE INTEGRIDAD DE BUILD] ---
+// Se corrige el nombre de la importación para que coincida con la exportación soberana.
+import { useCampaignDraftStore } from "./use-campaign-draft-context.store";
+// --- [FIN DE CORRECCIÓN DE INTEGRIDAD DE BUILD] ---
 
 /**
  * @interface Step0Data
@@ -58,7 +61,7 @@ export const useStep0IdentityStore = create<Step0Data & Step0Actions>()(
       );
       set((state) => ({ ...state, ...data }));
       // Notifica al orquestador para centralizar la lógica de persistencia
-      useCampaignDraftContext.getState().triggerDebouncedSave();
+      useCampaignDraftStore.getState().triggerDebouncedSave();
     },
 
     /**

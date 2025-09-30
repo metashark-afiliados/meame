@@ -2,10 +2,10 @@
 /**
  * @file page.tsx
  * @description Página principal de élite para la Bóveda de RaZPrompts.
- *              v9.0.0 (Resilience Restoration): Implementa un manejo de errores
- *              holístico para capturar fallos y mostrarlos en el DeveloperErrorDisplay.
- * @version 9.0.0
- * @author RaZ Podestá - MetaShark Tech
+ *              v9.1.0 (Diagnostic Trace Injection): Se inyecta logging de
+ *              diagnóstico para trazar el flujo de renderizado del servidor.
+ * @version 9.1.0
+ * @author L.I.A. Legacy
  */
 import React from "react";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
@@ -31,12 +31,20 @@ interface RaZPromptsHomePageProps {
 export default async function RaZPromptsHomePage({
   params: { locale },
 }: RaZPromptsHomePageProps) {
+  // [INYECCIÓN DE LOGGING]
+  const traceId = logger.startTrace("RaZPromptsHomePage_Render");
   logger.info(
-    "[RaZPromptsHomePage] Renderizando v9.0 (Resilience Restoration)."
+    "[RaZPromptsHomePage] Iniciando renderizado de Server Component (v9.1).",
+    { locale, traceId }
   );
 
   try {
     const { dictionary, error } = await getDictionary(locale);
+    // [INYECCIÓN DE LOGGING]
+    logger.traceEvent(traceId, "Diccionario i18n cargado.", {
+      hasError: !!error,
+    });
+
     const pageContent = dictionary.razPromptsHomePage;
     const promptCreatorContent = dictionary.promptCreator;
     const promptVaultContent = dictionary.promptVault;
@@ -46,6 +54,9 @@ export default async function RaZPromptsHomePage({
         "Faltan una o más claves de i18n (razPromptsHomePage, promptCreator, promptVault)."
       );
     }
+
+    // [INYECCIÓN DE LOGGING]
+    logger.traceEvent(traceId, "Contenido i18n validado. Renderizando UI...");
 
     return (
       <>
@@ -65,9 +76,11 @@ export default async function RaZPromptsHomePage({
                 <PromptCreator content={promptCreatorContent} />
               </TabsContent>
               <TabsContent value="vault">
+                {/* [INYECCIÓN DE LOGGING] Se pasa el traceId al componente hijo */}
                 <PromptVault
                   content={promptCreatorContent}
                   vaultContent={promptVaultContent}
+                  traceId={traceId}
                 />
               </TabsContent>
             </Tabs>
@@ -78,7 +91,9 @@ export default async function RaZPromptsHomePage({
   } catch (error) {
     const errorMessage =
       "Fallo crítico durante el renderizado de la página RaZPrompts.";
-    logger.error(`[RaZPromptsHomePage] ${errorMessage}`, { error });
+    // [INYECCIÓN DE LOGGING]
+    logger.error(`[RaZPromptsHomePage] ${errorMessage}`, { error, traceId });
+    logger.endTrace(traceId, { error: errorMessage });
     return (
       <DeveloperErrorDisplay
         context="RaZPromptsHomePage"

@@ -2,9 +2,10 @@
 /**
  * @file Step5Client.tsx
  * @description Orquestador de cliente para el Paso 5. Ensambla el borrador
- *              final a partir de los stores atómicos y gestiona el ciclo de vida.
- * @version 5.0.0 (Holistic & Elite Compliance)
- * @author RaZ Podestá - MetaShark Tech
+ *              final, implementa un "Guardián de Datos" para resiliencia y
+ *              provee observabilidad de élite para todas las acciones.
+ * @version 6.0.0 (Elite Observability & Resilient Data Guardian)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -27,6 +28,9 @@ import { useStep3ThemeStore } from "@/shared/hooks/campaign-suite/use-step3-them
 import { useStep4ContentStore } from "@/shared/hooks/campaign-suite/use-step4-content.store";
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
 import { logger } from "@/shared/lib/logging";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
+import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store";
+import { ArtifactHistory } from "./_components/ArtifactHistory";
 
 type Content = z.infer<typeof Step5ContentSchema>;
 
@@ -39,7 +43,11 @@ export function Step5Client({
   locale,
   stepContent,
 }: Step5ClientProps): React.ReactElement {
-  logger.info("[Step5Client] Renderizando orquestador de cliente v5.0.");
+  const traceId = logger.startTrace("Step5Client_Render_v6.0");
+  logger.info(
+    "[Step5Client] Renderizando orquestador de cliente v6.0 (Observable & Resilient).",
+    { traceId }
+  );
 
   const metadata = useDraftMetadataStore();
   const identity = useStep0IdentityStore();
@@ -49,9 +57,10 @@ export function Step5Client({
   const content = useStep4ContentStore();
   const { isCelebrating, endCelebration } = useCelebrationStore();
   const { goToPrevStep } = useWizard();
+  const activeWorkspaceId = useWorkspaceStore((s) => s.activeWorkspaceId);
 
   const assembledDraft = useMemo((): CampaignDraft => {
-    logger.trace("[Step5Client] Ensamblando borrador final desde stores...");
+    logger.traceEvent(traceId, "Ensamblando borrador final desde stores...");
     return {
       draftId: metadata.draftId,
       baseCampaignId: metadata.baseCampaignId,
@@ -78,9 +87,27 @@ export function Step5Client({
     isPackaging,
     isDeleting,
   } = useCampaignLifecycle(locale, assembledDraft);
-
   const { onSaveAsTemplate, isSavingTemplate } =
     useCampaignTemplates(assembledDraft);
+
+  // --- INICIO DEL GUARDIÁN DE DATOS ---
+  if (!assembledDraft.draftId || !activeWorkspaceId) {
+    const errorMsg = "Faltan datos críticos para la gestión de la campaña.";
+    logger.error(`[Step5Client] ${errorMsg}`, {
+      hasDraftId: !!assembledDraft.draftId,
+      hasWorkspaceId: !!activeWorkspaceId,
+      traceId,
+    });
+    logger.endTrace(traceId);
+    return (
+      <DeveloperErrorDisplay
+        context="Step5Client"
+        errorMessage={errorMsg}
+        errorDetails="El ID del borrador (draftId) o el ID del workspace activo no están disponibles en el estado global. Asegúrate de que el Paso 0 se haya completado correctamente y que una sesión de usuario esté activa."
+      />
+    );
+  }
+  // --- FIN DEL GUARDIÁN DE DATOS ---
 
   const checklistItems = useMemo(
     () => validateDraftForLaunch(assembledDraft),
@@ -91,6 +118,37 @@ export function Step5Client({
     [checklistItems]
   );
 
+  // --- Wrapper de Acciones con Logging Explícito ---
+  const handlePublish = () => {
+    logger.info(
+      "[Step5Client] Intento de publicación iniciado por el usuario.",
+      { traceId }
+    );
+    onPublish();
+  };
+  const handlePackage = () => {
+    logger.info(
+      "[Step5Client] Intento de empaquetado iniciado por el usuario.",
+      { traceId }
+    );
+    onPackage();
+  };
+  const handleDelete = () => {
+    logger.warn(
+      "[Step5Client] Intento de eliminación iniciado por el usuario.",
+      { traceId }
+    );
+    onDelete();
+  };
+  const handleSaveTemplate = (name: string, description: string) => {
+    logger.info("[Step5Client] Intento de guardar como plantilla iniciado.", {
+      name,
+      traceId,
+    });
+    onSaveAsTemplate(name, description);
+  };
+
+  logger.endTrace(traceId);
   return (
     <>
       <Step5Form
@@ -98,15 +156,21 @@ export function Step5Client({
         checklistItems={checklistItems}
         content={stepContent}
         onBack={goToPrevStep}
-        onPublish={onPublish}
-        onPackage={onPackage}
-        onConfirmDelete={onDelete}
-        onSaveAsTemplate={onSaveAsTemplate}
+        onPublish={handlePublish}
+        onPackage={handlePackage}
+        onConfirmDelete={handleDelete}
+        onSaveAsTemplate={handleSaveTemplate}
         isPublishing={isPublishing}
         isPackaging={isPackaging}
         isDeleting={isDeleting}
         isSavingTemplate={isSavingTemplate}
         isLaunchReady={isLaunchReady}
+        artifactHistorySlot={
+          <ArtifactHistory
+            draftId={assembledDraft.draftId}
+            title="Historial de Artefactos"
+          />
+        }
       />
       <DigitalConfetti isActive={isCelebrating} onComplete={endCelebration} />
     </>

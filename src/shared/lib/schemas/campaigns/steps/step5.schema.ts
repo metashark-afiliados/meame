@@ -2,8 +2,8 @@
 /**
  * @file step5.schema.ts
  * @description SSoT para el contrato de datos del contenido i18n del Paso 5 de la SDC.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.0.0 (High-Friction Delete Dialog Contract)
+ * @author L.I.A. Legacy
  */
 import { z } from "zod";
 
@@ -22,6 +22,12 @@ export const Step5ContentSchema = z.object({
     description: z.string(),
     cancelButton: z.string(),
     confirmButton: z.string(),
+    // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+    // Se añaden las claves para la UX de alta fricción.
+    draftNameLabel: z.string(),
+    confirmationTextLabel: z.string(),
+    confirmationTextPlaceholder: z.string(),
+    // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
   }),
   templateDialog: z.object({
     title: z.string(),

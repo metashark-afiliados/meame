@@ -2,26 +2,24 @@
 /**
  * @file seed-articles.ts
  * @description Script de siembra para CogniRead.
- * @version 7.0.0 (Definitive, Two-Step Upsert & Radiography Logging)
- * @author RaZ Podestá
+ * @version 8.0.0 (Isomorphic Action Compliance & Build Integrity Restoration)
+ * @author L.I.A. Legacy
  */
 import * as fs from "fs/promises";
 import * as path from "path";
 import chalk from "chalk";
 import { logger } from "../../src/shared/lib/logging";
+import { createOrUpdateArticleAction } from "../../src/shared/lib/actions/cogniread";
 import {
-  CogniReadArticleSchema,
   type CogniReadArticle,
 } from "../../src/shared/lib/schemas/cogniread/article.schema";
-import { loadEnvironment } from "../../scripts/diagnostics/_utils";
 import { createScriptClient } from "../../src/shared/lib/supabase/script-client";
 
 async function seedSingleCogniReadArticle() {
-  const traceId = logger.startTrace("seedCogniReadArticle_v7.0_Definitive");
+  const traceId = logger.startTrace("seedCogniReadArticle_v8.0");
   logger.startGroup("🌱 Iniciando siembra de artículo de CogniRead...");
-  loadEnvironment(["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]);
 
-  const fixturePathArgument = process.argv[3];
+  const fixturePathArgument = process.argv[2];
   if (!fixturePathArgument) {
     logger.error(
       "❌ Error Crítico: No se especificó la ruta al archivo de fixture."
@@ -32,88 +30,35 @@ async function seedSingleCogniReadArticle() {
 
   try {
     const fileContent = await fs.readFile(fixturePath, "utf-8");
-    const articleData: CogniReadArticle = JSON.parse(fileContent);
+    const articleData: Partial<CogniReadArticle> = JSON.parse(fileContent);
 
-    const validation = CogniReadArticleSchema.safeParse(articleData);
-    if (!validation.success) {
-      logger.error("[Seeder] El archivo de fixture es inválido.", {
-        errors: validation.error.flatten(),
-        traceId,
-      });
-      throw new Error("Los datos del fixture son inválidos.");
+    // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: INYECCIÓN DE DEPENDENCIA] ---
+    // 1. Se crea un cliente de Supabase compatible con el entorno de script.
+    const scriptSupabaseClient = createScriptClient();
+    // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
+
+    // 2. Se invoca la Server Action, pasando el cliente como un override.
+    // Esto evita que la acción intente usar el cliente de Server Component.
+    const result = await createOrUpdateArticleAction(
+      articleData,
+      scriptSupabaseClient
+    );
+
+    if (result.success) {
+      console.log(
+        chalk.green.bold(
+          `\n     ✅ Éxito: Artículo '${result.data.articleId}' sembrado/actualizado en Supabase.`
+        )
+      );
+    } else {
+      console.error(
+        chalk.red.bold(
+          `     🔥 Fallo al sembrar '${path.basename(fixturePath)}':`
+        ),
+        result.error
+      );
+      process.exit(1);
     }
-
-    const validatedData = validation.data;
-    logger.info(
-      `   Procesando fixture validado: ${path.basename(fixturePath)}`
-    );
-
-    logger.startGroup("[Radiografía Detallada]");
-    logger.info("Datos validados desde Zod:", validatedData);
-
-    const supabase = createScriptClient();
-
-    // --- ARQUITECTURA DE PERSISTENCIA DEFINITIVA EN DOS PASOS ---
-
-    // PASO 1: Cargar datos primarios (escalares y JSONB)
-    const primaryPayload = {
-      id: validatedData.articleId,
-      status: validatedData.status,
-      study_dna: validatedData.studyDna,
-      content: validatedData.content,
-      bavi_hero_image_id: validatedData.baviHeroImageId || null,
-      created_at: validatedData.createdAt,
-      updated_at: validatedData.updatedAt,
-    };
-
-    logger.info("Enviando Payload PRIMARIO para UPSERT...", primaryPayload);
-
-    const { data: upsertData, error: upsertError } = await supabase
-      .from("cogniread_articles")
-      .upsert(primaryPayload, { onConflict: "id" })
-      .select("id")
-      .single();
-
-    if (upsertError) {
-      logger.error("[Radiografía] FALLO en el UPSERT de datos primarios.", {
-        error: upsertError,
-      });
-      throw new Error(`Paso 1 fallido: ${upsertError.message}`);
-    }
-    logger.success(
-      `[Radiografía] ÉXITO en Paso 1: Upsert para ID '${upsertData.id}' completado.`
-    );
-
-    // PASO 2: Actualizar los campos de array de forma separada
-    const arrayPayload = {
-      tags: validatedData.tags || [],
-      related_prompt_ids: validatedData.relatedPromptIds || [],
-    };
-
-    logger.info("Enviando Payload de ARRAYS para UPDATE...", arrayPayload);
-
-    const { error: updateError } = await supabase
-      .from("cogniread_articles")
-      .update(arrayPayload)
-      .eq("id", validatedData.articleId);
-
-    if (updateError) {
-      logger.error("[Radiografía] FALLO en el UPDATE de datos de array.", {
-        error: updateError,
-      });
-      throw new Error(`Paso 2 fallido: ${updateError.message}`);
-    }
-    logger.success(
-      `[Radiografía] ÉXITO en Paso 2: Update de arrays para ID '${validatedData.articleId}' completado.`
-    );
-
-    logger.endGroup(); // Fin de la Radiografía
-
-    console.log(
-      chalk.green.bold(
-        `\n     ✅ Éxito Definitivo: Artículo '${validatedData.articleId}' sembrado/actualizado.`
-      )
-    );
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
@@ -121,7 +66,6 @@ async function seedSingleCogniReadArticle() {
       error: errorMessage,
       traceId,
     });
-    logger.endGroup(); // Asegurarse de cerrar el grupo de radiografía en caso de error
     process.exit(1);
   } finally {
     logger.endGroup();

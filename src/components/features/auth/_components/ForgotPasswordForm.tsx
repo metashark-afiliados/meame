@@ -2,8 +2,8 @@
 /**
  * @file ForgotPasswordForm.tsx
  * @description Componente de cliente puro para el formulario modal de recuperación de contraseña.
- * @version 1.1.0 (Code Hygiene Fix)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 1.2.0 (Build Integrity Restoration)
+ * @author L.I.A. Legacy - Asistente de Refactorización
  */
 "use client";
 
@@ -11,7 +11,6 @@ import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-// Se elimina la importación no utilizada de 'motion'
 import {
   DialogHeader,
   DialogTitle,
@@ -52,7 +51,7 @@ export function ForgotPasswordForm({
   onSuccess,
   onCancel,
 }: ForgotPasswordFormProps) {
-  logger.info("[ForgotPasswordForm] Renderizando v1.1.");
+  logger.info("[ForgotPasswordForm] Renderizando v1.2.");
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<ForgotPasswordFormData>({
@@ -85,7 +84,7 @@ export function ForgotPasswordForm({
       </DialogHeader>
       <Form {...form}>
         <form
-          id="forgot-password-form" // Se añade un ID para que el botón del footer pueda referenciarlo
+          id="forgot-password-form"
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4 py-4"
         >
@@ -110,7 +109,7 @@ export function ForgotPasswordForm({
         </Button>
         <Button
           type="submit"
-          form="forgot-password-form" // El botón ahora está asociado al formulario
+          form="forgot-password-form"
           onClick={form.handleSubmit(onSubmit)}
           disabled={isPending}
         >

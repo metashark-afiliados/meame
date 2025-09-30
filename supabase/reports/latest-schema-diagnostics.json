@@ -65,14 +65,6 @@
       "index_name": "visitor_fingerprints_pkey"
     },
     {
-      "table": "profiles",
-      "index_name": "profiles_pkey"
-    },
-    {
-      "table": "profiles",
-      "index_name": "profiles_user_id_key"
-    },
-    {
       "table": "anonymous_campaign_events",
       "index_name": "anonymous_campaign_events_pkey"
     },
@@ -83,6 +75,14 @@
     {
       "table": "anonymous_campaign_events",
       "index_name": "idx_anon_events_workspace_campaign"
+    },
+    {
+      "table": "profiles",
+      "index_name": "profiles_pkey"
+    },
+    {
+      "table": "profiles",
+      "index_name": "profiles_user_id_key"
     },
     {
       "table": "commerce_orders",
@@ -215,6 +215,12 @@
       "table": "cogniread_articles",
       "timing": "BEFORE",
       "trigger_name": "on_cogniread_content_change"
+    },
+    {
+      "event": "INSERT",
+      "table": "profiles",
+      "timing": "BEFORE",
+      "trigger_name": "on_profile_insert_sync_created_at"
     }
   ],
   "extensions": [
@@ -283,6 +289,12 @@
       "policy_name": "Los usuarios pueden marcar sus notificaciones como leídas"
     },
     {
+      "table": "razprompts_entries",
+      "command": "INSERT",
+      "definition": null,
+      "policy_name": "Los miembros del workspace pueden crear entradas de prompt"
+    },
+    {
       "table": "bavi_assets",
       "command": "SELECT",
       "definition": "true",
@@ -344,12 +356,6 @@
     },
     {
       "table": "razprompts_entries",
-      "command": "INSERT",
-      "definition": null,
-      "policy_name": "Los miembros del workspace pueden crear entradas de prompt"
-    },
-    {
-      "table": "razprompts_entries",
       "command": "UPDATE",
       "definition": "is_workspace_member(workspace_id, 'member'::text)",
       "policy_name": "Los miembros del workspace pueden actualizar sus entradas de pr"
@@ -380,12 +386,6 @@
     },
     {
       "table": "cogniread_articles",
-      "command": "INSERT",
-      "definition": null,
-      "policy_name": "Admin/Service can insert articles"
-    },
-    {
-      "table": "cogniread_articles",
       "command": "UPDATE",
       "definition": "((auth.role() = 'service_role'::text) OR (EXISTS ( SELECT 1\n   FROM workspace_members\n  WHERE ((workspace_members.user_id = auth.uid()) AND (workspace_members.role = 'owner'::text)))))",
       "policy_name": "Admin/Service can update articles"
@@ -401,12 +401,6 @@
       "command": "SELECT",
       "definition": "true",
       "policy_name": "Comments are viewable by everyone"
-    },
-    {
-      "table": "community_comments",
-      "command": "INSERT",
-      "definition": null,
-      "policy_name": "Authenticated users can insert their own comments"
     },
     {
       "table": "community_comments",
@@ -431,6 +425,18 @@
       "command": "INSERT",
       "definition": null,
       "policy_name": "Service and authenticated users can insert orders"
+    },
+    {
+      "table": "community_comments",
+      "command": "INSERT",
+      "definition": null,
+      "policy_name": "Authenticated users can insert their own comments"
+    },
+    {
+      "table": "cogniread_articles",
+      "command": "INSERT",
+      "definition": null,
+      "policy_name": "Admin/Service can insert articles"
     }
   ],
   "schema_columns": [
@@ -443,11 +449,6 @@
       "type": "uuid",
       "table": "notifications",
       "column": "user_id"
-    },
-    {
-      "type": "jsonb",
-      "table": "campaign_templates",
-      "column": "draft_data"
     },
     {
       "type": "timestamp with time zone",
@@ -576,6 +577,26 @@
     },
     {
       "type": "uuid",
+      "table": "anonymous_campaign_events",
+      "column": "id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "anonymous_campaign_events",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "anonymous_campaign_events",
+      "column": "workspace_id"
+    },
+    {
+      "type": "jsonb",
+      "table": "anonymous_campaign_events",
+      "column": "payload"
+    },
+    {
+      "type": "uuid",
       "table": "profiles",
       "column": "id"
     },
@@ -595,24 +616,9 @@
       "column": "last_sign_in_at"
     },
     {
-      "type": "uuid",
-      "table": "anonymous_campaign_events",
-      "column": "id"
-    },
-    {
       "type": "timestamp with time zone",
-      "table": "anonymous_campaign_events",
+      "table": "profiles",
       "column": "created_at"
-    },
-    {
-      "type": "uuid",
-      "table": "anonymous_campaign_events",
-      "column": "workspace_id"
-    },
-    {
-      "type": "jsonb",
-      "table": "anonymous_campaign_events",
-      "column": "payload"
     },
     {
       "type": "uuid",
@@ -815,6 +821,11 @@
       "column": "user_id"
     },
     {
+      "type": "jsonb",
+      "table": "campaign_templates",
+      "column": "draft_data"
+    },
+    {
       "type": "text",
       "table": "notifications",
       "column": "type"
@@ -828,6 +839,11 @@
       "type": "text",
       "table": "notifications",
       "column": "link"
+    },
+    {
+      "type": "text",
+      "table": "cogniread_articles",
+      "column": "id"
     },
     {
       "type": "text",
@@ -848,11 +864,6 @@
       "type": "text",
       "table": "commerce_orders",
       "column": "currency"
-    },
-    {
-      "type": "text",
-      "table": "commerce_orders",
-      "column": "status"
     },
     {
       "type": "text",
@@ -877,12 +888,12 @@
     {
       "type": "text",
       "table": "commerce_orders",
-      "column": "customer_email"
+      "column": "status"
     },
     {
       "type": "text",
-      "table": "razprompts_entries",
-      "column": "status"
+      "table": "commerce_orders",
+      "column": "customer_email"
     },
     {
       "type": "text",
@@ -912,7 +923,7 @@
     {
       "type": "text",
       "table": "razprompts_entries",
-      "column": "ai_service"
+      "column": "status"
     },
     {
       "type": "text",
@@ -923,6 +934,11 @@
       "type": "text",
       "table": "workspaces",
       "column": "name"
+    },
+    {
+      "type": "text",
+      "table": "razprompts_entries",
+      "column": "ai_service"
     },
     {
       "type": "ARRAY",
@@ -936,13 +952,13 @@
     },
     {
       "type": "text",
-      "table": "community_comments",
-      "column": "article_id"
+      "table": "workspace_members",
+      "column": "role"
     },
     {
       "type": "text",
-      "table": "workspace_members",
-      "column": "role"
+      "table": "community_comments",
+      "column": "article_id"
     },
     {
       "type": "ARRAY",
@@ -951,13 +967,8 @@
     },
     {
       "type": "text",
-      "table": "community_comments",
-      "column": "author_name"
-    },
-    {
-      "type": "text",
-      "table": "profiles",
-      "column": "full_name"
+      "table": "anonymous_campaign_events",
+      "column": "fingerprint_id"
     },
     {
       "type": "text",
@@ -976,23 +987,23 @@
     },
     {
       "type": "text",
-      "table": "profiles",
-      "column": "avatar_url"
+      "table": "anonymous_campaign_events",
+      "column": "session_id"
     },
     {
       "type": "text",
       "table": "community_comments",
-      "column": "author_avatar_url"
+      "column": "author_name"
     },
     {
       "type": "text",
-      "table": "community_comments",
-      "column": "comment_text"
+      "table": "anonymous_campaign_events",
+      "column": "campaign_id"
     },
     {
       "type": "text",
-      "table": "profiles",
-      "column": "last_sign_in_ip"
+      "table": "anonymous_campaign_events",
+      "column": "variant_id"
     },
     {
       "type": "text",
@@ -1011,8 +1022,18 @@
     },
     {
       "type": "text",
-      "table": "profiles",
-      "column": "last_sign_in_location"
+      "table": "anonymous_campaign_events",
+      "column": "event_type"
+    },
+    {
+      "type": "text",
+      "table": "community_comments",
+      "column": "author_avatar_url"
+    },
+    {
+      "type": "text",
+      "table": "community_comments",
+      "column": "comment_text"
     },
     {
       "type": "ARRAY",
@@ -1021,23 +1042,13 @@
     },
     {
       "type": "text",
-      "table": "cogniread_articles",
-      "column": "bavi_hero_image_id"
+      "table": "profiles",
+      "column": "full_name"
     },
     {
       "type": "text",
-      "table": "anonymous_campaign_events",
-      "column": "fingerprint_id"
-    },
-    {
-      "type": "text",
-      "table": "anonymous_campaign_events",
-      "column": "session_id"
-    },
-    {
-      "type": "ARRAY",
-      "table": "cogniread_articles",
-      "column": "related_prompt_ids"
+      "table": "profiles",
+      "column": "avatar_url"
     },
     {
       "type": "text",
@@ -1046,27 +1057,27 @@
     },
     {
       "type": "text",
-      "table": "anonymous_campaign_events",
-      "column": "campaign_id"
+      "table": "cogniread_articles",
+      "column": "bavi_hero_image_id"
+    },
+    {
+      "type": "ARRAY",
+      "table": "cogniread_articles",
+      "column": "related_prompt_ids"
     },
     {
       "type": "text",
-      "table": "anonymous_campaign_events",
-      "column": "variant_id"
+      "table": "profiles",
+      "column": "last_sign_in_ip"
     },
     {
       "type": "text",
-      "table": "anonymous_campaign_events",
-      "column": "event_type"
+      "table": "profiles",
+      "column": "last_sign_in_location"
     },
     {
       "type": "text",
       "table": "razprompts_entries",
-      "column": "id"
-    },
-    {
-      "type": "text",
-      "table": "cogniread_articles",
       "column": "id"
     },
     {
@@ -1884,6 +1895,10 @@
       "type": "FUNCTION"
     },
     {
+      "name": "sync_profile_created_at",
+      "type": "FUNCTION"
+    },
+    {
       "name": "handle_new_user",
       "type": "FUNCTION"
     },
@@ -1896,11 +1911,15 @@
       "type": "FUNCTION"
     },
     {
-      "name": "migrate_anonymous_events_to_user",
+      "name": "get_public_table_names",
       "type": "FUNCTION"
     },
     {
       "name": "get_content_diagnostics",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "migrate_anonymous_events_to_user",
       "type": "FUNCTION"
     },
     {

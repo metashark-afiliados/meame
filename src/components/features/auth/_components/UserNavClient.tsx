@@ -1,13 +1,13 @@
 // RUTA: src/components/features/auth/_components/UserNavClient.tsx
 /**
  * @file UserNavClient.tsx
- * @description Componente de cliente para la UI interactiva de UserNav.
- * @version 2.0.0 (Workspace Switcher Integration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente de cliente para la UI de UserNav, ahora con apertura por hover y MEA/UX.
+ * @version 3.0.0 (Hover-to-Open & Elite UX)
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/Button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { createClient } from "@/shared/lib/supabase/client";
 import { LastSignInInfo } from "./LastSignInInfo";
-import { WorkspaceSwitcher } from "./WorkspaceSwitcher"; // <-- IMPORTACIÓN DEL NUEVO APARATO
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 import type { User } from "@supabase/supabase-js";
 import type { UserProfileData } from "@/shared/lib/actions/account/get-current-user-profile.action";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
@@ -47,6 +47,7 @@ export function UserNavClient({
   loginContent,
   locale,
 }: UserNavClientProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -66,58 +67,64 @@ export function UserNavClient({
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
-            <AvatarImage
-              src={user.user_metadata.avatar_url}
-              alt={user.email ?? "User Avatar"}
-            />
-            <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64" align="end">
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
-              {profile?.full_name || userNavContent.sessionLabel}
-            </p>
-            <p className="text-xs leading-none text-muted-foreground truncate">
-              {user.email}
-            </p>
-          </div>
-        </DropdownMenuLabel>
-
-        {profile && (
-          <>
-            <DropdownMenuSeparator />
-            <LastSignInInfo
-              profile={profile}
-              content={loginContent.lastSignIn}
-              locale={locale}
-            />
-          </>
-        )}
-
-        <DropdownMenuSeparator />
-
-        {/* --- INICIO DE INTEGRACIÓN DE WORKSPACE SWITCHER --- */}
-        <WorkspaceSwitcher />
-        {/* --- FIN DE INTEGRACIÓN DE WORKSPACE SWITCHER --- */}
-
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href={`/${locale}/account`}>Mi Cuenta</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={handleLogout}
-          className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive-foreground"
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <div
+        onMouseEnter={() => setIsOpen(true)}
+        onMouseLeave={() => setIsOpen(false)}
+      >
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="relative h-8 w-8 rounded-full group"
+          >
+            <Avatar className="h-8 w-8 transition-all duration-300 group-hover:ring-2 group-hover:ring-primary group-hover:ring-offset-2 group-hover:ring-offset-background">
+              <AvatarImage
+                src={user.user_metadata.avatar_url}
+                alt={user.email ?? "User Avatar"}
+              />
+              <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          className="w-64"
+          align="end"
+          onMouseLeave={() => setIsOpen(false)}
         >
-          {userNavContent.logoutButton}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none">
+                {profile?.full_name || userNavContent.sessionLabel}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground truncate">
+                {user.email}
+              </p>
+            </div>
+          </DropdownMenuLabel>
+          {profile && (
+            <>
+              <DropdownMenuSeparator />
+              <LastSignInInfo
+                profile={profile}
+                content={loginContent.lastSignIn}
+                locale={locale}
+              />
+            </>
+          )}
+          <DropdownMenuSeparator />
+          <WorkspaceSwitcher />
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link href={`/${locale}/account`}>Mi Cuenta</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive-foreground"
+          >
+            {userNavContent.logoutButton}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </div>
     </DropdownMenu>
   );
 }

@@ -8,4 +8,3 @@
 export * from "./CommentForm";
 export * from "./CommentList";
 export * from "./CommentSectionClient";
-// components/sections/comments/index.ts

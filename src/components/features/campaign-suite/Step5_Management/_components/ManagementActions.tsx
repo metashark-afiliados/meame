@@ -2,8 +2,8 @@
 /**
  * @file ManagementActions.tsx
  * @description Orquestador de presentación puro para el panel de acciones del Paso 5.
- * @version 2.0.0 (MEA/UX Injection & Elite Compliance)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 3.0.0 (Architectural Decoupling & Elite Compliance)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -21,7 +21,6 @@ import {
 import { FadingLines, DotsWave } from "@/components/ui/Loaders";
 import type { z } from "zod";
 import type { Step5ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step5.schema";
-import { WizardNavigation } from "@/components/features/campaign-suite/_components/WizardNavigation";
 
 type Content = z.infer<typeof Step5ContentSchema>;
 
@@ -59,7 +58,7 @@ export function ManagementActions({
   templateDialogContent,
 }: ManagementActionsProps): React.ReactElement {
   logger.trace(
-    "[ManagementActions] Renderizando orquestador de presentación v2.0."
+    "[ManagementActions] Renderizando orquestador de presentación v3.0."
   );
 
   const isAnyActionPending =
@@ -67,77 +66,80 @@ export function ManagementActions({
   const isLaunchDisabled = isAnyActionPending || !isLaunchReady;
 
   return (
-    <WizardNavigation
-      onBack={onBack}
-      isPending={isAnyActionPending}
-      nextButtonSlot={
-        <div className="flex flex-wrap gap-2 justify-end">
-          <AlertDialogTrigger asChild>
-            <Button variant="destructive" disabled={isAnyActionPending}>
-              {isDeleting && <DotsWave className="mr-2 h-4 w-4" />}
-              {deleteButtonText}
-            </Button>
-          </AlertDialogTrigger>
+    // --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+    // Se elimina el componente <WizardNavigation> y se reemplaza con un layout
+    // de Flexbox para un control total y desacoplado de los botones de acción.
+    <div className="flex justify-between items-center pt-6 border-t">
+      <Button variant="ghost" onClick={onBack} disabled={isAnyActionPending}>
+        Retroceder
+      </Button>
+      <div className="flex flex-wrap gap-2 justify-end">
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive" disabled={isAnyActionPending}>
+            {isDeleting && <DotsWave className="mr-2 h-4 w-4" />}
+            {deleteButtonText}
+          </Button>
+        </AlertDialogTrigger>
 
-          <SaveAsTemplateDialog
-            onSave={onSaveAsTemplate}
-            isSaving={isSavingTemplate}
-            isDisabled={isAnyActionPending}
-            buttonText={templateButtonText}
-            content={templateDialogContent}
-          />
+        <SaveAsTemplateDialog
+          onSave={onSaveAsTemplate}
+          isSaving={isSavingTemplate}
+          isDisabled={isAnyActionPending}
+          buttonText={templateButtonText}
+          content={templateDialogContent}
+        />
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="inline-block">
-                  <Button
-                    variant="secondary"
-                    onClick={onPackage}
-                    disabled={isLaunchDisabled}
-                  >
-                    {isPackaging && <FadingLines className="mr-2 h-4 w-4" />}
-                    {packageButtonText}
-                  </Button>
-                </div>
-              </TooltipTrigger>
-              {!isLaunchReady && (
-                <TooltipContent>
-                  <p>
-                    Completa el checklist de lanzamiento para habilitar la
-                    exportación.
-                  </p>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="inline-block">
+                <Button
+                  variant="secondary"
+                  onClick={onPackage}
+                  disabled={isLaunchDisabled}
+                >
+                  {isPackaging && <FadingLines className="mr-2 h-4 w-4" />}
+                  {packageButtonText}
+                </Button>
+              </div>
+            </TooltipTrigger>
+            {!isLaunchReady && (
+              <TooltipContent>
+                <p>
+                  Completa el checklist de lanzamiento para habilitar la
+                  exportación.
+                </p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="inline-block">
-                  <Button
-                    onClick={onPublish}
-                    disabled={isLaunchDisabled}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    {isPublishing && <FadingLines className="mr-2 h-4 w-4" />}
-                    {publishButtonText}
-                  </Button>
-                </div>
-              </TooltipTrigger>
-              {!isLaunchReady && (
-                <TooltipContent>
-                  <p>
-                    Completa el checklist de lanzamiento para habilitar la
-                    publicación.
-                  </p>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      }
-    />
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="inline-block">
+                <Button
+                  onClick={onPublish}
+                  disabled={isLaunchDisabled}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  {isPublishing && <FadingLines className="mr-2 h-4 w-4" />}
+                  {publishButtonText}
+                </Button>
+              </div>
+            </TooltipTrigger>
+            {!isLaunchReady && (
+              <TooltipContent>
+                <p>
+                  Completa el checklist de lanzamiento para habilitar la
+                  publicación.
+                </p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    </div>
+    // --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
   );
 }

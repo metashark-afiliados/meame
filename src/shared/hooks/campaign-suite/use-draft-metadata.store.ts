@@ -2,8 +2,8 @@
 /**
  * @file use-draft-metadata.store.ts
  * @description Store atómico para la metadata y el progreso del borrador de campaña.
- * @version 1.1.0 (Smart Draft ID Generation)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.0.0 (Elite & Resilient Contract)
+ * @author L.I.A. Legacy
  */
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
@@ -20,9 +20,10 @@ interface DraftMetadata {
 }
 
 interface DraftMetadataActions {
-  setMetadata: (
-    data: Partial<Omit<DraftMetadata, "completedSteps" | "updatedAt">>
-  ) => void;
+  // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+  // Se corrige el tipo para permitir la actualización de 'updatedAt' desde el orquestador.
+  setMetadata: (data: Partial<Omit<DraftMetadata, "completedSteps">>) => void;
+  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
   completeStep: (stepId: number) => void;
   resetMetadata: () => void;
 }
@@ -46,6 +47,7 @@ export const useDraftMetadataStore = create<
         const currentState = get();
         let newDraftId = currentState.draftId;
 
+        // Si se establece un `baseCampaignId` y aún no existe un `draftId`, se genera uno nuevo.
         if (data.baseCampaignId && !currentState.draftId) {
           newDraftId = generateDraftId(data.baseCampaignId);
           logger.success(
@@ -57,11 +59,13 @@ export const useDraftMetadataStore = create<
           "[MetadataStore] Actualizando metadata del borrador.",
           data
         );
-        set({
+        set((state) => ({
+          ...state,
           ...data,
           draftId: newDraftId,
-          updatedAt: new Date().toISOString(),
-        });
+          // Si no se pasa un 'updatedAt', se genera uno nuevo para reflejar el cambio.
+          updatedAt: data.updatedAt || new Date().toISOString(),
+        }));
       },
       completeStep: (stepId: number) => {
         logger.info(`[MetadataStore] Marcando paso ${stepId} como completado.`);

@@ -1,11 +1,12 @@
-// RUTA: app/[locale]/(dev)/nos3/_actions/getSessionEvents.action.ts
+// RUTA: src/shared/lib/actions/nos3/getSessionEvents.action.ts
 /**
  * @file getSessionEvents.action.ts
  * @description Server Action de élite para obtener todos los eventos de una
  *              sesión específica de `nos3` desde Vercel Blob.
- *              v1.1.0 (Internal SSoT): Se alinea con la SSoT de tipos interna.
- * @version 1.1.0
- * @author RaZ Podestá - MetaShark Tech
+ *              v1.2.0 (Elite Observability Injection): Inyectado con un sistema
+ *              de tracing para una depuración y observabilidad de nivel superior.
+ * @version 1.2.0
+ * @author L.I.A. Legacy
  */
 "use server";
 
@@ -14,19 +15,15 @@ import type { eventWithTime } from "@/shared/lib/types/rrweb.types";
 import { logger } from "@/shared/lib/logging";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 
-/**
- * @function getSessionEventsAction
- * @description Obtiene todos los archivos de eventos para un sessionId, los fusiona
- *              y los ordena por timestamp.
- * @param {string} sessionId - El ID de la sesión a recuperar.
- * @returns {Promise<ActionResult<eventWithTime[]>>} Un array de eventos listos para reproducir.
- */
 export async function getSessionEventsAction(
   sessionId: string
 ): Promise<ActionResult<eventWithTime[]>> {
+  const traceId = logger.startTrace(`getSessionEvents:${sessionId}`);
   logger.info(
-    `[nos3-data-layer] Solicitando eventos para la sesión: ${sessionId}`
+    `[nos3-data-layer] Solicitando eventos para la sesión: ${sessionId}`,
+    { traceId }
   );
+
   try {
     const { blobs } = await list({
       prefix: `sessions/${sessionId}/`,
@@ -34,14 +31,17 @@ export async function getSessionEventsAction(
     });
 
     if (blobs.length === 0) {
-      logger.warn(
-        `[nos3-data-layer] No se encontraron blobs para la sesión: ${sessionId}`
-      );
+      const warningMsg = `No se encontraron blobs para la sesión: ${sessionId}`;
+      logger.warn(`[nos3-data-layer] ${warningMsg}`, { traceId });
       return {
         success: false,
         error: "No se encontraron datos para esta sesión.",
       };
     }
+    logger.traceEvent(
+      traceId,
+      `Se encontraron ${blobs.length} blobs de eventos.`
+    );
 
     const eventsPromises = blobs.map(async (blob) => {
       const response = await fetch(blob.url);
@@ -57,7 +57,8 @@ export async function getSessionEventsAction(
     allEvents.sort((a, b) => a.timestamp - b.timestamp);
 
     logger.success(
-      `[nos3-data-layer] Se recuperaron y ensamblaron ${allEvents.length} eventos para la sesión ${sessionId}.`
+      `[nos3-data-layer] Se recuperaron y ensamblaron ${allEvents.length} eventos para la sesión ${sessionId}.`,
+      { traceId }
     );
     return { success: true, data: allEvents };
   } catch (error) {
@@ -67,13 +68,13 @@ export async function getSessionEventsAction(
         : "Error desconocido en Vercel Blob";
     logger.error(
       `[nos3-data-layer] Fallo al obtener los eventos para la sesión ${sessionId}.`,
-      {
-        error: errorMessage,
-      }
+      { error: errorMessage, traceId }
     );
     return {
       success: false,
       error: "No se pudieron recuperar los eventos de la sesión.",
     };
+  } finally {
+    logger.endTrace(traceId);
   }
 }

@@ -1,22 +1,17 @@
 // RUTA: src/app/[locale]/(dev)/DevLayoutClient.tsx
 /**
  * @file DevLayoutClient.tsx
- * @description Orquestador de cliente soberano para el layout del DCC.
- *              v5.0.0 (Holistic Fusion & Production Ready): Fusiona la lógica del
- *              snapshot con las últimas refactorizaciones, implementando el
- *              tracking de actividad de usuario, gestión de tema y celebraciones.
- * @version 5.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description Orquestador de cliente soberano para el layout del DCC, con blindaje de contrato.
+ * @version 11.0.0 (Contract Guard & Elite Observability)
+ * @author L.I.A. Legacy
  */
 "use client";
 
 import React from "react";
-import { usePathname } from "next/navigation";
 import AppProviders from "@/components/layout/AppProviders";
-import DevHeader from "@/components/features/dev-tools/DevHeader";
+import { default as DCCHeader } from "@/components/features/dev-tools/DevHeader";
 import { DevThemeSwitcher } from "@/components/features/dev-tools/DevThemeSwitcher";
 import { Container } from "@/components/ui/Container";
-import { WizardHeader } from "@/components/features/campaign-suite/_components/WizardHeader";
 import { useCelebrationStore } from "@/shared/lib/stores/use-celebration.store";
 import { DigitalConfetti } from "@/components/ui/DigitalConfetti";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
@@ -25,6 +20,8 @@ import type { LoadedFragments } from "@/components/features/dev-tools/SuiteStyle
 import { logger } from "@/shared/lib/logging";
 import { AuraTrackerInitializer } from "@/components/features/analytics/AuraTrackerInitializer";
 import { useAuth } from "@/shared/hooks/use-auth";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
+import { ScrollingBanner } from "@/components/sections";
 
 interface DevLayoutClientProps {
   children: React.ReactNode;
@@ -39,64 +36,74 @@ export function DevLayoutClient({
   dictionary,
   allLoadedFragments,
 }: DevLayoutClientProps) {
-  logger.info(
-    `[DevLayoutClient] Hidratando layout del DCC v5.0 (Production Ready)`
-  );
-
+  logger.info(`[Observabilidad][CLIENTE] Renderizando DevLayoutClient v11.0.`);
   const { user } = useAuth();
   const { isCelebrating, endCelebration } = useCelebrationStore();
-  const pathname = usePathname();
-  const isCampaignSuite = pathname.includes("/creator/campaign-suite");
 
-  // Guardia de resiliencia para el contenido, asegurando que las claves existan.
   const {
-    devHeader: devHeaderContent,
-    devRouteMenu: devMenuContent,
-    toggleTheme: toggleThemeContent,
-    languageSwitcher: languageSwitcherContent,
-    suiteStyleComposer: suiteStyleComposerContent,
-    cookieConsentBanner: cookieConsentContent,
+    devHeader,
+    toggleTheme,
+    languageSwitcher,
+    userNav,
+    notificationBell,
+    devLoginPage,
+    suiteStyleComposer,
+    cookieConsentBanner,
+    scrollingBanner,
   } = dictionary;
 
+  // --- INICIO DEL GUARDIÁN DE RESILIENCIA DE CLIENTE ---
+  // Esta guardia actúa como una aserción de tipo para TypeScript.
   if (
-    !devHeaderContent ||
-    !devMenuContent ||
-    !toggleThemeContent ||
-    !languageSwitcherContent ||
-    !suiteStyleComposerContent ||
-    !cookieConsentContent
+    !devHeader ||
+    !toggleTheme ||
+    !languageSwitcher ||
+    !userNav ||
+    !notificationBell ||
+    !devLoginPage ||
+    !suiteStyleComposer ||
+    !cookieConsentBanner ||
+    !scrollingBanner
   ) {
-    logger.error("[DevLayoutClient] Faltan claves de contenido i18n críticas.");
+    const errorMessage =
+      "Faltan claves de contenido críticas para el layout de cliente.";
+    logger.error(`[Guardián de Resiliencia] ${errorMessage}`);
+    // En el cliente, mostramos un error de desarrollo claro.
     return (
-      <div className="bg-destructive text-destructive-foreground p-4">
-        Error: Faltan datos de configuración para el layout de desarrollo.
-        Revise los archivos i18n.
-      </div>
+      <DeveloperErrorDisplay
+        context="DevLayoutClient"
+        errorMessage={errorMessage}
+      />
     );
   }
+  // --- FIN DEL GUARDIÁN DE RESILIENCIA DE CLIENTE ---
+
+  const headerContentBundle = {
+    devHeader,
+    toggleTheme,
+    languageSwitcher,
+    userNav,
+    notificationBell,
+    devLoginPage,
+  };
 
   return (
-    <AppProviders locale={locale} cookieConsentContent={cookieConsentContent}>
+    <AppProviders locale={locale} cookieConsentContent={cookieConsentBanner}>
       {user && <AuraTrackerInitializer scope="user" />}
-
-      <DevHeader
+      <DCCHeader
         locale={locale}
-        centerComponent={isCampaignSuite ? <WizardHeader /> : null}
         devThemeSwitcher={
           <DevThemeSwitcher
             allThemeFragments={allLoadedFragments}
-            content={suiteStyleComposerContent}
+            content={suiteStyleComposer}
           />
         }
-        content={devHeaderContent}
-        devMenuContent={devMenuContent}
-        toggleThemeContent={toggleThemeContent}
-        languageSwitcherContent={languageSwitcherContent}
+        content={headerContentBundle} // Ahora el tipo es correcto y no-nulo
       />
-      <main className="py-8 md:py-12">
+      <ScrollingBanner content={scrollingBanner} />
+      <main className="pt-8">
         <Container>{children}</Container>
       </main>
-
       <DigitalConfetti isActive={isCelebrating} onComplete={endCelebration} />
     </AppProviders>
   );

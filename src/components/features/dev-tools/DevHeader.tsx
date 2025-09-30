@@ -1,38 +1,42 @@
 // RUTA: src/components/features/dev-tools/DevHeader.tsx
 /**
  * @file DevHeader.tsx
- * @description Header de élite para el Developer Command Center (DCC).
- *              v14.0 (Sovereign Path Restoration): Se corrige la ruta de
- *              importación de DevToolsDropdown para alinearse con la ACS,
- *              restaurando la integridad del build del DCC.
- * @version 14.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description Header de élite para el DCC, ahora con cumplimiento estricto de las
+ *              Reglas de Hooks de React y observabilidad completa.
+ * @version 19.1.0 (React Hooks Compliance)
+ * @author L.I.A. Legacy
  */
 "use client";
 
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import { logger } from "@/shared/lib/logging";
 import { routes } from "@/shared/lib/navigation";
 import { type Locale, supportedLocales } from "@/shared/lib/i18n/i18n.config";
+import { useAuth } from "@/shared/hooks/use-auth";
 import { Container } from "@/components/ui/Container";
-// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-import DevToolsDropdown from "@/components/features/dev-tools/DevToolsDropdown";
-// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import { ToggleTheme } from "@/components/ui/ToggleTheme";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { UserNavClient } from "@/components/features/auth/_components/UserNavClient";
+import { NotificationBell } from "@/components/features/notifications/NotificationBell/NotificationBell";
+import { WizardHeader } from "@/components/features/campaign-suite/_components/WizardHeader";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import { DeveloperErrorDisplay } from "./DeveloperErrorDisplay";
 
 interface DevHeaderProps {
   locale: Locale;
-  centerComponent?: React.ReactNode;
   devThemeSwitcher?: React.ReactNode;
-  content: NonNullable<Dictionary["devHeader"]>;
-  devMenuContent: NonNullable<Dictionary["devRouteMenu"]>;
-  toggleThemeContent: NonNullable<Dictionary["toggleTheme"]>;
-  languageSwitcherContent: NonNullable<Dictionary["languageSwitcher"]>;
+  content: {
+    devHeader: NonNullable<Dictionary["devHeader"]>;
+    toggleTheme: NonNullable<Dictionary["toggleTheme"]>;
+    languageSwitcher: NonNullable<Dictionary["languageSwitcher"]>;
+    userNav: NonNullable<Dictionary["userNav"]>;
+    notificationBell: NonNullable<Dictionary["notificationBell"]>;
+    devLoginPage: NonNullable<Dictionary["devLoginPage"]>;
+  };
 }
 
 const headerVariants: Variants = {
@@ -40,25 +44,52 @@ const headerVariants: Variants = {
   visible: {
     y: 0,
     opacity: 1,
-    transition: {
-      duration: 0.5,
-      ease: [0.22, 1, 0.36, 1],
-    },
+    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
   },
 };
 
 export default function DevHeader({
   locale,
-  centerComponent,
   devThemeSwitcher,
   content,
-  devMenuContent,
-  toggleThemeContent,
-  languageSwitcherContent,
 }: DevHeaderProps): React.ReactElement {
-  logger.info("[DevHeader] Renderizando v14.0 (Sovereign Path Restoration).");
+  logger.info("[Observabilidad][CLIENTE] Renderizando DevHeader v19.1.");
 
-  const headerTitle = content.title ?? "Developer Command Center";
+  // --- INICIO: REFACTORIZACIÓN DE REGLAS DE HOOKS ---
+  // Los hooks se mueven al nivel superior, ANTES de cualquier retorno condicional.
+  const { user, profile } = useAuth();
+  const pathname = usePathname();
+  // --- FIN: REFACTORIZACIÓN DE REGLAS DE HOOKS ---
+
+  // --- INICIO: GUARDIÁN DE RESILIENCIA ---
+  const {
+    devHeader,
+    toggleTheme,
+    languageSwitcher,
+    userNav,
+    notificationBell,
+    devLoginPage,
+  } = content;
+  if (
+    !devHeader ||
+    !toggleTheme ||
+    !languageSwitcher ||
+    !userNav ||
+    !notificationBell ||
+    !devLoginPage
+  ) {
+    const errorMessage =
+      "La prop 'content' para DevHeader es incompleta o inválida.";
+    logger.error(`[Guardián de Resiliencia] ${errorMessage}`, {
+      receivedContent: content,
+    });
+    return (
+      <DeveloperErrorDisplay context="DevHeader" errorMessage={errorMessage} />
+    );
+  }
+  // --- FIN: GUARDIÁN DE RESILIENCIA ---
+
+  const isCampaignSuite = pathname.includes("/creator/campaign-suite");
 
   return (
     <motion.header
@@ -69,43 +100,45 @@ export default function DevHeader({
     >
       <Container>
         <div className="flex h-16 items-center justify-between">
-          <div className="flex-shrink-0 w-1/4">
+          <div className="flex-shrink-0 w-1/3">
             <Link
               href={routes.devDashboard.path({ locale })}
               className="flex items-center gap-3 group"
-              aria-label={content.homeLinkAriaLabel}
             >
               <Image
                 src="/img/layout/header/globalfitwell-logo-v2.svg"
-                alt={content.logoAlt}
+                alt={content.devHeader.logoAlt}
                 width={150}
                 height={28}
-                className="h-7 w-auto"
                 priority
               />
               <span className="font-semibold text-sm text-foreground/80 group-hover:text-primary transition-colors hidden lg:inline">
-                {headerTitle}
+                {content.devHeader.title}
               </span>
             </Link>
           </div>
-
-          <div className="flex-grow w-1/2 flex items-center justify-center">
-            {centerComponent}
+          <div className="flex-grow w-1/3 flex items-center justify-center">
+            {isCampaignSuite && <WizardHeader />}
           </div>
-
-          <div className="flex items-center justify-end gap-2 sm:gap-4 flex-shrink-0 w-1/4">
+          <div className="flex items-center justify-end gap-2 sm:gap-4 flex-shrink-0 w-1/3">
             {devThemeSwitcher}
-            <ToggleTheme content={toggleThemeContent} />
+            <ToggleTheme content={content.toggleTheme} />
             <LanguageSwitcher
               currentLocale={locale}
               supportedLocales={supportedLocales}
-              content={languageSwitcherContent}
+              content={content.languageSwitcher}
             />
-            <DevToolsDropdown dictionary={devMenuContent} />
+            <NotificationBell content={content.notificationBell} />
+            <UserNavClient
+              user={user}
+              profile={profile}
+              userNavContent={content.userNav}
+              loginContent={content.devLoginPage}
+              locale={locale}
+            />
           </div>
         </div>
       </Container>
     </motion.header>
   );
 }
-// RUTA: src/components/features/dev-tools/DevHeader.tsx

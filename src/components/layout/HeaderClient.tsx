@@ -1,8 +1,9 @@
 // RUTA: src/components/layout/HeaderClient.tsx
 /**
  * @file HeaderClient.tsx
- * @description Componente de Cliente para la cabecera principal, con navegación animada.
- * @version 36.1.0 (Code Hygiene & Active Link Fix)
+ * @description Componente de Cliente para la cabecera principal, ahora cumpliendo
+ *              estrictamente con las Reglas de Hooks de React.
+ * @version 39.1.0 (React Hooks Compliance)
  * @author L.I.A. Legacy
  */
 "use client";
@@ -30,6 +31,7 @@ import { CartTrigger } from "./CartTrigger";
 import { CartSheet } from "./CartSheet";
 import { UserNavClient } from "@/components/features/auth/_components/UserNavClient";
 import { NotificationBell } from "@/components/features/notifications/NotificationBell/NotificationBell";
+import { DeveloperErrorDisplay } from "../features/dev-tools";
 
 export interface HeaderClientProps {
   user: User | null;
@@ -55,9 +57,46 @@ export default function HeaderClient({
   currentLocale,
   supportedLocales,
 }: HeaderClientProps): React.ReactElement {
-  logger.info("[HeaderClient] Renderizando v36.1.");
+  logger.info(
+    "[Observabilidad][CLIENTE] Renderizando HeaderClient (Público) v39.1."
+  );
+
+  // --- INICIO: REFACTORIZACIÓN DE REGLAS DE HOOKS ---
+  // Los hooks se mueven al nivel superior, antes de cualquier retorno condicional.
   const pathname = usePathname();
   const [isCartOpen, setIsCartOpen] = useState(false);
+  // --- FIN: REFACTORIZACIÓN DE REGLAS DE HOOKS ---
+
+  // --- INICIO: GUARDIÁN DE RESILIENCIA ---
+  const {
+    header,
+    languageSwitcher,
+    cart,
+    userNav,
+    notificationBell,
+    devLoginPage,
+  } = content;
+  if (
+    !header ||
+    !languageSwitcher ||
+    !cart ||
+    !userNav ||
+    !notificationBell ||
+    !devLoginPage
+  ) {
+    const errorMessage =
+      "La prop 'content' para HeaderClient es incompleta o inválida.";
+    logger.error(`[Guardián de Resiliencia] ${errorMessage}`, {
+      receivedContent: content,
+    });
+    return (
+      <DeveloperErrorDisplay
+        context="HeaderClient"
+        errorMessage={errorMessage}
+      />
+    );
+  }
+  // --- FIN: GUARDIÁN DE RESILIENCIA ---
 
   return (
     <motion.header
@@ -74,7 +113,7 @@ export default function HeaderClient({
           >
             <Image
               src={logoUrl}
-              alt={content.header.logoAlt}
+              alt={header.logoAlt}
               width={150}
               height={28}
               className="h-7 w-auto"
@@ -84,7 +123,7 @@ export default function HeaderClient({
 
           <NavigationMenu>
             <NavigationMenuList>
-              {content.header.navLinks.map((link) => (
+              {header.navLinks.map((link) => (
                 <NavigationMenuItem key={link.href}>
                   <Link
                     href={`/${currentLocale}${link.href}`}
@@ -107,30 +146,27 @@ export default function HeaderClient({
             <LanguageSwitcher
               currentLocale={currentLocale}
               supportedLocales={supportedLocales}
-              content={content.languageSwitcher}
+              content={languageSwitcher}
             />
-            <CartTrigger
-              onClick={() => setIsCartOpen(true)}
-              content={content.cart}
-            />
+            <CartTrigger onClick={() => setIsCartOpen(true)} content={cart} />
             <CartSheet
               isOpen={isCartOpen}
               onOpenChange={setIsCartOpen}
-              content={content.cart}
+              content={cart}
               locale={currentLocale}
             />
-            <NotificationBell content={content.notificationBell} />
+            <NotificationBell content={notificationBell} />
             <UserNavClient
               user={user}
               profile={profile}
-              userNavContent={content.userNav}
-              loginContent={content.devLoginPage}
+              userNavContent={userNav}
+              loginContent={devLoginPage}
               locale={currentLocale}
             />
             {!user && (
               <Button asChild variant="ghost" size="sm">
                 <Link href={`/${currentLocale}/login?view=signup`}>
-                  {content.header.signUpButton.label}
+                  {header.signUpButton.label}
                 </Link>
               </Button>
             )}

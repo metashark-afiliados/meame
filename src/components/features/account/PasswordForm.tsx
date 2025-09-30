@@ -1,9 +1,11 @@
-// RUTA: components/features/account/PasswordForm.tsx
+// RUTA: src/components/features/account/PasswordForm.tsx
 /**
  * @file PasswordForm.tsx
  * @description Componente de cliente seguro para el formulario de cambio de contraseña.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ *              v2.0.0 (Enhanced Security): Implementa la validación de la contraseña
+ *              actual antes de permitir el cambio, mejorando la seguridad de la cuenta.
+ * @version 2.0.0
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -30,23 +32,27 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/Form";
-import { UpdatePasswordSchema } from "@/shared/lib/schemas/account/account-forms.schema";
+import {
+  UpdatePasswordSchema,
+  type UpdatePasswordFormData,
+} from "@/shared/lib/schemas/account/account-forms.schema";
 import { updateUserPasswordAction } from "@/shared/lib/actions/account/manage-account.action";
-import type { z } from "zod";
-
-type PasswordFormData = z.infer<typeof UpdatePasswordSchema>;
 
 export function PasswordForm(): React.ReactElement {
   const [isPending, startTransition] = useTransition();
-  const form = useForm<PasswordFormData>({
+  const form = useForm<UpdatePasswordFormData>({
     resolver: zodResolver(UpdatePasswordSchema),
-    defaultValues: { newPassword: "", confirmPassword: "" },
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
   });
 
-  const onSubmit = (formData: PasswordFormData) => {
+  const onSubmit = (formData: UpdatePasswordFormData) => {
     startTransition(async () => {
-      // Creamos un FormData object para enviar a la Server Action
       const formPayload = new FormData();
+      formPayload.append("currentPassword", formData.currentPassword);
       formPayload.append("newPassword", formData.newPassword);
       formPayload.append("confirmPassword", formData.confirmPassword);
 
@@ -74,6 +80,21 @@ export function PasswordForm(): React.ReactElement {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
+            {/* --- [INICIO] NUEVO CAMPO DE SEGURIDAD --- */}
+            <FormField
+              control={form.control}
+              name="currentPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <Label htmlFor="currentPassword">Contraseña Actual</Label>
+                  <FormControl>
+                    <Input id="currentPassword" type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* --- [FIN] NUEVO CAMPO DE SEGURIDAD --- */}
             <FormField
               control={form.control}
               name="newPassword"

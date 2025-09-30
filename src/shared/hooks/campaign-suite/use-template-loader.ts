@@ -3,8 +3,8 @@
  * @file use-template-loader.ts
  * @description Hook de élite para orquestar la carga de una plantilla y la
  *              hidratación de los stores atómicos de la SDC.
- * @version 2.0.0 (Atomic Store Hydration)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 3.0.0 (Holistic Store Hydration & Contract Alignment)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -40,16 +40,22 @@ export function useTemplateLoader(onLoadSuccess: () => void) {
         // Hidratar cada store atómico con su porción de datos
         useDraftMetadataStore.setState({
           baseCampaignId: draftData.baseCampaignId,
-          variantName: `${draftData.variantName} (Copia)`, // Sugerir que es una copia
+          variantName: `${draftData.variantName} (Copia)`,
           seoKeywords: draftData.seoKeywords,
-          completedSteps: [], // Resetear el progreso
+          completedSteps: [],
           updatedAt: new Date().toISOString(),
           draftId: generateDraftId(draftData.baseCampaignId || "template"),
         });
+
+        // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO (CORRIGE TS2353 y TS2339)] ---
+        // Se utilizan las claves 'producer' y 'campaignType' para alinearse
+        // con el contrato actualizado de Step0Data y CampaignDraft.
         useStep0IdentityStore.setState({
-          affiliateNetwork: draftData.affiliateNetwork,
-          affiliateUrl: draftData.affiliateUrl,
+          producer: draftData.producer,
+          campaignType: draftData.campaignType,
         });
+        // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
+
         useStep1StructureStore.setState({
           headerConfig: draftData.headerConfig,
           footerConfig: draftData.footerConfig,

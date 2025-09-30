@@ -2,8 +2,10 @@
 /**
  * @file use-prompt-vault.ts
  * @description Hook "cerebro" para la lógica de la Bóveda de Prompts.
- * @version 3.0.0 (Creative Genome v4.0)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 3.1.0 (Diagnostic Trace Injection): Se inyecta logging de
+ *              diagnóstico para trazar el flujo de obtención de datos.
+ * @version 3.1.0
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -17,7 +19,8 @@ import {
 } from "@/shared/lib/actions/raz-prompts";
 import type { RaZPromptsSesaTags } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
 
-export function usePromptVault() {
+export function usePromptVault(traceId: string) {
+  // [INYECCIÓN DE LOGGING]
   const [prompts, setPrompts] = useState<EnrichedRaZPromptsEntry[]>([]);
   const [totalPrompts, setTotalPrompts] = useState(0);
   const [isPending, startTransition] = useTransition();
@@ -31,22 +34,37 @@ export function usePromptVault() {
   const fetchPrompts = useCallback(
     (input: GetPromptsInput) => {
       startTransition(async () => {
-        logger.trace("[usePromptVault] Iniciando fetch de prompts...", {
-          input,
-        });
+        // [INYECCIÓN DE LOGGING]
+        logger.traceEvent(
+          traceId,
+          "[usePromptVault] Iniciando fetch de prompts...",
+          {
+            input,
+          }
+        );
         const result = await getPromptsAction(input);
         if (result.success) {
+          // [INYECCIÓN DE LOGGING]
+          logger.traceEvent(
+            traceId,
+            "[usePromptVault] Fetch de prompts exitoso.",
+            { count: result.data.prompts.length }
+          );
           setPrompts(result.data.prompts);
           setTotalPrompts(result.data.total);
         } else {
+          // [INYECCIÓN DE LOGGING]
+          logger.error("[usePromptVault] Fetch de prompts fallido.", {
+            error: result.error,
+            traceId,
+          });
           toast.error("Error al cargar prompts", { description: result.error });
-          // Resetea el estado en caso de error para evitar inconsistencias
           setPrompts([]);
           setTotalPrompts(0);
         }
       });
     },
-    [startTransition] // startTransition es una dependencia estable
+    [startTransition, traceId] // [INYECCIÓN DE LOGGING]
   );
 
   useEffect(() => {
@@ -60,8 +78,7 @@ export function usePromptVault() {
 
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1); // Resetea la página al buscar
-    // El useEffect se encargará de volver a llamar a fetchPrompts
+    setCurrentPage(1);
   }, []);
 
   const handleFilterChange = useCallback(
@@ -75,7 +92,7 @@ export function usePromptVault() {
         }
         return newFilters;
       });
-      setCurrentPage(1); // Resetea la página al cambiar el filtro
+      setCurrentPage(1);
     },
     []
   );

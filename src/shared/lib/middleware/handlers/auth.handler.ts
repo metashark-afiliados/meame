@@ -2,87 +2,94 @@
 /**
  * @file auth.handler.ts
  * @description Manejador de autenticación para el middleware.
- * @version 5.0.0 (Edge Runtime Compatibility Fix)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 7.0.0 (Resilient Pattern Matching)
+ * @author L.I.A. Legacy
  */
 import "server-only";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { type MiddlewareHandler } from "../engine";
 import { logger } from "../../logging";
 import { routes } from "../../navigation";
 import { getCurrentLocaleFromPathname } from "../../utils/i18n/i18n.utils";
 
-const PROTECTED_PATHS = ["/creator", "/analytics", "/account", "/dev"];
+const PROTECTED_ROUTE_KEYS: (keyof typeof routes)[] = [
+  "creatorCampaignSuite",
+  "analytics",
+  "account",
+  "devDashboard",
+  "bavi",
+  "razPrompts",
+  "cogniReadDashboard",
+  "nos3Dashboard",
+];
 
 export const authHandler: MiddlewareHandler = async (req, res) => {
-  const traceId = logger.startTrace("authHandler_v5.0");
-  logger.trace("[AuthHandler] Iniciando...", {
-    path: req.nextUrl.pathname,
-    traceId,
+  const { pathname } = req.nextUrl;
+  const ip = req.headers.get("x-visitor-ip") || "IP desconocida";
+  const locale = getCurrentLocaleFromPathname(pathname);
+
+  const isProtectedRoute = PROTECTED_ROUTE_KEYS.some((key) => {
+    const routeTemplate = routes[key].template;
+    // Convierte la plantilla de ruta en una expresión regular robusta.
+    // Ejemplos:
+    // /analytics/[variantId] -> /^\/it-IT\/analytics\/[^/]+\/?$/
+    // /creator/[[...stepId]] -> /^\/it-IT\/creator(?:\/.*)?\/?$/
+    const regexPath = routeTemplate
+      .replace(/\[\[\.\.\..*?\]\]/g, "(?:/.*)?") // [[...slug]] (opcional)
+      .replace(/\[\.\.\..*?\]/g, "/.*") // [...slug]
+      .replace(/\[.*?\]/g, "[^/]+"); // [slug]
+
+    const routeRegex = new RegExp(`^/${locale}${regexPath}/?$`);
+    return routeRegex.test(pathname);
   });
 
-  // --- [INICIO DE REFACTORIZACIÓN CRÍTICA] ---
-  // Se crea un cliente de Supabase específico para el contexto del middleware.
+  if (!isProtectedRoute) {
+    logger.trace(
+      `[AuthHandler] Decisión: Omitir. Razón: La ruta '${pathname}' no es protegida.`
+    );
+    return res;
+  }
+
+  logger.trace(
+    `[AuthHandler] Ruta protegida detectada: '${pathname}'. Verificando sesión...`
+  );
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return req.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
+        get: (name: string) => req.cookies.get(name)?.value,
+        set: (name: string, value: string, options: CookieOptions) => {
           req.cookies.set({ name, value, ...options });
           res.cookies.set({ name, value, ...options });
         },
-        remove(name: string, options: CookieOptions) {
+        remove: (name: string, options: CookieOptions) => {
           req.cookies.set({ name, value: "", ...options });
           res.cookies.set({ name, value: "", ...options });
         },
       },
     }
   );
-  // --- [FIN DE REFACTORIZACIÓN CRÍTICA] ---
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const { pathname } = req.nextUrl;
-  const ip = req.headers.get("x-visitor-ip") || "IP desconocida";
 
-  if (pathname.includes("/login")) {
-    logger.trace("[AuthHandler] Ruta de login, omitiendo.", { traceId });
-    logger.endTrace(traceId);
-    return res;
-  }
-
-  const locale = getCurrentLocaleFromPathname(pathname);
-  const isProtectedRoute = PROTECTED_PATHS.some((path) =>
-    pathname.startsWith(`/${locale}${path}`)
-  );
-
-  if (!user && isProtectedRoute) {
+  if (!user) {
     const loginUrl = new URL(routes.login.path({ locale }), req.url);
     loginUrl.searchParams.set("redirectedFrom", pathname);
-
-    logger.warn(`[AuthHandler] ACCESO NO AUTORIZADO a ruta protegida.`, {
-      path: pathname,
-      ip,
-      redirectTo: loginUrl.pathname,
-      traceId,
-    });
-    logger.endTrace(traceId);
+    logger.warn(
+      `[AuthHandler] Decisión: Redirigir. Razón: ACCESO NO AUTORIZADO a ruta protegida.`,
+      { path: pathname, ip, redirectTo: loginUrl.pathname }
+    );
     return NextResponse.redirect(loginUrl);
   }
 
-  if (user) {
-    logger.trace(
-      `[AuthHandler] Acceso autorizado para ${user.email} a ${pathname}.`,
-      { traceId }
-    );
-  }
+  logger.success(
+    `[AuthHandler] Acceso autorizado para ${user.email} a ${pathname}.`
+  );
 
-  logger.endTrace(traceId);
   return res;
 };

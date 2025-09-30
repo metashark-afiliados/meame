@@ -1,8 +1,8 @@
 // RUTA: src/components/layout/Header.tsx
 /**
  * @file Header.tsx
- * @description Componente "Server Shell" para la cabecera, ahora obtiene el logo desde la BAVI.
- * @version 36.0.0 (BAVI-Driven Logo)
+ * @description Componente "Server Shell" para la cabecera, con observabilidad de élite.
+ * @version 37.0.0 (Elite Observability Injection)
  * @author L.I.A. Legacy
  */
 import React from "react";
@@ -21,12 +21,12 @@ export default async function Header({
   supportedLocales,
 }: HeaderShellProps) {
   logger.info(
-    "[Header Shell v36.0] Obteniendo datos de sesión, perfil y logo BAVI."
+    "[Observabilidad][SERVIDOR] Renderizando Header Server Shell v37.0."
   );
 
   let user = null;
   let profile = null;
-  let logoUrl = content.header.logoUrl; // Fallback a la URL de i18n
+  let logoUrl = content.header.logoUrl;
 
   try {
     const supabase = createServerClient();
@@ -40,7 +40,6 @@ export default async function Header({
       if (profileResult.success) profile = profileResult.data;
     }
 
-    // --- LÓGICA DE OBTENCIÓN DE LOGO DESDE BAVI ---
     const baviManifest = await getBaviManifest();
     const logoAsset = baviManifest.assets.find(
       (a) => a.assetId === "i-sybl-global-fitwell-logo-01"
@@ -49,7 +48,6 @@ export default async function Header({
     if (logoVariant?.publicId) {
       logoUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,h_56/${logoVariant.publicId}`;
     }
-    // --- FIN DE LÓGICA ---
   } catch (error) {
     logger.error(
       "[Header Shell] Fallo crítico durante la obtención de datos.",

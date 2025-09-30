@@ -3,8 +3,8 @@
  * @file Step0Client.tsx
  * @description Componente Contenedor de Cliente para el Paso 0. Gestiona el
  *              estado del formulario, incluyendo la selección de proveedor.
- * @version 9.2.0 (Holistic & Elite Compliance)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 9.2.1 (Sovereign Path Restoration)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -19,11 +19,13 @@ import {
 } from "framer-motion";
 import { z } from "zod";
 import { logger } from "@/shared/lib/logging";
+// --- [INICIO DE REFACTORIZACIÓN DE RUTA SOBERANA] ---
 import {
   step0Schema,
   type Step0Data,
   type Step0ContentSchema,
-} from "@/shared/lib/schemas/campaign-suite/steps/step0.schema";
+} from "@/shared/lib/schemas/campaigns/steps/step0.schema";
+// --- [FIN DE REFACTORIZACIÓN DE RUTA SOBERANA] ---
 import { useWizard } from "@/components/features/campaign-suite/_context/WizardContext";
 import { Step0Form } from "./Step0Form";
 import { PassportStamp } from "@/components/ui/PassportStamp";
@@ -31,7 +33,6 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { useDraftMetadataStore } from "@/shared/hooks/campaign-suite/use-draft-metadata.store";
 import { useStep0IdentityStore } from "@/shared/hooks/campaign-suite/use-step0-identity.store";
 
-// SSoT de Tipos para Props
 type Step0Content = z.infer<typeof Step0ContentSchema>;
 
 interface Step0ClientProps {
@@ -43,10 +44,8 @@ export function Step0Client({
   content,
   baseCampaigns,
 }: Step0ClientProps): React.ReactElement {
-  // Pilar III (Observabilidad)
-  logger.info("Renderizando Step0Client v9.2 (Holistic).");
+  logger.info("Renderizando Step0Client v9.2.1 (Path Restoration).");
 
-  // Hooks para la gestión de estado y navegación
   const {
     baseCampaignId,
     variantName,
@@ -60,7 +59,6 @@ export function Step0Client({
     "form" | "stamping" | "complete"
   >("form");
 
-  // Configuración del formulario con valores por defecto del store
   const form = useForm<Step0Data>({
     resolver: zodResolver(step0Schema),
     defaultValues: {
@@ -72,7 +70,6 @@ export function Step0Client({
     },
   });
 
-  // Efecto para la transición animada entre estados del formulario
   useEffect(() => {
     if (submissionState === "stamping") {
       const timer = setTimeout(() => setSubmissionState("complete"), 2000);
@@ -83,10 +80,8 @@ export function Step0Client({
     }
   }, [submissionState, goToNextStep]);
 
-  // Manejador del envío del formulario
   const onSubmit = (data: Step0Data) => {
     logger.startGroup("[Step0Client] Procesando envío de formulario...");
-    // Actualiza los stores atómicos con los datos del formulario
     setMetadata({
       baseCampaignId: data.baseCampaignId,
       variantName: data.variantName,
@@ -96,15 +91,14 @@ export function Step0Client({
       producer: data.producer,
       campaignType: data.campaignType,
     });
-    completeStep(0); // Marca el paso como completado
+    completeStep(0);
     logger.success(
       "[Step0Client] Stores atómicos actualizados. Iniciando animación MEA/UX."
     );
-    setSubmissionState("stamping"); // Cambia al estado de animación
+    setSubmissionState("stamping");
     logger.endGroup();
   };
 
-  // Configuración de animación para MEA/UX
   const transitionConfig: Transition = { duration: 0.3, ease: "easeInOut" };
   const animationVariants: Variants = {
     initial: { opacity: 0, scale: 0.95 },

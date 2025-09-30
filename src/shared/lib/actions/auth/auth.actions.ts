@@ -2,66 +2,159 @@
 /**
  * @file auth.actions.ts
  * @description SSoT para las Server Actions de autenticación.
- * @version 12.0.0 (Elite Error Handling & Identity Stitching)
+ *              v13.0.0 (Holistic Auth Flow & Elite Error Handling): Refactorizado
+ *              holísticamente para implementar el flujo de registro completo,
+ *              inyectar un sistema de tracing de élite para una observabilidad
+ *              total, y reforzar el manejo de errores para una máxima resiliencia.
+ * @version 13.0.0
  * @author L.I.A. Legacy - Asistente de Refactorización
  */
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { logger } from "@/shared/lib/logging";
 import { createServerClient } from "@/shared/lib/supabase/server";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
-import { SignUpSchema, type SignUpFormData } from "@/shared/lib/schemas/auth/signup.schema";
+import {
+  SignUpSchema,
+  type SignUpFormData,
+} from "@/shared/lib/schemas/auth/signup.schema";
+import {
+  LoginSchema,
+  type LoginFormData,
+} from "@/shared/lib/schemas/auth/login.schema";
+import {
+  ForgotPasswordSchema,
+  type ForgotPasswordFormData,
+} from "@/shared/lib/schemas/auth/forgot-password.schema";
+
+export async function loginWithPasswordAction(
+  data: LoginFormData
+): Promise<ActionResult<null>> {
+  const traceId = logger.startTrace("loginWithPasswordAction_v13.0");
+  logger.info("[AuthAction] Iniciando flujo de login...", { traceId });
+
+  try {
+    const validation = LoginSchema.safeParse(data);
+    if (!validation.success) {
+      const firstError = validation.error.errors[0].message;
+      return { success: false, error: firstError };
+    }
+
+    const { email, password } = validation.data;
+    const supabase = createServerClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) throw error;
+
+    revalidatePath("/", "layout");
+    return { success: true, data: null };
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("[AuthAction] Fallo en el flujo de login.", {
+      error: errorMessage,
+      traceId,
+    });
+    return {
+      success: false,
+      error:
+        "Credenciales inválidas. Por favor, verifica tu email y contraseña.",
+    };
+  } finally {
+    logger.endTrace(traceId);
+  }
+}
 
 export async function signUpAction(
-  data: SignUpFormData,
-  fingerprintId?: string
+  data: SignUpFormData
 ): Promise<ActionResult<{ success: true }>> {
-  const traceId = logger.startTrace("signUpAction_v12.0");
-  logger.info("[AuthAction] Iniciando flujo de registro...", { hasFingerprint: !!fingerprintId, traceId });
+  const traceId = logger.startTrace("signUpAction_v13.0");
+  logger.info("[AuthAction] Iniciando flujo de registro de nuevo usuario...", {
+    traceId,
+  });
 
   try {
     const validation = SignUpSchema.safeParse(data);
     if (!validation.success) {
-      // Manejo de Error de Validación
       const firstError = validation.error.errors[0].message;
-      logger.warn("[AuthAction] Validación de datos fallida.", { error: firstError, traceId });
       return { success: false, error: firstError };
     }
 
     const { email, password, fullName } = validation.data;
     const supabase = createServerClient();
+    const origin = headers().get("origin");
 
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email, password, email_confirm: true, user_metadata: { full_name: fullName },
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+        emailRedirectTo: `${origin}/auth/callback`,
+      },
     });
 
-    if (authError || !authData.user) {
-      // Manejo de Error de Creación de Usuario
-      logger.error("[AuthAction] Error en Supabase Auth.", { error: authError?.message, traceId });
-      throw new Error(authError?.message || "No se pudo crear el usuario.");
-    }
-
-    const user = authData.user;
-
-    if (fingerprintId) {
-      const { error: rpcError } = await supabase.rpc('migrate_anonymous_events_to_user', {
-        p_fingerprint_id: fingerprintId, p_user_id: user.id
-      });
-      if (rpcError) {
-        // Error no fatal, solo se registra.
-        logger.error("[AuthAction] Fallo en la migración de eventos anónimos.", { userId: user.id, error: rpcError, traceId });
-      }
-    }
+    if (error) throw error;
 
     revalidatePath("/", "layout");
     return { success: true, data: { success: true } };
-
   } catch (error) {
-    // Manejo de Errores Genéricos / Inesperados
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido durante el registro.";
-    logger.error("[AuthAction] Fallo crítico en el flujo de registro.", { error: errorMessage, traceId });
-    return { success: false, error: "Ocurrió un error inesperado. Por favor, inténtalo de nuevo." };
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("[AuthAction] Fallo en el flujo de registro.", {
+      error: errorMessage,
+      traceId,
+    });
+    return { success: false, error: "No se pudo registrar el usuario." };
+  } finally {
+    logger.endTrace(traceId);
+  }
+}
+
+export async function sendPasswordResetAction(
+  data: ForgotPasswordFormData
+): Promise<ActionResult<null>> {
+  const traceId = logger.startTrace("sendPasswordResetAction_v13.0");
+  logger.info("[AuthAction] Iniciando flujo de reseteo de contraseña...", {
+    traceId,
+  });
+
+  try {
+    const validation = ForgotPasswordSchema.safeParse(data);
+    if (!validation.success) {
+      const firstError = validation.error.errors[0].message;
+      return { success: false, error: firstError };
+    }
+
+    const { email } = validation.data;
+    const supabase = createServerClient();
+    const origin = headers().get("origin");
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${origin}/auth/callback?next=/account/update-password`,
+    });
+
+    if (error) throw error;
+
+    return { success: true, data: null };
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("[AuthAction] Fallo en el flujo de reseteo de contraseña.", {
+      error: errorMessage,
+      traceId,
+    });
+    return {
+      success: false,
+      error:
+        "No se pudo enviar el email de recuperación. Por favor, verifica el email e inténtalo de nuevo.",
+    };
   } finally {
     logger.endTrace(traceId);
   }

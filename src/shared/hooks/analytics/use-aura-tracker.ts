@@ -1,11 +1,11 @@
 // RUTA: src/shared/hooks/analytics/use-aura-tracker.ts
 /**
  * @file use-aura-tracker.ts
- * @description Hook de cliente soberano para el sistema de analíticas "Aura" v5.0.
- *              Implementa tracking de doble embudo (usuarios y visitantes), persistencia
- *              encriptada en localStorage y envío robusto por lotes.
- * @version 5.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description Hook de cliente soberano para el sistema de analíticas "Aura".
+ *              Implementa tracking de doble embudo, persistencia encriptada
+ *              y envío robusto por lotes, cumpliendo con los 8 Pilares de Calidad.
+ * @version 6.0.0 (Elite & Fully Operational)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -18,8 +18,8 @@ import type { AuraEvent } from "@/shared/lib/schemas/analytics/aura.schema";
 
 const USER_QUEUE_KEY = "aura_user_event_queue_v1";
 const VISITOR_QUEUE_KEY = "aura_visitor_event_queue_v1";
-const BATCH_INTERVAL = 300000; // 5 minutos, como solicitado
-const MAX_BATCH_SIZE = 100;
+const BATCH_INTERVAL = 300000; // 5 minutos
+const MAX_BATCH_SIZE = 100; // Límite de eventos por lote
 
 type AuraScope = "user" | "visitor";
 
@@ -30,7 +30,6 @@ interface AuraTrackerProps {
   enabled: boolean;
 }
 
-// --- Módulo de Criptografía de Élite ---
 const cryptoEngine = {
   async getKey(): Promise<CryptoKey> {
     const secret =
@@ -82,7 +81,6 @@ const cryptoEngine = {
     return new TextDecoder().decode(decryptedContent);
   },
 };
-// --- Fin del Módulo de Criptografía ---
 
 export function useAuraTracker({
   scope,
@@ -90,6 +88,7 @@ export function useAuraTracker({
   variantId,
   enabled,
 }: AuraTrackerProps) {
+  const traceId = useRef(`aura-tracker-${scope}-${Date.now()}`).current;
   const [fingerprintId, setFingerprintId] = useState<string | null>(null);
   const activeWorkspaceId = useWorkspaceStore(
     (state) => state.activeWorkspaceId
@@ -104,18 +103,20 @@ export function useAuraTracker({
           const fp = await FingerprintJS.load();
           const result = await fp.get();
           setFingerprintId(result.visitorId);
-          logger.trace(
-            `[AuraTracker] Fingerprint de visitante obtenido: ${result.visitorId}`
+          logger.traceEvent(
+            traceId,
+            `Fingerprint de visitante obtenido: ${result.visitorId}`
           );
         } catch (error) {
           logger.error("[AuraTracker] Fallo al obtener el fingerprint.", {
             error,
+            traceId,
           });
         }
       };
       getFingerprint();
     }
-  }, [scope, fingerprintId, enabled]);
+  }, [scope, fingerprintId, enabled, traceId]);
 
   const sendBatch = useCallback(
     async (isUnloading = false) => {
@@ -128,6 +129,10 @@ export function useAuraTracker({
         const events: AuraEvent[] = JSON.parse(decryptedJSON);
         if (events.length === 0) return;
 
+        logger.traceEvent(
+          traceId,
+          `Enviando lote de ${events.length} eventos de ${scope}.`
+        );
         const payload = { events };
         const blob = new Blob([JSON.stringify(payload)], {
           type: "application/json",
@@ -150,43 +155,84 @@ export function useAuraTracker({
           if (response.status === 202) {
             localStorage.removeItem(storageKey);
             logger.success(
-              `[AuraTracker] Lote de ${scope} enviado y confirmado.`
+              `[AuraTracker] Lote de ${scope} enviado y confirmado.`,
+              { traceId }
             );
+          } else {
+            throw new Error(`El servidor respondió con estado ${response.status}`);
           }
         }
       } catch (error) {
         logger.error(
           "[AuraTracker] Fallo al desencriptar o enviar lote. Los datos permanecen en caché.",
-          { error, scope }
+          { error, scope, traceId }
         );
       }
     },
-    [scope, activeWorkspaceId]
+    [scope, activeWorkspaceId, traceId]
   );
 
   const trackEvent = useCallback(
     async (eventType: string, payload: Record<string, unknown> = {}) => {
-      // ... (lógica de trackEvent con encriptación)
+      if (!enabled) return;
+
+      const storageKey = scope === "user" ? USER_QUEUE_KEY : VISITOR_QUEUE_KEY;
+      const event: AuraEvent = {
+        sessionId: fingerprintId || "user_session",
+        campaignId: campaignId || "n/a",
+        variantId: variantId || "n/a",
+        eventType,
+        payload: { ...payload, pathname }, // Se añade el pathname al payload
+        timestamp: Date.now(),
+      };
+
+      logger.traceEvent(traceId, `Evento '${eventType}' capturado.`, { scope });
+
+      try {
+        const encryptedQueue = localStorage.getItem(storageKey);
+        const currentQueue: AuraEvent[] = encryptedQueue
+          ? JSON.parse(await cryptoEngine.decrypt(encryptedQueue))
+          : [];
+
+        const newQueue = [...currentQueue, event];
+        localStorage.setItem(
+          storageKey,
+          await cryptoEngine.encrypt(JSON.stringify(newQueue))
+        );
+
+        if (newQueue.length >= MAX_BATCH_SIZE) {
+          logger.info(
+            `[AuraTracker] Lote lleno. Enviando ${newQueue.length} eventos.`,
+            { traceId }
+          );
+          await sendBatch();
+        }
+      } catch (error) {
+        logger.error(
+          "[AuraTracker] Fallo al encriptar o guardar evento en localStorage.",
+          { error, scope, traceId }
+        );
+      }
     },
-    [
-      /* ... dependencias ... */
-    ]
+    [enabled, scope, fingerprintId, campaignId, variantId, pathname, sendBatch, traceId]
   );
 
   useEffect(() => {
     if (!enabled) return;
+    logger.info(`[AuraTracker] Tracker activado para scope: ${scope}.`, {
+      traceId,
+    });
 
     intervalRef.current = setInterval(() => sendBatch(), BATCH_INTERVAL);
-
     const handleUnload = () => sendBatch(true);
     window.addEventListener("beforeunload", handleUnload);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
       window.removeEventListener("beforeunload", handleUnload);
-      sendBatch(true); // Intento final al desmontar el componente
+      sendBatch(true);
     };
-  }, [enabled, sendBatch]);
+  }, [enabled, sendBatch, scope, traceId]);
 
-  return { fingerprintId };
+  return { trackEvent, fingerprintId };
 }

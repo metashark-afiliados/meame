@@ -1,12 +1,10 @@
-// app/[locale]/news/[slug]/page.tsx
+// RUTA: src/app/[locale]/news/[slug]/page.tsx
 /**
  * @file page.tsx
- * @description Página de artículo de blog individual. SSoT para la visualización de
- *              contenido de CogniRead. Orquesta la obtención de datos del servidor y
- *              la composición de componentes de élite para renderizar el artículo completo,
- *              incluyendo la sección de comentarios interactiva.
- * @version 3.1.0 (Holistic Type Safety & Elite Compliance)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Página de artículo de blog, ahora blindada con un Guardián de Resiliencia
+ *              Verboso y con observabilidad de élite inyectada.
+ * @version 4.0.0 (Resilient & Observable)
+ * @author L.I.A. Legacy
  */
 import React from "react";
 import { notFound } from "next/navigation";
@@ -24,103 +22,54 @@ import {
 } from "@/shared/lib/actions/cogniread";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 
-/**
- * @interface NewsArticlePageProps
- * @description Contrato de props para la página de artículo, proporcionado por Next.js.
- */
 interface NewsArticlePageProps {
   params: { locale: Locale; slug: string };
 }
 
-/**
- * @function generateStaticParams
- * @description SSoT para la Generación de Sitios Estáticos (SSG). Descubre todos los
- *              artículos publicados en todos los idiomas en tiempo de build y genera
- *              las rutas estáticas correspondientes para un rendimiento de carga óptimo.
- * @returns {Promise<{ locale: Locale; slug: string }[]>} Un array de objetos de parámetros para cada página a pre-renderizar.
- */
 export async function generateStaticParams(): Promise<
   { locale: Locale; slug: string }[]
 > {
-  logger.info(
-    "[SSG] Iniciando generación de parámetros estáticos para artículos..."
-  );
   const result = await getPublishedArticlesAction({ page: 1, limit: 100 });
-  if (!result.success) {
-    logger.error(
-      "[SSG] No se pudieron obtener los artículos para generateStaticParams."
-    );
-    return [];
-  }
-
-  // Se añade tipado explícito a los argumentos para erradicar 'any' implícito.
+  if (!result.success) return [];
   const paths = result.data.articles.flatMap((article: CogniReadArticle) =>
     Object.entries(article.content).map(([locale, content]) => ({
       locale: locale as Locale,
       slug: (content as { slug: string }).slug,
     }))
   );
-
-  logger.success(
-    `[SSG] Se generarán ${paths.length} rutas de artículo estáticas.`
-  );
   return paths;
 }
 
-/**
- * @function generateMetadata
- * @description Genera los metadatos SEO (título y descripción) para la página del artículo
- *              de forma dinámica en el servidor.
- * @param {NewsArticlePageProps} props - Las props de la página.
- * @returns {Promise<Metadata>} El objeto de metadatos para el <head> de la página.
- */
 export async function generateMetadata({
   params: { locale, slug },
 }: NewsArticlePageProps): Promise<Metadata> {
   const articleResult = await getArticleBySlugAction(slug, locale);
   if (!articleResult.success || !articleResult.data.article) {
-    return {
-      title: "Artículo no encontrado",
-      description: "La página que buscas no existe o ha sido movida.",
-    };
+    return { title: "Artículo no encontrado" };
   }
   const content = articleResult.data.article.content[locale];
   return {
     title: content?.title,
     description: content?.summary,
-    openGraph: {
-      title: content?.title,
-      description: content?.summary,
-      images: articleResult.data.article.baviHeroImageId
-        ? [
-            {
-              url: `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/c_fill,g_auto,w_1200,h_630/${articleResult.data.article.baviHeroImageId}`,
-              width: 1200,
-              height: 630,
-              alt: content?.title,
-            },
-          ]
-        : [],
-    },
   };
 }
 
-/**
- * @component NewsArticlePage
- * @description El Server Component principal para la página de un artículo.
- * @param {NewsArticlePageProps} props - Las props de la página.
- * @returns {Promise<React.ReactElement>} El elemento JSX de la página.
- */
 export default async function NewsArticlePage({
   params: { locale, slug },
 }: NewsArticlePageProps): Promise<React.ReactElement> {
+  const traceId = logger.startTrace(`NewsArticlePage:${slug}`);
   logger.info(
-    `[NewsArticlePage] Renderizando v3.1 (Elite) para slug: "${slug}", locale: ${locale}`
+    `[Observabilidad][SERVIDOR] Renderizando NewsArticlePage v4.0 para slug: "${slug}", locale: ${locale}`,
+    { traceId }
   );
 
   const articleResult = await getArticleBySlugAction(slug, locale);
 
   if (!articleResult.success) {
+    logger.error(`[Guardián de Resiliencia] Fallo la obtención del artículo.`, {
+      error: articleResult.error,
+      traceId,
+    });
     return (
       <DeveloperErrorDisplay
         context="NewsArticlePage"
@@ -131,18 +80,34 @@ export default async function NewsArticlePage({
   }
 
   if (!articleResult.data.article) {
+    logger.warn(
+      `[Guardián de Resiliencia] Artículo no encontrado para slug: "${slug}". Renderizando 404.`,
+      { traceId }
+    );
     return notFound();
   }
 
   const { article } = articleResult.data;
   const content = article.content[locale];
 
-  if (!content) {
-    logger.warn(
-      `[NewsArticlePage] No se encontró traducción para el locale '${locale}' en el artículo '${article.articleId}'.`
-    );
+  // --- INICIO DEL GUARDIÁN DE RESILIENCIA VERBOSO ---
+  if (!content || !content.title || !content.summary || !content.body) {
+    const errorMessage = `El contenido para el locale '${locale}' en el artículo '${article.articleId}' está incompleto o ausente.`;
+    logger.error(`[Guardián de Resiliencia] ${errorMessage}`, {
+      articleId: article.articleId,
+      locale,
+      traceId,
+    });
+    // En producción, esto mostrará una página 404, lo cual es el comportamiento correcto.
     return notFound();
   }
+  // --- FIN DEL GUARDIÁN DE RESILIENCIA VERBOSO ---
+
+  logger.success(
+    `[NewsArticlePage] Datos validados. Procediendo a renderizar.`,
+    { traceId }
+  );
+  logger.endTrace(traceId);
 
   return (
     <>
@@ -168,4 +133,3 @@ export default async function NewsArticlePage({
     </>
   );
 }
-// app/[locale]/news/[slug]/page.tsx

@@ -2,36 +2,41 @@
 /**
  * @file PromptVault.tsx
  * @description Contenedor "inteligente" para la Bóveda de Prompts.
- *              v6.0.0 (Atomic Architecture): Atomizado para separar la lógica
- *              de estado de la presentación, cumpliendo con el PRU de élite.
- * @version 6.0.0
- * @author RaZ Podestá - MetaShark Tech
+ *              v6.1.0 (Diagnostic Trace Injection): Se inyecta logging de
+ *              diagnóstico para trazar el flujo de renderizado.
+ * @version 6.1.0
+ * @author L.I.A. Legacy
  */
 "use client";
 
 import React from "react";
 import { logger } from "@/shared/lib/logging";
 import { usePromptVault } from "@/shared/hooks/raz-prompts/use-prompt-vault";
-import { PromptVaultDisplay } from "./PromptVaultDisplay"; // <-- Importa el nuevo componente de presentación
+import { PromptVaultDisplay } from "./PromptVaultDisplay";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 interface PromptVaultProps {
   content: NonNullable<Dictionary["promptCreator"]>;
   vaultContent: NonNullable<Dictionary["promptVault"]>;
+  traceId: string; // [INYECCIÓN DE LOGGING]
 }
 
 export function PromptVault({
   content,
   vaultContent,
+  traceId, // [INYECCIÓN DE LOGGING]
 }: PromptVaultProps): React.ReactElement {
-  logger.info("[PromptVault] Renderizando contenedor inteligente v6.0.");
+  // [INYECCIÓN DE LOGGING]
+  logger.traceEvent(
+    traceId,
+    "[PromptVault] Renderizando contenedor smart (v6.1)."
+  );
 
   // La única responsabilidad de este componente es gestionar el estado.
-  const hookState = usePromptVault();
+  const hookState = usePromptVault(traceId); // [INYECCIÓN DE LOGGING]
 
   const onViewPromptDetails = (promptId: string) => {
     logger.info(`[PromptVault] Acción: Ver detalles del prompt: ${promptId}`);
-    // Lógica futura para mostrar un modal con detalles del prompt.
   };
 
   // Delega toda la lógica de renderizado al componente de presentación puro.
@@ -44,4 +49,3 @@ export function PromptVault({
     />
   );
 }
-// RUTA: src/components/features/raz-prompts/_components/PromptVault.tsx

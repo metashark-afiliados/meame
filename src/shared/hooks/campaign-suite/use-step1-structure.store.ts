@@ -3,8 +3,8 @@
  * @file use-step1-structure.store.ts
  * @description Store atómico para el Paso 1 (Estructura). No persistente.
  *              Notifica al orquestador de los cambios para el guardado en BD.
- * @version 2.0.0 (Orchestrator-Aware)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.1.0 (Build Integrity Fix)
+ * @author L.I.A. Legacy
  */
 import { create } from "zustand";
 import { logger } from "@/shared/lib/logging";
@@ -13,7 +13,10 @@ import type {
   FooterConfig,
 } from "@/shared/lib/types/campaigns/draft.types";
 import { deepMerge } from "@/shared/lib/utils";
-import { useCampaignDraftContext } from "./use-campaign-draft-context.store";
+// --- [INICIO DE CORRECCIÓN DE INTEGRIDAD DE BUILD] ---
+// Se corrige el nombre de la importación para que coincida con la exportación soberana.
+import { useCampaignDraftStore } from "./use-campaign-draft-context.store";
+// --- [FIN DE CORRECCIÓN DE INTEGRIDAD DE BUILD] ---
 
 interface Step1State {
   headerConfig: HeaderConfig;
@@ -43,7 +46,7 @@ export const useStep1StructureStore = create<Step1State & Step1Actions>()(
         headerConfig: deepMerge(state.headerConfig, config),
       }));
       // Notifica al orquestador que hubo un cambio.
-      useCampaignDraftContext.getState().triggerDebouncedSave();
+      useCampaignDraftStore.getState().triggerDebouncedSave();
     },
     updateFooterConfig: (config) => {
       logger.trace(
@@ -54,7 +57,7 @@ export const useStep1StructureStore = create<Step1State & Step1Actions>()(
         footerConfig: deepMerge(state.footerConfig, config),
       }));
       // Notifica al orquestador que hubo un cambio.
-      useCampaignDraftContext.getState().triggerDebouncedSave();
+      useCampaignDraftStore.getState().triggerDebouncedSave();
     },
     reset: () => {
       logger.warn("[Step1Store] Reiniciando la configuración de estructura.");

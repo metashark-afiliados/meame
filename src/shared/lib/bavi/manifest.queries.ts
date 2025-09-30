@@ -1,14 +1,12 @@
 // RUTA: src/shared/lib/bavi/manifest.queries.ts
 /**
  * @file manifest.queries.ts
- * @description SSoT para las operaciones de lectura de la BAVI desde Supabase.
- *              v5.0.0 (Resilient Parsing & Elite Observability): Inyectado con
- *              guardianes de resiliencia. Ahora utiliza `safeParse` para ignorar
- *              activos corruptos y registrarlos, previniendo fallos de renderizado.
- * @version 5.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description SSoT para las operaciones de lectura de la BAVI. Es agnóstico
+ *              al contexto y seguro para su uso tanto en Server Components
+ *              como en scripts de Node.js.
+ * @version 7.2.0 (Granular Error Logging & Resilience)
+ * @author L.I.A. Legacy
  */
-//import "server-only";
 import * as React from "react";
 import { createServerClient } from "@/shared/lib/supabase/server";
 import { logger } from "@/shared/lib/logging";
@@ -19,7 +17,11 @@ import {
 } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 import type { RaZPromptsSesaTags } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
 
-// --- Tipos internos para la respuesta de Supabase ---
+/**
+ * @interface SupabaseBaviVariant
+ * @description Contrato de tipo que modela la estructura de una fila de la
+ *              tabla 'bavi_variants' en Supabase.
+ */
 interface SupabaseBaviVariant {
   variant_id: string;
   public_id: string;
@@ -28,6 +30,12 @@ interface SupabaseBaviVariant {
   height: number;
 }
 
+/**
+ * @interface SupabaseBaviAsset
+ * @description Contrato de tipo que modela la estructura de una fila de la
+ *              tabla 'bavi_assets' en Supabase, incluyendo su relación anidada
+ *              con 'bavi_variants'.
+ */
 interface SupabaseBaviAsset {
   asset_id: string;
   provider: "cloudinary";
@@ -39,19 +47,19 @@ interface SupabaseBaviAsset {
   bavi_variants: SupabaseBaviVariant[];
 }
 
+/**
+ * @function getBaviManifestFn
+ * @description Función pura que contiene la lógica central para obtener y
+ *              transformar los datos del manifiesto BAVI desde Supabase.
+ * @returns {Promise<BaviManifest>} El manifiesto de activos validado.
+ */
 const getBaviManifestFn = async (): Promise<BaviManifest> => {
-  const traceId = logger.startTrace("getBaviManifestFn_v5.0_Resilient");
-  logger.trace("[BAVI DAL v5.0] Solicitando manifiesto desde Supabase...");
+  const traceId = logger.startTrace("getBaviManifestFn_v7.2");
   const supabase = createServerClient();
 
   const { data: assetsData, error: assetsError } = await supabase
     .from("bavi_assets")
-    .select(
-      `
-      asset_id, provider, prompt_id, tags, metadata, created_at, updated_at,
-      bavi_variants ( variant_id, public_id, state, width, height )
-    `
-    );
+    .select("*, bavi_variants ( * )");
 
   if (assetsError) {
     logger.error("[BAVI DAL] Fallo al obtener activos de Supabase.", {
@@ -64,11 +72,12 @@ const getBaviManifestFn = async (): Promise<BaviManifest> => {
   }
 
   const validAssets: BaviAsset[] = [];
-
-  for (const asset of assetsData as SupabaseBaviAsset[]) {
+  for (const asset of (assetsData || []) as SupabaseBaviAsset[]) {
     const transformedAsset = {
       assetId: asset.asset_id,
+      status: "active",
       provider: asset.provider,
+      description: "Asset de la base de datos",
       promptId: asset.prompt_id ?? undefined,
       tags: asset.tags ?? undefined,
       variants: asset.bavi_variants.map((v: SupabaseBaviVariant) => ({
@@ -82,29 +91,37 @@ const getBaviManifestFn = async (): Promise<BaviManifest> => {
       updatedAt: asset.updated_at,
     };
 
-    // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
     const validation = BaviAssetSchema.safeParse(transformedAsset);
     if (validation.success) {
       validAssets.push(validation.data);
     } else {
+      // --- [INICIO DE MEJORA DE OBSERVABILIDAD] ---
+      // Se añade el objeto de datos que falló la validación al log.
       logger.error(
-        `[BAVI DAL] Activo corrupto ignorado en la base de datos. assetId: ${asset.asset_id}`,
+        `[BAVI DAL] Activo corrupto ignorado en DB: ${asset.asset_id}`,
         {
           error: validation.error.flatten(),
           traceId,
+          corruptData: transformedAsset, // <-- Log granular del error
         }
       );
+      // --- [FIN DE MEJORA DE OBSERVABILIDAD] ---
     }
-    // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
   }
 
   logger.success(
-    `[BAVI DAL v5.0] Manifiesto ensamblado con ${validAssets.length} activos válidos (de ${assetsData.length} encontrados).`
+    `[BAVI DAL v7.2] Manifiesto ensamblado con ${validAssets.length} activos válidos.`
   );
   logger.endTrace(traceId);
   return { assets: validAssets };
 };
 
+/**
+ * @export getBaviManifest
+ * @description Exportación soberana y agnóstica al contexto. Aplica React.cache
+ *              solo si está en un entorno de Server Component, de lo contrario
+ *              exporta la función asíncrona pura, haciéndola segura para scripts.
+ */
 export const getBaviManifest =
   typeof React.cache === "function"
     ? React.cache(getBaviManifestFn)

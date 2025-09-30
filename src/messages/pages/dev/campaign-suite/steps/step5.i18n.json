@@ -12,9 +12,12 @@
       "templateButtonText": "Salva come Template",
       "deleteDialog": {
         "title": "Sei assolutamente sicuro?",
-        "description": "Questa azione non può essere annullata. Questo eliminerà permanentemente la tua bozza di campagna.",
+        "description": "Questa azione è irreversibile. Per confermare, digita il nome della variante e la frase di conferma.",
         "cancelButton": "Annulla",
-        "confirmButton": "Sì, Elimina"
+        "confirmButton": "Sì, Elimina Permanentemente",
+        "draftNameLabel": "Nome della Variante",
+        "confirmationTextLabel": "Digita 'autorizzo delete' per confermare",
+        "confirmationTextPlaceholder": "autorizzo delete"
       },
       "templateDialog": {
         "title": "Salva come Template",
@@ -41,9 +44,12 @@
       "templateButtonText": "Guardar como Plantilla",
       "deleteDialog": {
         "title": "¿Estás absolutamente seguro?",
-        "description": "Esta acción no se puede deshacer. Esto eliminará permanentemente tu borrador de campaña.",
+        "description": "Esta acción es irreversible. Para confirmar, escribe el nombre de la variante y la frase de confirmación.",
         "cancelButton": "Cancelar",
-        "confirmButton": "Sí, Eliminar"
+        "confirmButton": "Sí, Eliminar Permanentemente",
+        "draftNameLabel": "Nombre de la Variante",
+        "confirmationTextLabel": "Escribe 'autorizo delete' para confirmar",
+        "confirmationTextPlaceholder": "autorizo delete"
       },
       "templateDialog": {
         "title": "Guardar como Plantilla",
@@ -70,9 +76,12 @@
       "templateButtonText": "Save as Template",
       "deleteDialog": {
         "title": "Are you absolutely sure?",
-        "description": "This action cannot be undone. This will permanently delete your campaign draft.",
+        "description": "This action is irreversible. To confirm, type the variant name and the confirmation phrase.",
         "cancelButton": "Cancel",
-        "confirmButton": "Yes, Delete"
+        "confirmButton": "Yes, Permanently Delete",
+        "draftNameLabel": "Variant Name",
+        "confirmationTextLabel": "Type 'authorize delete' to confirm",
+        "confirmationTextPlaceholder": "authorize delete"
       },
       "templateDialog": {
         "title": "Save as Template",
@@ -99,9 +108,12 @@
       "templateButtonText": "Salvar como Modelo",
       "deleteDialog": {
         "title": "Você tem certeza absoluta?",
-        "description": "Esta ação não pode ser desfeita. Isso excluirá permanentemente seu rascunho de campanha.",
+        "description": "Esta ação é irreversível. Para confirmar, digite o nome da variante e a frase de confirmação.",
         "cancelButton": "Cancelar",
-        "confirmButton": "Sim, Excluir"
+        "confirmButton": "Sim, Excluir Permanentemente",
+        "draftNameLabel": "Nome da Variante",
+        "confirmationTextLabel": "Digite 'autorizo delete' para confirmar",
+        "confirmationTextPlaceholder": "autorizo delete"
       },
       "templateDialog": {
         "title": "Salvar como Modelo",

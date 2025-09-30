@@ -1,9 +1,9 @@
 // RUTA: src/components/features/notifications/NotificationBell/_components/NotificationBellTrigger.tsx
 /**
  * @file NotificationBellTrigger.tsx
- * @description Componente de UI puro para el botón activador del NotificationBell.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente de UI puro para el botón activador del NotificationBell con efecto hover.
+ * @version 2.0.0 (Hover Effect)
+ * @author L.I.A. Legacy
  */
 import React from "react";
 import { motion } from "framer-motion";
@@ -22,8 +22,11 @@ export function NotificationBellTrigger({
 }: NotificationBellTriggerProps) {
   return (
     <DropdownMenuTrigger asChild>
-      <Button variant="ghost" size="icon" className="relative">
-        <DynamicIcon name="Bell" />
+      <Button variant="ghost" size="icon" className="relative group">
+        <DynamicIcon
+          name="Bell"
+          className="transition-colors duration-200 group-hover:text-primary"
+        />
         {unreadCount > 0 && (
           <motion.span
             initial={{ scale: 0 }}

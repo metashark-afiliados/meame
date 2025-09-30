@@ -1,69 +1,133 @@
 // RUTA: scripts/data/dump-all-tables-content.ts
 /**
  * @file dump-all-tables-content.ts
- * @description Script de élite para realizar un volcado completo del contenido
- *              de todas las tablas en el schema 'public' de Supabase.
- * @version 1.0.0
- * @author L.I.A. Legacy
- * @usage pnpm tsx scripts/run-with-env.ts scripts/data/dump-all-tables-content.ts
+ * @description Script de diagnóstico de élite para realizar un volcado completo y
+ *              estructurado del contenido de todas las tablas públicas de Supabase.
+ *              Genera un informe detallado para su análisis y depuración.
+ * @version 4.1.0 (RPC-Driven & Resilient)
+ * @author L.I.A. Legacy (IA Ingeniera de Software Senior)
  */
-import 'server-only';
-import { promises as fs } from 'fs';
-import * as path from 'path';
-import { createScriptClient } from '@/shared/lib/supabase/script-client';
-import { logger } from '@/shared/lib/logging';
-import type { ActionResult } from '@/shared/lib/types/actions.types';
+import { promises as fs } from "fs";
+import * as path from "path";
+import chalk from "chalk";
+import { createScriptClient } from "../supabase/script-client";
+import { logger } from "../../src/shared/lib/logging";
+import type { ActionResult } from "../../src/shared/lib/types/actions.types";
 
-async function dumpAllTables(): Promise<ActionResult<string>> {
-  const traceId = logger.startTrace('dumpAllTablesContent');
-  logger.startGroup('[DB Dumper] Iniciando volcado de contenido de Supabase...');
+interface ContentDumpReport {
+  metadata: {
+    generatedAt: string;
+    environmentUrl: string;
+    tablesProcessed: number;
+    tablesWithErrors: number;
+    totalRecordsDumped: number;
+  };
+  data: Record<
+    string,
+    { count: number; records: unknown[] } | { error: string }
+  >;
+}
+
+async function dumpAllTablesContent(): Promise<ActionResult<string>> {
+  const traceId = logger.startTrace("dumpAllTablesContent_v4.1");
+  logger.startGroup(
+    "[DB Dumper] Iniciando volcado de contenido de Supabase (v4.1)..."
+  );
   const supabase = createScriptClient();
 
   try {
-    // 1. Obtener dinámicamente todas las tablas del schema 'public'
-    const { data: tables, error: tablesError } = await supabase
-      .from('pg_tables')
-      .select('tablename')
-      .eq('schemaname', 'public');
+    logger.info(
+      "Paso 1: Obteniendo la lista de tablas vía RPC 'get_public_table_names'..."
+    );
+    // --- [INICIO DE CORRECCIÓN DE CAUSA RAÍZ] ---
+    // Se invoca la función RPC en lugar de consultar pg_tables directamente.
+    const { data: tablesData, error: rpcError } = await supabase.rpc(
+      "get_public_table_names"
+    );
 
-    if (tablesError) throw tablesError;
+    if (rpcError) throw rpcError;
+    // --- [FIN DE CORRECCIÓN DE CAUSA RAÍZ] ---
 
-    const tableNames = tables.map(t => t.tablename).filter(t => !t.startsWith('pg_'));
-    logger.info(`Se encontraron ${tableNames.length} tablas para volcar.`);
+    const tableNames = tablesData.map((t: { table_name: string }) => t.table_name);
 
-    const fullDump: Record<string, unknown[]> = {};
+    logger.success(
+      `Se han encontrado ${tableNames.length} tablas para procesar.`
+    );
 
-    // 2. Iterar y hacer SELECT * de cada tabla
+    const report: ContentDumpReport = {
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        environmentUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || "Desconocido",
+        tablesProcessed: 0,
+        tablesWithErrors: 0,
+        totalRecordsDumped: 0,
+      },
+      data: {},
+    };
+
+    logger.info("Paso 2: Procesando cada tabla individualmente...");
     for (const tableName of tableNames) {
-      logger.trace(`   -> Volcando tabla: ${tableName}...`);
+      report.metadata.tablesProcessed++;
+      logger.trace(`   -> Procesando tabla: '${tableName}'...`);
+
       const { data: tableData, error: tableError } = await supabase
         .from(tableName)
-        .select('*');
+        .select("*");
 
       if (tableError) {
-        logger.warn(`No se pudo volcar la tabla '${tableName}'. Saltando.`, { error: tableError.message });
-        fullDump[tableName] = [{ error: `Failed to fetch: ${tableError.message}` }];
+        report.metadata.tablesWithErrors++;
+        const errorMessage = `Fallo al obtener datos: ${tableError.message}`;
+        report.data[tableName] = { error: errorMessage };
+        logger.warn(`   ⚠️  Error en tabla '${tableName}': ${errorMessage}`);
       } else {
-        fullDump[tableName] = tableData;
+        const recordCount = tableData.length;
+        report.data[tableName] = {
+          count: recordCount,
+          records: tableData,
+        };
+        report.metadata.totalRecordsDumped += recordCount;
+        logger.trace(
+          `      ✅ Éxito: Se volcaron ${recordCount} registros de '${tableName}'.`
+        );
       }
     }
+    logger.success(
+      `Procesamiento de tablas finalizado. ${report.metadata.tablesWithErrors} tablas fallaron.`
+    );
 
-    // 3. Escribir el resultado en un archivo JSON
-    const reportDir = path.resolve(process.cwd(), 'supabase', 'reports');
+    logger.info("Paso 3: Escribiendo el informe de volcado en el disco...");
+    const reportDir = path.resolve(process.cwd(), "supabase", "reports");
     await fs.mkdir(reportDir, { recursive: true });
-    const reportPath = path.resolve(reportDir, 'latest-content-dump.json');
-    await fs.writeFile(reportPath, JSON.stringify(fullDump, null, 2));
+    // Se cambia el nombre del archivo para no sobreescribir el de `diagnose-content`
+    const reportPath = path.resolve(reportDir, "latest-full-content-dump.json");
+    await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
 
-    logger.success(`[DB Dumper] Volcado de contenido completado con éxito.`);
-    return { success: true, data: `Reporte guardado en: ${reportPath}` };
+    const relativePath = path.relative(process.cwd(), reportPath);
+    console.log(
+      chalk.green.bold(
+        `\n📄 Informe de volcado de contenido guardado exitosamente en: ${chalk.yellow(
+          relativePath
+        )}`
+      )
+    );
+
+    return {
+      success: true,
+      data: `Informe de ${report.metadata.tablesProcessed} tablas guardado en: ${relativePath}`,
+    };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[DB Dumper] Fallo crítico durante el volcado de la base de datos.", { error: errorMessage });
-    return { success: false, error: "No se pudo completar el volcado de la base de datos." };
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("Fallo crítico durante el proceso de volcado.", { error });
+    return {
+      success: false,
+      error: `No se pudo completar el volcado: ${errorMessage}`,
+    };
   } finally {
     logger.endGroup();
     logger.endTrace(traceId);
   }
 }
 
-dumpAllTables();
+// Cumple con el Contrato del Orquestador al exportar por defecto.
+export default dumpAllTablesContent;

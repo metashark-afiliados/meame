@@ -1,16 +1,18 @@
-// scripts/diagnostics/diag-cloudinary-schema.ts
+// RUTA: scripts/diagnostics/diag-cloudinary-schema.ts
 /**
  * @file diag-cloudinary-schema.ts
  * @description Herramienta de auditoría para inspeccionar la configuración y "esquema" de Cloudinary.
- * @author Raz Podestá - MetaShark Tech
- * @version 5.0.0 (Double Type Assertion Fix)
+ * @version 8.0.0 (Holistic Integrity Restoration)
+ * @author L.I.A. Legacy
  */
 import { v2 as cloudinary } from "cloudinary";
-import chalk from "chalk";
-import * as fs from "fs";
+import * as fs from "fs/promises";
 import * as path from "path";
 import { loadEnvironment } from "./_utils";
+import { logger } from "../../src/shared/lib/logging";
+import type { ActionResult } from "../../src/shared/lib/types/actions.types";
 
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: CONTRATOS DE TIPO SOBERANOS] ---
 interface UploadPreset {
   name: string;
   settings: {
@@ -29,46 +31,44 @@ interface MetadataField {
   type: string;
 }
 
-// Este tipo local representa la respuesta REAL de la API.
 interface CorrectMetadataFieldsApiResponse {
   fields: MetadataField[];
 }
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
-async function main() {
-  console.clear();
-  loadEnvironment([
-    "CLOUDINARY_CLOUD_NAME",
-    "CLOUDINARY_API_KEY",
-    "CLOUDINARY_API_SECRET",
-  ]);
-
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure: true,
-  });
-
-  console.log(
-    chalk.cyan(
-      `\n🔬 Auditando configuración de Cloudinary para el cloud: '${process.env.CLOUDINARY_CLOUD_NAME}'...`
-    )
-  );
-
-  const fullReport: Record<string, unknown> = {};
+async function diagnoseCloudinarySchema(): Promise<ActionResult<string>> {
+  const traceId = logger.startTrace("diagnoseCloudinarySchema_v8.0");
+  logger.startGroup("🔬 Auditando configuración de Cloudinary (v8.0)...");
 
   try {
+    loadEnvironment([
+      "CLOUDINARY_CLOUD_NAME",
+      "CLOUDINARY_API_KEY",
+      "CLOUDINARY_API_SECRET",
+    ]);
+
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+      secure: true,
+    });
+    logger.info(`Auditando cloud: '${process.env.CLOUDINARY_CLOUD_NAME}'`, {
+      traceId,
+    });
+
+    const fullReport: Record<string, unknown> = {};
+
     const [presets, transformations, tags, metadataFieldsResponse] =
       await Promise.all([
         cloudinary.api.upload_presets(),
         cloudinary.api.transformations(),
         cloudinary.api.tags(),
-        // --- INICIO DE CORRECCIÓN DE ÉLITE: Doble Aserción ---
-        // Se utiliza `as unknown` para eliminar el tipo incorrecto antes de aplicar el nuestro.
         cloudinary.api.list_metadata_fields() as unknown as Promise<CorrectMetadataFieldsApiResponse>,
-        // --- FIN DE CORRECCIÓN DE ÉLITE ---
       ]);
+    logger.traceEvent(traceId, "Datos de esquema obtenidos de la API.");
 
+    // --- [INICIO DE RESTAURACIÓN DE LÓGICA] ---
     const metadataFields: MetadataField[] = metadataFieldsResponse.fields || [];
 
     fullReport.upload_presets = presets.presets;
@@ -76,76 +76,58 @@ async function main() {
     fullReport.tags = tags.tags;
     fullReport.metadata_fields = metadataFields;
 
-    console.log(chalk.blueBright.bold("\n--- PRESETS DE SUBIDA ---"));
-    console.table(
-      presets.presets.map((p: UploadPreset) => ({
+    logger.info("--- PRESETS DE SUBIDA ---", {
+      data: presets.presets.map((p: UploadPreset) => ({
         Nombre: p.name,
         Opciones: `${p.settings.folder ? `Carpeta: ${p.settings.folder}` : ""}`,
-      }))
-    );
+      })),
+    });
 
-    console.log(chalk.blueBright.bold("\n--- TRANSFORMACIONES GUARDADAS ---"));
-    console.table(
-      transformations.transformations.map((t: Transformation) => ({
+    logger.info("--- TRANSFORMACIONES GUARDADAS ---", {
+      data: transformations.transformations.map((t: Transformation) => ({
         Nombre: t.name,
         Usada: t.used,
-      }))
-    );
+      })),
+    });
 
-    console.log(chalk.blueBright.bold("\n--- ETIQUETAS (TAGS) EN USO ---"));
-    console.log(tags.tags.join(", "));
+    logger.info("--- ETIQUETAS (TAGS) EN USO ---", { tags: tags.tags.join(", ") });
 
-    console.log(
-      chalk.blueBright.bold("\n--- CAMPOS DE METADATOS ESTRUCTURADOS ---")
-    );
     if (metadataFields.length > 0) {
-      console.table(
-        metadataFields.map((f: MetadataField) => ({
+      logger.info("--- CAMPOS DE METADATOS ESTRUCTURADOS ---", {
+        data: metadataFields.map((f: MetadataField) => ({
           Label: f.label,
           External_ID: f.external_id,
           Tipo: f.type,
-        }))
-      );
+        })),
+      });
     } else {
-      console.log(
-        chalk.yellow("No se encontraron campos de metadatos definidos.")
-      );
+        logger.info("--- CAMPOS DE METADATOS ESTRUCTURADOS ---", { data: "No se encontraron campos de metadatos definidos."});
     }
+    // --- [FIN DE RESTAURACIÓN DE LÓGICA] ---
 
     const reportDir = path.resolve(process.cwd(), "cloudinary/reports");
-    if (!fs.existsSync(reportDir)) {
-      fs.mkdirSync(reportDir, { recursive: true });
-    }
+    await fs.mkdir(reportDir, { recursive: true });
     const reportPath = path.resolve(
       reportDir,
       `latest-schema-diagnostics.json`
     );
-    fs.writeFileSync(reportPath, JSON.stringify(fullReport, null, 2));
-    console.log(
-      chalk.blueBright.bold(
-        `\n📄 Reporte de esquema JSON guardado en: ${chalk.yellow(reportPath)}`
-      )
-    );
+    await fs.writeFile(reportPath, JSON.stringify(fullReport, null, 2));
+
+    const successMessage = `Reporte de esquema JSON guardado en: ${path.relative(process.cwd(), reportPath)}`;
+    logger.success(successMessage, { traceId });
+    return { success: true, data: successMessage };
   } catch (error) {
-    console.error(
-      chalk.red.bold("\n🔥 Fallo al auditar el esquema de Cloudinary:"),
-      error
-    );
-    process.exit(1);
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("🔥 Fallo al auditar el esquema de Cloudinary:", {
+      error: errorMessage,
+      traceId,
+    });
+    return { success: false, error: errorMessage };
+  } finally {
+    logger.endGroup();
+    logger.endTrace(traceId);
   }
 }
 
-main()
-  .then(() =>
-    console.log(
-      chalk.green.bold("\n\n✅ Auditoría de esquema de Cloudinary completada.")
-    )
-  )
-  .catch((error) => {
-    console.error(
-      chalk.red.bold("\n🔥 Fallo irrecuperable en el script:"),
-      error.message
-    );
-    process.exit(1);
-  });
-// scripts/diagnostics/diag-cloudinary-schema.ts
+export default diagnoseCloudinarySchema;

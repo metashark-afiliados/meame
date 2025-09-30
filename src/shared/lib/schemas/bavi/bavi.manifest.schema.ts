@@ -2,12 +2,11 @@
 /**
  * @file bavi.manifest.schema.ts
  * @description SSoT para el contrato de datos del manifiesto BAVI.
- * @version 4.0.0 (Holistic & Unabbreviated)
+ * @version 4.3.0 (Flexible PromptId Validation)
  * @author L.I.A. Legacy
  */
 import { z } from "zod";
 
-// Sigue utilizando los valores de SESA, pero las claves ahora son descriptivas.
 const SesaTagsDescriptiveSchema = z.object({
   aiEngine: z.string().optional(),
   visualStyle: z.string().optional(),
@@ -36,9 +35,13 @@ export const BaviAssetSchema = z.object({
   metadata: z.object({
     altText: z.record(z.string()),
   }),
-  promptId: z.string().cuid2().optional(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
+  // Se cambia .cuid2() por .min(1) para permitir identificadores legibles
+  // como "prompt-001", alineando el schema con los datos reales.
+  promptId: z.string().min(1).nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
 });
 
 export const BaviManifestSchema = z.object({

@@ -3,8 +3,8 @@
  * @file page.tsx
  * @description Dashboard principal de CogniRead. UI proactiva para la
  *              gestión de conocimiento científico.
- * @version 9.0.0 (Proactive Dashboard UI)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 9.1.0 (Icon SSoT Compliance)
+ * @author L.I.A. Legacy
  */
 import React, { Suspense } from "react";
 import Link from "next/link";
@@ -51,7 +51,7 @@ export default async function CogniReadDashboardPage({
   params: { locale: Locale };
 }) {
   logger.info(
-    `[CogniReadDashboardPage] Renderizando v9.0 (Proactive UI) para locale: ${locale}`
+    `[CogniReadDashboardPage] Renderizando v9.1 (Icon SSoT Compliance) para locale: ${locale}`
   );
 
   const { dictionary, error: dictError } = await getDictionary(locale);
@@ -80,7 +80,10 @@ export default async function CogniReadDashboardPage({
         </div>
         <Button asChild size="lg">
           <Link href={routes.cogniReadEditor.path({ locale })}>
-            <DynamicIcon name="PlusCircle" className="mr-2 h-5 w-5" />
+            {/* --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] --- */}
+            {/* Se utiliza el nombre de icono correcto según la SSoT. */}
+            <DynamicIcon name="CirclePlus" className="mr-2 h-5 w-5" />
+            {/* --- [FIN DE REFACTORIZACIÓN DE CONTRATO] --- */}
             {pageContent.newArticleButton}
           </Link>
         </Button>

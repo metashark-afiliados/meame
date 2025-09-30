@@ -2,11 +2,11 @@
 /**
  * @file server.ts
  * @description SSoT para la creación del cliente de Supabase en el servidor.
- *              v4.0.0 (Production-Grade Security): Corregido para usar la
- *              SUPABASE_SERVICE_ROLE_KEY, otorgando al backend los privilegios
- *              de administrador necesarios para operaciones seguras.
- * @version 4.0.0
- * @author RaZ Podestá - MetaShark Tech
+ *              v4.1.0 (Elite Code Hygiene): Se alinea el manejo de errores
+ *              con las convenciones de código del proyecto para resolver las
+ *              advertencias del linter sobre variables no utilizadas.
+ * @version 4.1.0
+ * @author L.I.A. Legacy
  */
 import {
   createServerClient as supabaseCreateServerClient,
@@ -17,16 +17,13 @@ import { logger } from "@/shared/lib/logging";
 
 export function createServerClient() {
   logger.trace(
-    "[Supabase Client] Creando nueva instancia del cliente para el servidor (v4.0 - Service Role)..."
+    "[Supabase Client] Creando nueva instancia del cliente para el servidor (v4.1 - Elite Hygiene)..."
   );
   const cookieStore = cookies();
 
   return supabaseCreateServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    // --- [INICIO DE CORRECCIÓN DE SEGURIDAD CRÍTICA] ---
-    // El cliente de servidor DEBE usar la clave de servicio para operaciones de administrador.
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    // --- [FIN DE CORRECCIÓN DE SEGURIDAD CRÍTICA] ---
     {
       cookies: {
         get(name: string) {
@@ -35,15 +32,20 @@ export function createServerClient() {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options });
-          } catch (error) {
-            // Este error es esperado en contextos de solo lectura como Server Components
+          } catch (_error) {
+            // --- [INICIO DE REFACTORIZACIÓN DE HIGIENE] ---
+            // La variable se prefija con '_' para indicar que su uso es intencionadamente omitido.
+            // Esto es esperado en contextos de solo lectura como Server Components.
+            // --- [FIN DE REFACTORIZACIÓN DE HIGIENE] ---
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: "", ...options });
-          } catch (error) {
-            // Este error es esperado en contextos de solo lectura
+          } catch (_error) {
+            // --- [INICIO DE REFACTORIZACIÓN DE HIGIENE] ---
+            // La variable se prefija con '_' para indicar que su uso es intencionadamente omitido.
+            // --- [FIN DE REFACTORIZACIÓN DE HIGIENE] ---
           }
         },
       },

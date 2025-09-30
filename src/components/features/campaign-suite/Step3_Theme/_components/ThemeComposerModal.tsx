@@ -2,8 +2,8 @@
 /**
  * @file ThemeComposerModal.tsx
  * @description Orquestador modal para la Bóveda de Estilos, impulsado por base de datos.
- * @version 4.0.0 (Persistent Theme Preset Integration)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 5.0.0 (Full UI Implementation & Data Alignment)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -28,6 +28,7 @@ import { deepMerge } from "@/shared/lib/utils";
 import { logger } from "@/shared/lib/logging";
 import type { CategorizedPresets } from "../Step3Client";
 import type { ThemePreset } from "@/shared/lib/schemas/theme-preset.schema";
+import { toast } from "sonner";
 
 interface ThemeComposerModalProps {
   isOpen: boolean;
@@ -38,6 +39,7 @@ interface ThemeComposerModalProps {
   onCreatePreset: (
     name: string,
     description: string,
+    type: "color" | "font" | "geometry",
     config: ThemeConfig
   ) => Promise<void>;
   content: {
@@ -48,7 +50,11 @@ interface ThemeComposerModalProps {
     composerGeometryTab: string;
     composerSaveButton: string;
     composerCancelButton: string;
-    // ... y otras claves para los sub-componentes
+    createNewPaletteButton: string;
+    createNewFontSetButton: string;
+    createNewRadiusStyleButton: string;
+    placeholderFontsNone: string;
+    placeholderRadiiNone: string;
   };
 }
 
@@ -58,25 +64,30 @@ export function ThemeComposerModal({
   presets,
   currentConfig,
   onSave,
-  onCreatePreset,
   content,
 }: ThemeComposerModalProps) {
-  logger.info("[ThemeComposerModal] Renderizando v4.0 (Persistent Themes).");
+  logger.info("[ThemeComposerModal] Renderizando v5.0 (Full UI).");
   const [localConfig, setLocalConfig] = useState(currentConfig);
   const { setPreviewTheme } = usePreviewStore();
 
-  const allPresets = useMemo(
-    () => ({
-      colors: [...presets.colors.global, ...presets.colors.workspace],
-      fonts: [...presets.fonts.global, ...presets.fonts.workspace],
-      geometry: [...presets.geometry.global, ...presets.geometry.workspace],
-    }),
-    [presets]
-  );
+  const allPresets = useMemo(() => {
+    const combined = [...presets.global, ...presets.workspace];
+    return combined.reduce(
+      (acc, preset) => {
+        if (preset.type === "color") acc.colors.push(preset);
+        if (preset.type === "font") acc.fonts.push(preset);
+        if (preset.type === "geometry") acc.geometry.push(preset);
+        return acc;
+      },
+      { colors: [], fonts: [], geometry: [] } as {
+        colors: ThemePreset[];
+        fonts: ThemePreset[];
+        geometry: ThemePreset[];
+      }
+    );
+  }, [presets]);
 
-  useEffect(() => {
-    setLocalConfig(currentConfig);
-  }, [currentConfig]);
+  useEffect(() => setLocalConfig(currentConfig), [currentConfig, isOpen]);
   useEffect(() => {
     if (!isOpen) setPreviewTheme(null);
   }, [isOpen, setPreviewTheme]);
@@ -87,20 +98,19 @@ export function ThemeComposerModal({
       name: string | null
     ): Partial<AssembledTheme> => {
       if (!name) return {};
-      const preset = allPresets[type].find((p: ThemePreset) => p.name === name);
-      // La configuración del tema está dentro de la propiedad 'theme_config' del preset
+      const preset = allPresets[type].find((p) => p.name === name);
       return preset?.theme_config
         ? (preset.theme_config as Partial<AssembledTheme>)
         : {};
     };
-
-    const colorData = findPresetData("colors", config.colorPreset);
-    const fontData = findPresetData("fonts", config.fontPreset);
-    const geometryData = findPresetData("geometry", config.radiusPreset);
-
-    const finalTheme = deepMerge(deepMerge(colorData, fontData), geometryData);
-    const validation = AssembledThemeSchema.safeParse(finalTheme);
-    return validation.success ? validation.data : null;
+    const finalTheme = deepMerge(
+      deepMerge(
+        findPresetData("colors", config.colorPreset),
+        findPresetData("fonts", config.fontPreset)
+      ),
+      findPresetData("geometry", config.radiusPreset)
+    );
+    return AssembledThemeSchema.parse(finalTheme);
   };
 
   const handlePreviewUpdate = (newConfig: Partial<ThemeConfig>) => {
@@ -124,6 +134,12 @@ export function ThemeComposerModal({
     onClose();
   };
 
+  const handleCreate = (type: "color" | "font" | "geometry") => {
+    toast.info(
+      `Funcionalidad para crear presets de tipo '${type}' pendiente de implementación.`
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <AnimatePresence>
@@ -136,7 +152,7 @@ export function ThemeComposerModal({
               transition={{ duration: 0.2, ease: "easeInOut" }}
               className="flex flex-col h-full"
             >
-              <DialogHeader className="p-6">
+              <DialogHeader className="p-6 border-b">
                 <DialogTitle>{content.composerTitle}</DialogTitle>
                 <DialogDescription>
                   {content.composerDescription}
@@ -148,13 +164,58 @@ export function ThemeComposerModal({
                     <TabsTrigger value="colors">
                       {content.composerColorsTab}
                     </TabsTrigger>
-                    {/* ... otras pestañas ... */}
+                    <TabsTrigger value="typography">
+                      {content.composerTypographyTab}
+                    </TabsTrigger>
+                    <TabsTrigger value="geometry">
+                      {content.composerGeometryTab}
+                    </TabsTrigger>
                   </TabsList>
                   <TabsContent value="colors" className="mt-4">
-                    {/* El PaletteSelector necesita ser refactorizado para aceptar la nueva estructura */}
-                    <p className="text-center text-muted-foreground p-8">
-                      PaletteSelector será refactorizado a continuación...
-                    </p>
+                    <PaletteSelector
+                      palettes={allPresets.colors}
+                      selectedPaletteName={localConfig.colorPreset}
+                      onSelect={(value) => handleSelect("colorPreset", value)}
+                      onPreview={(palette) =>
+                        handlePreviewUpdate({
+                          colorPreset: palette?.name || localConfig.colorPreset,
+                        })
+                      }
+                      onCreate={() => handleCreate("color")}
+                      createNewPaletteButton={content.createNewPaletteButton}
+                    />
+                  </TabsContent>
+                  <TabsContent value="typography" className="mt-4">
+                    <TypographySelector
+                      typographies={allPresets.fonts}
+                      selectedTypographyName={localConfig.fontPreset}
+                      onSelect={(value) => handleSelect("fontPreset", value)}
+                      onPreview={(font) =>
+                        handlePreviewUpdate({
+                          fontPreset: font?.name || localConfig.fontPreset,
+                        })
+                      }
+                      onCreate={() => handleCreate("font")}
+                      emptyPlaceholder={content.placeholderFontsNone}
+                      createNewFontSetButton={content.createNewFontSetButton}
+                    />
+                  </TabsContent>
+                  <TabsContent value="geometry" className="mt-4">
+                    <GeometrySelector
+                      geometries={allPresets.geometry}
+                      selectedGeometryName={localConfig.radiusPreset}
+                      onSelect={(value) => handleSelect("radiusPreset", value)}
+                      onPreview={(geo) =>
+                        handlePreviewUpdate({
+                          radiusPreset: geo?.name || localConfig.radiusPreset,
+                        })
+                      }
+                      onCreate={() => handleCreate("geometry")}
+                      emptyPlaceholder={content.placeholderRadiiNone}
+                      createNewRadiusStyleButton={
+                        content.createNewRadiusStyleButton
+                      }
+                    />
                   </TabsContent>
                 </Tabs>
               </div>

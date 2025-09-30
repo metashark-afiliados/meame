@@ -2,8 +2,10 @@
 /**
  * @file page.tsx
  * @description Página de servidor para el reproductor de sesiones de `nos3`.
- * @version 2.0.0 (Sovereign Path Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ *              v2.1.0 (Elite Observability Injection): Inyectado con logging
+ *              estructurado para una trazabilidad completa del flujo de datos.
+ * @version 2.1.0
+ * @author L.I.A. Legacy
  */
 import React from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -19,13 +21,20 @@ interface Nos3PlayerPageProps {
 
 export default async function Nos3PlayerPage({ params }: Nos3PlayerPageProps) {
   const { sessionId } = params;
+  const traceId = logger.startTrace(`Nos3PlayerPage:${sessionId}`);
   logger.info(
-    `[Nos3PlayerPage] Renderizando página para la sesión: ${sessionId}`
+    `[Nos3PlayerPage] Iniciando renderizado para la sesión: ${sessionId}`,
+    { traceId }
   );
 
   const eventsResult = await getSessionEventsAction(sessionId);
 
   if (!eventsResult.success) {
+    logger.error(
+      `[Nos3PlayerPage] Fallo al obtener eventos. Renderizando error.`,
+      { error: eventsResult.error, traceId }
+    );
+    logger.endTrace(traceId);
     return (
       <DeveloperErrorDisplay
         context="Nos3PlayerPage"
@@ -34,6 +43,12 @@ export default async function Nos3PlayerPage({ params }: Nos3PlayerPageProps) {
       />
     );
   }
+
+  logger.success(
+    `[Nos3PlayerPage] Eventos obtenidos con éxito. Delegando ${eventsResult.data.length} eventos al cliente.`,
+    { traceId }
+  );
+  logger.endTrace(traceId);
 
   return (
     <>

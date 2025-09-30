@@ -2,13 +2,11 @@
 /**
  * @file i18n.handler.ts
  * @description Manejador de middleware para la internacionalización.
- * @version 7.2.0 (Redundant Import Pruning)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 8.0.0 (Granular Logging & Observability)
+ * @author L.I.A. Legacy
  */
 import { NextResponse } from "next/server";
-// --- [INICIO DE CORRECCIÓN DE HIGIENE DE CÓDIGO] ---
 import { supportedLocales } from "../../i18n/i18n.config";
-// --- [FIN DE CORRECCIÓN DE HIGIENE DE CÓDIGO] ---
 import { getLocaleFromBrowser } from "../../i18n/locale-detector";
 import { getLocaleFromCountry } from "../../i18n/country-locale-map";
 import { type MiddlewareHandler } from "../engine";
@@ -25,37 +23,42 @@ export const i18nHandler: MiddlewareHandler = (req, res) => {
 
   // 1. Si la ruta ya tiene un locale, no hacemos nada.
   if (localePathnameRegex.test(pathname)) {
-    logger.trace(`[i18nHandler] Ruta ya localizada: ${pathname}. Omitiendo.`);
+    logger.trace(
+      `[i18nHandler] Decisión: Omitir. Razón: La ruta ya está localizada ('${pathname}').`
+    );
     return res;
   }
 
-  // 2. Detección basada en país (Vercel Edge o API)
+  // 2. Detección por país (Vercel Edge).
   const countryCode = req.headers.get("x-visitor-country");
   const localeFromCountry = getLocaleFromCountry(countryCode || undefined);
 
   if (localeFromCountry) {
-    logger.info(
-      `[i18nHandler] Locale detectado por país (${countryCode}): ${localeFromCountry}.`
-    );
     const newUrl = new URL(`/${localeFromCountry}${pathname}`, req.url);
-    return NextResponse.redirect(newUrl, 308);
+    logger.info(
+      `[i18nHandler] Decisión: Redirigir. Razón: Locale '${localeFromCountry}' detectado por país ('${countryCode}').`,
+      { redirectTo: newUrl.href }
+    );
+    return NextResponse.redirect(newUrl);
   }
 
   // 3. Si el país es conocido pero el idioma no está soportado, redirigir a selección.
   if (countryCode && countryCode !== "unknown") {
-    logger.warn(
-      `[i18nHandler] País ${countryCode} no tiene un locale soportado. Redirigiendo a /select-language.`
-    );
     const selectLangUrl = new URL(routes.selectLanguage.path(), req.url);
     selectLangUrl.searchParams.set("returnUrl", pathname);
+    logger.warn(
+      `[i18nHandler] Decisión: Redirigir a selección. Razón: País ('${countryCode}') no tiene un locale soportado.`,
+      { redirectTo: selectLangUrl.href }
+    );
     return NextResponse.redirect(selectLangUrl);
   }
 
-  // 4. Detección basada en el navegador.
+  // 4. Fallback a detección por navegador.
   const localeFromBrowser = getLocaleFromBrowser(req);
-  logger.info(
-    `[i18nHandler] Locale detectado por navegador: ${localeFromBrowser}.`
-  );
   const newUrl = new URL(`/${localeFromBrowser}${pathname}`, req.url);
-  return NextResponse.redirect(newUrl, 308);
+  logger.info(
+    `[i18nHandler] Decisión: Redirigir. Razón: Fallback a locale de navegador ('${localeFromBrowser}').`,
+    { redirectTo: newUrl.href }
+  );
+  return NextResponse.redirect(newUrl);
 };

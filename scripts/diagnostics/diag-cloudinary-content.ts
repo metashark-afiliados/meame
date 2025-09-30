@@ -1,17 +1,17 @@
-// scripts/diagnostics/diag-cloudinary-content.ts
+// RUTA: scripts/diagnostics/diag-cloudinary-content.ts
 /**
  * @file diag-cloudinary-content.ts
  * @description Herramienta de auditoría para realizar un censo de contenido en Cloudinary.
- * @author Raz Podestá - MetaShark Tech
- * @version 2.0.0 (ESM Fix & Type Safety)
+ * @version 4.0.0 (Orchestrator-Compliant & Resilient)
+ * @author L.I.A. Legacy
  */
 import { v2 as cloudinary } from "cloudinary";
-import chalk from "chalk";
-import * as fs from "fs";
+import * as fs from "fs/promises";
 import * as path from "path";
 import { loadEnvironment } from "./_utils";
+import { logger } from "../../src/shared/lib/logging";
+import type { ActionResult } from "../../src/shared/lib/types/actions.types";
 
-// --- INICIO DE REFACTORIZACIÓN: Tipos para respuestas de API ---
 interface Resource {
   public_id: string;
   width: number;
@@ -20,32 +20,31 @@ interface Resource {
   bytes: number;
   uploaded_at: string;
 }
-// --- FIN DE REFACTORIZACIÓN ---
 
-async function main() {
-  console.clear();
-  loadEnvironment([
-    "CLOUDINARY_CLOUD_NAME",
-    "CLOUDINARY_API_KEY",
-    "CLOUDINARY_API_SECRET",
-  ]);
-
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure: true,
-  });
-
-  console.log(
-    chalk.cyan(
-      `\n📊 Realizando censo de contenido en Cloudinary para el cloud: '${process.env.CLOUDINARY_CLOUD_NAME}'...`
-    )
-  );
-
-  const fullReport: Record<string, unknown> = {};
+async function diagnoseCloudinaryContent(): Promise<ActionResult<string>> {
+  const traceId = logger.startTrace("diagnoseCloudinaryContent_v4.0");
+  logger.startGroup("📊 Realizando censo de contenido en Cloudinary (v4.0)...");
 
   try {
+    loadEnvironment([
+      "CLOUDINARY_CLOUD_NAME",
+      "CLOUDINARY_API_KEY",
+      "CLOUDINARY_API_SECRET",
+    ]);
+    logger.traceEvent(traceId, "Variables de entorno validadas.");
+
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+      secure: true,
+    });
+    logger.info(`Censando cloud: '${process.env.CLOUDINARY_CLOUD_NAME}'`, {
+      traceId,
+    });
+
+    const fullReport: Record<string, unknown> = {};
+
     const [usage, resources] = await Promise.all([
       cloudinary.api.usage(),
       cloudinary.search
@@ -54,76 +53,60 @@ async function main() {
         .max_results(10)
         .execute(),
     ]);
+    logger.traceEvent(traceId, "Datos de contenido obtenidos de la API.");
 
+    // --- [INICIO DE RESTAURACIÓN DE LÓGICA] ---
     fullReport.usage_summary = usage;
     fullReport.recent_assets = resources.resources;
 
-    console.log(chalk.blueBright.bold(`\n--- RESUMEN DE USO ---`));
-    console.table([
-      { Métrica: "Plan", Valor: usage.plan },
-      {
-        Métrica: "Almacenamiento (GB)",
-        Valor: (usage.storage.usage / 1e9).toFixed(3),
-      },
-      { Métrica: "Transformaciones", Valor: usage.transformations.usage },
-      {
-        Métrica: "Ancho de Banda (GB)",
-        Valor: (usage.bandwidth.usage / 1e9).toFixed(3),
-      },
-      { Métrica: "Total de Activos", Valor: resources.total_count },
-    ]);
+    const usageSummary = {
+      Plan: usage.plan,
+      "Almacenamiento (GB)": (usage.storage.usage / 1e9).toFixed(3),
+      Transformaciones: usage.transformations.usage,
+      "Ancho de Banda (GB)": (usage.bandwidth.usage / 1e9).toFixed(3),
+      "Total de Activos": resources.total_count,
+    };
+    logger.info("--- RESUMEN DE USO ---", { data: usageSummary });
 
-    console.log(chalk.blueBright.bold(`\n--- ÚLTIMOS 10 ACTIVOS SUBIDOS ---`));
     if (resources.resources.length > 0) {
-      console.table(
-        resources.resources.map((r: Resource) => ({
-          "Public ID": r.public_id,
-          Dimensiones: `${r.width}x${r.height}`,
-          Formato: r.format,
-          "Tamaño (KB)": (r.bytes / 1024).toFixed(2),
-          "Fecha de Subida": new Date(r.uploaded_at).toLocaleString(),
-        }))
-      );
+      const recentAssets = resources.resources.map((r: Resource) => ({
+        "Public ID": r.public_id,
+        Dimensiones: `${r.width}x${r.height}`,
+        Formato: r.format,
+        "Tamaño (KB)": (r.bytes / 1024).toFixed(2),
+        "Fecha de Subida": new Date(r.uploaded_at).toLocaleString(),
+      }));
+      logger.info("--- ÚLTIMOS 10 ACTIVOS SUBIDOS ---", { data: recentAssets });
     } else {
-      console.log(chalk.yellow("No se encontraron activos."));
+      logger.info("--- ÚLTIMOS 10 ACTIVOS SUBIDOS ---", {
+        data: "No se encontraron activos.",
+      });
     }
+    // --- [FIN DE RESTAURACIÓN DE LÓGICA] ---
 
     const reportDir = path.resolve(process.cwd(), "cloudinary/reports");
-    if (!fs.existsSync(reportDir)) {
-      fs.mkdirSync(reportDir, { recursive: true });
-    }
+    await fs.mkdir(reportDir, { recursive: true });
     const reportPath = path.resolve(
       reportDir,
       `latest-content-diagnostics.json`
     );
-    fs.writeFileSync(reportPath, JSON.stringify(fullReport, null, 2));
-    console.log(
-      chalk.blueBright.bold(
-        `\n📄 Reporte de contenido JSON guardado en: ${chalk.yellow(reportPath)}`
-      )
-    );
+    await fs.writeFile(reportPath, JSON.stringify(fullReport, null, 2));
+
+    const successMessage = `Reporte de contenido JSON guardado en: ${path.relative(process.cwd(), reportPath)}`;
+    logger.success(successMessage, { traceId });
+    return { success: true, data: successMessage };
   } catch (error) {
-    console.error(
-      chalk.red.bold(
-        "\n🔥 Fallo al realizar el censo de contenido en Cloudinary:"
-      ),
-      error
-    );
-    process.exit(1);
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("🔥 Fallo al realizar el censo de contenido en Cloudinary:", {
+      error: errorMessage,
+      traceId,
+    });
+    return { success: false, error: errorMessage };
+  } finally {
+    logger.endGroup();
+    logger.endTrace(traceId);
   }
 }
 
-main()
-  .then(() =>
-    console.log(
-      chalk.green.bold("\n\n✅ Censo de contenido de Cloudinary completado.")
-    )
-  )
-  .catch((error) => {
-    console.error(
-      chalk.red.bold("\n🔥 Fallo irrecuperable en el script:"),
-      error.message
-    );
-    process.exit(1);
-  });
-// scripts/diagnostics/diag-cloudinary-content.ts
+export default diagnoseCloudinaryContent;

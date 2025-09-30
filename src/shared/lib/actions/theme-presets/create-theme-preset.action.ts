@@ -2,8 +2,8 @@
 /**
  * @file create-theme-preset.action.ts
  * @description Server Action para crear un nuevo preset de tema.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.0.0 (Type Property Integration)
+ * @author L.I.A. Legacy
  */
 "use server";
 import { createServerClient } from "@/shared/lib/supabase/server";
@@ -16,6 +16,7 @@ interface CreatePresetInput {
   workspaceId: string;
   name: string;
   description?: string;
+  type: "color" | "font" | "geometry"; // <-- Propiedad 'type' ahora es requerida
   themeConfig: ThemeConfig;
 }
 
@@ -36,6 +37,7 @@ export async function createThemePresetAction(
         user_id: user.id,
         name: input.name,
         description: input.description,
+        type: input.type, // <-- Se persiste el tipo
         theme_config: input.themeConfig,
       })
       .select()

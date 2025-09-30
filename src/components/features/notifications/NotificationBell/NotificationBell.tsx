@@ -1,9 +1,9 @@
 // RUTA: src/components/features/notifications/NotificationBell/NotificationBell.tsx
 /**
  * @file NotificationBell.tsx
- * @description Orquestador de la feature NotificationBell.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description Orquestador de la feature NotificationBell, ahora con apertura por hover.
+ * @version 2.0.0 (Hover-to-Open UX)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -29,15 +29,20 @@ export function NotificationBell({ content }: NotificationBellProps) {
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
-      <NotificationBellTrigger
-        unreadCount={unreadCount}
-        label={content.notificationsLabel}
-      />
-      <NotificationBellContent
-        isLoading={isLoading}
-        notifications={notifications}
-        content={content}
-      />
+      <div
+        onMouseEnter={() => handleOpenChange(true)}
+        onMouseLeave={() => handleOpenChange(false)}
+      >
+        <NotificationBellTrigger
+          unreadCount={unreadCount}
+          label={content.notificationsLabel}
+        />
+        <NotificationBellContent
+          isLoading={isLoading}
+          notifications={notifications}
+          content={content}
+        />
+      </div>
     </DropdownMenu>
   );
 }

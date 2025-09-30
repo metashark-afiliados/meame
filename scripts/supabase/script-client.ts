@@ -1,0 +1,33 @@
+// RUTA: scripts/supabase/script-client.ts
+/**
+ * @file script-client.ts
+ * @description SSoT para la creación de un cliente de Supabase aislado y
+ *              seguro, para uso EXCLUSIVO en scripts del lado del servidor (Node.js).
+ * @version 1.0.0
+ * @author L.I.A. Legacy
+ */
+import { createClient } from "@supabase/supabase-js";
+import { logger } from "../../src/shared/lib/logging"; // El logger es seguro para importar
+
+if (
+  !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  !process.env.SUPABASE_SERVICE_ROLE_KEY
+) {
+  throw new Error(
+    "Las variables de entorno de Supabase para el cliente de script no están definidas."
+  );
+}
+
+/**
+ * @function createScriptClient
+ * @description Crea y devuelve una instancia del cliente de Supabase autenticada
+ *              con la clave de rol de servicio para operaciones de backend.
+ * @returns Una instancia del cliente de Supabase.
+ */
+export function createScriptClient() {
+  logger.trace("[Supabase] Creando instancia de cliente para SCRIPT...");
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}

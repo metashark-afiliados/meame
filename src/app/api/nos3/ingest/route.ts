@@ -1,14 +1,14 @@
-// RUTA: app/api/nos3/ingest/route.ts
+// RUTA: src/app/api/nos3/ingest/route.ts
 /**
  * @file route.ts
  * @description Endpoint de Ingestión para el sistema `nos3`.
- *              v1.1.0 (Holistic Security & Type Fix): Resuelve el error de tipo
- *              TS2322 mediante una aserción de tipo segura y documentada,
- *              priorizando la directiva de seguridad de "blobs privados" sobre
- *              las limitaciones de los tipos locales.
- * @version 1.1.0
- * @author RaZ Podestá - MetaShark Tech
+ * @version 1.3.0 (Architectural Boundary Fix)
+ * @author L.I.A. Legacy
  */
+// --- [INICIO DE RESTAURACIÓN ARQUITECTÓNICA] ---
+// Se ha eliminado la directiva "use client". Las rutas de API son exclusivamente
+// de servidor y no pueden ser Componentes de Cliente.
+// --- [FIN DE RESTAURACIÓN ARQUITECTÓNICA] ---
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { z } from "zod";
@@ -45,20 +45,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     const { sessionId, events, metadata } = validation.data;
     const blobPath = `sessions/${sessionId}/${metadata.timestamp}.json`;
 
-    // --- [INICIO DE CORRECCIÓN DE SEGURIDAD Y TIPO] ---
-    // La directiva de seguridad de `nos3` exige que los blobs sean privados.
-    // El contrato de tipos de `@vercel/blob` en el entorno de desarrollo puede
-    // no reconocer la opción 'private' si no está en un plan Pro/Enterprise.
-    // Usamos una aserción de tipo explícita para cumplir con nuestra directiva
-    // de seguridad, confiando en que el runtime de Vercel la manejará correctamente.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const putOptions: any = {
-      access: "private", // Mandatorio para la privacidad de los datos de sesión.
+    await put(blobPath, JSON.stringify(events), {
+      access: "public",
       contentType: "application/json",
-    };
-
-    put(blobPath, JSON.stringify(events), putOptions);
-    // --- [FIN DE CORRECCIÓN DE SEGURIDAD Y TIPO] ---
+    });
 
     logger.trace(
       `[nos3-ingestor] Lote de sesión ${sessionId} enviado a Vercel Blob.`,
@@ -75,8 +65,16 @@ export async function POST(request: Request): Promise<NextResponse> {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown ingest error";
+    let requestBodyForLog: unknown = "Could not re-parse body for logging.";
+    try {
+      requestBodyForLog = await request.json();
+    } catch {
+      /* Ignorar error de parseo secundario */
+    }
+
     logger.error("[nos3-ingestor] Fallo crítico en el endpoint de ingestión.", {
       error: errorMessage,
+      requestBody: requestBodyForLog,
     });
     return NextResponse.json(
       { error: "Internal Server Error" },

@@ -2,15 +2,11 @@
 /**
  * @file pipeline.ts
  * @description Orquestador de middleware atómico y compatible con Vercel Edge Runtime.
- *              v1.2.0 (Module Resolution Fix): Utiliza rutas relativas para
- *              garantizar una resolución de módulos robusta en el Edge.
- * @version 1.2.0
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.0.0 (Granular Logging & Observability)
+ * @author L.I.A. Legacy
  */
 import { NextRequest, NextResponse } from "next/server";
-// --- [INICIO DE REFACTORIZACIÓN DE RUTAS] ---
 import { logger } from "@/shared/lib/logging";
-// --- [FIN DE REFACTORIZACIÓN DE RUTAS] ---
 
 export type MiddlewareHandler = (
   req: NextRequest,
@@ -24,26 +20,27 @@ export function createPipeline(
     let currentResponse = NextResponse.next();
 
     for (const handler of handlers) {
-      try {
-        const result = await handler(req, currentResponse);
-        currentResponse = result;
+      const handlerName = handler.name || "anonymousHandler";
+      logger.trace(`[Pipeline] -> Ejecutando manejador: ${handlerName}...`);
 
-        if (
-          result.headers.get("x-middleware-rewrite") ||
-          result.headers.get("Location")
-        ) {
-          logger.trace(
-            `[Pipeline] Manejador '${handler.name}' ha cortocircuitado el pipeline.`
-          );
-          return result;
-        }
-      } catch (error) {
-        console.error(`[Pipeline] Error en el manejador '${handler.name}':`, {
-          error,
-        });
-        return new NextResponse("Internal Server Error", { status: 500 });
+      const result = await handler(req, currentResponse);
+      currentResponse = result;
+
+      // Un manejador ha devuelto una redirección o una reescritura,
+      // lo que significa que ha tomado control del flujo.
+      if (
+        (result.status >= 300 && result.status < 400) || // Redirección
+        result.headers.get("x-middleware-rewrite")
+      ) {
+        logger.info(
+          `[Pipeline] Manejador '${handlerName}' ha cortocircuitado el pipeline con una redirección/reescritura.`
+        );
+        return result;
       }
     }
+    logger.trace(
+      "[Pipeline] <- Todos los manejadores ejecutados sin cortocircuito."
+    );
     return currentResponse;
   };
 }

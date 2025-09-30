@@ -1,9 +1,9 @@
 // RUTA: src/components/features/campaign-suite/CampaignSuiteWizard.tsx
 /**
  * @file CampaignSuiteWizard.tsx
- * @description Orquestador de cliente principal ("cerebro") para la SDC.
- * @version 15.0.0 (Data Flow Propagation)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Orquestador de cliente principal ("cerebro") para la SDC, con observabilidad de élite.
+ * @version 17.0.0 (Elite Observability & Full Compliance)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { logger } from "@/shared/lib/logging";
 import { stepsConfig } from "@/shared/lib/config/campaign-suite/wizard.config";
 import {
-  useCampaignDraftContext,
+  useCampaignDraftStore,
   useDraftMetadataStore,
 } from "@/shared/hooks/campaign-suite";
 import { WizardProvider } from "./_context/WizardContext";
@@ -32,14 +32,16 @@ export function CampaignSuiteWizard({
   content,
   loadedFragments,
 }: CampaignSuiteWizardProps): React.ReactElement {
-  logger.info("[CampaignSuiteWizard] Renderizando orquestador v15.0.");
+  // --- INICIO: PILAR III (FULL OBSERVABILIDAD) ---
+  logger.info("[Observabilidad][CLIENTE] Renderizando CampaignSuiteWizard v17.0.");
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { initializeDraft, isLoading } = useCampaignDraftContext();
+  const { initializeDraft, isLoading } = useCampaignDraftStore();
   const { completedSteps } = useDraftMetadataStore();
 
   useEffect(() => {
+    // La inicialización del borrador se registra en el propio store.
     initializeDraft();
   }, [initializeDraft]);
 
@@ -50,6 +52,7 @@ export function CampaignSuiteWizard({
 
   const handleNavigation = useCallback(
     (newStepId: number) => {
+      logger.trace(`[Wizard] Navegando al paso ${newStepId}.`);
       const newParams = new URLSearchParams(searchParams.toString());
       newParams.set("step", String(newStepId));
       router.push(`?${newParams.toString()}`);
@@ -77,6 +80,8 @@ export function CampaignSuiteWizard({
         completedSteps.includes(stepId - 1)
       ) {
         handleNavigation(stepId);
+      } else {
+        logger.warn(`[Wizard] Intento de saltar a un paso no completado (${stepId}). Acción denegada.`);
       }
     },
     [completedSteps, currentStepId, handleNavigation]
@@ -121,4 +126,3 @@ export function CampaignSuiteWizard({
     </WizardProvider>
   );
 }
-// RUTA: src/components/features/campaign-suite/CampaignSuiteWizard.tsx

@@ -4,8 +4,8 @@
  * @description Aparato SSoT para el logging. Implementación isomórfica sin
  *              dependencias, compatible con todos los entornos de Vercel y
  *              con capacidades de tracing de acciones de élite.
- * @version 13.2.0 (Regression-Free Type Safety)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 13.2.1 (Typo Fix in Production Logger)
+ * @author L.I.A. Legacy
  */
 
 // Estilos de consola para una mejor visualización en desarrollo.
@@ -60,14 +60,14 @@ const developmentLogger: Logger = {
         style
       );
     } else {
-      console.log(`[${timestamp}] ▶ GROUP START: ${label}`);
+      console.log(`\n[${timestamp}] ▶ GROUP START: ${label}`);
     }
   },
   endGroup: () => {
     if (isBrowser) {
       console.groupEnd();
     } else {
-      console.log(`[${getTimestamp()}] ◀ GROUP END`);
+      console.log(`[${getTimestamp()}] ◀ GROUP END\n`);
     }
   },
   success: (message, context) => {
@@ -219,7 +219,10 @@ const productionLogger: Logger = {
   warn: (message, context) =>
     console.warn(`[${getTimestamp()}] ⚠️ [WARN] ${message}`, context || ""),
   error: (message, context) =>
+    // --- [INICIO DE CORRECCIÓN QUIRÚRGICA] ---
+    // Se reemplaza la variable 'timestamp' no definida por la llamada a la función 'getTimestamp()'.
     console.error(`[${getTimestamp()}] ❌ [ERROR] ${message}`, context || ""),
+  // --- [FIN DE CORRECCIÓN QUIRÚRGICA] ---
   trace: () => {},
   time: () => {},
   timeEnd: () => {},
@@ -236,4 +239,3 @@ const productionLogger: Logger = {
 
 export const logger =
   process.env.NODE_ENV === "development" ? developmentLogger : productionLogger;
-// RUTA: src/shared/lib/logging.ts

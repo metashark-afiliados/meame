@@ -3,8 +3,8 @@
  * @file DeleteDraftDialog.tsx
  * @description Aparato atómico para el diálogo de confirmación de eliminación de
  *              borrador, con una UX de "alta fricción" para máxima seguridad.
- * @version 2.0.0 (High-Friction UX & Elite Compliance)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.1.0 (Holistic Contract & Elite Compliance)
+ * @author L.I.A. Legacy
  */
 "use client";
 import React, { useState } from "react";
@@ -28,7 +28,7 @@ type DeleteDialogContent = NonNullable<
 
 interface DeleteDraftDialogProps {
   content: DeleteDialogContent;
-  draftName: string; // Recibe el nombre del borrador para validación
+  draftName: string;
   onConfirmDelete: () => void;
   isDeleting: boolean;
 }
@@ -39,7 +39,7 @@ export function DeleteDraftDialog({
   onConfirmDelete,
   isDeleting,
 }: DeleteDraftDialogProps): React.ReactElement {
-  logger.trace("[DeleteDraftDialog] Renderizando v2.0.");
+  logger.trace("[DeleteDraftDialog] Renderizando v2.1 (Holistic).");
 
   const [draftNameInput, setDraftNameInput] = useState("");
   const [confirmationTextInput, setConfirmationTextInput] = useState("");
@@ -50,7 +50,6 @@ export function DeleteDraftDialog({
     confirmationTextInput === CONFIRMATION_PHRASE;
 
   const handleCancel = () => {
-    // Resetea los inputs al cancelar para un estado limpio la próxima vez
     setDraftNameInput("");
     setConfirmationTextInput("");
   };

@@ -1,18 +1,42 @@
-// RUTA: tsconfig.scripts.json
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "target": "es2022",
+    "target": "es2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "allowImportingTsExtensions": true,
     "noEmit": true,
-    "types": ["node"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@scripts/*": ["scripts/*"]
+      "@app/*": ["src/app/*"],
+      "@components/*": ["src/components/*"],
+      "@content/*": ["content/*"],
+      "@messages/*": ["src/messages/*"],
+      "@prompts/*": ["prompts/*"],
+      "@scripts/*": ["scripts/*"],
+      "@shared/*": ["src/shared/*"],
+      "@store/*": ["src/store/*"],
+      "@types/*": ["src/types/*"]
     }
   },
-  "include": ["scripts/**/*.ts", "src/shared/**/*.ts"],
-  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
+  "include": [
+    "scripts/**/*.ts",
+    "src/shared/lib/**/*.ts",
+    "src/shared/lib/**/*.tsx"
+  ],
+  "exclude": ["node_modules"]
 }

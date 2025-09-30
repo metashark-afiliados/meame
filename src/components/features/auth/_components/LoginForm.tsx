@@ -2,11 +2,10 @@
 /**
  * @file LoginForm.tsx
  * @description Componente de presentación puro para el formulario de login.
- *              v5.0.0 (Contextual Redirect & Elite Compliance): Implementa la
- *              lógica de redirección inteligente post-login, enviando al usuario
- *              a la página que intentaba acceder originalmente.
- * @version 5.0.0
- * @author RaZ Podestá - MetaShark Tech
+ *              v5.1.0 (Build Integrity Restoration): Corrige una ruta de importación
+ *              rota, restaurando la integridad arquitectónica y del build.
+ * @version 5.1.0
+ * @author L.I.A. Legacy - Asistente de Refactorización
  */
 "use client";
 
@@ -43,7 +42,7 @@ import {
   LoginSchema,
   type LoginFormData,
 } from "@/shared/lib/schemas/auth/login.schema";
-import { loginWithPasswordAction } from "./src/lib/shared/lib/actions/auth/auth.actions";
+import { loginWithPasswordAction } from "@/shared/lib/actions/auth/auth.actions";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
 
 type LoginFormContent = NonNullable<Dictionary["devLoginPage"]>;
@@ -70,9 +69,9 @@ const fieldVariants: Variants = {
 };
 
 export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
-  logger.info("[LoginForm] Renderizando v5.0 (Contextual Redirect).");
+  logger.info("[LoginForm] Renderizando v5.1 (Build Integrity Restoration).");
   const router = useRouter();
-  const searchParams = useSearchParams(); // <-- Hook para leer los parámetros de la URL
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -92,16 +91,12 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
       const result = await loginWithPasswordAction(data);
       if (result.success) {
         toast.success("Login exitoso. Redirigiendo...");
-
-        // --- [INICIO DE REFACTORIZACIÓN DE LÓGICA DE REDIRECCIÓN] ---
         const redirectTo = searchParams.get("redirectedFrom");
         const destination = redirectTo || routes.devDashboard.path({ locale });
-
         logger.info(
           `[LoginForm] Redirección post-login. Destino: ${destination}`
         );
         router.push(destination);
-        // --- [FIN DE REFACTORIZACIÓN DE LÓGICA DE REDIRECCIÓN] ---
       } else {
         toast.error("Error de Login", { description: result.error });
         form.setError("root", { message: result.error });
@@ -125,7 +120,6 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
               initial="hidden"
               animate="visible"
             >
-              {/* ... Campos del formulario sin cambios ... */}
               <motion.div variants={fieldVariants}>
                 <FormField
                   control={form.control}
@@ -203,13 +197,11 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
                   )}
                 />
               </motion.div>
-
               {form.formState.errors.root && (
                 <p className="text-sm font-medium text-destructive">
                   {form.formState.errors.root.message}
                 </p>
               )}
-
               <motion.div variants={fieldVariants} className="!mt-6">
                 <Button type="submit" className="w-full" disabled={isPending}>
                   {isPending && (
@@ -234,7 +226,6 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
           </div>
         </CardContent>
       </Card>
-
       <Dialog
         open={isForgotPasswordOpen}
         onOpenChange={setIsForgotPasswordOpen}

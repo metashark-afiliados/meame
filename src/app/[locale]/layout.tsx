@@ -1,108 +1,81 @@
-// RUTA: src/app/[locale]/layout.tsx
+// RUTA: src/app/[locale]/(dev)/layout.tsx
 /**
  * @file layout.tsx
- * @description Layout Localizado. Orquesta la carga de datos, el ensamblaje
- *              de contratos de contenido y la hidratación del estado del cliente.
- * @version 21.0.0 (Data Corruption Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Layout de Servidor para el DCC, con un Guardián de Resiliencia Verboso
+ *              y la inyección del ScrollingBanner.
+ * @version 16.1.0 (Elite Observability & Type Safety)
+ * @author L.I.A. Legacy
  */
 import React from "react";
 import { notFound } from "next/navigation";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
-import { type Locale, supportedLocales } from "@/shared/lib/i18n/i18n.config";
+import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
-import Header from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { getCart } from "@/shared/lib/commerce/cart";
+import { DevLayoutClient } from "./(dev)/DevLayoutClient";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
-import CartStoreInitializer from "@/shared/lib/stores/CartStoreInitializer";
-import type { CartItem as ZustandCartItem } from "@/shared/lib/stores/useCartStore";
-import type { CartItem as ShopifyCartItem } from "@/shared/lib/shopify/types";
-import { reshapeShopifyProduct } from "@/shared/lib/shopify";
+import { loadAllThemeFragmentsAction } from "@/shared/lib/actions/campaign-suite";
+import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
-interface LocaleLayoutProps {
+interface DevLayoutProps {
   children: React.ReactNode;
   params: { locale: Locale };
 }
 
-export default async function LocaleLayout({
-  children,
-  params: { locale },
-}: LocaleLayoutProps) {
-  logger.info(
-    `[LocaleLayout] Renderizando v21.0 (Restored) para locale: [${locale}]`
-  );
+export default async function DevLayout({ children, params }: DevLayoutProps) {
+  const traceId = logger.startTrace("DevLayout_Render_v16.1");
+  logger.info(`[Observabilidad][SERVIDOR] Renderizando DevLayout v16.1 para locale: ${params.locale}`, {
+    traceId,
+  });
 
-  const [{ dictionary, error }, cartFromShopify] = await Promise.all([
-    getDictionary(locale),
-    getCart(),
-  ]);
+  try {
+    const { dictionary, error: dictError } = await getDictionary(params.locale);
 
-  const initialCartItems: ZustandCartItem[] =
-    cartFromShopify?.lines.map((line: ShopifyCartItem) => {
-      const reshapedProduct = reshapeShopifyProduct(line.merchandise.product);
-      return {
-        ...reshapedProduct,
-        quantity: line.quantity,
-      };
-    }) || [];
+    // --- INICIO DEL GUARDIÁN DE RESILIENCIA VERBOSO ---
+    const requiredKeys: (keyof Dictionary)[] = [
+      "devHeader", "toggleTheme", "languageSwitcher", "suiteStyleComposer",
+      "userNav", "notificationBell", "devLoginPage", "cookieConsentBanner", "scrollingBanner"
+    ];
 
-  const {
-    footer,
-    header,
-    toggleTheme,
-    languageSwitcher,
-    cart,
-    userNav,
-    notificationBell,
-    devLoginPage,
-  } = dictionary;
+    if (dictError || requiredKeys.some((key) => !dictionary[key])) {
+      const missingKeys = requiredKeys.filter((key) => !dictionary[key]).join(", ");
+      const errorMessage = `Faltan claves de i18n críticas en DevLayout. Ausentes: ${missingKeys}`;
+      logger.error(`[Guardián de Resiliencia] ${errorMessage}`, { dictError, traceId });
+      throw new Error(errorMessage);
+    }
+    // --- FIN DEL GUARDIÁN DE RESILIENCIA VERBOSO ---
 
-  if (
-    error ||
-    !footer ||
-    !header ||
-    !toggleTheme ||
-    !languageSwitcher ||
-    !cart ||
-    !userNav ||
-    !notificationBell ||
-    !devLoginPage
-  ) {
-    const errorMessage =
-      "Fallo al cargar contenido i18n esencial para el layout.";
-    logger.error(`[LocaleLayout] ${errorMessage}`, { error });
-    if (process.env.NODE_ENV === "production") return notFound();
+    const fragmentsResult = await loadAllThemeFragmentsAction();
+    if (!fragmentsResult.success) {
+      const errorMessage = "Fallo al cargar los fragmentos de tema.";
+      logger.error(`[Guardián de Resiliencia] ${errorMessage}`, { error: fragmentsResult.error, traceId });
+      throw new Error(errorMessage);
+    }
+    const allLoadedFragments = fragmentsResult.data;
+    logger.traceEvent(traceId, "Todos los datos del servidor obtenidos y validados.");
+
     return (
-      <DeveloperErrorDisplay
-        context="LocaleLayout"
-        errorMessage={errorMessage}
-        errorDetails={error || "Faltan claves de contenido esenciales."}
-      />
+      <DevLayoutClient
+        locale={params.locale}
+        dictionary={dictionary as Dictionary}
+        allLoadedFragments={allLoadedFragments}
+      >
+        {children}
+      </DevLayoutClient>
     );
+  } catch (error) {
+    const errorMessage = "Fallo crítico al renderizar el layout del DCC.";
+    logger.error(`[DevLayout] ${errorMessage}`, { error, traceId });
+    if (process.env.NODE_ENV === "development") {
+      return (
+        <DeveloperErrorDisplay
+          context="DevLayout v16.1"
+          errorMessage={errorMessage}
+          errorDetails={error instanceof Error ? error : String(error)}
+        />
+      );
+    }
+    return notFound();
+  } finally {
+    logger.endTrace(traceId);
   }
-
-  const headerContentBundle = {
-    header,
-    toggleTheme,
-    languageSwitcher,
-    cart,
-    userNav,
-    notificationBell,
-    devLoginPage,
-  };
-
-  return (
-    <>
-      <CartStoreInitializer items={initialCartItems} />
-      <Header
-        content={headerContentBundle}
-        currentLocale={locale}
-        supportedLocales={supportedLocales}
-      />
-      <main className="pt-16">{children}</main>
-      <Footer content={footer} />
-    </>
-  );
 }
-// RUTA: src/app/[locale]/layout.tsx

@@ -1,12 +1,11 @@
-// RUTA: shared/lib/types/campaigns/draft.types.ts
+// RUTA: src/shared/lib/types/campaigns/draft.types.ts
 /**
  * @file draft.types.ts
  * @description SSoT para los contratos de tipos del borrador de campaña y su estado en Zustand.
- *              v4.1.0 (Module Load Observability): Se añade un log de traza
- *              al inicio del módulo para confirmar su carga, cumpliendo con el
- *              Pilar III de Observabilidad.
- * @version 4.1.0
- * @author RaZ Podestá - MetaShark Tech
+ *              v6.0.0 (Holistic & Coherent Data Model v2): Se alinea el contrato de CampaignDraft
+ *              con todos los stores atómicos, incluyendo los datos de identidad del Paso 0.
+ * @version 6.0.0
+ * @author L.I.A. Legacy
  */
 import type { z } from "zod";
 import type {
@@ -17,13 +16,11 @@ import type {
   ContentDataSchema,
 } from "@/shared/lib/schemas/campaigns/draft.parts.schema";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
-import { logger } from "@/shared/lib/logging"; // Importa el logger
+import { logger } from "@/shared/lib/logging";
 
-// --- INICIO DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
 logger.trace(
-  "[draft.types.ts] Módulo de tipos de borrador de campaña cargado y listo para usar."
+  "[draft.types.ts] Módulo de tipos de borrador de campaña v6.0 cargado."
 );
-// --- FIN DE MEJORA: OBSERVABILIDAD DE CARGA DE MÓDULO ---
 
 export type HeaderConfig = z.infer<typeof HeaderConfigSchema>;
 export type FooterConfig = z.infer<typeof FooterConfigSchema>;
@@ -33,13 +30,12 @@ export type ContentData = z.infer<typeof ContentDataSchema>;
 
 export interface CampaignDraft {
   draftId: string | null;
-  step: number;
   completedSteps: number[];
   baseCampaignId: string | null;
   variantName: string | null;
   seoKeywords: string | null;
-  affiliateNetwork: string | null;
-  affiliateUrl: string | null;
+  producer: string | null;
+  campaignType: string | null;
   headerConfig: HeaderConfig;
   footerConfig: FooterConfig;
   layoutConfig: LayoutConfigItem[];
@@ -53,7 +49,7 @@ export interface CampaignDraftState {
   isLoading: boolean;
   isSyncing: boolean;
   initializeDraft: () => Promise<void>;
-  updateDraft: (data: Partial<Omit<CampaignDraft, "step" | "draftId">>) => void;
+  updateDraft: (data: Partial<Omit<CampaignDraft, "draftId">>) => void;
   updateSectionContent: (
     sectionName: string,
     locale: Locale,
@@ -64,6 +60,6 @@ export interface CampaignDraftState {
   deleteDraft: () => void;
   _debouncedSave: (draftToSave: CampaignDraft) => Promise<void>;
   _updateAndDebounce: (
-    newDraftState: Partial<Omit<CampaignDraft, "draftId" | "step">>
+    newDraftState: Partial<Omit<CampaignDraft, "draftId">>
   ) => void;
 }

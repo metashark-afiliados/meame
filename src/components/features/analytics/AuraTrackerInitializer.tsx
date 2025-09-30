@@ -2,26 +2,40 @@
 /**
  * @file AuraTrackerInitializer.tsx
  * @description Componente de cliente "headless" para inicializar el tracker de "Aura".
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.1.0 (React Hooks Compliance)
+ * @author L.I.A. Legacy
  */
 "use client";
 
 import { useAuraTracker } from "@/shared/hooks/analytics/use-aura-tracker";
+import { logger } from "@/shared/lib/logging";
 
 interface AuraTrackerInitializerProps {
-  campaignId: string;
-  variantId: string;
+  scope: "user" | "visitor";
+  campaignId?: string;
+  variantId?: string;
 }
 
 export function AuraTrackerInitializer({
+  scope,
   campaignId,
   variantId,
 }: AuraTrackerInitializerProps) {
-  // Inicializa el hook con los datos de la campaña actual.
-  // El hook se encargará del resto de la lógica.
-  useAuraTracker({ campaignId, variantId, enabled: true });
+  // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: CUMPLIMIENTO DE REGLAS DE HOOKS] ---
+  // La lógica condicional ahora determina si el hook debe estar habilitado.
+  const isTrackerEnabled =
+    scope === "user" || (scope === "visitor" && !!campaignId && !!variantId);
 
-  // Este componente no renderiza nada en la UI.
+  if (!isTrackerEnabled && scope === "visitor") {
+    logger.warn(
+      "[AuraTrackerInitializer] El scope 'visitor' requiere campaignId y variantId. El tracker no se activará."
+    );
+  }
+
+  // La llamada al hook ahora es incondicional, y su lógica interna se controla
+  // a través de la prop 'enabled'.
+  useAuraTracker({ scope, campaignId, variantId, enabled: isTrackerEnabled });
+  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
+
   return null;
 }

@@ -1,18 +1,12 @@
 {
   "entity_counts": {
-    "sites": 0,
     "users": 2,
-    "campaigns": 0
+    "bavi_assets": 7,
+    "campaign_drafts": 0,
+    "razprompts_entries": 0
   },
   "system_health": {
-    "last_user_signup": "2025-09-24T13:56:18.732284+00:00",
+    "last_user_signup": "2025-09-29T23:34:11.792467+00:00",
     "last_campaign_created": null
-  },
-  "status_distribution": {
-    "sites": {},
-    "campaigns": {}
-  },
-  "relationship_metrics": {
-    "avg_campaigns_per_site": 0
   }
 }

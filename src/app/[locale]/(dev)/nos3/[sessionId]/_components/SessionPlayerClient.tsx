@@ -1,12 +1,11 @@
-// RUTA: app/[locale]/(dev)/nos3/[sessionId]/_components/SessionPlayerClient.tsx
+// RUTA: src/app/[locale]/(dev)/nos3/[sessionId]/_components/SessionPlayerClient.tsx
 /**
  * @file SessionPlayerClient.tsx
  * @description Componente de cliente que envuelve e instancia el `rrweb-player`.
- *              v1.2.0 (React Hooks Compliance): Resuelve la advertencia de
- *              exhaustive-deps para una limpieza de efectos robusta y sin
- *              condiciones de carrera.
- * @version 1.2.0
- * @author RaZ Podestá - MetaShark Tech
+ *              v1.3.0 (Elite Observability Injection): Inyectado con logging
+ *              para confirmar la recepción de props y el ciclo de vida del reproductor.
+ * @version 1.3.0
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -28,14 +27,10 @@ export function SessionPlayerClient({
   const playerInstanceRef = useRef<rrwebPlayer | null>(null);
 
   useEffect(() => {
-    // --- [INICIO DE CORRECCIÓN: REACT HOOKS COMPLIANCE] ---
-    // Se captura el valor actual del ref en una constante local.
     const containerElement = playerContainerRef.current;
-    // --- [FIN DE CORRECCIÓN: REACT HOOKS COMPLIANCE] ---
-
     if (containerElement && !playerInstanceRef.current) {
       logger.info(
-        "[SessionPlayerClient] Montando instancia de rrweb-player..."
+        `[SessionPlayerClient] Montando instancia de rrweb-player con ${events.length} eventos...`
       );
       try {
         playerInstanceRef.current = new rrwebPlayer({
@@ -48,26 +43,30 @@ export function SessionPlayerClient({
             height: 720,
           },
         });
+        logger.success(
+          "[SessionPlayerClient] Reproductor rrweb instanciado con éxito."
+        );
       } catch (error) {
-        logger.error("Fallo al instanciar rrwebPlayer.", { error });
+        logger.error(
+          "[SessionPlayerClient] Fallo crítico al instanciar rrwebPlayer.",
+          { error }
+        );
       }
     }
 
     return () => {
-      // --- [INICIO DE CORRECCIÓN: REACT HOOKS COMPLIANCE] ---
-      // La función de limpieza ahora utiliza la constante local, que es estable.
       if (playerInstanceRef.current && containerElement) {
         logger.info(
           "[SessionPlayerClient] Desmontando instancia de rrweb-player."
         );
+        // Limpieza robusta para evitar nodos DOM huérfanos
         while (containerElement.firstChild) {
           containerElement.removeChild(containerElement.firstChild);
         }
         playerInstanceRef.current = null;
       }
-      // --- [FIN DE CORRECCIÓN: REACT HOOKS COMPLIANCE] ---
     };
-  }, [events]);
+  }, [events]); // El array de dependencias es correcto y eficiente.
 
   return (
     <Card>

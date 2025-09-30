@@ -1,23 +1,24 @@
 // RUTA: src/components/features/campaign-suite/_components/WizardHeader.tsx
 /**
  * @file WizardHeader.tsx
- * @description Header de la SDC, ahora alineado con la arquitectura de estado atómico.
- * @version 4.0.0 (Atomic State Alignment & Elite Compliance)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Header de la SDC, con observabilidad y resiliencia de élite.
+ * @version 7.0.0 (Resilient & Observable)
+ * @author L.I.A. Legacy
  */
 "use client";
 
 import React, { useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ProgressContext } from "../_context/ProgressContext";
-import { useCampaignDraftContext } from "@/shared/hooks/campaign-suite/use-campaign-draft-context.store";
+import { useCampaignDraftStore } from "@/shared/hooks/campaign-suite/use-campaign-draft-context.store";
 import { useDraftMetadataStore } from "@/shared/hooks/campaign-suite/use-draft-metadata.store";
 import { ProgressStepper } from "./ProgressStepper";
 import { DynamicIcon } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
+import { DeveloperErrorDisplay } from "../../dev-tools";
 
 const SyncStatusIndicator = () => {
-  const isSyncing = useCampaignDraftContext((state) => state.isSyncing);
+  const isSyncing = useCampaignDraftStore((state) => state.isSyncing);
   const updatedAt = useDraftMetadataStore((state) => state.updatedAt);
   const lastSavedTime = new Date(updatedAt).toLocaleTimeString();
 
@@ -55,15 +56,27 @@ const SyncStatusIndicator = () => {
   );
 };
 
-export function WizardHeader(): React.ReactElement | null {
+export function WizardHeader(): React.ReactElement {
+  // --- INICIO: PILAR III (FULL OBSERVABILIDAD) ---
+  logger.info("[Observabilidad][CLIENTE] Renderizando WizardHeader v7.0.");
+
   const progressContext = useContext(ProgressContext);
 
+  // --- INICIO: GUARDIÁN DE RESILIENCIA ---
   if (!progressContext) {
-    logger.warn(
-      "[WizardHeader] No se encontró ProgressContext. El stepper no se renderizará."
+    const errorMessage =
+      "WizardHeader renderizado fuera de ProgressContext. El stepper no puede funcionar.";
+    logger.error(`[Guardián de Resiliencia] ${errorMessage}`);
+    // En lugar de retornar null, retornamos un error visible en desarrollo
+    // para una depuración inmediata.
+    return (
+      <DeveloperErrorDisplay
+        context="WizardHeader"
+        errorMessage={errorMessage}
+      />
     );
-    return null;
   }
+  // --- FIN: GUARDIÁN DE RESILIENCIA ---
 
   return (
     <div className="flex w-full items-center justify-between">
