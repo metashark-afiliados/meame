@@ -5,7 +5,7 @@
  *              v3.1.0 (Code Hygiene Restoration): Se elimina la importación de
  *              tipos no utilizada para cumplir con los estándares de élite.
  * @version 3.1.0
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use server";
 

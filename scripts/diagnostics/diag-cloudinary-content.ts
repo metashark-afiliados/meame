@@ -3,7 +3,7 @@
  * @file diag-cloudinary-content.ts
  * @description Herramienta de auditoría para realizar un censo de contenido en Cloudinary.
  * @version 4.0.0 (Orchestrator-Compliant & Resilient)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { v2 as cloudinary } from "cloudinary";
 import * as fs from "fs/promises";

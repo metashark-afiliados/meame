@@ -1,8 +1,8 @@
-// app/[locale]/(dev)/bavi/page.tsx
+// RUTA: src/app/[locale]/(dev)/bavi/page.tsx
 /**
  * @file page.tsx
  * @description Página principal de la Central de Operaciones BAVI.
- * @version 3.0.0 (FSD Architecture Alignment)
+ * @version 4.0.0 (Architectural Integrity Restoration)
  * @author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
@@ -17,7 +17,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui";
-import { AssetUploader } from "@/components/features/bavi/_components/AssetUploader";
+import { AssetUploader } from "@/components/features/bavi/components/AssetUploader";
 import { logger } from "@/shared/lib/logging";
 
 export default async function BaviHomePage({
@@ -26,7 +26,7 @@ export default async function BaviHomePage({
   params: { locale: Locale };
 }) {
   logger.info(
-    "[BaviHomePage] Renderizando la página principal de la BAVI (v3.0 - FSD)."
+    "[BaviHomePage] Renderizando la página principal de la BAVI (v4.0)."
   );
   const { dictionary } = await getDictionary(locale);
   const pageContent = dictionary.baviHomePage;
@@ -34,7 +34,6 @@ export default async function BaviHomePage({
   const promptCreatorContent = dictionary.promptCreator;
 
   if (!uploaderContent || !promptCreatorContent || !pageContent) {
-    // En un caso real, aquí se mostraría un componente de error más elegante.
     return <div>Error: Contenido de la página BAVI no encontrado.</div>;
   }
 
@@ -77,4 +76,3 @@ export default async function BaviHomePage({
     </>
   );
 }
-// app/[locale]/(dev)/bavi/page.tsx

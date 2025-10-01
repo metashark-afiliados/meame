@@ -1,10 +1,10 @@
-// RUTA: shared/lib/schemas/raz-prompts/prompt-creator.i18n.schema.ts
+// RUTA: src/shared/lib/schemas/raz-prompts/prompt-creator.i18n.schema.ts
 /**
  * @file prompt-creator.i18n.schema.ts
  * @description SSoT para el contrato de datos del contenido i18n del
  *              componente PromptCreator.
- * @version 3.0.0 (SESA Taxonomy Decoupling)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 4.0.0 (Data-Driven Parameter Options)
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 
@@ -16,10 +16,11 @@ const SesaOptionSchema = z.object({
 export const PromptCreatorContentSchema = z.object({
   titleLabel: z.string(),
   titlePlaceholder: z.string(),
+  formDescription: z.string(),
   promptTextLabel: z.string(),
   promptTextPlaceholder: z.string(),
-  negativePromptLabel: z.string(),
-  negativePromptPlaceholder: z.string(),
+  enhanceAILabel: z.string(),
+  enhanceAIDescription: z.string(),
   tagsGroupLabel: z.string(),
   parametersGroupLabel: z.string(),
   keywordsLabel: z.string(),
@@ -33,10 +34,12 @@ export const PromptCreatorContentSchema = z.object({
     fmt: z.string(),
     typ: z.string(),
     sbj: z.string(),
+    // Labels para los nuevos selectores de parámetros
+    styleTypeLabel: z.string(),
+    styleTypePlaceholder: z.string(),
+    aspectRatioLabel: z.string(),
+    aspectRatioPlaceholder: z.string(),
   }),
-  // --- CAMBIO ARQUITECTÓNICO CLAVE ---
-  // El schema ya no define las opciones SESA. Solo valida que es un
-  // objeto que contendrá arrays de opciones cargadas dinámicamente.
   sesaOptions: z.object({
     ai: z.array(SesaOptionSchema),
     sty: z.array(SesaOptionSchema),
@@ -44,20 +47,13 @@ export const PromptCreatorContentSchema = z.object({
     typ: z.array(SesaOptionSchema),
     sbj: z.array(SesaOptionSchema),
   }),
-  renderingSpeedLabel: z.string(),
-  renderingSpeedPlaceholder: z.string(),
-  renderingSpeedOptions: z.array(SesaOptionSchema),
-  styleTypeLabel: z.string(),
-  styleTypePlaceholder: z.string(),
-  styleTypeOptions: z.array(SesaOptionSchema),
-  aspectRatioLabel: z.string(),
-  aspectRatioPlaceholder: z.string(),
-  aspectRatioOptions: z.array(SesaOptionSchema),
-  numImagesLabel: z.string(),
-  numImagesPlaceholder: z.string(),
-  sizeLabel: z.string(),
-  sizePlaceholder: z.string(),
-  sizeOptions: z.array(SesaOptionSchema),
+  // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+  // Las opciones de los parámetros ahora están agrupadas para un consumo data-driven.
+  parameterOptions: z.object({
+    styleType: z.array(SesaOptionSchema),
+    aspectRatio: z.array(SesaOptionSchema),
+  }),
+  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
 });
 
 export const PromptCreatorLocaleSchema = z.object({

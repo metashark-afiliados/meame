@@ -4,7 +4,7 @@
  * @description Aparato "Server Shell" para la sección de comentarios, ahora con
  *              un manejo de errores con seguridad de tipos absoluta y código limpio.
  * @version 3.2.0 (Elite Code Hygiene)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 import "server-only";
 import React from "react";

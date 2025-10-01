@@ -6,7 +6,7 @@
  *              datos con el estado de la aplicación, reemplazando los campos
  *              obsoletos por los nuevos campos de identidad de la campaña.
  * @version 4.0.0
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 import {

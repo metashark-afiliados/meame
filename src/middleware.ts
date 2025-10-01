@@ -1,11 +1,9 @@
 // RUTA: src/middleware.ts
 /**
  * @file middleware.ts
- * @description Guardián de la puerta de entrada de la aplicación. Orquesta un pipeline
- *              de manejadores para la inteligencia del visitante, internacionalización
- *              y autenticación, ejecutándose en el Edge Runtime de Vercel.
- * @version 8.0.0 (Elite Orchestration & Observability)
- * @author L.I.A. Legacy
+ * @description Guardián de la puerta de entrada, ahora orquestado por el motor de pipeline soberano y restaurado.
+ * @version 13.0.0 (Sovereign Pipeline & Architectural Integrity Restoration)
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { type NextRequest, NextResponse } from "next/server";
 import { logger } from "./shared/lib/logging";
@@ -15,6 +13,7 @@ import {
   i18nHandler,
   authHandler,
 } from "./shared/lib/middleware/handlers";
+import { updateSession } from "./shared/lib/supabase/middleware";
 
 const pipeline = createPipeline([
   visitorIntelligenceHandler,
@@ -25,31 +24,53 @@ const pipeline = createPipeline([
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const traceId = logger.startTrace(`middleware:${request.nextUrl.pathname}`);
   logger.startGroup(
-    `[Middleware Pipeline] Procesando: ${request.method} ${request.nextUrl.pathname}`,
-    "color: #a855f7; font-weight: bold;"
+    `[Middleware v13.0] Procesando: ${request.method} ${request.nextUrl.pathname}`
   );
 
   let response: NextResponse;
+
   try {
+    const supabaseResponse = await updateSession(request);
+    logger.traceEvent(traceId, "Manejador de sesión de Supabase completado.");
+
+    // El pipeline ahora se invoca directamente, sin adaptadores complejos.
     response = await pipeline(request);
+    logger.traceEvent(traceId, "Pipeline principal ejecutado con éxito.");
+
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      response.cookies.set(cookie);
+    });
+    logger.traceEvent(
+      traceId,
+      "Cookies de sesión sincronizadas en la respuesta final."
+    );
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido en pipeline.";
-    logger.error("[Middleware] Error no controlado en el pipeline.", {
+      error instanceof Error
+        ? error.message
+        : "Error desconocido en el pipeline.";
+    logger.error("[Middleware] Error no controlado.", {
       error: errorMessage,
       traceId,
     });
     response = new NextResponse("Internal Server Error", { status: 500 });
   }
 
-  // Aplicar cabeceras de seguridad a todas las respuestas que pasan por el middleware
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set(
     "Content-Security-Policy",
     "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.vercel-insights.com; style-src 'self' 'unsafe-inline'; img-src * blob: data:; media-src 'self' res.cloudinary.com; connect-src *; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self';"
   );
+  logger.traceEvent(
+    traceId,
+    "Cabeceras de seguridad aplicadas a la respuesta final."
+  );
 
+  logger.success(
+    `[Middleware] Pipeline completado. Estado: ${response.status}`,
+    { traceId }
+  );
   logger.endGroup();
   logger.endTrace(traceId);
   return response;

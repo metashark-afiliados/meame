@@ -21,6 +21,7 @@ export function getFallbackProps(name: string): Record<string, unknown> {
   const traceId = logger.startTrace(`getFallbackProps:${name}`);
   logger.traceEvent(traceId, `Generando props de fallback para: ${name}`);
 
+  // SSoT de datos de fallback para i18n
   const fallbackHeaderContent: NonNullable<Dictionary["header"]> = {
     logoUrl: "/img/layout/header/globalfitwell-logo-v2.svg",
     logoAlt: "Logo Global Fitwell Mock",
@@ -64,9 +65,17 @@ export function getFallbackProps(name: string): Record<string, unknown> {
   try {
     switch (name) {
       case "Header":
+      case "StandardHeader":
+      case "MinimalHeader":
         return {
           content: fallbackHeaderContent,
           devDictionary: fallbackDevMenuContent,
+          // Props adicionales que el componente HeaderClient podría necesitar
+          user: null,
+          profile: null,
+          currentLocale: "it-IT",
+          supportedLocales: ["it-IT", "es-ES"],
+          initialCart: [],
         };
 
       case "Footer":
@@ -83,34 +92,19 @@ export function getFallbackProps(name: string): Record<string, unknown> {
             socialLinks: [],
             copyright: "© 2025 Fallback Copyright",
             disclaimer: "Este es un disclaimer de fallback.",
+            developerLink: { label: "MetaShark Tech", href: "#" },
           },
         };
 
-      case "ScrollingBanner":
+      case "TextSection":
         return {
-          content: {
-            message:
-              "Mensaje de banner de fallback: ¡Descuento especial por tiempo limitado!",
-          },
-        };
-
-      case "Hero":
-        return {
-          content: {
-            title: "Título de fallback para Hero",
-            subtitle:
-              "Subtítulo de fallback. El contenido real no fue cargado correctamente.",
-          },
-        };
-
-      case "BenefitsSection":
-        return {
-          content: {
-            eyebrow: "Fallback",
-            title: "Beneficios de Fallback",
-            subtitle: "Subtítulo de beneficios de fallback.",
-            benefits: [],
-          },
+          content: [
+            { type: "h2", text: "Título de Fallback" },
+            {
+              type: "p",
+              text: "Este es un párrafo de contenido de fallback para el componente TextSection.",
+            },
+          ],
         };
 
       case "CommentSectionClient":
@@ -123,6 +117,8 @@ export function getFallbackProps(name: string): Record<string, unknown> {
           content: fallbackCommentSectionContent,
           locale: "it-IT",
         };
+
+      // Añadir más casos según sea necesario para otros componentes...
 
       default:
         logger.warn(

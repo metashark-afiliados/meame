@@ -3,7 +3,7 @@
  * @file i18n.handler.ts
  * @description Manejador de middleware para la internacionalización.
  * @version 8.0.0 (Granular Logging & Observability)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { NextResponse } from "next/server";
 import { supportedLocales } from "../../i18n/i18n.config";

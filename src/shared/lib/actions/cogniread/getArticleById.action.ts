@@ -6,7 +6,7 @@
  *              el editor de artículos y cualquier otro servicio que necesite un activo
  *              de conocimiento específico.
  * @version 4.0.0 (Architecturally Pure & Holistically Aligned)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 "use server";
 

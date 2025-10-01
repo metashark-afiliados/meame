@@ -3,10 +3,11 @@
     "promptCreator": {
       "titleLabel": "Titolo Descrittivo",
       "titlePlaceholder": "Es. Immagine di anteprima per Header Standard",
+      "formDescription": "Definisci gli elementi centrali del tuo genoma creativo. Questo genoma verrà archiviato e potrà essere utilizzato per generare o collegare asset visivi.",
       "promptTextLabel": "Testo del Prompt",
       "promptTextPlaceholder": "Incolla qui il prompt completo...",
-      "negativePromptLabel": "Prompt Negativo (Cosa escludere)",
-      "negativePromptPlaceholder": "Es. brutta qualità, bassa risoluzione, deforme...",
+      "enhanceAILabel": "Perfeziona con IA",
+      "enhanceAIDescription": "Consenti alla nostra IA di perfezionare e ottimizzare il tuo prompt per ottenere risultati migliori e più coerenti.",
       "tagsGroupLabel": "Tassonomia SESA (Filtri Strutturati)",
       "parametersGroupLabel": "Parametri di Generazione Immagine",
       "keywordsLabel": "Parole Chiave (per la ricerca)",
@@ -19,7 +20,11 @@
         "sty": "Stile",
         "fmt": "Formato",
         "typ": "Tipo",
-        "sbj": "Soggetto"
+        "sbj": "Soggetto",
+        "styleTypeLabel": "Tipo di Stile",
+        "styleTypePlaceholder": "Scegli tipo...",
+        "aspectRatioLabel": "Proporzioni",
+        "aspectRatioPlaceholder": "Scegli proporzioni..."
       },
       "sesaOptions": {
         "ai": [
@@ -35,16 +40,12 @@
         "fmt": [
           { "value": "1x1", "label": "1:1 (Quadrato)" },
           { "value": "16x9", "label": "16:9 (Orizzontale)" },
-          { "value": "9x16", "label": "9:16 (Verticale)" },
-          { "value": "3x2", "label": "3:2 (Orizzontale Standard)" },
-          { "value": "2x3", "label": "2:3 (Verticale Standard)" },
-          { "value": "4x3", "label": "4:3 (Orizzontale Tradicional)" },
-          { "value": "3x4", "label": "3:4 (Vertical Tradicional)" }
+          { "value": "9x16", "label": "9:16 (Verticale)" }
         ],
         "typ": [
           { "value": "ui", "label": "Interfaccia Utente" },
           { "value": "pht", "label": "Foto" },
-          { "value": "abs", "label": "Abstracto" }
+          { "value": "abs", "label": "Astratto" }
         ],
         "sbj": [
           { "value": "abs", "label": "Astratto" },
@@ -53,55 +54,31 @@
           { "value": "lsc", "label": "Paesaggio" }
         ]
       },
-      "renderingSpeedLabel": "Velocità di Rendering",
-      "renderingSpeedPlaceholder": "Scegli velocità...",
-      "renderingSpeedOptions": [
-        { "value": "QUALITY", "label": "Qualità (Lenta)" },
-        { "value": "DEFAULT", "label": "Predefinita" },
-        { "value": "TURBO", "label": "Turbo (Veloce)" }
-      ],
-      "styleTypeLabel": "Tipo di Stile",
-      "styleTypePlaceholder": "Scegli tipo di stile...",
-      "styleTypeOptions": [
-        { "value": "AUTO", "label": "Auto" },
-        { "value": "GENERAL", "label": "Generale" },
-        { "value": "REALISTIC", "label": "Realistico" },
-        { "value": "DESIGN", "label": "Design" },
-        { "value": "FICTION", "label": "Fiction" }
-      ],
-      "aspectRatioLabel": "Proporzioni (Aspect Ratio)",
-      "aspectRatioPlaceholder": "Scegli proporzioni...",
-      "aspectRatioOptions": [
-        { "value": "1x1", "label": "1:1 (Quadrato)" },
-        { "value": "16x9", "label": "16:9 (Orizzontale)" },
-        { "value": "9x16", "label": "9:16 (Verticale)" },
-        { "value": "3x2", "label": "3:2" },
-        { "value": "2x3", "label": "2:3" },
-        { "value": "4x3", "label": "4:3" },
-        { "value": "3x4", "label": "3:4" }
-      ],
-      "numImagesLabel": "Numero di Immagini",
-      "numImagesPlaceholder": "1-8",
-      "sizeLabel": "Tamaño (Resolución)",
-      "sizePlaceholder": "Scegli risoluzione...",
-      "sizeOptions": [
-        { "value": "512x512", "label": "512x512" },
-        { "value": "1024x1024", "label": "1024x1024" },
-        { "value": "1280x768", "label": "1280x768" },
-        { "value": "768x1280", "label": "768x1280" },
-        { "value": "1280x960", "label": "1280x960" },
-        { "value": "960x1280", "label": "960x1280" }
-      ]
+      "parameterOptions": {
+        "styleType": [
+          { "value": "REALISTIC", "label": "Realistico" },
+          { "value": "DESIGN", "label": "Design" },
+          { "value": "FICTION", "label": "Fiction" },
+          { "value": "GENERAL", "label": "Generale" },
+          { "value": "AUTO", "label": "Auto" }
+        ],
+        "aspectRatio": [
+          { "value": "16x9", "label": "16:9 (Orizzontale)" },
+          { "value": "9x16", "label": "9:16 (Verticale)" },
+          { "value": "1x1", "label": "1:1 (Quadrato)" }
+        ]
+      }
     }
   },
   "es-ES": {
     "promptCreator": {
       "titleLabel": "Título Descriptivo",
       "titlePlaceholder": "Ej: Imagen de vista previa para Encabezado Estándar",
+      "formDescription": "Define los elementos centrales de tu genoma creativo. Este genoma será archivado y podrá ser usado para generar o vincular activos visuales.",
       "promptTextLabel": "Texto del Prompt",
       "promptTextPlaceholder": "Pega aquí el prompt completo...",
-      "negativePromptLabel": "Prompt Negativo (Qué excluir)",
-      "negativePromptPlaceholder": "Ej. mala calidad, baja resolución, deforme...",
+      "enhanceAILabel": "Perfeccionar con IA",
+      "enhanceAIDescription": "Permite que nuestra IA refine y optimice tu prompt para obtener mejores y más consistentes resultados.",
       "tagsGroupLabel": "Taxonomía SESA (Filtros Estructurados)",
       "parametersGroupLabel": "Parámetros de Generación de Imagen",
       "keywordsLabel": "Palabras Clave (para búsqueda)",
@@ -114,7 +91,11 @@
         "sty": "Estilo",
         "fmt": "Formato",
         "typ": "Tipo",
-        "sbj": "Sujeto"
+        "sbj": "Sujeto",
+        "styleTypeLabel": "Tipo de Estilo",
+        "styleTypePlaceholder": "Elige tipo...",
+        "aspectRatioLabel": "Relación de Aspecto",
+        "aspectRatioPlaceholder": "Elige relación..."
       },
       "sesaOptions": {
         "ai": [
@@ -130,11 +111,7 @@
         "fmt": [
           { "value": "1x1", "label": "1:1 (Cuadrado)" },
           { "value": "16x9", "label": "16:9 (Horizontal)" },
-          { "value": "9x16", "label": "9:16 (Vertical)" },
-          { "value": "3x2", "label": "3:2 (Horizontal Estándar)" },
-          { "value": "2x3", "label": "2:3 (Vertical Estándar)" },
-          { "value": "4x3", "label": "4:3 (Horizontal Tradicional)" },
-          { "value": "3x4", "label": "3:4 (Vertical Tradicional)" }
+          { "value": "9x16", "label": "9:16 (Vertical)" }
         ],
         "typ": [
           { "value": "ui", "label": "Interfaz de Usuario" },
@@ -148,55 +125,31 @@
           { "value": "lsc", "label": "Paisaje" }
         ]
       },
-      "renderingSpeedLabel": "Velocidad de Renderizado",
-      "renderingSpeedPlaceholder": "Elige velocidad...",
-      "renderingSpeedOptions": [
-        { "value": "QUALITY", "label": "Calidad (Lenta)" },
-        { "value": "DEFAULT", "label": "Por Defecto" },
-        { "value": "TURBO", "label": "Turbo (Rápida)" }
-      ],
-      "styleTypeLabel": "Tipo de Estilo",
-      "styleTypePlaceholder": "Elige tipo de estilo...",
-      "styleTypeOptions": [
-        { "value": "AUTO", "label": "Auto" },
-        { "value": "GENERAL", "label": "General" },
-        { "value": "REALISTIC", "label": "Realista" },
-        { "value": "DESIGN", "label": "Diseño" },
-        { "value": "FICTION", "label": "Ficción" }
-      ],
-      "aspectRatioLabel": "Relación de Aspecto",
-      "aspectRatioPlaceholder": "Elige relación...",
-      "aspectRatioOptions": [
-        { "value": "1x1", "label": "1:1 (Cuadrado)" },
-        { "value": "16x9", "label": "16:9 (Horizontal)" },
-        { "value": "9x16", "label": "9:16 (Vertical)" },
-        { "value": "3x2", "label": "3:2" },
-        { "value": "2x3", "label": "2:3" },
-        { "value": "4x3", "label": "4:3" },
-        { "value": "3x4", "label": "3:4" }
-      ],
-      "numImagesLabel": "Número de Imágenes",
-      "numImagesPlaceholder": "1-8",
-      "sizeLabel": "Tamaño (Resolución)",
-      "sizePlaceholder": "Elige resolución...",
-      "sizeOptions": [
-        { "value": "512x512", "label": "512x512" },
-        { "value": "1024x1024", "label": "1024x1024" },
-        { "value": "1280x768", "label": "1280x768" },
-        { "value": "768x1280", "label": "768x1280" },
-        { "value": "1280x960", "label": "1280x960" },
-        { "value": "960x1280", "label": "960x1280" }
-      ]
+      "parameterOptions": {
+        "styleType": [
+          { "value": "REALISTIC", "label": "Realista" },
+          { "value": "DESIGN", "label": "Diseño" },
+          { "value": "FICTION", "label": "Ficción" },
+          { "value": "GENERAL", "label": "General" },
+          { "value": "AUTO", "label": "Auto" }
+        ],
+        "aspectRatio": [
+          { "value": "16x9", "label": "16:9 (Horizontal)" },
+          { "value": "9x16", "label": "9:16 (Vertical)" },
+          { "value": "1x1", "label": "1:1 (Cuadrado)" }
+        ]
+      }
     }
   },
   "en-US": {
     "promptCreator": {
       "titleLabel": "Descriptive Title",
       "titlePlaceholder": "E.g., Preview image for Standard Header",
+      "formDescription": "Define the core elements of your creative genome. This genome will be archived and can be used to generate or link visual assets.",
       "promptTextLabel": "Prompt Text",
       "promptTextPlaceholder": "Paste the full prompt here...",
-      "negativePromptLabel": "Negative Prompt (What to exclude)",
-      "negativePromptPlaceholder": "E.g., bad quality, low resolution, deformed...",
+      "enhanceAILabel": "Enhance with AI",
+      "enhanceAIDescription": "Let our AI refine and optimize your prompt for better and more consistent results.",
       "tagsGroupLabel": "SESA Taxonomy (Structured Filters)",
       "parametersGroupLabel": "Image Generation Parameters",
       "keywordsLabel": "Keywords (for search)",
@@ -209,7 +162,11 @@
         "sty": "Style",
         "fmt": "Format",
         "typ": "Type",
-        "sbj": "Subject"
+        "sbj": "Subject",
+        "styleTypeLabel": "Style Type",
+        "styleTypePlaceholder": "Choose type...",
+        "aspectRatioLabel": "Aspect Ratio",
+        "aspectRatioPlaceholder": "Choose ratio..."
       },
       "sesaOptions": {
         "ai": [
@@ -225,11 +182,7 @@
         "fmt": [
           { "value": "1x1", "label": "1:1 (Square)" },
           { "value": "16x9", "label": "16:9 (Landscape)" },
-          { "value": "9x16", "label": "9:16 (Portrait)" },
-          { "value": "3x2", "label": "3:2 (Standard Landscape)" },
-          { "value": "2x3", "label": "2:3 (Standard Portrait)" },
-          { "value": "4x3", "label": "4:3 (Traditional Landscape)" },
-          { "value": "3x4", "label": "3:4 (Traditional Portrait)" }
+          { "value": "9x16", "label": "9:16 (Portrait)" }
         ],
         "typ": [
           { "value": "ui", "label": "User Interface" },
@@ -243,55 +196,31 @@
           { "value": "lsc", "label": "Landscape" }
         ]
       },
-      "renderingSpeedLabel": "Rendering Speed",
-      "renderingSpeedPlaceholder": "Choose speed...",
-      "renderingSpeedOptions": [
-        { "value": "QUALITY", "label": "Quality (Slow)" },
-        { "value": "DEFAULT", "label": "Default" },
-        { "value": "TURBO", "label": "Turbo (Fast)" }
-      ],
-      "styleTypeLabel": "Style Type",
-      "styleTypePlaceholder": "Choose style type...",
-      "styleTypeOptions": [
-        { "value": "AUTO", "label": "Auto" },
-        { "value": "GENERAL", "label": "General" },
-        { "value": "REALISTIC", "label": "Realistic" },
-        { "value": "DESIGN", "label": "Design" },
-        { "value": "FICTION", "label": "Fiction" }
-      ],
-      "aspectRatioLabel": "Aspect Ratio",
-      "aspectRatioPlaceholder": "Choose aspect ratio...",
-      "aspectRatioOptions": [
-        { "value": "1x1", "label": "1:1 (Square)" },
-        { "value": "16x9", "label": "16:9 (Landscape)" },
-        { "value": "9x16", "label": "9:16 (Portrait)" },
-        { "value": "3x2", "label": "3:2" },
-        { "value": "2x3", "label": "2:3" },
-        { "value": "4x3", "label": "4:3" },
-        { "value": "3x4", "label": "3:4" }
-      ],
-      "numImagesLabel": "Number of Images",
-      "numImagesPlaceholder": "1-8",
-      "sizeLabel": "Size (Resolution)",
-      "sizePlaceholder": "Choose resolution...",
-      "sizeOptions": [
-        { "value": "512x512", "label": "512x512" },
-        { "value": "1024x1024", "label": "1024x1024" },
-        { "value": "1280x768", "label": "1280x768" },
-        { "value": "768x1280", "label": "768x1280" },
-        { "value": "1280x960", "label": "1280x960" },
-        { "value": "960x1280", "label": "960x1280" }
-      ]
+      "parameterOptions": {
+        "styleType": [
+          { "value": "REALISTIC", "label": "Realistic" },
+          { "value": "DESIGN", "label": "Design" },
+          { "value": "FICTION", "label": "Fiction" },
+          { "value": "GENERAL", "label": "General" },
+          { "value": "AUTO", "label": "Auto" }
+        ],
+        "aspectRatio": [
+          { "value": "16x9", "label": "16:9 (Landscape)" },
+          { "value": "9x16", "label": "9:16 (Portrait)" },
+          { "value": "1x1", "label": "1:1 (Square)" }
+        ]
+      }
     }
   },
   "pt-BR": {
     "promptCreator": {
       "titleLabel": "Título Descritivo",
       "titlePlaceholder": "Ex: Imagem de pré-visualização para Cabeçalho Padrão",
+      "formDescription": "Defina os elementos centrais do seu genoma criativo. Este genoma será arquivado e pode ser usado para gerar ou vincular ativos visuais.",
       "promptTextLabel": "Texto do Prompt",
       "promptTextPlaceholder": "Cole o prompt completo aqui...",
-      "negativePromptLabel": "Prompt Negativo (O que excluir)",
-      "negativePromptPlaceholder": "Ex: má qualidade, baixa resolução, deformado...",
+      "enhanceAILabel": "Aprimorar com IA",
+      "enhanceAIDescription": "Permita que nossa IA refine e otimize seu prompt para obter resultados melhores e mais consistentes.",
       "tagsGroupLabel": "Taxonomia SESA (Filtros Estruturados)",
       "parametersGroupLabel": "Parâmetros de Geração de Imagem",
       "keywordsLabel": "Palavras-chave (para busca)",
@@ -304,7 +233,11 @@
         "sty": "Estilo",
         "fmt": "Formato",
         "typ": "Tipo",
-        "sbj": "Assunto"
+        "sbj": "Assunto",
+        "styleTypeLabel": "Tipo de Estilo",
+        "styleTypePlaceholder": "Escolha o tipo...",
+        "aspectRatioLabel": "Proporção da Imagem",
+        "aspectRatioPlaceholder": "Escolha a proporção..."
       },
       "sesaOptions": {
         "ai": [
@@ -314,17 +247,13 @@
         ],
         "sty": [
           { "value": "pht", "label": "Fotorrealista" },
-          { "value": "cin", "label": "Cinemático" },
+          { "value": "cin", "label": "Cinematográfico" },
           { "value": "ill", "label": "Ilustração" }
         ],
         "fmt": [
           { "value": "1x1", "label": "1:1 (Quadrado)" },
           { "value": "16x9", "label": "16:9 (Paisagem)" },
-          { "value": "9x16", "label": "9:16 (Retrato)" },
-          { "value": "3x2", "label": "3:2 (Paisagem Padrão)" },
-          { "value": "2x3", "label": "2:3 (Retrato Padrão)" },
-          { "value": "4x3", "label": "4:3 (Paisagem Tradicional)" },
-          { "value": "3x4", "label": "3:4 (Retrato Tradicional)" }
+          { "value": "9x16", "label": "9:16 (Retrato)" }
         ],
         "typ": [
           { "value": "ui", "label": "Interface de Usuário" },
@@ -338,45 +267,20 @@
           { "value": "lsc", "label": "Paisagem" }
         ]
       },
-      "renderingSpeedLabel": "Velocidade de Renderização",
-      "renderingSpeedPlaceholder": "Escolha velocidade...",
-      "renderingSpeedOptions": [
-        { "value": "QUALITY", "label": "Qualidade (Lenta)" },
-        { "value": "DEFAULT", "label": "Padrão" },
-        { "value": "TURBO", "label": "Rápida)" }
-      ],
-      "styleTypeLabel": "Tipo de Estilo",
-      "styleTypePlaceholder": "Escolha tipo de estilo...",
-      "styleTypeOptions": [
-        { "value": "AUTO", "label": "Auto" },
-        { "value": "GENERAL", "label": "Geral" },
-        { "value": "REALISTIC", "label": "Realista" },
-        { "value": "DESIGN", "label": "Design" },
-        { "value": "FICTION", "label": "Ficção" }
-      ],
-      "aspectRatioLabel": "Proporção da Imagem",
-      "aspectRatioPlaceholder": "Escolha proporção...",
-      "aspectRatioOptions": [
-        { "value": "1x1", "label": "1:1 (Quadrado)" },
-        { "value": "16x9", "label": "16:9 (Horizontal)" },
-        { "value": "9x16", "label": "9:16 (Vertical)" },
-        { "value": "3x2", "label": "3:2" },
-        { "value": "2x3", "label": "2:3" },
-        { "value": "4x3", "label": "4:3" },
-        { "value": "3x4", "label": "3:4" }
-      ],
-      "numImagesLabel": "Número de Imagens",
-      "numImagesPlaceholder": "1-8",
-      "sizeLabel": "Tamanho (Resolução)",
-      "sizePlaceholder": "Escolha resolução...",
-      "sizeOptions": [
-        { "value": "512x512", "label": "512x512" },
-        { "value": "1024x1024", "label": "1024x1024" },
-        { "value": "1280x768", "label": "1280x768" },
-        { "value": "768x1280", "label": "768x1280" },
-        { "value": "1280x960", "label": "1280x960" },
-        { "value": "960x1280", "label": "960x1280" }
-      ]
+      "parameterOptions": {
+        "styleType": [
+          { "value": "REALISTIC", "label": "Realista" },
+          { "value": "DESIGN", "label": "Design" },
+          { "value": "FICTION", "label": "Ficção" },
+          { "value": "GENERAL", "label": "Geral" },
+          { "value": "AUTO", "label": "Auto" }
+        ],
+        "aspectRatio": [
+          { "value": "16x9", "label": "16:9 (Paisagem)" },
+          { "value": "9x16", "label": "9:16 (Retrato)" },
+          { "value": "1x1", "label": "1:1 (Quadrado)" }
+        ]
+      }
     }
   }
 }

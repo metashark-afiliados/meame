@@ -1,12 +1,13 @@
-// _docs/000_MANIFIESTO_OBSERVABILIDAD_Y_LOGGING.md
-/**
- * @file 000_MANIFIESTO_OBSERVABILIDAD_Y_LOGGING.md
- * @description Manifiesto Canónico y SSoT para el Protocolo de Observabilidad y Logging de Élite.
- *              Define la metodología inmutable para la instrumentación de telemetría en
- *              todo el codebase, garantizando una claridad absoluta y cero puntos ciegos.
- * @version 1.0.0
- * @author L.I.A. Legacy (Inteligencia Artificial - Asistente Personalizado)
- */
+// \_docs/000_MANIFIESTO_OBSERVABILIDAD_Y_LOGGING.md
+/\*\*
+
+- @file 000_MANIFIESTO_OBSERVABILIDAD_Y_LOGGING.md
+- @description Manifiesto Canónico y SSoT para el Protocolo de Observabilidad y Logging de Élite.
+-              Define la metodología inmutable para la instrumentación de telemetría en
+-              todo el codebase, garantizando una claridad absoluta y cero puntos ciegos.
+- @version 1.0.0
+  -@author RaZ Podestá - MetaShark Tech (Inteligencia Artificial - Asistente Personalizado)
+  \*/
 
 # Manifiesto Canónico: Protocolo de Observabilidad y Logging de Élite
 
@@ -16,12 +17,12 @@ Este documento es la **Única Fuente de Verdad (SSoT)** que define cómo cada "a
 }
 
 export default async function HomePage({ params: { locale } }: HomePageProps) {
-  const traceId = logger.startTrace("HomePage_Render_v9.0");
-  logger.startGroup(`[HomePage Shell] Renderizando v9.0 para locale: ${locale}`);
+const traceId = logger.startTrace("HomePage_Render_v9.0");
+logger.startGroup(`[HomePage Shell] Renderizando v9.0 para locale: ${locale}`);
 
-  try {
-    const { dictionary, error: dictError } = await getDictionary(locale);
-    const { socialProofLogos, heroNews, newsGrid, communitySection, welcomeBanner } = dictionary;
+try {
+const { dictionary, error: dictError } = await getDictionary(locale);
+const { socialProofLogos, heroNews, newsGrid, communitySection, welcomeBanner } = dictionary;
 
     if (dictError || !socialProofLogos || !heroNews || !newsGrid || !community ecosistema debe reportar su estado, ciclo de vida y acciones. Un log no es una simple salida de texto; es una traza inmutable de la verdad de ejecución, la base de la depuración eficiente, el análisis de rendimiento y la optimización proactiva.
 
@@ -31,13 +32,14 @@ El objetivo es la **Full Observabilidad**: un estado en el que cualquier operaci
 
 Toda la lógica de logging DEBE canalizarse a través de nuestro logger soberano. El uso de `console.log` o similares está estrictamente prohibido, ya que viola el Pilar III de Calidad. Nuestro logger garantiza:
 
-*   **Isomorfismo:** Funciona de manera consistente en entornos de servidor, cliente y Edge.
-*   **Contexto Estructurado:** Permite adjuntar objetos de datos a los mensajes para un análisis detallado.
-*   **Niveles Semánticos:** `trace`, `info`, `success`, `warn`, `error`.
-*   **Tracing de Performance:** Un sistema de élite (`startTrace`, `traceEvent`, `endTrace`) para medir con precisión la duración de operaciones críticas.
-*   **Agrupación Visual:** El uso de `startGroup` y `endGroup` es privilegiado para delimitar visualmente el inicio y el fin de un proceso complejo, mejorando drásticamente la legibilidad de la traza.
+- **Isomorfismo:** Funciona de manera consistente en entornos de servidor, cliente y Edge.
+- **Contexto Estructurado:** Permite adjuntar objetos de datos a los mensajes para un análisis detallado.
+- **Niveles Semánticos:** `trace`, `info`, `success`, `warn`, `error`.
+- **Tracing de Performance:** Un sistema de élite (`startTrace`, `traceEvent`, `endTrace`) para medir con precisión la duración de operaciones críticas.
+- **Agrupación Visual:** El uso de `startGroup` y `endGroup` es privilegiado para delimitar visualmente el inicio y el fin de un proceso complejo, mejorando drásticamente la legibilidad de la traza.
 
 ## 3. Anatomía de un Log de ÉliteSection || !welcomeBanner) {
+
       const missingKeys = [!socialProofLogos && "socialProofLogos", !heroNews && "heroNews", !newsGrid && "newsGrid", !communitySection && "communitySection", !welcomeBanner && "welcomeBanner"].filter(Boolean).join(", ");
       throw new Error(`Faltan datos de i18n esenciales para el Homepage. Claves ausentes: ${missingKeys}`);
     }
@@ -53,9 +55,10 @@ Toda la lógica de logging DEBE canalizarse a través de nuestro logger soberano
         <CommunitySection content={communitySection} />
       </SectionAnimator>
     );
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
-    logger.error(`[HomePage Shell] ${
+
+} catch (error) {
+const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
+logger.error(`[HomePage Shell] ${
 
 Cada mensaje de log debe ser instantáneamente identificable y rico en contexto. Su estructura canónica es:
 
@@ -89,4 +92,4 @@ Resiliencia: Toda la lógica de obtención de datos y renderizado DEBE estar den
 Agrupación y Tracing: La ejecución completa de la acción DEBE estar envuelta en startGroup/endGroup y startTrace/endTrace.
 Resiliencia: Toda la lógica DEBE estar en un try...catch. El bloque catch DEBE registrar el error y devolver un ActionResult con success: false.
 4.3. Client Components y Hooks
-Renderizado y Ciclo de Vida: Utilizar logger.trace para registrar el renderizado y el montaje/desmontaje (useEffect4 (CORREGIDO Y REFORZADO):src/app/[locale]/login/page.tsx`**
+Renderizado y Ciclo de Vida: Utilizar logger.trace para registrar el renderizado y el montaje/desmontaje (useEffect4 (CORREGIDO Y REFORZADO):src/app/[locale]/login/page.tsx`\*\*

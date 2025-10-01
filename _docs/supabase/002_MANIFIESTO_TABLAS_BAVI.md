@@ -1,14 +1,16 @@
-// _docs/supabase/002_MANIFIESTO_TABLAS_BAVI.md
-/**
- * @file 002_MANIFIESTO_TABLAS_BAVI.md
- * @description Manifiesto Canónico y SSoT para las tablas 'bavi_assets' y 'bavi_variants'.
- * @version 1.0.0
- * @author L.I.A. Legacy
- */
+// \_docs/supabase/002_MANIFIESTO_TABLAS_BAVI.md
+/\*\*
+
+- @file 002_MANIFIESTO_TABLAS_BAVI.md
+- @description Manifiesto Canónico y SSoT para las tablas 'bavi_assets' y 'bavi_variants'.
+- @version 1.0.0
+  -@author RaZ Podestá - MetaShark Tech
+  \*/
 
 # Manifiesto de Tablas Soberanas: `bavi_assets` y `bavi_variants`
 
 ## 1. Visión y Propósito
+
 El dominio BAVI se divide en dos entidades para garantizar la integridad y flexibilidad: el **Activo** (el concepto) y la **Variante** (la manifestación física).
 
 **Principio Raíz:** Un activo no puede existir sin, al menos, una variante. Esta regla de negocio es inmutable y se refuerza a nivel de base de datos.
@@ -16,6 +18,7 @@ El dominio BAVI se divide en dos entidades para garantizar la integridad y flexi
 ## 2. Definición de Schema (DDL)
 
 ### 2.1. Tabla `public.bavi_assets`
+
 ```sql
 -- Tabla: public.bavi_assets (El Contenedor Conceptual)
 CREATE TABLE IF NOT EXISTS public.bavi_assets (
@@ -60,3 +63,4 @@ Contrato: Cualquier dato consultado desde estas tablas y enviado a la aplicació
 RaZPrompts: La tabla razprompts_entries almacena un array de bavi_asset_ids (TEXT[]) para registrar todos los activos generados a partir de un prompt. A su vez, bavi_assets puede almacenar un prompt_id para vincular un activo a su genoma creativo de origen.
 CogniRead: La tabla cogniread_articles almacena un bavi_hero_image_id (TEXT). Este campo debe contener el public_id de una variante específica (ej. webvork/assets/.../v1-original) de la tabla bavi_variants para ser renderizado directamente por <CldImage>.
 Campaign Suite (SDC): El AssetExplorer interactúa con la getBaviAssetsAction para buscar y filtrar activos. Al seleccionar un activo, el componente recibe el objeto BaviAsset completo, permitiéndole acceder a cualquier publicId de sus variantes para su uso en la campaña.
+```

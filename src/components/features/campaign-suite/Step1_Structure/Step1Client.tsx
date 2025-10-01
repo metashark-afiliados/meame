@@ -6,7 +6,7 @@
  *              Blindado con un Guardián de Contrato y en cumplimiento estricto
  *              de las Reglas de los Hooks de React.
  * @version 8.1.0 (React Hooks Contract Restoration)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

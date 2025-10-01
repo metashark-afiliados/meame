@@ -3,7 +3,7 @@
  * @file Step5Form.tsx
  * @description Aparato de presentación puro para la maquetación del Paso 5.
  * @version 16.1.0 (Holistic Integrity Restoration)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

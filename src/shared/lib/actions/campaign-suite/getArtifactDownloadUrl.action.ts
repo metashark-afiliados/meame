@@ -19,7 +19,9 @@ export async function getArtifactDownloadUrlAction(
 ): Promise<ActionResult<{ downloadUrl: string }>> {
   const traceId = logger.startTrace(`getArtifactDownloadUrl:${artifactId}`);
   const supabase = createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return { success: false, error: "auth_required" };
@@ -27,29 +29,35 @@ export async function getArtifactDownloadUrlAction(
 
   try {
     const { data: artifact, error: fetchError } = await supabase
-      .from('campaign_artifacts')
-      .select('storage_path')
-      .eq('id', artifactId)
+      .from("campaign_artifacts")
+      .select("storage_path")
+      .eq("id", artifactId)
       .single();
 
     if (fetchError) {
       throw new Error("Artefacto no encontrado o acceso denegado.");
     }
 
-    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-      .from('artifacts')
-      .createSignedUrl(artifact.storage_path, DOWNLOAD_URL_EXPIRES_IN);
+    const { data: signedUrlData, error: signedUrlError } =
+      await supabase.storage
+        .from("artifacts")
+        .createSignedUrl(artifact.storage_path, DOWNLOAD_URL_EXPIRES_IN);
 
     if (signedUrlError) {
       throw new Error(`No se pudo firmar la URL: ${signedUrlError.message}`);
     }
 
-    logger.success(`URL firmada generada para el artefacto ${artifactId}`, { traceId });
+    logger.success(`URL firmada generada para el artefacto ${artifactId}`, {
+      traceId,
+    });
     return { success: true, data: { downloadUrl: signedUrlData.signedUrl } };
-
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("Fallo al generar la URL de descarga.", { error: errorMessage, traceId });
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("Fallo al generar la URL de descarga.", {
+      error: errorMessage,
+      traceId,
+    });
     return { success: false, error: errorMessage };
   } finally {
     logger.endTrace(traceId);

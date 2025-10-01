@@ -5,7 +5,7 @@
  *              observabilidad granular, un guardián de resiliencia holístico y
  *              un flujo de datos soberano y puro.
  * @version 7.1.1 (React Hooks Compliance)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

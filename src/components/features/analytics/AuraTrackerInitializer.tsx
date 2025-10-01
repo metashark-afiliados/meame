@@ -3,7 +3,7 @@
  * @file AuraTrackerInitializer.tsx
  * @description Componente de cliente "headless" para inicializar el tracker de "Aura".
  * @version 2.1.0 (React Hooks Compliance)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

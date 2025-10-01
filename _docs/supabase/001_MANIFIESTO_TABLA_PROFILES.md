@@ -1,15 +1,17 @@
-// _docs/supabase/001_MANIFIESTO_TABLA_PROFILES.md
-/**
- * @file 001_MANIFIESTO_TABLA_PROFILES.md
- * @description Manifiesto Canónico y SSoT para la tabla 'public.profiles'.
- *              Define la arquitectura, relaciones, triggers y políticas de RLS.
- * @version 1.0.0
- * @author L.I.A. Legacy
- */
+// \_docs/supabase/001_MANIFIESTO_TABLA_PROFILES.md
+/\*\*
+
+- @file 001_MANIFIESTO_TABLA_PROFILES.md
+- @description Manifiesto Canónico y SSoT para la tabla 'public.profiles'.
+-              Define la arquitectura, relaciones, triggers y políticas de RLS.
+- @version 1.0.0
+  -@author RaZ Podestá - MetaShark Tech
+  \*/
 
 # Manifiesto de Tabla Soberana: `public.profiles`
 
 ## 1. Visión y Propósito
+
 Esta tabla es la extensión soberana de la entidad `auth.users`. Almacena metadatos públicos y de aplicación que no pertenecen al ámbito de la autenticación.
 
 **Principio Raíz:** Por cada registro en `auth.users`, debe existir uno y solo un registro correspondiente en `public.profiles`.
@@ -53,3 +55,4 @@ Users can update their own profile. (UPDATE): Permite a un usuario autenticado a
 Contrato: Los datos de esta tabla deben ser validados por el schema UpdateProfileSchema en src/shared/lib/schemas/account/account-forms.schema.ts antes de cualquier operación de escritura desde la aplicación.
 ---
 
+```

@@ -3,7 +3,7 @@
  * @file bavi.manifest.schema.ts
  * @description SSoT para el contrato de datos del manifiesto BAVI.
  * @version 4.3.0 (Flexible PromptId Validation)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 

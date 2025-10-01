@@ -2,22 +2,16 @@
 /**
  * @file article.schema.ts
  * @description SSoT para el contrato de datos de la entidad Artículo de CogniRead.
- *              Define la estructura para un registro en la tabla 'cogniread_articles' de Supabase.
- * @version 3.0.0 (Production Ready - Tagging & Search Enabled)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *              v5.0.0 (Schema Synchronization): Se añade la propiedad `available_languages`
+ *              para alinear el contrato de código con el schema de la base de datos.
+ * @version 5.0.0
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 import { supportedLocales } from "@/shared/lib/i18n/i18n.config";
 
-/**
- * @const ArticleTranslationSchema
- * @description Valida el contenido de la versión divulgativa de un artículo en un idioma específico.
- *              Es la SSoT para el contenido multilingüe.
- */
 export const ArticleTranslationSchema = z.object({
-  /** Título del artículo para el público en un locale específico. */
   title: z.string().min(1, "El título no puede estar vacío."),
-  /** URL amigable para SEO en un locale específico. */
   slug: z
     .string()
     .min(1, "El slug es requerido.")
@@ -25,18 +19,10 @@ export const ArticleTranslationSchema = z.object({
       /^[a-z0-9-]+$/,
       "El slug solo puede contener letras minúsculas, números y guiones."
     ),
-  /** Resumen corto y persuasivo para vistas previas y metadatos SEO. */
   summary: z.string().min(1, "El resumen no puede estar vacío."),
-  /** Contenido completo del artículo en formato Markdown. */
   body: z.string().min(1, "El cuerpo del artículo no puede estar vacío."),
 });
 
-/**
- * @const StudyDnaSchema
- * @description Valida la estructura de los datos extraídos del estudio científico.
- *              Es la materialización del "Prompt Maestro" y el genoma de la evidencia.
- *              Las descripciones `.describe()` contienen pistas de UI para el renderizador de formularios dinámico.
- */
 export const StudyDnaSchema = z.object({
   originalTitle: z
     .string()
@@ -74,13 +60,7 @@ export const StudyDnaSchema = z.object({
     .describe("ui:label:Limitaciones del Estudio"),
 });
 
-/**
- * @const CogniReadArticleSchema
- * @description El schema principal y soberano para un artículo en CogniRead. Este es el
- *              contrato de datos final que debe cumplir cualquier artículo en el ecosistema.
- */
 export const CogniReadArticleSchema = z.object({
-  // --- Metadatos de Sistema ---
   articleId: z.string().cuid2("El ID del artículo debe ser un CUID2 válido."),
   status: z.enum(["draft", "published", "archived"], {
     invalid_type_error: "El estado del artículo es inválido.",
@@ -95,27 +75,29 @@ export const CogniReadArticleSchema = z.object({
     .datetime(
       "La fecha de actualización debe ser un formato de fecha y hora ISO válido."
     ),
-
-  // --- El ADN del Estudio (SSoT de la Evidencia) ---
   studyDna: StudyDnaSchema,
-
-  // --- Contenido Divulgativo (SSoT de la Comunicación) ---
   content: z.record(
     z.enum(supportedLocales),
-    ArticleTranslationSchema.partial() // Partial para permitir borradores sin todos los idiomas.
+    ArticleTranslationSchema.partial()
   ),
-
-  // --- Descubrimiento y Taxonomía ---
   tags: z
     .array(z.string())
     .optional()
     .describe("Etiquetas temáticas para búsqueda y filtrado."),
-
-  // --- Vínculos del Ecosistema ---
+  // --- [INICIO DE SINCRONIZACIÓN DE SCHEMA] ---
+  available_languages: z
+    .array(z.string())
+    .optional()
+    .describe("Lista autogenerada de idiomas disponibles en 'content'."),
+  // --- [FIN DE SINCRONIZACIÓN DE SCHEMA] ---
   baviHeroImageId: z
     .string()
+    .refine((s) => s.includes("/"), {
+      message:
+        "El ID de la imagen debe ser un 'public_id' de Cloudinary (ej. 'folder/asset'), no un 'assetId' de BAVI.",
+    })
     .optional()
-    .describe("ID del activo visual de BAVI para la imagen destacada."),
+    .describe("ID público del activo visual de BAVI para la imagen destacada."),
   relatedPromptIds: z
     .array(
       z
@@ -126,20 +108,6 @@ export const CogniReadArticleSchema = z.object({
     .describe("IDs de prompts de RaZPrompts relacionados con este artículo."),
 });
 
-/**
- * @type CogniReadArticle
- * @description Infiere el tipo TypeScript para un artículo completo de CogniRead.
- */
 export type CogniReadArticle = z.infer<typeof CogniReadArticleSchema>;
-
-/**
- * @type ArticleTranslation
- * @description Infiere el tipo TypeScript para el contenido de una traducción.
- */
 export type ArticleTranslation = z.infer<typeof ArticleTranslationSchema>;
-
-/**
- * @type StudyDna
- * @description Infiere el tipo TypeScript para el ADN del estudio.
- */
 export type StudyDna = z.infer<typeof StudyDnaSchema>;

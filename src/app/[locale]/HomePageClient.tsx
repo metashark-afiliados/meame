@@ -3,7 +3,7 @@
  * @file HomePageClient.tsx
  * @description "Client Core" para el Homepage. Gestiona la carga de artículos desde caché.
  * @version 2.0.0 (Build Integrity Restoration)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 "use client";
 

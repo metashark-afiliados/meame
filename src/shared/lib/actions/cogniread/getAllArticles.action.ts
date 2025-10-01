@@ -2,8 +2,11 @@
 /**
  * @file getAllArticles.action.ts
  * @description Server Action para obtener una lista paginada de TODOS los artículos.
- * @version 4.0.0 (RLS-Compliant & Resilient)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *              v7.0.0 (Holistic & Type-Safe Refactor): Se abstrae la lógica de
+ *              procesamiento de respuesta para eliminar la dependencia de tipos internos
+ *              de PostgREST, resolviendo errores TS2305 y no-explicit-any.
+ * @version 7.0.0
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use server";
 
@@ -19,73 +22,83 @@ import {
   mapSupabaseToCogniReadArticle,
   type SupabaseCogniReadArticle,
 } from "./_shapers/cogniread.shapers";
+import type { PostgrestResponse } from "@supabase/supabase-js";
 
-const GetAllArticlesInputSchema = z.object({
+const GetArticlesInputSchema = z.object({
   page: z.number().int().min(1).default(1),
   limit: z.number().int().min(1).max(100).default(20),
 });
+type GetArticlesInput = z.infer<typeof GetArticlesInputSchema>;
 
-type GetAllArticlesInput = z.infer<typeof GetAllArticlesInputSchema>;
+/**
+ * @function _processArticleQuery
+ * @description Motor interno y puro para procesar la respuesta de una consulta de artículos.
+ * @private
+ * @param {PromiseLike<PostgrestResponse<SupabaseCogniReadArticle>>} queryPromise - La promesa devuelta por el PostgrestBuilder.
+ * @returns {Promise<{ articles: CogniReadArticle[]; total: number }>}
+ */
+async function _processArticleQuery(
+  queryPromise: PromiseLike<PostgrestResponse<SupabaseCogniReadArticle>>
+): Promise<{ articles: CogniReadArticle[]; total: number }> {
+  const { data, error, count } = await queryPromise;
+
+  if (error) {
+    logger.error("[_processArticleQuery] Error en la respuesta de Supabase.", {
+      error: error.message,
+    });
+    throw new Error(error.message);
+  }
+
+  const mappedArticles: CogniReadArticle[] = (data || []).map(
+    mapSupabaseToCogniReadArticle
+  );
+
+  const validation = z.array(CogniReadArticleSchema).safeParse(mappedArticles);
+  if (!validation.success) {
+    logger.error("[_processArticleQuery] Los datos de la DB están corruptos.", {
+      errors: validation.error.flatten(),
+    });
+    throw new Error(
+      "Formato de datos de artículos inesperado desde la base de datos."
+    );
+  }
+
+  return { articles: validation.data, total: count ?? 0 };
+}
 
 export async function getAllArticlesAction(
-  input: GetAllArticlesInput
+  input: GetArticlesInput
 ): Promise<ActionResult<{ articles: CogniReadArticle[]; total: number }>> {
-  const traceId = logger.startTrace("getAllArticlesAction_v4.0_RLS_Compliant");
+  const traceId = logger.startTrace("getAllArticlesAction_v7.0");
   logger.info(
     `[CogniReadAction] Obteniendo todos los artículos (página ${input.page})...`,
     { traceId }
   );
 
-  const supabase = createServerClient();
-
   try {
-    const validatedInput = GetAllArticlesInputSchema.safeParse(input);
-    if (!validatedInput.success) {
-      return { success: false, error: "Parámetros de paginación inválidos." };
-    }
-
-    const { page, limit } = validatedInput.data;
+    const supabase = createServerClient();
+    const validatedInput = GetArticlesInputSchema.parse(input);
+    const { page, limit } = validatedInput;
     const start = (page - 1) * limit;
     const end = start + limit - 1;
 
-    // --- [INICIO DE SOLUCIÓN DEFINITIVA: CONSULTAS SEPARADAS] ---
-    // 1. Obtener el conteo total de forma segura y compatible con RLS.
-    const { count, error: countError } = await supabase
+    // 1. Construir la consulta completa
+    const query = supabase
       .from("cogniread_articles")
-      .select("*", { count: "exact", head: true });
-
-    if (countError) throw new Error(countError.message);
-
-    // 2. Obtener los datos de la página actual.
-    const { data, error: dataError } = await supabase
-      .from("cogniread_articles")
-      .select("*")
+      .select("*, count()", { count: "exact" })
       .order("updated_at", { ascending: false })
       .range(start, end);
 
-    if (dataError) throw new Error(dataError.message);
-    // --- [FIN DE SOLUCIÓN DEFINITIVA] ---
-
-    const mappedArticles: CogniReadArticle[] = (
-      (data as SupabaseCogniReadArticle[]) || []
-    ).map(mapSupabaseToCogniReadArticle);
-    const validation = z
-      .array(CogniReadArticleSchema)
-      .safeParse(mappedArticles);
-
-    if (!validation.success) {
-      throw new Error(
-        "Formato de datos de artículos inesperado desde la base de datos."
-      );
-    }
-
-    return {
-      success: true,
-      data: { articles: validation.data, total: count ?? 0 },
-    };
+    // 2. Delegar el procesamiento de la respuesta al motor interno
+    const result = await _processArticleQuery(query);
+    return { success: true, data: result };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
+    logger.error(`[getAllArticlesAction] Fallo crítico.`, {
+      error: errorMessage,
+      traceId,
+    });
     return {
       success: false,
       error: `No se pudieron recuperar los artículos: ${errorMessage}`,

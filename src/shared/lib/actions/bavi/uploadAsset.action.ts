@@ -2,9 +2,13 @@
 /**
  * @file uploadAsset.action.ts
  * @description Server Action orquestadora de élite para la ingesta completa
- *              de activos, ahora consciente del contexto del workspace.
- * @version 10.0.0 (Workspace-Aware Orchestration & Security)
- * @author RaZ Podestá - MetaShark Tech
+ *              de activos. v12.0.0 (Transactional Rollback & Elite Resilience):
+ *              Implementa un mecanismo de rollback transaccional manual. Si las
+ *              operaciones de base de datos fallan post-subida, el activo
+ *              huérfano es destruido de Cloudinary para garantizar la
+ *              integridad de los datos.
+ * @version 12.0.0
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use server";
 
@@ -35,18 +39,23 @@ cloudinary.config({
 export async function uploadAssetAction(
   formData: FormData
 ): Promise<ActionResult<UploadApiResponse>> {
-  const traceId = logger.startTrace("uploadAssetOrchestration_v10.0");
-  const supabase = createServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const traceId = logger.startTrace("uploadAssetOrchestration_v12.0");
+  logger.startGroup(`[Action] Orquestando ingesta de activo...`, traceId);
 
-  if (!user) {
-    logger.warn("[Action] Intento no autorizado de subir activo.", { traceId });
-    return { success: false, error: "auth_required" };
-  }
+  let uploadedPublicId: string | null = null;
 
   try {
+    const supabase = createServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      logger.warn("[Action] Intento no autorizado.", { traceId });
+      return { success: false, error: "auth_required" };
+    }
+    logger.traceEvent(traceId, `Usuario ${user.id} autorizado.`);
+
     const file = formData.get("file");
     const metadataString = formData.get("metadata") as string;
     const workspaceId = formData.get("workspaceId") as string;
@@ -54,31 +63,25 @@ export async function uploadAssetAction(
     if (!file || !(file instanceof File) || !metadataString || !workspaceId) {
       throw new Error("Datos de subida incompletos o falta el workspaceId.");
     }
+    logger.traceEvent(traceId, "Payload de FormData validado inicialmente.");
 
-    // --- GUARDIA DE SEGURIDAD DE WORKSPACE ---
     const { data: memberCheck, error: memberError } = await supabase.rpc(
       "is_workspace_member",
       { workspace_id_to_check: workspaceId }
     );
 
     if (memberError || !memberCheck) {
-      logger.error("[Action] Verificación de membresía fallida.", {
-        userId: user.id,
-        workspaceId,
-        error: memberError,
-        traceId,
-      });
       throw new Error("Acceso denegado al workspace.");
     }
     logger.traceEvent(
       traceId,
-      `Usuario ${user.id} verificado como miembro del workspace ${workspaceId}.`
+      `Membresía del workspace ${workspaceId} verificada.`
     );
-    // --- FIN DE LA GUARDIA DE SEGURIDAD ---
 
     const metadata = assetUploadMetadataSchema.parse(
       JSON.parse(metadataString)
     );
+    logger.traceEvent(traceId, "Metadatos parseados y validados con Zod.");
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = new Uint8Array(arrayBuffer);
@@ -101,7 +104,10 @@ export async function uploadAssetAction(
           .end(buffer);
       }
     );
-    logger.traceEvent(traceId, "Subida a Cloudinary exitosa.");
+    uploadedPublicId = cloudinaryResponse.public_id;
+    logger.traceEvent(traceId, "Subida a Cloudinary exitosa.", {
+      publicId: uploadedPublicId,
+    });
 
     const manifestResult = await addAssetToManifestsAction({
       metadata,
@@ -111,18 +117,25 @@ export async function uploadAssetAction(
     });
 
     if (!manifestResult.success) {
-      return manifestResult;
+      throw new Error(manifestResult.error);
     }
+    logger.traceEvent(traceId, "Registro en BAVI DB completado.");
 
     if (metadata.promptId) {
+      logger.traceEvent(
+        traceId,
+        `Vinculando con prompt ${metadata.promptId}...`
+      );
       const linkResult = await linkPromptToBaviAssetAction({
         promptId: metadata.promptId,
         baviAssetId: metadata.assetId,
-        baviVariantId: "v1-orig",
-        imageUrl: cloudinaryResponse.secure_url,
         workspaceId: workspaceId,
       });
-      if (!linkResult.success) return linkResult;
+
+      if (!linkResult.success) {
+        throw new Error(linkResult.error);
+      }
+      logger.traceEvent(traceId, "Vinculación con prompt completada.");
     }
 
     logger.success("[Action] Orquestación de ingesta completada con éxito.", {
@@ -132,15 +145,37 @@ export async function uploadAssetAction(
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[Action] Fallo en la orquestación de ingesta de activo.", {
+    logger.error("[Action] Fallo crítico en la orquestación de ingesta.", {
       error: errorMessage,
       traceId,
     });
+
+    // --- [INICIO] GUARDIÁN DE RESILIENCIA Y ROLLBACK ---
+    if (uploadedPublicId) {
+      logger.warn(
+        `[Rollback] Intentando eliminar activo huérfano de Cloudinary: ${uploadedPublicId}`,
+        { traceId }
+      );
+      try {
+        await cloudinary.uploader.destroy(uploadedPublicId);
+        logger.success(
+          `[Rollback] Activo huérfano ${uploadedPublicId} eliminado con éxito.`
+        );
+      } catch (cleanupError) {
+        logger.error(
+          `[Rollback] ¡FALLO CRÍTICO DE LIMPIEZA! No se pudo eliminar el activo huérfano ${uploadedPublicId}.`,
+          { cleanupError, traceId }
+        );
+      }
+    }
+    // --- [FIN] GUARDIÁN DE RESILIENCIA Y ROLLBACK ---
+
     return {
       success: false,
-      error: "Fallo el proceso de ingesta del activo.",
+      error: `Fallo el proceso de ingesta del activo: ${errorMessage}`,
     };
   } finally {
+    logger.endGroup();
     logger.endTrace(traceId);
   }
 }

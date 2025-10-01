@@ -6,7 +6,6 @@
  * @author RaZ Podestá - MetaShark Tech
  */
 
-
 // Fragmento básico para un producto en la Admin API.
 // Nota: La Admin API tiene un esquema diferente al Storefront API.
 export const adminProductFragment = /* GraphQL */ `

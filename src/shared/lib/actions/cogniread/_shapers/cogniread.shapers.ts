@@ -4,7 +4,7 @@
  * @description Módulo soberano para las funciones de transformación ("shaping")
  *              de datos del dominio CogniRead. Es una utilidad pura del lado del servidor.
  * @version 2.0.0 (Holistic & Coherent)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 import "server-only";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
@@ -78,7 +78,9 @@ export interface SupabaseComment {
   updated_at: string;
 }
 
-export function mapSupabaseToComment(supabaseComment: SupabaseComment): Comment {
+export function mapSupabaseToComment(
+  supabaseComment: SupabaseComment
+): Comment {
   return {
     commentId: supabaseComment.id,
     articleId: supabaseComment.article_id,

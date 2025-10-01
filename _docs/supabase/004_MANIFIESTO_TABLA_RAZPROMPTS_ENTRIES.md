@@ -1,15 +1,17 @@
-// _docs/supabase/004_MANIFIESTO_TABLA_RAZPROMPTS_ENTRIES.md
-/**
- * @file 004_MANIFIESTO_TABLA_RAZPROMPTS_ENTRIES.md
- * @description Manifiesto Canónico y SSoT para la tabla 'public.razprompts_entries'.
- *              Define la arquitectura, relaciones y simbiosis con la BAVI.
- * @version 1.0.0
- * @author L.I.A. Legacy
- */
+// \_docs/supabase/004_MANIFIESTO_TABLA_RAZPROMPTS_ENTRIES.md
+/\*\*
+
+- @file 004_MANIFIESTO_TABLA_RAZPROMPTS_ENTRIES.md
+- @description Manifiesto Canónico y SSoT para la tabla 'public.razprompts_entries'.
+-              Define la arquitectura, relaciones y simbiosis con la BAVI.
+- @version 1.0.0
+  -@author RaZ Podestá - MetaShark Tech
+  \*/
 
 # Manifiesto de Tabla Soberana: `public.razprompts_entries`
 
 ## 1. Visión y Propósito
+
 Esta tabla es la **Bóveda Genómica Creativa** del ecosistema. Cada fila representa el "genoma" de un activo visual: el prompt exacto, los parámetros y el modelo de IA que lo generaron.
 
 **Principio Raíz:** Garantizar la reproducibilidad de la excelencia. Almacenando el genoma, podemos recrear, iterar y entender el origen de cada activo visual de alto rendimiento.
@@ -51,3 +53,4 @@ Estado: La vinculación de un activo BAVI a un prompt cambia el status del promp
 Contrato: Los datos de esta tabla son validados por RaZPromptsEntrySchema en src/shared/lib/schemas/raz-prompts/entry.schema.ts. Las Server Actions createPromptEntryAction y getPromptsAction son responsables de asegurar este cumplimiento de contrato entre la base de datos y la aplicación.
 ---
 
+```

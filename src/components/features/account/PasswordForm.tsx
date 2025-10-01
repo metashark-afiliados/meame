@@ -5,7 +5,7 @@
  *              v2.0.0 (Enhanced Security): Implementa la validación de la contraseña
  *              actual antes de permitir el cambio, mejorando la seguridad de la cuenta.
  * @version 2.0.0
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

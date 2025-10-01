@@ -1,14 +1,23 @@
 // RUTA: src/shared/hooks/bavi/use-asset-uploader.ts
 /**
  * @file use-asset-uploader.ts
- * @description Hook "cerebro" soberano para la lógica de subida de activos a la BAVI,
- *              ahora consciente del contexto del workspace.
- * @version 5.0.0 (Workspace-Aware)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Hook "cerebro" soberano para la lógica de subida de activos a la BAVI.
+ *              v6.0.0 (Data Contract Alignment & Elite Observability): Se corrige la
+ *              estructura de datos de `sesaContent` para alinearla con el contrato
+ *              del componente de presentación, resolviendo el error TS2322.
+ *              Inyectado con observabilidad de ciclo de vida completo.
+ * @version 6.0.0
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import { useState, useCallback, useEffect, useTransition } from "react";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  useTransition,
+  useMemo,
+} from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDropzone } from "react-dropzone";
@@ -19,8 +28,9 @@ import {
   assetUploadMetadataSchema,
   type AssetUploadMetadata,
 } from "@/shared/lib/schemas/bavi/upload.schema";
-import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store"; // <-- IMPORTACIÓN DEL STORE
+import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import { logger } from "@/shared/lib/logging";
 
 type UploaderContent = NonNullable<Dictionary["baviUploader"]>;
 type SesaLabels = NonNullable<Dictionary["promptCreator"]>["sesaLabels"];
@@ -37,6 +47,15 @@ export function useAssetUploader({
   sesaLabels,
   sesaOptions,
 }: UseAssetUploaderProps) {
+  const traceId = useMemo(
+    () => logger.startTrace("useAssetUploader_Lifecycle_v6.0"),
+    []
+  );
+  useEffect(() => {
+    logger.info("[useAssetUploader] Hook montado y listo.", { traceId });
+    return () => logger.endTrace(traceId);
+  }, [traceId]);
+
   const [isPending, startTransition] = useTransition();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -45,7 +64,7 @@ export function useAssetUploader({
   );
   const activeWorkspaceId = useWorkspaceStore(
     (state) => state.activeWorkspaceId
-  ); // <-- OBTENER WORKSPACE ACTIVO
+  );
 
   const form = useForm<AssetUploadMetadata>({
     resolver: zodResolver(assetUploadMetadataSchema),
@@ -63,9 +82,7 @@ export function useAssetUploader({
       const selectedFile = acceptedFiles[0];
       if (selectedFile) {
         setFile(selectedFile);
-        if (preview) {
-          URL.revokeObjectURL(preview);
-        }
+        if (preview) URL.revokeObjectURL(preview);
         setPreview(URL.createObjectURL(selectedFile));
         const baseName = selectedFile.name.split(".").slice(0, -1).join(".");
         form.setValue(
@@ -94,7 +111,6 @@ export function useAssetUploader({
       toast.error("Nessun file selezionato.");
       return;
     }
-    // --- GUARDIA DE CONTEXTO ---
     if (!activeWorkspaceId) {
       toast.error("Error de contexto", {
         description: "No hay un workspace activo seleccionado.",
@@ -106,7 +122,7 @@ export function useAssetUploader({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("metadata", JSON.stringify(data));
-      formData.append("workspaceId", activeWorkspaceId); // <-- AÑADIR WORKSPACE ID AL PAYLOAD
+      formData.append("workspaceId", activeWorkspaceId);
 
       const result = await uploadAssetAction(formData);
       if (result.success) {
@@ -121,10 +137,14 @@ export function useAssetUploader({
     });
   };
 
+  // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+  // Se ensambla el objeto `sesaContent` con la estructura anidada correcta
+  // que espera el componente de presentación `AssetUploaderForm`.
   const sesaContentForForm = {
-    ...sesaLabels,
-    options: sesaOptions,
+    sesaLabels,
+    sesaOptions,
   };
+  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
 
   return {
     form,
@@ -136,6 +156,6 @@ export function useAssetUploader({
     getInputProps,
     isDragActive,
     content,
-    sesaContent: sesaContentForForm,
+    sesaContent: sesaContentForForm, // Se pasa el objeto corregido
   };
 }

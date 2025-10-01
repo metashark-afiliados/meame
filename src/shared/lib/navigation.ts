@@ -6,7 +6,7 @@
  *              'template' a cada definición de ruta para desacoplar la estructura
  *              de la lógica de construcción, resolviendo un error de tipo en el middleware.
  * @version 14.0.0
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 import { defaultLocale, type Locale } from "./i18n/i18n.config";
 import { logger } from "./logging";

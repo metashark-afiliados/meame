@@ -3,7 +3,7 @@
  * @file NewsGridClient.tsx
  * @description Componente de cliente puro ("Client Core") para renderizar la cuadrícula de noticias.
  * @version 1.0.0
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

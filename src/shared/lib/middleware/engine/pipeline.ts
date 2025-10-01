@@ -1,9 +1,11 @@
 // RUTA: src/shared/lib/middleware/engine/pipeline.ts
 /**
  * @file pipeline.ts
- * @description Orquestador de middleware atómico y compatible con Vercel Edge Runtime.
- * @version 2.0.0 (Granular Logging & Observability)
- * @author L.I.A. Legacy
+ * @description Orquestador de middleware atómico y soberano, compatible con Vercel Edge Runtime.
+ *              v3.0.0 (Architectural Integrity Restoration): Restaurado a su lógica
+ *              original de cortocircuito, desacoplándolo del motor de build transaccional.
+ * @version 3.0.0
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/shared/lib/logging";
@@ -26,14 +28,14 @@ export function createPipeline(
       const result = await handler(req, currentResponse);
       currentResponse = result;
 
-      // Un manejador ha devuelto una redirección o una reescritura,
-      // lo que significa que ha tomado control del flujo.
+      // Lógica de Cortocircuito: Si un manejador devuelve una redirección o reescritura,
+      // el pipeline se detiene y devuelve esa respuesta inmediatamente.
       if (
-        (result.status >= 300 && result.status < 400) || // Redirección
+        (result.status >= 300 && result.status < 400) ||
         result.headers.get("x-middleware-rewrite")
       ) {
         logger.info(
-          `[Pipeline] Manejador '${handlerName}' ha cortocircuitado el pipeline con una redirección/reescritura.`
+          `[Pipeline] Manejador '${handlerName}' ha cortocircuitado el pipeline.`
         );
         return result;
       }

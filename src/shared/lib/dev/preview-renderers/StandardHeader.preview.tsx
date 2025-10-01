@@ -5,7 +5,7 @@
  *              para el componente StandardHeader. Consume la SSoT de estilos para
  *              un theming completo y se alinea con el contrato de datos v7.1.0.
  * @version 4.1.0 (API Contract Alignment)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import * as React from "react";
 import type { PreviewRenderResult, PreviewRenderer } from "./_types";

@@ -5,7 +5,7 @@
  *              Restaurado para un cumplimiento estricto de las Reglas de los Hooks de React,
  *              blindado con guardianes y observabilidad de élite.
  * @version 6.1.0 (React Hooks Contract Restoration)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

@@ -4,7 +4,7 @@
  * @description Server Action soberana para obtener productos de la Admin API,
  *              ahora con observabilidad de élite y un "Guardián de Resiliencia" holístico.
  * @version 4.0.0 (Elite Observability & Resilience)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use server";
 

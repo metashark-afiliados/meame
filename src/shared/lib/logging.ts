@@ -5,7 +5,7 @@
  *              dependencias, compatible con todos los entornos de Vercel y
  *              con capacidades de tracing de acciones de élite.
  * @version 13.2.1 (Typo Fix in Production Logger)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 
 // Estilos de consola para una mejor visualización en desarrollo.

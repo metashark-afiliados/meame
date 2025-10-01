@@ -3,7 +3,7 @@
  * @file HeroNews.tsx
  * @description Sección Hero para la página de noticias, ahora dinámica.
  * @version 4.0.0 (Dynamic CogniRead & BAVI Integration)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 "use client";
 

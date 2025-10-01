@@ -5,7 +5,7 @@
  *              Este aparato es el guardián de la confirmación de pagos y el
  *              orquestador de la lógica post-compra.
  * @version 6.1.0 (Type-Safe Nullability Fix)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use server";
 

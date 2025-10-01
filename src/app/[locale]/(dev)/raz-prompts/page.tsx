@@ -2,10 +2,10 @@
 /**
  * @file page.tsx
  * @description Página principal de élite para la Bóveda de RaZPrompts.
- *              v9.1.0 (Diagnostic Trace Injection): Se inyecta logging de
- *              diagnóstico para trazar el flujo de renderizado del servidor.
- * @version 9.1.0
- * @author L.I.A. Legacy
+ *              v14.0.0 (Architectural Integrity & Resilience Guardian): Refactorizada
+ *              para una integridad arquitectónica y un guardián de resiliencia de élite.
+ * @version 14.0.0
+ *@author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
@@ -21,8 +21,7 @@ import {
 } from "@/components/ui";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { SectionAnimator } from "@/components/layout/SectionAnimator";
-import { PromptCreator } from "@/components/features/raz-prompts/_components/PromptCreator";
-import { PromptVault } from "@/components/features/raz-prompts/_components/PromptVault";
+import { PromptCreator, PromptVault } from "@/components/features/raz-prompts";
 
 interface RaZPromptsHomePageProps {
   params: { locale: Locale };
@@ -31,69 +30,77 @@ interface RaZPromptsHomePageProps {
 export default async function RaZPromptsHomePage({
   params: { locale },
 }: RaZPromptsHomePageProps) {
-  // [INYECCIÓN DE LOGGING]
-  const traceId = logger.startTrace("RaZPromptsHomePage_Render");
-  logger.info(
-    "[RaZPromptsHomePage] Iniciando renderizado de Server Component (v9.1).",
-    { locale, traceId }
+  const traceId = logger.startTrace("RaZPromptsHomePage_Render_v14.0");
+  logger.startGroup(
+    `[RaZPrompts Shell] Renderizando v14.0 para locale: ${locale}`
   );
 
   try {
-    const { dictionary, error } = await getDictionary(locale);
-    // [INYECCIÓN DE LOGGING]
+    const { dictionary, error: dictError } = await getDictionary(locale);
     logger.traceEvent(traceId, "Diccionario i18n cargado.", {
-      hasError: !!error,
+      hasError: !!dictError,
     });
 
-    const pageContent = dictionary.razPromptsHomePage;
-    const promptCreatorContent = dictionary.promptCreator;
-    const promptVaultContent = dictionary.promptVault;
+    const {
+      razPromptsHomePage: pageContent,
+      promptCreator: promptCreatorContent,
+      promptVault: promptVaultContent,
+    } = dictionary;
 
-    if (error || !pageContent || !promptCreatorContent || !promptVaultContent) {
+    // --- [INICIO DE GUARDIÁN DE RESILIENCIA MEJORADO] ---
+    if (
+      dictError ||
+      !pageContent ||
+      !promptCreatorContent ||
+      !promptVaultContent
+    ) {
+      const missingKeys = [
+        !pageContent && "razPromptsHomePage",
+        !promptCreatorContent && "promptCreator",
+        !promptVaultContent && "promptVault",
+      ]
+        .filter(Boolean)
+        .join(", ");
+
+      // Este error ahora es mucho más informativo.
       throw new Error(
-        "Faltan una o más claves de i18n (razPromptsHomePage, promptCreator, promptVault)."
+        `Faltan una o más claves de i18n esenciales. Claves ausentes: ${missingKeys}`
       );
     }
+    // --- [FIN DE GUARDIÁN DE RESILIENCIA MEJORADO] ---
 
-    // [INYECCIÓN DE LOGGING]
     logger.traceEvent(traceId, "Contenido i18n validado. Renderizando UI...");
 
     return (
-      <>
-        <SectionAnimator>
-          <PageHeader content={pageContent} />
-          <Container className="py-12">
-            <Tabs defaultValue="vault">
-              <TabsList className="grid w-full grid-cols-2 md:w-[400px] mb-8">
-                <TabsTrigger value="create">
-                  {pageContent.createPromptTab}
-                </TabsTrigger>
-                <TabsTrigger value="vault">
-                  {pageContent.viewVaultTab}
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="create">
-                <PromptCreator content={promptCreatorContent} />
-              </TabsContent>
-              <TabsContent value="vault">
-                {/* [INYECCIÓN DE LOGGING] Se pasa el traceId al componente hijo */}
-                <PromptVault
-                  content={promptCreatorContent}
-                  vaultContent={promptVaultContent}
-                  traceId={traceId}
-                />
-              </TabsContent>
-            </Tabs>
-          </Container>
-        </SectionAnimator>
-      </>
+      <SectionAnimator>
+        <PageHeader content={pageContent} />
+        <Container className="py-12">
+          <Tabs defaultValue="vault">
+            <TabsList className="grid w-full grid-cols-2 md:w-[400px] mb-8">
+              <TabsTrigger value="create">
+                {pageContent.createPromptTab}
+              </TabsTrigger>
+              <TabsTrigger value="vault">
+                {pageContent.viewVaultTab}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="create">
+              <PromptCreator content={promptCreatorContent} />
+            </TabsContent>
+            <TabsContent value="vault">
+              <PromptVault
+                content={promptCreatorContent}
+                vaultContent={promptVaultContent}
+              />
+            </TabsContent>
+          </Tabs>
+        </Container>
+      </SectionAnimator>
     );
   } catch (error) {
     const errorMessage =
       "Fallo crítico durante el renderizado de la página RaZPrompts.";
-    // [INYECCIÓN DE LOGGING]
-    logger.error(`[RaZPromptsHomePage] ${errorMessage}`, { error, traceId });
-    logger.endTrace(traceId, { error: errorMessage });
+    logger.error(`[RaZPrompts Shell] ${errorMessage}`, { error, traceId });
     return (
       <DeveloperErrorDisplay
         context="RaZPromptsHomePage"
@@ -101,5 +108,8 @@ export default async function RaZPromptsHomePage({
         errorDetails={error instanceof Error ? error : String(error)}
       />
     );
+  } finally {
+    logger.endGroup();
+    logger.endTrace(traceId);
   }
 }

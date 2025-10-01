@@ -206,6 +206,12 @@
     },
     {
       "event": "INSERT",
+      "table": "profiles",
+      "timing": "BEFORE",
+      "trigger_name": "on_profile_insert_sync_created_at"
+    },
+    {
+      "event": "INSERT",
       "table": "cogniread_articles",
       "timing": "BEFORE",
       "trigger_name": "on_cogniread_content_change"
@@ -215,12 +221,6 @@
       "table": "cogniread_articles",
       "timing": "BEFORE",
       "trigger_name": "on_cogniread_content_change"
-    },
-    {
-      "event": "INSERT",
-      "table": "profiles",
-      "timing": "BEFORE",
-      "trigger_name": "on_profile_insert_sync_created_at"
     }
   ],
   "extensions": [

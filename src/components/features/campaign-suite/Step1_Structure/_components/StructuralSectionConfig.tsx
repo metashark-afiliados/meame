@@ -4,7 +4,7 @@
  * @description Componente de UI atómico y reutilizable para la configuración
  *              de una sección estructural (Header/Footer).
  * @version 1.0.0 (Forged & Elite)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
@@ -38,9 +38,7 @@ export function StructuralSectionConfig({
   onSelectionChange,
   descriptions,
 }: StructuralSectionConfigProps): React.ReactElement {
-  logger.trace(
-    `[StructuralSectionConfig] Renderizando para: ${switchLabel}`
-  );
+  logger.trace(`[StructuralSectionConfig] Renderizando para: ${switchLabel}`);
 
   return (
     <div className="space-y-6">
@@ -48,11 +46,7 @@ export function StructuralSectionConfig({
         <Label htmlFor={switchId} className="font-semibold">
           {switchLabel}
         </Label>
-        <Switch
-          id={switchId}
-          checked={isEnabled}
-          onCheckedChange={onToggle}
-        />
+        <Switch id={switchId} checked={isEnabled} onCheckedChange={onToggle} />
       </div>
 
       {isEnabled && (

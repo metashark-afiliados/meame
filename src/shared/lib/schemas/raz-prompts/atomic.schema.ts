@@ -1,12 +1,14 @@
 // RUTA: src/shared/lib/schemas/raz-prompts/atomic.schema.ts
 /**
  * @file atomic.schema.ts
- * @description SSoT para los schemas atómicos y reutilizables del ecosistema RaZPrompts.
- * @version 2.2.0 (Definitive & Holistically Aligned)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ * @description SSoT para los schemas atómicos del ecosistema RaZPrompts, ahora con
+ *              un genoma de prompt completo y profesional.
+ * @version 7.0.0 (Professional Prompt Genome)
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 
+// --- Schemas de Parámetros de Ideogram (sin cambios) ---
 export const IdeogramRenderingSpeedSchema = z.enum([
   "TURBO",
   "DEFAULT",
@@ -60,11 +62,21 @@ export const RaZPromptsSesaTagsSchema = z.object({
 
 export type RaZPromptsSesaTags = z.infer<typeof RaZPromptsSesaTagsSchema>;
 
+// --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+// Se actualiza el schema para incluir el genoma de prompt completo.
 export const PromptVersionSchema = z.object({
   version: z.number().int().positive(),
-  promptText: z.string().min(1, "El texto del prompt no puede estar vacío."),
+  basePromptText: z
+    .string()
+    .min(1, "El texto base del prompt no puede estar vacío.")
+    .describe("El prompt original del usuario."),
+  fullPromptText: z
+    .string()
+    .min(1, "El genoma completo del prompt no puede estar vacío.")
+    .describe("El prompt ensamblado con parámetros técnicos."),
   negativePrompt: z.string().optional(),
   parameters: PromptParametersSchema,
   createdAt: z.string().datetime(),
   embedding: z.array(z.number()).optional(),
 });
+// --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---

@@ -6,7 +6,7 @@
  *              identificador 'require' al usar un nombre no reservado,
  *              restaurando la compatibilidad con el compilador de TypeScript.
  * @version 6.2.0
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import * as fs from "fs";
 import * as path from "path";

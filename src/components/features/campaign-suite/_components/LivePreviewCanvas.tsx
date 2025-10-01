@@ -2,72 +2,64 @@
 /**
  * @file LivePreviewCanvas.tsx
  * @description Orquestador de élite para el lienzo de previsualización (EDVI).
- * @version 17.0.0 (Data Flow & Hook Contract Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ *              Ahora es un componente de cliente más puro que recibe todos los
+ *              datos del servidor como props, eliminando el doble fetch.
+ * @version 18.0.0 (Pure Data Consumer)
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { useCampaignDraftStore } from "@/shared/lib/stores/campaign-draft.store";
 import { usePreviewTheme } from "@/shared/hooks/campaign-suite/use-preview-theme";
 import { useIframe } from "@/shared/hooks/campaign-suite/use-iframe";
 import { usePreviewFocus } from "@/shared/hooks/campaign-suite/use-preview-focus";
 import { buildPreviewDictionary } from "@/shared/lib/utils/campaign-suite/preview.utils";
-import { useLivePreviewAssets } from "@/shared/hooks/campaign-suite/use-live-preview-assets";
 import {
   PreviewContent,
-  PreviewLoadingOverlay,
   PreviewErrorOverlay,
 } from "./LivePreviewCanvas/_components";
+import { useAssembledDraft } from "@/shared/hooks/campaign-suite/use-assembled-draft.hook";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { logger } from "@/shared/lib/logging";
 import type { LoadedFragments } from "@/shared/lib/actions/campaign-suite";
+import type { BaviManifest } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 
 interface LivePreviewCanvasProps {
   content: {
-    loadingTheme: string;
     errorLoadingTheme: string;
   };
   loadedFragments: LoadedFragments;
+  baviManifest: BaviManifest;
+  dictionary: Dictionary;
 }
 
 export function LivePreviewCanvas({
   content,
   loadedFragments,
+  baviManifest,
+  dictionary,
 }: LivePreviewCanvasProps) {
-  logger.info("[LivePreviewCanvas] Renderizando orquestador v17.0.");
+  logger.info("[LivePreviewCanvas] Renderizando orquestador puro v18.0.");
 
-  const draft = useCampaignDraftStore((state) => state.draft);
+  const draft = useAssembledDraft();
   const { theme, error: themeError } = usePreviewTheme(loadedFragments);
-  const {
-    assets,
-    isLoading: areAssetsLoading,
-    error: assetsError,
-  } = useLivePreviewAssets();
   const { iframeRef, iframeBody } = useIframe();
   const { focusedSection, sectionRefs } = usePreviewFocus();
-
-  const isLoading = areAssetsLoading;
-  const error = themeError || assetsError;
 
   const draftDictionary = buildPreviewDictionary(
     draft.contentData,
     draft.layoutConfig,
     "it-IT"
   );
+  // Ensambla el diccionario final fusionando el base con el del borrador.
   const finalDictionary = {
-    ...assets?.dictionary,
+    ...dictionary,
     ...draftDictionary,
   } as Dictionary;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="h-full bg-muted/20 p-2 rounded-lg sticky top-24"
-    >
+    <div className="h-full bg-muted/20 p-2 rounded-lg sticky top-24">
       <iframe
         ref={iframeRef}
         className="w-full h-full bg-background rounded-md border"
@@ -76,28 +68,26 @@ export function LivePreviewCanvas({
       />
       {iframeBody &&
         createPortal(
-          <AnimatePresence>
-            {isLoading && <PreviewLoadingOverlay text={content.loadingTheme} />}
-            {error && (
+          <>
+            {themeError && (
               <PreviewErrorOverlay
                 title={content.errorLoadingTheme}
-                details={error}
+                details={themeError}
               />
             )}
-            {theme && assets && !isLoading && !error && (
+            {theme && !themeError && (
               <PreviewContent
                 draft={draft}
                 theme={theme}
-                baviManifest={assets.baviManifest}
+                baviManifest={baviManifest}
                 dictionary={finalDictionary}
                 focusedSection={focusedSection}
                 sectionRefs={sectionRefs}
               />
             )}
-          </AnimatePresence>,
+          </>,
           iframeBody
         )}
-    </motion.div>
+    </div>
   );
 }
-// RUTA: src/components/features/campaign-suite/_components/LivePreviewCanvas.tsx

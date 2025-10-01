@@ -3,7 +3,7 @@
  * @file template.schema.ts
  * @description SSoT para el contrato de datos de una plantilla de campaña.
  * @version 3.0.0 (CamelCase Convention & Elite Compliance)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 import { CampaignDraftDataSchema } from "./draft.schema";

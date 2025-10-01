@@ -3,7 +3,7 @@
  * @file seed-superuser.ts
  * @description Script de seed para crear un superusuario de desarrollo en Supabase.
  * @version 3.0.0 (Holistic & Orchestrator-Compliant)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { createScriptClient } from "../../src/shared/lib/supabase/script-client";
 import { logger } from "../../src/shared/lib/logging";

@@ -3,7 +3,7 @@
  * @file route.ts
  * @description Endpoint de Ingestión para el sistema `nos3`.
  * @version 1.3.0 (Architectural Boundary Fix)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 // --- [INICIO DE RESTAURACIÓN ARQUITECTÓNICA] ---
 // Se ha eliminado la directiva "use client". Las rutas de API son exclusivamente

@@ -1,15 +1,14 @@
 // RUTA: src/components/sections/ProductInfo.tsx
 /**
  * @file ProductInfo.tsx
- * @description Panel de información para detalle de producto con capacidad de compartir.
- * @version 7.1.0 (Component API Contract Fix): Corrige la forma en que se pasan
- *              las props al componente hijo `TextSection`, resolviendo errores
- *              críticos de tipo TS2339.
- * @author RaZ Podestá - MetaShark Tech
+ * @description Panel de información para detalle de producto, forjado con
+ *              seguridad de tipos absoluta, resiliencia y observabilidad de élite.
+ * @version 9.0.0 (Holistic Elite Leveling)
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import React from "react";
+import React, { useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { DynamicIcon, Separator } from "@/components/ui";
 import { TextSection } from "@/components/sections/TextSection";
@@ -54,7 +53,17 @@ export function ProductInfo({
   content,
   absoluteUrl,
 }: ProductInfoProps) {
-  logger.info(`[ProductInfo] Renderizando v7.1 para producto: ${product.name}`);
+  const traceId = useMemo(
+    () => logger.startTrace("ProductInfo_Lifecycle_v9.0"),
+    []
+  );
+  useEffect(() => {
+    logger.info(`[ProductInfo] Componente montado para: ${product.name}`, {
+      traceId,
+    });
+    return () => logger.endTrace(traceId);
+  }, [product.name, traceId]);
+
   const searchParams = useSearchParams();
 
   const {
@@ -65,14 +74,9 @@ export function ProductInfo({
     shareButton,
   } = content;
 
-  const productData = product;
+  const variants = useMemo(() => product.variants ?? [], [product.variants]);
 
-  const variants = React.useMemo(
-    () => productData.variants ?? [],
-    [productData.variants]
-  );
-
-  const selectedVariant = React.useMemo(() => {
+  const selectedVariant = useMemo(() => {
     if (!variants || variants.length === 0) return undefined;
     return variants.find((variant) =>
       variant.selectedOptions.every(
@@ -83,34 +87,46 @@ export function ProductInfo({
 
   const stockAvailable = selectedVariant
     ? selectedVariant.availableForSale
-    : productData.inventory.available > 0;
-
+    : product.inventory.available > 0;
   const selectedVariantId = selectedVariant?.id;
+
+  // --- [INICIO DE REFACTORIZACIÓN DE LÓGICA RESILIENTE] ---
+  const shareText = useMemo(() => {
+    // Extrae y une el texto de todos los bloques de tipo 'p' para un resumen robusto.
+    return (
+      description
+        .filter((block) => block.type === "p")
+        .map((block) => block.text)
+        .join(" ")
+        .slice(0, 150) + "..."
+    ); // Trunca para compatibilidad con redes sociales
+  }, [description]);
+  // --- [FIN DE REFACTORIZACIÓN DE LÓGICA RESILIENTE] ---
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-start">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-            {productData.categorization.primary}
+            {product.categorization.primary}
           </p>
           <h1 className="text-4xl lg:text-5xl font-bold text-foreground">
-            {productData.name}
+            {product.name}
           </h1>
           <div className="flex items-center gap-4 mt-4">
-            {productData.rating && <StarRating rating={productData.rating} />}
+            {product.rating && <StarRating rating={product.rating} />}
             <span className="text-3xl font-bold text-primary">
               {new Intl.NumberFormat("it-IT", {
                 style: "currency",
-                currency: productData.currency,
-              }).format(productData.price)}
+                currency: product.currency,
+              }).format(product.price)}
             </span>
           </div>
         </div>
         <ShareButton
           shareData={{
-            title: productData.name,
-            text: description[0]?.text || productData.name, // <-- CORRECCIÓN
+            title: product.name,
+            text: shareText, // <-- Se utiliza el texto extraído de forma segura
             url: absoluteUrl,
           }}
           content={shareButton}
@@ -118,7 +134,7 @@ export function ProductInfo({
       </div>
 
       <TextSection
-        content={description} // <-- CORRECCIÓN: Se pasa el array directamente.
+        content={description} // <-- Ahora el tipo es correcto
         spacing="compact"
         prose={true}
         className="py-0 text-muted-foreground"
@@ -127,7 +143,7 @@ export function ProductInfo({
       <Separator />
 
       <VariantSelectorProvider
-        options={productData.options ?? []}
+        options={product.options ?? []}
         variants={variants}
       >
         <VariantSelector />
@@ -148,7 +164,7 @@ export function ProductInfo({
           <p className="text-green-600">
             {stockStatus.available.replace(
               "{{count}}",
-              String(productData.inventory.available)
+              String(product.inventory.available)
             )}
           </p>
         ) : (

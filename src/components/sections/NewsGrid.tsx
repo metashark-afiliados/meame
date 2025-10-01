@@ -4,7 +4,7 @@
  * @description Cuadrícula de noticias, ahora blindada con guardianes de resiliencia
  *              para un renderizado seguro y sin errores de tipo.
  * @version 8.0.0 (Resilient & Type-Safe)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 "use client";
 

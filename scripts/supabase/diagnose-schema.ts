@@ -4,7 +4,7 @@
  * @description Herramienta de auditoría de sistema de élite, ahora 100% compatible
  *              con el Contrato del Orquestador de Scripts.
  * @version 5.0.0 (Orchestrator-Compliant)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { createClient } from "@supabase/supabase-js";
 import chalk from "chalk";

@@ -2,21 +2,24 @@
 /**
  * @file index.ts (Barrel File)
  * @description Capa de Acceso a Datos Soberana y Agregadora para E-commerce.
- * @version 6.0.0 (Atomic Architecture & Holistic Aggregation)
- * @author RaZ Podestá - MetaShark Tech
+ *              v7.0.0 (Holistic Export & Shaper Consolidation): Refactorizado para
+ *              re-exportar todos los módulos de forma holística y consumir el
+ *              nuevo shaper consolidado.
+ * @version 7.0.0
+ *@author RaZ Podestá - MetaShark Tech
  */
 import "server-only";
 import { logger } from "@/shared/lib/logging";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
-import {
-  reshapeProducts,
-  reshapeProduct,
-  type EnrichedProduct,
-} from "./shapers";
 import { getShopifyProducts, getShopifyProduct } from "@/shared/lib/shopify";
 import { getLocalProducts } from "./catalog";
 import { getCart as getCartData } from "./cart";
 import type { Product } from "@/shared/lib/schemas/entities/product.schema";
+
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+// Re-exportamos todo desde el shaper consolidado.
+export * from "./shapers";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
 /**
  * @function getProducts
@@ -27,8 +30,9 @@ import type { Product } from "@/shared/lib/schemas/entities/product.schema";
  */
 export async function getProducts(options: {
   locale: Locale;
-}): Promise<EnrichedProduct[]> {
-  const traceId = logger.startTrace("getProducts (Hybrid v6.0)");
+}): Promise<Product[]> {
+  // El tipo de retorno es Product[], reshapeProducts se encargará de enriquecerlo si es necesario en el consumidor.
+  const traceId = logger.startTrace("getProducts (Hybrid v7.0)");
   logger.info(
     `[Commerce DAL] Solicitando productos HÍBRIDOS para [${options.locale}]`
   );
@@ -57,7 +61,7 @@ export async function getProducts(options: {
     );
 
     const allProducts: Product[] = [...shopifyProducts, ...localProducts];
-    return reshapeProducts(allProducts);
+    return allProducts;
   } catch (error) {
     logger.error("Error inesperado en getProducts.", { error, traceId });
     return [];
@@ -70,12 +74,12 @@ export async function getProducts(options: {
  * @function getProductBySlug
  * @description API pública para obtener un único producto por su slug desde cualquier fuente.
  * @param {{ locale: Locale; slug: string }} options - Opciones de búsqueda.
- * @returns {Promise<EnrichedProduct | null>} El producto encontrado o null.
+ * @returns {Promise<Product | null>} El producto encontrado o null.
  */
 export async function getProductBySlug(options: {
   locale: Locale;
   slug: string;
-}): Promise<EnrichedProduct | null> {
+}): Promise<Product | null> {
   const traceId = logger.startTrace(`getProductBySlug:${options.slug}`);
   logger.info(
     `[Commerce DAL] Solicitando producto HÍBRIDO por slug: "${options.slug}"`
@@ -87,7 +91,7 @@ export async function getProductBySlug(options: {
     );
     if (shopifyProduct) {
       logger.traceEvent(traceId, "Producto encontrado en Shopify.");
-      return reshapeProduct(shopifyProduct);
+      return shopifyProduct;
     }
 
     logger.traceEvent(
@@ -99,7 +103,7 @@ export async function getProductBySlug(options: {
 
     if (localProduct) {
       logger.traceEvent(traceId, "Producto encontrado en catálogo local.");
-      return reshapeProduct(localProduct);
+      return localProduct;
     }
 
     logger.warn(

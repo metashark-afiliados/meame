@@ -3,7 +3,7 @@
  * @file SocialProofLogos.tsx
  * @description Aparato "Server Shell" para la sección de prueba social.
  * @version 8.1.0 (Elite Error Handling & Type Safety)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 import React from "react";
 import { getBaviManifest } from "@/shared/lib/bavi";

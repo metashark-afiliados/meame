@@ -2,10 +2,13 @@
 /**
  * @file models.config.ts
  * @description SSoT para los modelos de IA de Gemini disponibles en el ecosistema.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.0.0 (Architectural Fix): Se elimina la directiva "use server".
+ *@author RaZ Podestá - MetaShark Tech
  */
-"use server";
+
+// --- [CORRECCIÓN ARQUITECTÓNICA] ---
+// Un archivo de configuración estática no es un módulo de acción.
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 export interface GeminiModel {
   id: string;
@@ -30,4 +33,3 @@ export const GEMINI_MODELS: readonly GeminiModel[] = [
     contextWindow: 30720,
   },
 ] as const;
-

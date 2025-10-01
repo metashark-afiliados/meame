@@ -3,7 +3,7 @@
  * @file ManagementActions.tsx
  * @description Orquestador de presentación puro para el panel de acciones del Paso 5.
  * @version 3.0.0 (Architectural Decoupling & Elite Compliance)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

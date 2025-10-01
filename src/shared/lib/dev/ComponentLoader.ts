@@ -2,27 +2,25 @@
 /**
  * @file ComponentLoader.ts
  * @description Módulo de servicio SOBERANO para la carga dinámica de componentes.
- *              v7.0.0 (Sovereign Path Restoration): Se corrige la ruta de importación
- *              de la utilidad de props para alinearse con la ACS, restaurando la
- *              integridad del build del DCC.
- * @version 7.0.0
- * @author RaZ Podestá - MetaShark Tech
+ *              v7.2.0 (Elite Type Safety): Se erradica el uso de 'any' en el tipo de
+ *              retorno, reemplazándolo con `Record<string, unknown>` para una
+ *              seguridad de tipos absoluta y cumplimiento de linter de élite.
+ * @version 7.2.0
+ * @author L.I.A. Legacy
  */
-"use server-only";
-
+import "server-only";
 import React from "react";
 import {
   getComponentByName,
   type ComponentRegistryEntry,
 } from "@/shared/lib/dev/ComponentRegistry";
-import { logger } from "@/shared/lib/logging";
-// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-// Se corrige la ruta de importación para apuntar a la SSoT canónica en la capa de features.
 import { getFallbackProps } from "@/components/features/dev-tools/utils/component-props";
-// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+import { logger } from "@/shared/lib/logging";
 
 interface ComponentLoadResult {
+  // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: SEGURIDAD DE TIPOS] ---
   ComponentToRender: React.ComponentType<Record<string, unknown>>;
+  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
   componentProps: Record<string, unknown>;
   entry: ComponentRegistryEntry;
 }
@@ -30,20 +28,23 @@ interface ComponentLoadResult {
 export async function loadComponentAndProps(
   componentName: string
 ): Promise<ComponentLoadResult> {
-  logger.startGroup(`[Loader v7.0] Cargando "${componentName}"`);
-
-  const entry = getComponentByName(componentName);
-  if (!entry) {
-    const errorMsg = `Componente "${componentName}" no encontrado en ComponentRegistry.`;
-    logger.error(errorMsg);
-    logger.endGroup();
-    throw new Error(errorMsg);
-  }
-
-  const componentProps = getFallbackProps(componentName);
+  const traceId = logger.startTrace(`loadComponentAndProps:${componentName}`);
+  logger.startGroup(`[Loader v7.2] Orquestando carga de "${componentName}"...`);
 
   try {
+    logger.traceEvent(traceId, "Obteniendo entrada del registro...");
+    const entry = getComponentByName(componentName);
+    if (!entry) {
+      throw new Error(`Componente "${componentName}" no encontrado en ComponentRegistry.`);
+    }
+    logger.traceEvent(traceId, "Entrada del registro obtenida con éxito.");
+
+    logger.traceEvent(traceId, "Generando props de fallback...");
+    const componentProps = getFallbackProps(componentName);
+    logger.traceEvent(traceId, "Props de fallback generadas.");
+
     const dynamicPath = `@/` + entry.componentPath.replace("@/", "");
+    logger.traceEvent(traceId, `Importando dinámicamente desde: ${dynamicPath}`);
     const componentModule = await import(dynamicPath);
 
     const ComponentToRender =
@@ -57,20 +58,20 @@ export async function loadComponentAndProps(
         `Exportación por defecto o nombrada no encontrada en "${entry.componentPath}"`
       );
     }
+    logger.traceEvent(traceId, "Módulo del componente resuelto y cargado.");
 
-    logger.success(
-      `Componente "${componentName}" cargado dinámicamente con éxito.`
-    );
-    logger.endGroup();
-
+    logger.success(`[Loader] Componente "${componentName}" listo para renderizar.`);
     return { ComponentToRender, componentProps, entry };
+
   } catch (error) {
-    const errorMsg = `Error crítico al importar dinámicamente el módulo para "${componentName}".`;
-    logger.error(errorMsg, { path: entry.componentPath, error });
+    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
+    logger.error(`[Loader] Fallo crítico al cargar "${componentName}".`, {
+      error: errorMessage,
+      traceId,
+    });
+    throw new Error(`No se pudo orquestar la carga del componente: ${errorMessage}`);
+  } finally {
     logger.endGroup();
-    throw new Error(
-      `No se pudo cargar el módulo del componente: ${entry.componentPath}`
-    );
+    logger.endTrace(traceId);
   }
 }
-// RUTA: src/shared/lib/dev/ComponentLoader.ts

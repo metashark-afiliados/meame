@@ -5,7 +5,7 @@
  *              Forjado con un Guardián de Resiliencia y observabilidad de ciclo de
  *              vida completo para una robustez y depuración de nivel de producción.
  * @version 6.0.0 (Elite Resilience & Full Observability)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
 import { logger } from "@/shared/lib/logging";

@@ -1,12 +1,13 @@
 // .docs/000_MANIFIESTO_CONSOL_COGNIREAD.md
-/**
- * @file 000_MANIFIESTO_CONSOL_COGNIREAD.md
- * @description Manifiesto Consolidado y SSoT para el Dominio CogniRead.
- *              Define su visión, arquitectura, funcionalidades, integración con el ecosistema
- *              y proyecciones futuras como proyecto independiente, ahora en Supabase.
- * @version 1.2.0 (Formato de Artículo Estándar para Publicaciones)
- * @author RaZ Podestá - MetaShark Tech
- */
+/\*\*
+
+- @file 000_MANIFIESTO_CONSOL_COGNIREAD.md
+- @description Manifiesto Consolidado y SSoT para el Dominio CogniRead.
+-              Define su visión, arquitectura, funcionalidades, integración con el ecosistema
+-              y proyecciones futuras como proyecto independiente, ahora en Supabase.
+- @version 1.2.0 (Formato de Artículo Estándar para Publicaciones)
+- @author RaZ Podestá - MetaShark Tech
+  \*/
 
 # Manifiesto Consolidado: CogniRead - El Cerebro Analítico
 
@@ -24,20 +25,20 @@ CogniRead reside como un dominio soberano dentro de la base de datos central de 
 
 La estructura canónica de cada artículo se almacena en la tabla `public.cogniread_articles`.
 
-*   **`articleId`**: Identificador único (UUID en Supabase).
-*   **`status`**: (`draft`, `published`, `archived`).
-*   **`studyDna` (JSONB)**: El "ADN" del estudio científico. Incluye `originalTitle`, `authors`, `institution`, `doi`, `objective`, `methodologySummary`, `mainResults`, `authorsConclusion`, `limitations`.
-*   **`content` (JSONB)**: Contenido divulgativo traducido a múltiples locales. Cada idioma (`it-IT`, `es-ES`, etc.) tiene su propio `title`, `slug`, `summary` y `body` (en Markdown).
-*   **`baviHeroImageId`**: Vínculo con la BAVI para la imagen destacada.
-*   **`relatedPromptIds` (TEXT[])**: Vínculos a los genomas creativos en RaZPrompts.
-*   **`createdAt`, `updatedAt`**: Timestamps de gestión.
+- **`articleId`**: Identificador único (UUID en Supabase).
+- **`status`**: (`draft`, `published`, `archived`).
+- **`studyDna` (JSONB)**: El "ADN" del estudio científico. Incluye `originalTitle`, `authors`, `institution`, `doi`, `objective`, `methodologySummary`, `mainResults`, `authorsConclusion`, `limitations`.
+- **`content` (JSONB)**: Contenido divulgativo traducido a múltiples locales. Cada idioma (`it-IT`, `es-ES`, etc.) tiene su propio `title`, `slug`, `summary` y `body` (en Markdown).
+- **`baviHeroImageId`**: Vínculo con la BAVI para la imagen destacada.
+- **`relatedPromptIds` (TEXT[])**: Vínculos a los genomas creativos en RaZPrompts.
+- **`createdAt`, `updatedAt`**: Timestamps de gestión.
 
 ### 2.2. Capa de Lógica (`Server Actions`)
 
 Toda interacción con la base de datos se realiza a través de `Server Actions`, garantizando seguridad y tipado.
 
-*   **Mutaciones:** `createOrUpdateArticleAction`, `publishArticleAction`, `archiveArticleAction`.
-*   **Consultas:** `getPublishedArticlesAction`, `getArticleBySlugAction`, `getArticlesIndexAction`, `getArticlesByIdsAction`.
+- **Mutaciones:** `createOrUpdateArticleAction`, `publishArticleAction`, `archiveArticleAction`.
+- **Consultas:** `getPublishedArticlesAction`, `getArticleBySlugAction`, `getArticlesIndexAction`, `getArticlesByIdsAction`.
 
 ## 3. Formato de Datos, Tablas y Migración (Actualización)
 
@@ -49,20 +50,20 @@ Inicialmente, el almacenamiento de los artículos de CogniRead fue diseñado par
 
 Esta tabla es la **Única Fuente de Verdad** para todos los artículos de CogniRead. Su estructura se define en el esquema SQL de Supabase y se refleja programáticamente en `src/shared/lib/schemas/cogniread/article.schema.ts`.
 
-*   **Columnas Clave:**
-    *   `id` (`UUID`): Identificador único del artículo. Corresponde al `articleId` en el `CogniReadArticleSchema`.
-    *   `status` (`TEXT`): Enum con valores `'draft'`, `'published'`, `'archived'`.
-    *   `study_dna` (`JSONB`): Almacena la estructura detallada del análisis científico del estudio.
-    *   `content` (`JSONB`): Almacena las traducciones del contenido divulgativo del artículo para cada idioma soportado.
-    *   `bavi_hero_image_id` (`TEXT`): ID del activo visual de la BAVI utilizado como imagen principal. Puede ser `NULL`.
-    *   `related_prompt_ids` (`TEXT[]`): Array de IDs de RaZPrompts relacionados con el artículo. Puede ser `NULL`.
-    *   `created_at` (`TIMESTAMPTZ`): Timestamp de creación.
-    *   `updated_at` (`TIMESTAMPTZ`): Timestamp de la última actualización.
+- **Columnas Clave:**
+  - `id` (`UUID`): Identificador único del artículo. Corresponde al `articleId` en el `CogniReadArticleSchema`.
+  - `status` (`TEXT`): Enum con valores `'draft'`, `'published'`, `'archived'`.
+  - `study_dna` (`JSONB`): Almacena la estructura detallada del análisis científico del estudio.
+  - `content` (`JSONB`): Almacena las traducciones del contenido divulgativo del artículo para cada idioma soportado.
+  - `bavi_hero_image_id` (`TEXT`): ID del activo visual de la BAVI utilizado como imagen principal. Puede ser `NULL`.
+  - `related_prompt_ids` (`TEXT[]`): Array de IDs de RaZPrompts relacionados con el artículo. Puede ser `NULL`.
+  - `created_at` (`TIMESTAMPTZ`): Timestamp de creación.
+  - `updated_at` (`TIMESTAMPTZ`): Timestamp de la última actualización.
 
-*   **Uso de `JSONB` para `study_dna` y `content`:**
-    *   El tipo `JSONB` en PostgreSQL es crucial para la flexibilidad de CogniRead. Permite almacenar objetos JSON semi-estructurados con esquemas internos variables sin requerir una modificación de la tabla principal. Esto es ideal para el `studyDna` (que puede evolucionar) y para el `content` multilingüe (que tiene una estructura anidada por idioma). Además, `JSONB` permite indexación y consultas eficientes sobre sus datos internos.
-*   **Uso de `TEXT[]` para `related_prompt_ids`:**
-    *   El tipo `TEXT[]` es eficiente para almacenar arrays simples de cadenas de texto (UUIDs en este caso) sin la sobrecarga de un objeto JSON completo.
+- **Uso de `JSONB` para `study_dna` y `content`:**
+  - El tipo `JSONB` en PostgreSQL es crucial para la flexibilidad de CogniRead. Permite almacenar objetos JSON semi-estructurados con esquemas internos variables sin requerir una modificación de la tabla principal. Esto es ideal para el `studyDna` (que puede evolucionar) y para el `content` multilingüe (que tiene una estructura anidada por idioma). Además, `JSONB` permite indexación y consultas eficientes sobre sus datos internos.
+- **Uso de `TEXT[]` para `related_prompt_ids`:**
+  - El tipo `TEXT[]` es eficiente para almacenar arrays simples de cadenas de texto (UUIDs en este caso) sin la sobrecarga de un objeto JSON completo.
 
 ### 3.3. Estructura Estándar de un Artículo Publicado
 
@@ -249,3 +250,4 @@ Calidad Innegociable: Todo código que cree o modifique dentro de este dominio c
 Enfoque en la Escalabilidad: Mis propuestas considerarán la futura independencia de CogniRead y su potencial como servicio externo.
 ---
 
+```

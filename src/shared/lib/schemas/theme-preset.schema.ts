@@ -3,7 +3,7 @@
  * @file theme-preset.schema.ts
  * @description SSoT para la entidad ThemePreset.
  * @version 2.0.0 (Type Property Integration)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 import { ThemeConfigSchema } from "./campaigns/draft.parts.schema";

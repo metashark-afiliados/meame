@@ -6,7 +6,7 @@
  *              a los remotePatterns para permitir la optimización de imágenes
  *              desde la BAVI, resolviendo un error crítico de ejecución.
  * @version 2.0.0
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 
 /** @type {import('next').NextConfig} */

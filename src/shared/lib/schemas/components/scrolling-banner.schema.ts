@@ -1,10 +1,9 @@
-
 // RUTA: src/shared/lib/schemas/components/scrolling-banner.schema.ts
 /**
  * @file scrolling-banner.schema.ts
  * @description SSoT para el contrato de datos del componente ScrollingBanner.
  * @version 2.0.0 (Decoupled & Sovereign)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 import { LucideIconNameSchema } from "@/shared/lib/config/lucide-icon-names";

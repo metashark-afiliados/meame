@@ -1,3 +1,4 @@
+
 {
   "articleId": "clwz1a2b30000cde45f6g7h8i",
   "status": "published",
@@ -44,7 +45,7 @@
       "body": "A cúrcuma (Curcuma longa), a especiaria de cor dourada intensa que dá vida ao caril..."
     }
   },
-  "baviHeroImageId": "i-ing-turmeric-synergy-01",
+  "baviHeroImageId": "webvork/assets/i-ing-turmeric-synergy-01/v1-original",
   "relatedPromptIds": ["prompt-012-turmeric-molecular-visualization"],
   "tags": [
     "curcuma",

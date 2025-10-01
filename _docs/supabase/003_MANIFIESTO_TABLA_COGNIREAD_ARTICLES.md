@@ -1,16 +1,18 @@
-// _docs/supabase/003_MANIFIESTO_TABLA_COGNIREAD_ARTICLES.md
-/**
- * @file 003_MANIFIESTO_TABLA_COGNIREAD_ARTICLES.md
- * @description Manifiesto Canónico y SSoT para la tabla 'public.cogniread_articles'.
- *              Define la arquitectura, el uso de JSONB, triggers y su
- *              simbiosis con los dominios BAVI y RaZPrompts.
- * @version 1.0.0
- * @author L.I.A. Legacy
- */
+// \_docs/supabase/003_MANIFIESTO_TABLA_COGNIREAD_ARTICLES.md
+/\*\*
+
+- @file 003_MANIFIESTO_TABLA_COGNIREAD_ARTICLES.md
+- @description Manifiesto Canónico y SSoT para la tabla 'public.cogniread_articles'.
+-              Define la arquitectura, el uso de JSONB, triggers y su
+-              simbiosis con los dominios BAVI y RaZPrompts.
+- @version 1.0.0
+  -@author RaZ Podestá - MetaShark Tech
+  \*/
 
 # Manifiesto de Tabla Soberana: `public.cogniread_articles`
 
 ## 1. Visión y Propósito
+
 Esta tabla es el corazón del **Motor de Credibilidad**. Almacena la versión digerida y estructurada de estudios científicos, transformando la investigación cruda en activos de conocimiento multilingües y listos para ser consumidos por el portal público y otras partes del ecosistema.
 
 **Principio Raíz:** Cada fila representa un único estudio científico, enriquecido con contenido divulgativo y vinculado a otros dominios para maximizar su valor contextual.
@@ -52,3 +54,4 @@ BAVI: La columna bavi_hero_image_id almacena el public_id de una variante de BAV
 RaZPrompts: La columna related_prompt_ids almacena un array de promptId (CUID2) que se originan en la tabla razprompts_entries. Esto permite trazar el origen creativo de las imágenes o ideas de un artículo.
 ---
 
+```

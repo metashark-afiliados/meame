@@ -4,7 +4,7 @@
  * @description Hook de cliente de élite, ahora con manejo de estado resiliente y
  *              observabilidad completa para la obtención del perfil de usuario.
  * @version 2.1.0 (Resilient Profile Fetching)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

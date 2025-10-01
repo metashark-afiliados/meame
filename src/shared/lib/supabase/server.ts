@@ -2,11 +2,10 @@
 /**
  * @file server.ts
  * @description SSoT para la creación del cliente de Supabase en el servidor.
- *              v4.1.0 (Elite Code Hygiene): Se alinea el manejo de errores
- *              con las convenciones de código del proyecto para resolver las
- *              advertencias del linter sobre variables no utilizadas.
- * @version 4.1.0
- * @author L.I.A. Legacy
+ *              Forjado con observabilidad de élite y manejo de errores resiliente
+ *              para contextos de solo lectura.
+ * @version 5.0.0 (Elite Observability & Resilience)
+ *@author RaZ Podestá - MetaShark Tech
  */
 import {
   createServerClient as supabaseCreateServerClient,
@@ -17,7 +16,7 @@ import { logger } from "@/shared/lib/logging";
 
 export function createServerClient() {
   logger.trace(
-    "[Supabase Client] Creando nueva instancia del cliente para el servidor (v4.1 - Elite Hygiene)..."
+    "[Supabase Client] Creando nueva instancia del cliente para el servidor (v5.0 - Elite)..."
   );
   const cookieStore = cookies();
 
@@ -32,20 +31,28 @@ export function createServerClient() {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options });
-          } catch (_error) {
-            // --- [INICIO DE REFACTORIZACIÓN DE HIGIENE] ---
-            // La variable se prefija con '_' para indicar que su uso es intencionadamente omitido.
-            // Esto es esperado en contextos de solo lectura como Server Components.
-            // --- [FIN DE REFACTORIZACIÓN DE HIGIENE] ---
+          } catch (error) {
+            // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA Y OBSERVABILIDAD] ---
+            // Se captura y registra la advertencia. Esto es esperado en contextos
+            // de solo lectura como la generación de páginas estáticas (SSG).
+            logger.warn(
+              "[Supabase Client] No se pudo establecer la cookie. El contexto puede ser de solo lectura.",
+              { error }
+            );
+            // --- [FIN DE REFACTORIZACIÓN] ---
           }
         },
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: "", ...options });
-          } catch (_error) {
-            // --- [INICIO DE REFACTORIZACIÓN DE HIGIENE] ---
-            // La variable se prefija con '_' para indicar que su uso es intencionadamente omitido.
-            // --- [FIN DE REFACTORIZACIÓN DE HIGIENE] ---
+          } catch (error) {
+            // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA Y OBSERVABILIDAD] ---
+            // Se captura y registra la advertencia por la misma razón que en 'set'.
+            logger.warn(
+              "[Supabase Client] No se pudo eliminar la cookie. El contexto puede ser de solo lectura.",
+              { error }
+            );
+            // --- [FIN DE REFACTORIZACIÓN] ---
           }
         },
       },

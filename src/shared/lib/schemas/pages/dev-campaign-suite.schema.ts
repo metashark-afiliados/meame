@@ -2,8 +2,8 @@
 /**
  * @file dev-campaign-suite.schema.ts
  * @description SSoT para el contenido i18n de la SDC.
- * @version 9.0.0 (Sovereign Schema Export)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 10.0.0 (Template Suffix Integration)
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 import {
@@ -20,8 +20,6 @@ const PreviewContentSchema = z.object({
   errorLoadingTheme: z.string(),
 });
 
-// --- [INICIO DE REFACTORIZACIÓN SOBERANA] ---
-// Se exporta el schema para que pueda ser importado y consumido directamente.
 export const StepperTitlesSchema = z.object({
   identificationTitle: z.string(),
   structureTitle: z.string(),
@@ -30,11 +28,14 @@ export const StepperTitlesSchema = z.object({
   contentTitle: z.string(),
   managementTitle: z.string(),
 });
-// --- [FIN DE REFACTORIZACIÓN SOBERANA] ---
 
 export const CampaignSuiteContentSchema = z.object({
   title: z.string(),
   subtitle: z.string(),
+  // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+  // Se añade la propiedad requerida por TemplateBrowser.tsx.
+  templateCopySuffix: z.string(),
+  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
   preview: PreviewContentSchema.optional(),
   stepper: StepperTitlesSchema.optional(),
   step0: Step0ContentSchema.optional(),

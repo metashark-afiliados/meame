@@ -6,7 +6,7 @@
  *              que requieren la hidratación de múltiples activos de conocimiento
  *              en una sola operación (ej. prompts relacionados, colecciones).
  * @version 4.0.0 (Architecturally Pure & Holistically Aligned)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 "use server";
 

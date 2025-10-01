@@ -3,7 +3,7 @@
  * @file TemplateCard.tsx
  * @description Componente de presentación atómico, con observabilidad y resiliencia.
  * @version 3.0.0 (Resilient & Observable)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

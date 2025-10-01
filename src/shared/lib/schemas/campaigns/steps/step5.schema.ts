@@ -1,9 +1,9 @@
 // RUTA: src/shared/lib/schemas/campaigns/steps/step5.schema.ts
 /**
  * @file step5.schema.ts
- * @description SSoT para el contrato de datos del contenido i18n del Paso 5 de la SDC.
- * @version 2.1.0 (Artifact History Title Integration)
- * @author L.I.A. Legacy
+ * @description SSoT para el contrato de datos del contenido i18n del Paso 5.
+ * @version 2.2.0 (Artifact History Content Object)
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 
@@ -13,7 +13,18 @@ export const Step5ContentSchema = z.object({
   summaryTitle: z.string(),
   summaryPlaceholder: z.string(),
   checklistTitle: z.string(),
-  artifactHistoryTitle: z.string(), // <-- NUEVA PROPIEDAD AÑADIDA AL CONTRATO
+  // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
+  // La clave ahora es un objeto que contiene todo el contenido necesario.
+  artifactHistory: z.object({
+    title: z.string(),
+    loadingHistoryText: z.string(),
+    emptyStateText: z.string(),
+    downloadButtonText: z.string(),
+    downloadingButtonText: z.string(),
+    errorLoadingHistory: z.string(),
+    errorDownloading: z.string(),
+  }),
+  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
   publishButtonText: z.string(),
   packageButtonText: z.string(),
   deleteButtonText: z.string(),

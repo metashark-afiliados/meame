@@ -3,7 +3,7 @@
  * @file diag-cloudinary-schema.ts
  * @description Herramienta de auditoría para inspeccionar la configuración y "esquema" de Cloudinary.
  * @version 8.0.0 (Holistic Integrity Restoration)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { v2 as cloudinary } from "cloudinary";
 import * as fs from "fs/promises";
@@ -90,7 +90,9 @@ async function diagnoseCloudinarySchema(): Promise<ActionResult<string>> {
       })),
     });
 
-    logger.info("--- ETIQUETAS (TAGS) EN USO ---", { tags: tags.tags.join(", ") });
+    logger.info("--- ETIQUETAS (TAGS) EN USO ---", {
+      tags: tags.tags.join(", "),
+    });
 
     if (metadataFields.length > 0) {
       logger.info("--- CAMPOS DE METADATOS ESTRUCTURADOS ---", {
@@ -101,7 +103,9 @@ async function diagnoseCloudinarySchema(): Promise<ActionResult<string>> {
         })),
       });
     } else {
-        logger.info("--- CAMPOS DE METADATOS ESTRUCTURADOS ---", { data: "No se encontraron campos de metadatos definidos."});
+      logger.info("--- CAMPOS DE METADATOS ESTRUCTURADOS ---", {
+        data: "No se encontraron campos de metadatos definidos.",
+      });
     }
     // --- [FIN DE RESTAURACIÓN DE LÓGICA] ---
 

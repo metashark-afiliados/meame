@@ -4,7 +4,7 @@
  * @description SSoT para el estado inicial del borrador de campaña, ahora alineado
  *              con el contrato de tipo soberano.
  * @version 5.0.0 (Contract Aligned)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
 import { logger } from "@/shared/lib/logging";

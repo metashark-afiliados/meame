@@ -5,6 +5,7 @@
 Este documento es la **Única Fuente de Verdad (SSoT)** para la arquitectura y el flujo lógico del middleware de la aplicación. Actúa como la primera línea de defensa y de inteligencia, procesando cada solicitud entrante antes de que llegue a una página o ruta de API.
 
 El pipeline está diseñado para ser:
+
 - **Atómico:** Cada manejador (`handler`) tiene una única y clara responsabilidad.
 - **Secuencial:** Los manejadores se ejecutan en un orden predefinido y estricto.
 - **Cortocircuitable:** Un manejador puede finalizar el flujo de forma temprana si es necesario (ej. una redirección).
@@ -87,3 +88,4 @@ Lógica: Si una ruta no tiene prefijo de locale, determina el locale más apropi
 authHandler:
 Responsabilidad: Proteger las rutas del Developer Command Center (DCC).
 Lógica: Verifica si la ruta solicitada es una ruta protegida. Si lo es, valida la sesión del usuario. Si el usuario no está autenticado, lo redirige a la página de login.
+```

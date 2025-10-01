@@ -1,9 +1,10 @@
 // RUTA: src/components/features/campaign-suite/CampaignSuiteWizard.tsx
 /**
  * @file CampaignSuiteWizard.tsx
- * @description Orquestador de cliente principal ("cerebro") para la SDC, con observabilidad de élite.
- * @version 17.0.0 (Elite Observability & Full Compliance)
- * @author L.I.A. Legacy
+ * @description Orquestador de cliente principal para la SDC, con integridad
+ *              arquitectónica restaurada y observabilidad de élite.
+ * @version 20.0.0 (Architectural Integrity Restoration & Elite Compliance)
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
@@ -11,6 +12,7 @@ import React, { useMemo, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { logger } from "@/shared/lib/logging";
 import { stepsConfig } from "@/shared/lib/config/campaign-suite/wizard.config";
+import { stepsDataConfig } from "@/shared/lib/config/campaign-suite/wizard.data.config";
 import {
   useCampaignDraftStore,
   useDraftMetadataStore,
@@ -19,21 +21,35 @@ import { WizardProvider } from "./_context/WizardContext";
 import { ProgressContext, type ProgressStep } from "./_context/ProgressContext";
 import { WizardClientLayout } from "./_components/WizardClientLayout";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import type { BaviManifest } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 import type { LoadedFragments } from "@/shared/lib/actions/campaign-suite";
+import { DeveloperErrorDisplay } from "../dev-tools";
 
 interface CampaignSuiteWizardProps {
   children: React.ReactNode;
   content: NonNullable<Dictionary["campaignSuitePage"]>;
   loadedFragments: LoadedFragments;
+  baviManifest: BaviManifest;
+  dictionary: Dictionary;
 }
 
 export function CampaignSuiteWizard({
   children,
   content,
   loadedFragments,
+  baviManifest,
+  dictionary,
 }: CampaignSuiteWizardProps): React.ReactElement {
-  // --- INICIO: PILAR III (FULL OBSERVABILIDAD) ---
-  logger.info("[Observabilidad][CLIENTE] Renderizando CampaignSuiteWizard v17.0.");
+  const traceId = useMemo(
+    () => logger.startTrace("CampaignSuiteWizard_Lifecycle_v20.0"),
+    []
+  );
+  useEffect(() => {
+    logger.info("[CampaignSuiteWizard] Orquestador montado y listo.", {
+      traceId,
+    });
+    return () => logger.endTrace(traceId);
+  }, [traceId]);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -41,36 +57,33 @@ export function CampaignSuiteWizard({
   const { completedSteps } = useDraftMetadataStore();
 
   useEffect(() => {
-    // La inicialización del borrador se registra en el propio store.
     initializeDraft();
   }, [initializeDraft]);
 
   const currentStepId = useMemo(() => {
+    const firstStepId = stepsDataConfig[0].id;
     const stepParam = searchParams.get("step");
-    return stepParam ? parseInt(stepParam, 10) : 0;
+    return stepParam ? parseInt(stepParam, 10) : firstStepId;
   }, [searchParams]);
 
   const handleNavigation = useCallback(
     (newStepId: number) => {
-      logger.trace(`[Wizard] Navegando al paso ${newStepId}.`);
+      logger.traceEvent(traceId, `Acción: Navegando al paso ${newStepId}.`);
       const newParams = new URLSearchParams(searchParams.toString());
       newParams.set("step", String(newStepId));
       router.push(`?${newParams.toString()}`);
     },
-    [router, searchParams]
+    [router, searchParams, traceId]
   );
 
-  const handleNextStep = useCallback(() => {
-    if (currentStepId < stepsConfig.length - 1) {
-      handleNavigation(currentStepId + 1);
-    }
-  }, [currentStepId, handleNavigation]);
-
-  const handlePrevStep = useCallback(() => {
-    if (currentStepId > 0) {
-      handleNavigation(currentStepId - 1);
-    }
-  }, [currentStepId, handleNavigation]);
+  const handleNextStep = useCallback(
+    () => handleNavigation(currentStepId + 1),
+    [currentStepId, handleNavigation]
+  );
+  const handlePrevStep = useCallback(
+    () => handleNavigation(currentStepId - 1),
+    [currentStepId, handleNavigation]
+  );
 
   const handleStepClick = useCallback(
     (stepId: number) => {
@@ -80,8 +93,6 @@ export function CampaignSuiteWizard({
         completedSteps.includes(stepId - 1)
       ) {
         handleNavigation(stepId);
-      } else {
-        logger.warn(`[Wizard] Intento de saltar a un paso no completado (${stepId}). Acción denegada.`);
       }
     },
     [completedSteps, currentStepId, handleNavigation]
@@ -112,13 +123,31 @@ export function CampaignSuiteWizard({
     [progressSteps, handleStepClick]
   );
 
+  // --- GUARDIÁN DE RESILIENCIA DE CONTRATO ---
+  if (!content?.preview || !content?.stepper) {
+    const errorMsg =
+      "Contrato de UI violado: Faltan claves de contenido para la SDC.";
+    logger.error(`[Guardián] ${errorMsg}`, {
+      traceId,
+      receivedContent: content,
+    });
+    return (
+      <DeveloperErrorDisplay
+        context="CampaignSuiteWizard"
+        errorMessage={errorMsg}
+      />
+    );
+  }
+
   return (
     <WizardProvider value={wizardContextValue}>
       <ProgressContext.Provider value={progressContextValue}>
         <WizardClientLayout
-          previewContent={content.preview!}
+          previewContent={content.preview}
           isLoadingDraft={isLoading}
           loadedFragments={loadedFragments}
+          baviManifest={baviManifest}
+          dictionary={dictionary}
         >
           {children}
         </WizardClientLayout>

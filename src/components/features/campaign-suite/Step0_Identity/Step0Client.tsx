@@ -4,7 +4,7 @@
  * @description Componente Contenedor de Cliente para el Paso 0. Gestiona el
  *              estado del formulario, incluyendo la selección de proveedor.
  * @version 9.2.1 (Sovereign Path Restoration)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

@@ -5,7 +5,7 @@
  *              Blindado con guardianes de resiliencia y tipos, y con observabilidad
  *              de ciclo de vida completo. Cumple con la Higiene de Código Absoluta.
  * @version 6.2.0 (Elite Code Hygiene & Linter Compliance)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
 import { logger } from "@/shared/lib/logging";

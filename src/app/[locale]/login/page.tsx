@@ -4,7 +4,7 @@
  * @description Página de login para el DCC, con resiliencia de datos, logging
  *              verboso y una UX más limpia y enfocada.
  * @version 7.0.0 (Resilient & UX-Aligned)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import React from "react";
 import Image from "next/image";

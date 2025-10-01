@@ -6,7 +6,7 @@
  *              una entidad soberana, con estilo profesional, animación deliberada
  *              y cumplimiento total de los 8 Pilares de Calidad.
  * @version 2.0.0
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
@@ -39,7 +39,9 @@ export const ScrollingBanner = forwardRef<HTMLElement, ScrollingBannerProps>(
     logger.info("[ScrollingBanner] Renderizando v2.0 (Elite Modernization).");
 
     if (!content) {
-      logger.warn("[ScrollingBanner] No se proporcionó contenido. No se renderizará.");
+      logger.warn(
+        "[ScrollingBanner] No se proporcionó contenido. No se renderizará."
+      );
       return null;
     }
 
@@ -49,7 +51,8 @@ export const ScrollingBanner = forwardRef<HTMLElement, ScrollingBannerProps>(
         variants={sectionVariants}
         className={cn(
           "py-3 bg-muted/30 text-muted-foreground border-b",
-          isFocused && "ring-2 ring-primary ring-offset-4 ring-offset-background"
+          isFocused &&
+            "ring-2 ring-primary ring-offset-4 ring-offset-background"
         )}
         role="status"
       >

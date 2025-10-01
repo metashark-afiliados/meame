@@ -1472,7 +1472,7 @@ export const lucideIconNames = [
   "ZapOff",
   "Zap",
   "ZoomIn",
-  "ZoomOut"
+  "ZoomOut",
 ] as const;
 
 export const LucideIconNameSchema = z.enum(lucideIconNames);

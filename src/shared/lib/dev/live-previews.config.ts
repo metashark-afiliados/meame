@@ -1,82 +1,65 @@
 // RUTA: src/shared/lib/dev/live-previews.config.ts
 /**
  * @file live-previews.config.ts
- * @description SSoT para el registro de componentes SEGUROS PARA EL CLIENTE para el EDVI.
- *              Este manifiesto es el guardián de la frontera Servidor-Cliente. Solo
- *              debe importar componentes de presentación puros ("use client") para
- *              garantizar la integridad del build.
- * @version 6.0.0 (Holistic & Server-Client Boundary Enforcement)
- * @author RaZ Podestá - MetaShark Tech
+ * @description SSoT para el registro de componentes para el EDVI.
+ *              v9.1.0 (Elite Type Safety): Se erradica el uso de 'any',
+ *              reemplazándolo con un contrato de tipos 'Record<string, unknown>'
+ *              para cumplir con las reglas de linting y el Pilar II de Calidad.
+ * @version 9.1.0
+ * @author L.I.A. Legacy
  */
 import type { ComponentType } from "react";
 import { logger } from "@/shared/lib/logging";
-
-// --- Pilar III (Observabilidad): Se registra la carga de este módulo crítico. ---
-logger.trace(
-  "[LivePreviewRegistry] Cargando registro para EDVI (v6.0 - Client-Safe & Holistic)."
-);
-
-// --- Pilar V (Arquitectura): Importaciones quirúrgicas SÓLO a componentes de CLIENTE ---
+import { sectionsConfig } from "@/shared/lib/config/sections.config";
 import Header from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { BenefitsSection } from "@/components/sections/BenefitsSection";
-import { CommunitySection } from "@/components/sections/CommunitySection";
-import { ContactSection } from "@/components/sections/ContactSection";
-import { DoubleScrollingBanner } from "@/components/sections/DoubleScrollingBanner";
-import { FaqAccordion } from "@/components/sections/FaqAccordion";
-import { FeaturedArticlesCarousel } from "@/components/sections/FeaturedArticlesCarousel";
-import { FeaturesSection } from "@/components/sections/FeaturesSection";
-import { GuaranteeSection } from "@/components/sections/GuaranteeSection";
-import { HeroClient } from "@/components/sections/HeroClient";
-import { HeroNews } from "@/components/sections/HeroNews";
-import { IngredientAnalysis } from "@/components/sections/IngredientAnalysis";
-import { NewsGrid } from "@/components/sections/NewsGrid";
-import { OrderSection } from "@/components/sections/OrderSection";
-import { PricingSection } from "@/components/sections/PricingSection";
-import { ProductShowcase } from "@/components/sections/ProductShowcase";
-import { ServicesSection } from "@/components/sections/ServicesSection";
-import { SocialProofLogosClient } from "@/components/sections/SocialProofLogosClient";
-import { SponsorsSection } from "@/components/sections/SponsorsSection";
-import { TeamSection } from "@/components/sections/TeamSection";
-import { TestimonialCarouselSection } from "@/components/sections/TestimonialCarouselSection";
-import { TestimonialGrid } from "@/components/sections/TestimonialGrid";
-import { TextSection } from "@/components/sections/TextSection";
-import { ThumbnailCarousel } from "@/components/sections/ThumbnailCarousel";
+import { CommentSectionClient } from "@/components/sections/comments/CommentSectionClient";
+
+// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: SEGURIDAD DE TIPOS ABSOLUTA] ---
+/**
+ * @type PreviewableComponent
+ * @description Contrato de tipo seguro para componentes en el registro de previsualización.
+ *              Se utiliza `ComponentType<Record<string, unknown>>` para indicar que el
+ *              componente puede aceptar cualquier prop, sin desactivar la verificación
+ *              de tipos como lo haría 'any'. La seguridad de tipos real se delega
+ *              al generador de props de fallback (`getFallbackProps`).
+ */
+type PreviewableComponent = ComponentType<Record<string, unknown>>;
+// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
 /**
- * @const livePreviewComponentMap
- * @description El registro soberano que mapea un componentName a su función de
- *              renderizado de CLIENTE. Este es el corazón del EDVI.
- *              Se utiliza `any` de forma controlada aquí porque es un mapa de
- *              componentes con props heterogéneas, lo cual es un caso de uso
- *              aceptado para la flexibilidad arquitectónica.
+ * @function generateComponentMap
+ * @description Genera dinámicamente el mapa de componentes a partir del manifiesto soberano `sectionsConfig`.
+ * @returns {Record<string, PreviewableComponent>} El mapa de componentes listo y seguro.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const livePreviewComponentMap: Record<string, ComponentType<any>> = {
-  StandardHeader: Header,
-  MinimalHeader: Header,
-  StandardFooter: Footer,
-  BenefitsSection,
-  CommunitySection,
-  ContactSection,
-  DoubleScrollingBanner,
-  FaqAccordion,
-  FeaturedArticlesCarousel,
-  FeaturesSection,
-  GuaranteeSection,
-  Hero: HeroClient,
-  HeroNews,
-  IngredientAnalysis,
-  NewsGrid,
-  OrderSection,
-  PricingSection,
-  ProductShowcase,
-  ServicesSection,
-  SocialProofLogos: SocialProofLogosClient,
-  SponsorsSection,
-  TeamSection,
-  TestimonialCarouselSection,
-  TestimonialGrid,
-  TextSection,
-  ThumbnailCarousel,
-};
+function generateComponentMap(): Record<string, PreviewableComponent> {
+  const traceId = logger.startTrace("generateComponentMap_v9.1");
+  logger.startGroup(`[LivePreviewRegistry] Generando registro dinámico...`, { traceId });
+
+  const dynamicMap = Object.entries(sectionsConfig).reduce(
+    (acc, [name, config]) => {
+      if (name === "CommentSection") {
+        acc[name] = CommentSectionClient;
+      } else {
+        acc[name] = config.component;
+      }
+      return acc;
+    },
+    {} as Record<string, PreviewableComponent>
+  );
+
+  const fullMap: Record<string, PreviewableComponent> = {
+    ...dynamicMap,
+    StandardHeader: Header,
+    MinimalHeader: Header,
+    StandardFooter: Footer,
+  };
+
+  logger.success(`[LivePreviewRegistry] Registro dinámico generado con ${Object.keys(fullMap).length} componentes.`, { traceId });
+  logger.endGroup();
+  logger.endTrace(traceId);
+
+  return fullMap;
+}
+
+export const livePreviewComponentMap = generateComponentMap();

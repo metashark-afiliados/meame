@@ -4,7 +4,7 @@
  * @description Aparato atómico para el diálogo de confirmación de eliminación de
  *              borrador, con una UX de "alta fricción" para máxima seguridad.
  * @version 2.1.0 (Holistic Contract & Elite Compliance)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 import React, { useState } from "react";

@@ -7,7 +7,7 @@
  *              inyectar un sistema de tracing de élite para una observabilidad
  *              total, y reforzar el manejo de errores para una máxima resiliencia.
  * @version 13.0.0
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 "use server";
 

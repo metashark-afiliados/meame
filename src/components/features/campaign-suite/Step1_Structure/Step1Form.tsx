@@ -4,7 +4,7 @@
  * @description Componente de Presentación para la UI del Paso 1, ahora blindado
  *              con un Guardián de Resiliencia de múltiples fases y observabilidad de élite.
  * @version 9.0.0 (Elite Resilience & Full Observability)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

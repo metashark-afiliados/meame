@@ -6,7 +6,7 @@
  *              utilizar el hook soberano `useAssembledDraft` y estar blindado con
  *              guardianes de resiliencia y observabilidad de élite.
  * @version 7.0.0 (React Hooks & Architectural Contract Restoration)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

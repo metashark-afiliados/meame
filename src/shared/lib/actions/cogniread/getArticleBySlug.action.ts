@@ -3,7 +3,7 @@
  * @file getArticleBySlug.action.ts
  * @description Server Action para obtener un único artículo publicado por su slug.
  * @version 3.0.0 (Architecturally Pure)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 "use server";
 

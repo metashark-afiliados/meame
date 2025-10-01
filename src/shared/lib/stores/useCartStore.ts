@@ -2,20 +2,23 @@
 /**
  * @file useCartStore.ts
  * @description Hook de Zustand y SSoT para el estado global del carrito de compras.
- * @version 3.0.0 (Server-State Hydration)
- * @author RaZ Podestá - MetaShark Tech
+ *              v4.0.0 (Declarative Initialization): Simplificado para soportar
+ *              una hidratación declarativa desde su componente consumidor principal.
+ * @version 4.0.0
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 import type { Product } from "@/shared/lib/schemas/entities/product.schema";
 import { logger } from "@/shared/lib/logging";
 
+// El contrato de CartItem permanece igual.
 export interface CartItem extends Product {
   quantity: number;
 }
 
 interface CartState {
   items: CartItem[];
+  isInitialized: boolean; // Flag para prevenir re-hidratación.
   initialize: (items: CartItem[]) => void;
   addItem: (product: Product, quantity?: number) => void;
   removeItem: (productId: string) => void;
@@ -23,63 +26,53 @@ interface CartState {
   clearCart: () => void;
 }
 
-export const useCartStore = create<CartState>()(
-  persist(
-    (set, get) => ({
-      items: [],
-      initialize: (items) => {
-        // Esta acción solo se debe llamar una vez para establecer el estado inicial.
-        set({ items });
-      },
-      addItem: (product, quantity = 1) => {
-        const { items } = get();
-        const existingItem = items.find((item) => item.id === product.id);
+export const useCartStore = create<CartState>()((set, get) => ({
+  items: [],
+  isInitialized: false,
+  initialize: (items) => {
+    // El store solo se inicializará si aún no lo ha sido.
+    if (get().isInitialized) return;
+    set({ items, isInitialized: true });
+    logger.info(
+      `[CartStore] Estado inicial hidratado con ${items.length} items.`
+    );
+  },
+  addItem: (product, quantity = 1) => {
+    const { items } = get();
+    const existingItem = items.find((item) => item.id === product.id);
 
-        if (existingItem) {
-          logger.info("[CartStore] Actualizando cantidad de item existente.");
-          set({
-            items: items.map((item) =>
-              item.id === product.id
-                ? { ...item, quantity: item.quantity + quantity }
-                : item
-            ),
-          });
-        } else {
-          logger.info("[CartStore] Añadiendo nuevo item al carrito.");
-          set({ items: [...items, { ...product, quantity }] });
-        }
-      },
-      removeItem: (productId) => {
-        logger.info(`[CartStore] Eliminando item: ${productId}`);
-        set({
-          items: get().items.filter((item) => item.id !== productId),
-        });
-      },
-      updateQuantity: (productId, quantity) => {
-        if (quantity <= 0) {
-          get().removeItem(productId);
-          return;
-        }
-        logger.info(
-          `[CartStore] Actualizando cantidad para ${productId} a ${quantity}.`
-        );
-        set({
-          items: get().items.map((item) =>
-            item.id === productId ? { ...item, quantity } : item
-          ),
-        });
-      },
-      clearCart: () => {
-        logger.warn("[CartStore] Vaciando el carrito.");
-        set({ items: [] });
-      },
-    }),
-    {
-      name: "cart-storage",
-      storage: createJSONStorage(() => localStorage),
+    if (existingItem) {
+      set({
+        items: items.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        ),
+      });
+    } else {
+      set({ items: [...items, { ...product, quantity }] });
     }
-  )
-);
+  },
+  removeItem: (productId) => {
+    set({
+      items: get().items.filter((item) => item.id !== productId),
+    });
+  },
+  updateQuantity: (productId, quantity) => {
+    if (quantity <= 0) {
+      get().removeItem(productId);
+      return;
+    }
+    set({
+      items: get().items.map((item) =>
+        item.id === productId ? { ...item, quantity } : item
+      ),
+    });
+  },
+  clearCart: () => {
+    set({ items: [] });
+  },
+}));
 
 export const useCartTotals = () => {
   const items = useCartStore((state) => state.items);

@@ -1,11 +1,12 @@
-/**
- * @file 001_MANIFIESTO_TEMEO_AI.md
- * @description Manifiesto Soberano para TEMEO (The Elite Motor of AI).
- *              Define la visión, arquitectura y contratos de la capa de
- *              integración de IA para el ecosistema Webvork.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
- */
+/\*\*
+
+- @file 001_MANIFIESTO_TEMEO_AI.md
+- @description Manifiesto Soberano para TEMEO (The Elite Motor of AI).
+-              Define la visión, arquitectura y contratos de la capa de
+-              integración de IA para el ecosistema Webvork.
+- @version 1.0.0
+- @author RaZ Podestá - MetaShark Tech
+  \*/
 
 # Manifiesto TEMEO: The Elite Motor of AI
 
@@ -26,9 +27,9 @@ TEMA se construye sobre cuatro pilares innegociables:
 
 La primera implementación de TEMA se centra en Google Gemini.
 
-*   **Cliente (`gemini.client.ts`):** Un cliente de servidor que encapsula el SDK `@google/generative-ai`. Maneja la autenticación, la ejecución de prompts y el manejo de errores.
-*   **Configuración (`models.config.ts`):** Un manifiesto que define los modelos de Gemini disponibles (ej. `gemini-pro`, `gemini-1.5-flash`), permitiendo que la UI sea dinámica.
-*   **Contratos (`gemini.schemas.ts`):** Schemas de Zod que validan las peticiones (`GenerateTextRequestSchema`) y las respuestas, garantizando la seguridad de tipos.
+- **Cliente (`gemini.client.ts`):** Un cliente de servidor que encapsula el SDK `@google/generative-ai`. Maneja la autenticación, la ejecución de prompts y el manejo de errores.
+- **Configuración (`models.config.ts`):** Un manifiesto que define los modelos de Gemini disponibles (ej. `gemini-pro`, `gemini-1.5-flash`), permitiendo que la UI sea dinámica.
+- **Contratos (`gemini.schemas.ts`):** Schemas de Zod que validan las peticiones (`GenerateTextRequestSchema`) y las respuestas, garantizando la seguridad de tipos.
 
 ## 4. SSoT de Datos: Contratos de Petición y Respuesta
 
@@ -57,3 +58,4 @@ CogniRead recibe el texto estructurado y lo procesa.
 v1.1: Abstracción de la API. Crear una interfaz TEMA.generateText que internamente pueda enrutar a gemini.generateText u otro proveedor.
 v1.2: Soporte para Vertex AI.
 v2.0: Implementación de caché de respuestas para reducir costes y latencia.
+```

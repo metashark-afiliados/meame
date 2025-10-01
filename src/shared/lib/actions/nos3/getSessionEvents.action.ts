@@ -6,7 +6,7 @@
  *              v1.2.0 (Elite Observability Injection): Inyectado con un sistema
  *              de tracing para una depuración y observabilidad de nivel superior.
  * @version 1.2.0
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use server";
 

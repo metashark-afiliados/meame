@@ -3,49 +3,25 @@
     "devDashboardPage": {
       "pageHeader": {
         "title": "Developer Command Center",
-        "subtitle": "Strumenti forgiati per dominare l'intero ciclo di vita dello sviluppo di élite.",
-        "lightRays": {
-          "raysColor": "primary",
-          "raysOrigin": "top-center",
-          "raysSpeed": 0.8,
-          "lightSpread": 0.5,
-          "rayLength": 1.1,
-          "mouseInfluence": 0.05
-        }
+        "subtitle": "Strumenti forgiati per dominare l'intero ciclo di vita dello sviluppo di élite."
       },
-      "tools": {
-        "campaignDesignSuite": {
-          "name": "La Fucina Creativa (SDC)",
-          "description": "L'epicentro dell'ecosistema RaZ WriTe. Forgia la strategia in campagne ad alta conversione."
+      "magicBento": {
+        "config": {
+          "textAutoHide": true,
+          "enableStars": true,
+          "enableSpotlight": true,
+          "enableBorderGlow": true,
+          "enableTilt": true,
+          "glowColor": "primary"
         },
-        "bavi": {
-          "name": "L'Arsenale Visivo (BAVI)",
-          "description": "La fonte unica di verità per ogni asset visivo che alimenta l'ecosistema RaZ WriTe."
-        },
-        "razPrompts": {
-          "name": "La Cripta Genomica (RaZPrompts)",
-          "description": "Cataloga il DNA creativo di ogni asset nella BAVI per garantire la riproducibilità dell'eccellenza."
-        },
-        "cogniRead": {
-          "name": "Il Motore di Credibilità (CogniRead)",
-          "description": "Trasforma la ricerca scientifica in potenti asset di autorità per l'ecosistema RaZ WriTe."
-        },
-        "nos3": {
-          "name": "Il Sistema Nervoso Digitale (Nos3)",
-          "description": "Guarda attraverso gli occhi dell'utente per ottimizzare ogni interazione nell'ecosistema RaZ WriTe."
-        },
-        "aether": {
-          "name": "Il Sandbox Cinematico (Aether)",
-          "description": "Il nostro motore di rendering di élite per forgiare le esperienze visive immersive del nostro marchio."
-        },
-        "analytics": {
-          "name": "Il Pannello di Comando Analitico",
-          "description": "Misura i KPI e il rendimento degli asset generati dall'ecosistema RaZ WriTe."
-        },
-        "resilienceShowcase": {
-          "name": "Il Laboratorio di Resilienza",
-          "description": "Il terreno di prova dove ogni componente viene testato sotto stress prima di unirsi all'ecosistema RaZ WriTe."
-        }
+        "cards": [
+          { "label": "Creatività", "title": "La Fucina (SDC)", "description": "Forgia campagne ad alta conversione." },
+          { "label": "Asset", "title": "L'Arsenale (BAVI)", "description": "La SSoT per tutti gli asset visivi." },
+          { "label": "Genoma", "title": "La Cripta (RaZPrompts)", "description": "Cataloga il DNA creativo dei tuoi asset." },
+          { "label": "Credibilità", "title": "Il Motore (CogniRead)", "description": "Trasforma la scienza in autorità." },
+          { "label": "UX", "title": "Il Sistema Nervoso (Nos3)", "description": "Guarda attraverso gli occhi dell'utente." },
+          { "label": "Resilienza", "title": "Il Laboratorio", "description": "Stress-test per ogni componente." }
+        ]
       }
     }
   },
@@ -53,49 +29,25 @@
     "devDashboardPage": {
       "pageHeader": {
         "title": "Centro de Comando del Desarrollador",
-        "subtitle": "Herramientas forjadas para dominar el ciclo de vida completo del desarrollo de élite.",
-        "lightRays": {
-          "raysColor": "primary",
-          "raysOrigin": "top-center",
-          "raysSpeed": 0.8,
-          "lightSpread": 0.5,
-          "rayLength": 1.1,
-          "mouseInfluence": 0.05
-        }
+        "subtitle": "Herramientas forjadas para dominar el ciclo de vida completo del desarrollo de élite."
       },
-      "tools": {
-        "campaignDesignSuite": {
-          "name": "La Forja Creativa (SDC)",
-          "description": "El epicentro del ecosistema RaZ WriTe. Forja la estrategia en campañas de alta conversión."
+      "magicBento": {
+        "config": {
+          "textAutoHide": true,
+          "enableStars": true,
+          "enableSpotlight": true,
+          "enableBorderGlow": true,
+          "enableTilt": true,
+          "glowColor": "primary"
         },
-        "bavi": {
-          "name": "El Arsenal Visual (BAVI)",
-          "description": "La única fuente de verdad para cada activo visual que alimenta el ecosistema RaZ WriTe."
-        },
-        "razPrompts": {
-          "name": "La Bóveda Genómica (RaZPrompts)",
-          "description": "Cataloga el ADN creativo de cada activo en la BAVI para garantizar la reproducibilidad de la excelencia."
-        },
-        "cogniRead": {
-          "name": "El Motor de Credibilidad (CogniRead)",
-          "description": "Transforma la investigación científica en poderosos activos de autoridad para el ecosistema RaZ WriTe."
-        },
-        "nos3": {
-          "name": "El Sistema Nervioso Digital (Nos3)",
-          "description": "Mira a través de los ojos del usuario para optimizar cada interacción en el ecosistema RaZ WriTe."
-        },
-        "aether": {
-          "name": "El Sandbox Cinemático (Aether)",
-          "description": "Nuestro motor de renderizado de élite para forjar las experiencias visuales inmersivas de nuestra marca."
-        },
-        "analytics": {
-          "name": "El Panel de Mando Analítico",
-          "description": "Mide los KPIs y el rendimiento de los activos generados por el ecosistema RaZ WriTe."
-        },
-        "resilienceShowcase": {
-          "name": "El Laboratorio de Resiliencia",
-          "description": "El campo de pruebas donde cada componente es sometido a estrés antes de unirse al ecosistema RaZ WriTe."
-        }
+        "cards": [
+          { "label": "Creatividad", "title": "La Forja (SDC)", "description": "Forja campañas de alta conversión." },
+          { "label": "Activos", "title": "El Arsenal (BAVI)", "description": "La SSoT para todos los activos visuales." },
+          { "label": "Genoma", "title": "La Bóveda (RaZPrompts)", "description": "Cataloga el ADN creativo de tus activos." },
+          { "label": "Credibilidad", "title": "El Motor (CogniRead)", "description": "Transforma la ciencia en autoridad." },
+          { "label": "UX", "title": "El Sistema Nervioso (Nos3)", "description": "Mira a través de los ojos del usuario." },
+          { "label": "Resiliencia", "title": "El Laboratorio", "description": "Stress-test para cada componente." }
+        ]
       }
     }
   },
@@ -103,49 +55,25 @@
     "devDashboardPage": {
       "pageHeader": {
         "title": "Developer Command Center",
-        "subtitle": "Tools forged to master the entire elite development lifecycle.",
-        "lightRays": {
-          "raysColor": "primary",
-          "raysOrigin": "top-center",
-          "raysSpeed": 0.8,
-          "lightSpread": 0.5,
-          "rayLength": 1.1,
-          "mouseInfluence": 0.05
-        }
+        "subtitle": "Tools forged to master the entire elite development lifecycle."
       },
-      "tools": {
-        "campaignDesignSuite": {
-          "name": "The Creative Forge (SDC)",
-          "description": "The epicenter of the RaZ WriTe ecosystem. Forge raw strategy into high-conversion campaigns."
+      "magicBento": {
+        "config": {
+          "textAutoHide": true,
+          "enableStars": true,
+          "enableSpotlight": true,
+          "enableBorderGlow": true,
+          "enableTilt": true,
+          "glowColor": "primary"
         },
-        "bavi": {
-          "name": "The Visual Armory (BAVI)",
-          "description": "The single source of truth for every visual asset fueling the RaZ WriTe ecosystem."
-        },
-        "razPrompts": {
-          "name": "The Genomic Vault (RaZPrompts)",
-          "description": "Catalog the creative DNA of each asset in BAVI to ensure the reproducibility of excellence."
-        },
-        "cogniRead": {
-          "name": "The Credibility Engine (CogniRead)",
-          "description": "Transforms scientific research into powerful authority assets for the RaZ WriTe ecosystem."
-        },
-        "nos3": {
-          "name": "The Digital Nervous System (Nos3)",
-          "description": "See through the user's eyes to optimize every interaction within the RaZ WriTe ecosystem."
-        },
-        "aether": {
-          "name": "The Cinematic Sandbox (Aether)",
-          "description": "Our elite rendering engine for forging the immersive visual experiences that define our brand."
-        },
-        "analytics": {
-          "name": "The Analytics Dashboard",
-          "description": "Measure the KPIs and performance of assets generated by the RaZ WriTe ecosystem."
-        },
-        "resilienceShowcase": {
-          "name": "The Resilience Lab",
-          "description": "The proving ground where every component is stress-tested before joining the RaZ WriTe ecosystem."
-        }
+        "cards": [
+          { "label": "Creativity", "title": "The Forge (SDC)", "description": "Forge high-conversion campaigns." },
+          { "label": "Assets", "title": "The Armory (BAVI)", "description": "The SSoT for all visual assets." },
+          { "label": "Genome", "title": "The Vault (RaZPrompts)", "description": "Catalog the creative DNA of your assets." },
+          { "label": "Credibility", "title": "The Engine (CogniRead)", "description": "Transform science into authority." },
+          { "label": "UX", "title": "The Nervous System (Nos3)", "description": "See through the user's eyes." },
+          { "label": "Resilience", "title": "The Lab", "description": "Stress-test for every component." }
+        ]
       }
     }
   },
@@ -153,49 +81,25 @@
     "devDashboardPage": {
       "pageHeader": {
         "title": "Centro de Comando do Desenvolvedor",
-        "subtitle": "Ferramentas forjadas para dominar todo o ciclo de vida do desenvolvimento de elite.",
-        "lightRays": {
-          "raysColor": "primary",
-          "raysOrigin": "top-center",
-          "raysSpeed": 0.8,
-          "lightSpread": 0.5,
-          "rayLength": 1.1,
-          "mouseInfluence": 0.05
-        }
+        "subtitle": "Ferramentas forjadas para dominar todo o ciclo de vida do desenvolvimento de elite."
       },
-      "tools": {
-        "campaignDesignSuite": {
-          "name": "A Forja Criativa (SDC)",
-          "description": "O epicentro do ecossistema RaZ WriTe. Forje a estratégia bruta em campanhas de alta conversão."
+      "magicBento": {
+        "config": {
+          "textAutoHide": true,
+          "enableStars": true,
+          "enableSpotlight": true,
+          "enableBorderGlow": true,
+          "enableTilt": true,
+          "glowColor": "primary"
         },
-        "bavi": {
-          "name": "O Arsenal Visual (BAVI)",
-          "description": "A única fonte de verdade para cada ativo visual que alimenta o ecossistema RaZ WriTe."
-        },
-        "razPrompts": {
-          "name": "O Cofre Genômico (RaZPrompts)",
-          "description": "Catalogue o DNA criativo de cada ativo na BAVI para garantir a reprodutibilidade da excelência."
-        },
-        "cogniRead": {
-          "name": "O Motor de Credibilidade (CogniRead)",
-          "description": "Transforma pesquisa científica em poderosos ativos de autoridade para o ecossistema RaZ WriTe."
-        },
-        "nos3": {
-          "name": "O Sistema Nervoso Digital (Nos3)",
-          "description": "Veja através dos olhos do usuário para otimizar cada interação no ecossistema RaZ WriTe."
-        },
-        "aether": {
-          "name": "O Sandbox Cinemático (Aether)",
-          "description": "Nosso motor de renderização de elite para forjar as experiências visuais imersivas da nossa marca."
-        },
-        "analytics": {
-          "name": "O Painel de Análise",
-          "description": "Meça os KPIs e o desempenho dos ativos gerados pelo ecossistema RaZ WriTe."
-        },
-        "resilienceShowcase": {
-          "name": "O Laboratório de Resiliência",
-          "description": "O campo de testes onde cada componente é submetido a estresse antes de se juntar ao ecossistema RaZ WriTe."
-        }
+        "cards": [
+          { "label": "Criatividade", "title": "A Forja (SDC)", "description": "Forje campanhas de alta conversão." },
+          { "label": "Ativos", "title": "O Arsenal (BAVI)", "description": "A SSoT para todos os ativos visuais." },
+          { "label": "Genoma", "title": "O Cofre (RaZPrompts)", "description": "Catalogue o DNA criativo de seus ativos." },
+          { "label": "Credibilidade", "title": "O Motor (CogniRead)", "description": "Transforme ciência em autoridade." },
+          { "label": "UX", "title": "O Sistema Nervoso (Nos3)", "description": "Veja através dos olhos do usuário." },
+          { "label": "Resiliência", "title": "O Laboratório", "description": "Teste de estresse para cada componente." }
+        ]
       }
     }
   }

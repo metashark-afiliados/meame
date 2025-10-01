@@ -3,7 +3,7 @@
  * @file draft.types.ts
  * @description SSoT para los contratos de tipos del borrador de campaña y su estado en Zustand.
  * @version 6.0.0 (Holistic & Coherent Data Model v2)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import type { z } from "zod";
 import type {

@@ -1,33 +1,39 @@
-// components/sections/ArticleBody.tsx
+// RUTA: src/components/sections/ArticleBody.tsx
 /**
  * @file ArticleBody.tsx
- * @description Componente de presentación puro para renderizar el cuerpo de un artículo.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente de presentación de élite para renderizar el cuerpo de un artículo.
+ *              v2.0.0 (Secure Markdown Rendering): Reemplaza `dangerouslySetInnerHTML`
+ *              con `react-markdown` y `rehype-sanitize` para un renderizado seguro,
+ *              robusto y con soporte completo para Markdown, eliminando vulnerabilidades XSS.
+ * @version 2.0.0
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
 import React from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
 import { Container } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
 
 interface ArticleBodyProps {
-  content: string; // El contenido en formato Markdown
+  content: string; // El contenido ahora se espera que sea un string de Markdown.
 }
 
 export function ArticleBody({ content }: ArticleBodyProps): React.ReactElement {
-  logger.trace("[ArticleBody] Renderizando contenido Markdown.");
+  const traceId = logger.startTrace("ArticleBody_Render_v2.0");
+  logger.info(
+    "[ArticleBody] Renderizando contenido Markdown de forma segura.",
+    { traceId }
+  );
 
-  // En una app de producción, aquí usaríamos una librería como react-markdown
-  // para convertir de forma segura el Markdown a HTML.
-  // Por simplicidad, lo renderizamos dentro de un div con estilos de prosa.
   return (
     <Container className="max-w-4xl py-12">
-      <div
-        className="prose prose-invert lg:prose-xl mx-auto"
-        dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, "<br />") }} // Simulación simple
-      />
+      <article className="prose dark:prose-invert lg:prose-xl mx-auto">
+        <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+          {content}
+        </ReactMarkdown>
+      </article>
     </Container>
   );
 }
-// components/sections/ArticleBody.tsx

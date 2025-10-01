@@ -6,7 +6,7 @@
  *              debe importar componentes de presentación puros ("use client") para
  *              garantizar la integridad del build.
  * @version 7.0.0 (Server-Client Boundary Enforcement)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import type { ComponentType } from "react";
 import { logger } from "@/shared/lib/logging";

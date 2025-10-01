@@ -5,7 +5,7 @@
  *              Implementa tracking de doble embudo, persistencia encriptada
  *              y envío robusto por lotes, cumpliendo con los 8 Pilares de Calidad.
  * @version 6.0.0 (Elite & Fully Operational)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
@@ -159,7 +159,9 @@ export function useAuraTracker({
               { traceId }
             );
           } else {
-            throw new Error(`El servidor respondió con estado ${response.status}`);
+            throw new Error(
+              `El servidor respondió con estado ${response.status}`
+            );
           }
         }
       } catch (error) {
@@ -214,7 +216,16 @@ export function useAuraTracker({
         );
       }
     },
-    [enabled, scope, fingerprintId, campaignId, variantId, pathname, sendBatch, traceId]
+    [
+      enabled,
+      scope,
+      fingerprintId,
+      campaignId,
+      variantId,
+      pathname,
+      sendBatch,
+      traceId,
+    ]
   );
 
   useEffect(() => {

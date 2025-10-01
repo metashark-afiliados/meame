@@ -6,7 +6,7 @@
  *              datos completo y está blindado con guardianes de resiliencia
  *              y observabilidad de élite.
  * @version 11.2.0 (Definitive React Hooks & Data Flow Restoration)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

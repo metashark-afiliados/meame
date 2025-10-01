@@ -2,14 +2,14 @@
 /**
  * @file product-detail-page.schema.ts
  * @description SSoT para el contrato de datos del contenido i18n de una
- *              página de detalle de producto.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ *              página de detalle de producto, ahora con contenido estructurado.
+ * @version 3.0.0 (Structured Content Blocks)
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
-import { ContentBlocksSchema } from "@/shared/lib/schemas/components/content-block.schema";
 import { ProductSchema } from "@/shared/lib/schemas/entities/product.schema";
 import { ShareButtonContentSchema } from "../components/share-button.schema";
+import { ContentBlocksSchema } from "../components/content-block.schema";
 
 export const ProductDetailPageContentSchema = z.object({
   productData: ProductSchema,
@@ -33,4 +33,3 @@ export const ProductDetailPageContentSchema = z.object({
 export const ProductDetailPageLocaleSchema = z.record(
   ProductDetailPageContentSchema
 );
-// RUTA: src/shared/lib/schemas/pages/product-detail-page.schema.ts

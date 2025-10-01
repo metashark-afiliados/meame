@@ -3,7 +3,7 @@
  * @file getCampaignTemplates.action.ts
  * @description Server Action de producción para obtener las plantillas, con transformación de datos.
  * @version 4.0.0 (Data Transformation & Elite Observability)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use server";
 
@@ -21,14 +21,21 @@ export async function getCampaignTemplatesAction(
 ): Promise<ActionResult<CampaignTemplate[]>> {
   const traceId = logger.startTrace("getCampaignTemplates_v4.0");
   const supabase = createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    logger.warn("[Action] Intento no autorizado de obtener plantillas.", { traceId });
+    logger.warn("[Action] Intento no autorizado de obtener plantillas.", {
+      traceId,
+    });
     return { success: false, error: "auth_required" };
   }
 
-  logger.info(`[Action] Solicitando plantillas para el workspace: ${workspaceId}`, { traceId });
+  logger.info(
+    `[Action] Solicitando plantillas para el workspace: ${workspaceId}`,
+    { traceId }
+  );
 
   try {
     const { data: templatesFromDb, error } = await supabase
@@ -40,7 +47,7 @@ export async function getCampaignTemplatesAction(
     if (error) throw new Error(error.message);
 
     // --- INICIO: TRANSFORMACIÓN Y GUARDIÁN DE RESILIENCIA ---
-    const transformedTemplates = templatesFromDb.map(template => ({
+    const transformedTemplates = templatesFromDb.map((template) => ({
       id: template.id,
       name: template.name,
       description: template.description,
@@ -49,23 +56,38 @@ export async function getCampaignTemplatesAction(
       draftData: template.draft_data,
     }));
 
-    const validation = z.array(CampaignTemplateSchema).safeParse(transformedTemplates);
+    const validation = z
+      .array(CampaignTemplateSchema)
+      .safeParse(transformedTemplates);
 
     if (!validation.success) {
-      logger.error("[Action] Los datos de plantilla de la DB son inválidos tras la transformación.", {
-        errors: validation.error.flatten(),
-        traceId,
-      });
+      logger.error(
+        "[Action] Los datos de plantilla de la DB son inválidos tras la transformación.",
+        {
+          errors: validation.error.flatten(),
+          traceId,
+        }
+      );
       throw new Error("Formato de datos de plantilla inesperado.");
     }
     // --- FIN: TRANSFORMACIÓN Y GUARDIÁN DE RESILIENCIA ---
 
-    logger.success(`Se recuperaron ${validation.data.length} plantillas para el workspace.`, { traceId });
+    logger.success(
+      `Se recuperaron ${validation.data.length} plantillas para el workspace.`,
+      { traceId }
+    );
     return { success: true, data: validation.data };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("Fallo crítico durante la obtención de plantillas.", { error: errorMessage, traceId });
-    return { success: false, error: `No se pudieron cargar las plantillas: ${errorMessage}` };
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("Fallo crítico durante la obtención de plantillas.", {
+      error: errorMessage,
+      traceId,
+    });
+    return {
+      success: false,
+      error: `No se pudieron cargar las plantillas: ${errorMessage}`,
+    };
   } finally {
     logger.endTrace(traceId);
   }

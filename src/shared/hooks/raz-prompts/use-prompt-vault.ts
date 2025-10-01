@@ -2,14 +2,20 @@
 /**
  * @file use-prompt-vault.ts
  * @description Hook "cerebro" para la lógica de la Bóveda de Prompts.
- * @version 3.1.0 (Diagnostic Trace Injection): Se inyecta logging de
- *              diagnóstico para trazar el flujo de obtención de datos.
- * @version 3.1.0
- * @author L.I.A. Legacy
+ *              Forjado con un guardián de resiliencia de contexto, observabilidad
+ *              holística y alineado con los 8 Pilares de Calidad.
+ * @version 5.0.0 (Elite Resilience & Holistic Observability)
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import { useState, useEffect, useTransition, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useTransition,
+  useCallback,
+  useMemo,
+} from "react";
 import { toast } from "sonner";
 import { logger } from "@/shared/lib/logging";
 import {
@@ -18,9 +24,22 @@ import {
   type EnrichedRaZPromptsEntry,
 } from "@/shared/lib/actions/raz-prompts";
 import type { RaZPromptsSesaTags } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
+import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store";
 
-export function usePromptVault(traceId: string) {
-  // [INYECCIÓN DE LOGGING]
+export function usePromptVault() {
+  const traceId = useMemo(
+    () => logger.startTrace("usePromptVault_Lifecycle_v5.0"),
+    []
+  );
+
+  useEffect(() => {
+    logger.info("[Hook] usePromptVault montado.", { traceId });
+    return () => {
+      logger.info("[Hook] usePromptVault desmontado.", { traceId });
+      logger.endTrace(traceId);
+    };
+  }, [traceId]);
+
   const [prompts, setPrompts] = useState<EnrichedRaZPromptsEntry[]>([]);
   const [totalPrompts, setTotalPrompts] = useState(0);
   const [isPending, startTransition] = useTransition();
@@ -29,52 +48,79 @@ export function usePromptVault(traceId: string) {
   const [activeFilters, setActiveFilters] = useState<
     Partial<RaZPromptsSesaTags>
   >({});
+  const activeWorkspaceId = useWorkspaceStore(
+    (state) => state.activeWorkspaceId
+  );
   const limit = 9;
 
   const fetchPrompts = useCallback(
     (input: GetPromptsInput) => {
       startTransition(async () => {
-        // [INYECCIÓN DE LOGGING]
-        logger.traceEvent(
-          traceId,
-          "[usePromptVault] Iniciando fetch de prompts...",
-          {
-            input,
-          }
-        );
+        const fetchTraceId = logger.startTrace("usePromptVault.fetchPrompts");
+        logger.traceEvent(fetchTraceId, "Iniciando fetch de prompts...", {
+          input,
+        });
+
         const result = await getPromptsAction(input);
+
         if (result.success) {
-          // [INYECCIÓN DE LOGGING]
-          logger.traceEvent(
-            traceId,
-            "[usePromptVault] Fetch de prompts exitoso.",
-            { count: result.data.prompts.length }
-          );
+          logger.traceEvent(fetchTraceId, "Fetch de prompts exitoso.", {
+            count: result.data.prompts.length,
+          });
           setPrompts(result.data.prompts);
           setTotalPrompts(result.data.total);
         } else {
-          // [INYECCIÓN DE LOGGING]
           logger.error("[usePromptVault] Fetch de prompts fallido.", {
             error: result.error,
-            traceId,
+            traceId: fetchTraceId,
           });
-          toast.error("Error al cargar prompts", { description: result.error });
+          toast.error("Error al cargar prompts", {
+            description: result.error,
+          });
           setPrompts([]);
           setTotalPrompts(0);
         }
+        logger.endTrace(fetchTraceId);
       });
     },
-    [startTransition, traceId] // [INYECCIÓN DE LOGGING]
+    [startTransition]
   );
 
   useEffect(() => {
+    // --- [INICIO] GUARDIÁN DE RESILIENCIA DE CONTEXTO ---
+    if (!activeWorkspaceId) {
+      logger.warn(
+        "[usePromptVault] Fetch omitido: no hay un workspace activo.",
+        { traceId }
+      );
+      // Limpiamos los resultados si el workspace cambia a nulo.
+      setPrompts([]);
+      setTotalPrompts(0);
+      return;
+    }
+    // --- [FIN] GUARDIÁN DE RESILIENCIA DE CONTEXTO ---
+
+    logger.traceEvent(traceId, "Disparando fetch de prompts...", {
+      page: currentPage,
+      query: searchQuery,
+      filters: activeFilters,
+      workspaceId: activeWorkspaceId,
+    });
     fetchPrompts({
       page: currentPage,
       limit,
       query: searchQuery,
       tags: activeFilters,
     });
-  }, [fetchPrompts, currentPage, searchQuery, activeFilters]);
+  }, [
+    fetchPrompts,
+    currentPage,
+    searchQuery,
+    activeFilters,
+    limit,
+    activeWorkspaceId,
+    traceId,
+  ]);
 
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();

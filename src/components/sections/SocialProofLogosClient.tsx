@@ -3,7 +3,7 @@
  * @file SocialProofLogosClient.tsx
  * @description Componente "Client Core" para la sección de prueba social.
  * @version 2.0.0 (Client Core Pattern)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 "use client";
 

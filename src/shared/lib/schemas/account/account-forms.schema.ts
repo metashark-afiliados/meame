@@ -3,7 +3,7 @@
  * @file account-forms.schema.ts
  * @description SSoT para los contratos de datos de TODOS los formularios de la página de cuenta.
  * @version 3.0.0 (Secure Password Update)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 
@@ -31,9 +31,7 @@ export type UpdateProfileFormData = z.infer<typeof UpdateProfileSchema>;
  */
 export const UpdatePasswordSchema = z
   .object({
-    currentPassword: z
-      .string()
-      .min(1, "Debes ingresar tu contraseña actual."),
+    currentPassword: z.string().min(1, "Debes ingresar tu contraseña actual."),
     newPassword: z
       .string()
       .min(8, "La nueva contraseña debe tener al menos 8 caracteres."),

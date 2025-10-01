@@ -3,7 +3,7 @@
  * @file WizardHeader.tsx
  * @description Header de la SDC, con observabilidad y resiliencia de élite.
  * @version 7.0.0 (Resilient & Observable)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

@@ -3,7 +3,7 @@
  * @file seed-bavi.ts
  * @description Script de "siembra" para poblar las tablas de la BAVI en Supabase.
  * @version 4.1.0 (Auth-Aware & Resilient)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { promises as fs } from "fs";
 import * as path from "path";

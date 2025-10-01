@@ -4,7 +4,7 @@
  * @description Componente "cerebro" de cliente para la sección de comentarios interactiva.
  *              Es 100% data-driven y no tiene conocimiento de la obtención de datos.
  * @version 2.0.0 (Elite & Decoupled)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 "use client";
 
@@ -56,7 +56,10 @@ export function CommentSectionClient({
         setComments((prev) => [...prev, result.data.newComment]);
       } else {
         toast.error(content.toast.errorTitle, {
-          description: result.error === "auth_required" ? content.toast.authError : result.error,
+          description:
+            result.error === "auth_required"
+              ? content.toast.authError
+              : result.error,
         });
       }
     });

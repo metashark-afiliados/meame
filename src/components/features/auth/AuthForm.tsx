@@ -1,21 +1,20 @@
 // RUTA: src/components/features/auth/AuthForm.tsx
 /**
  * @file AuthForm.tsx
- * @description Orquestador de UI para autenticación, inyectado con MEA/UX de élite.
- *              Gestiona la vista (login/registro) y renderiza el formulario
- *              correspondiente con animaciones y efecto 3D.
- *              v2.1.0 (Syntax Integrity Restoration): Corrige un error crítico de
- *              importación que rompía el build.
- * @version 2.1.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description Orquestador de UI para autenticación, inyectado con MEA/UX de élite,
+ *              observabilidad y un guardián de resiliencia de contrato.
+ * @version 3.0.0 (Elite Observability & Resilience Guardian)
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
-import React, { useState } from "react"; // <-- CORRECCIÓN APLICADA AQUÍ
+import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { TiltCard } from "@/components/ui/TiltCard";
-import { LoginForm } from "./_components/LoginForm";
-import { SignUpForm } from "./_components/SignUpForm";
+import { LoginForm } from "./components/LoginForm";
+import { SignUpForm } from "./components/SignUpForm";
+import { logger } from "@/shared/lib/logging";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
@@ -27,7 +26,28 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ content, locale }: AuthFormProps) {
+  logger.info("[AuthForm] Renderizando orquestador v3.0 (Elite).");
   const [view, setView] = useState<"login" | "signup">("login");
+
+  // --- [INICIO] GUARDIÁN DE RESILIENCIA DE CONTRATO ---
+  if (!content) {
+    const errorMsg =
+      "Contrato de UI violado: La prop 'content' para AuthForm es requerida.";
+    logger.error(`[Guardián] ${errorMsg}`);
+    return (
+      <DeveloperErrorDisplay
+        context="AuthForm"
+        errorMessage={errorMsg}
+        errorDetails="El Server Shell que renderiza este componente no proporcionó los datos de i18n necesarios."
+      />
+    );
+  }
+  // --- [FIN] GUARDIÁN DE RESILIENCIA DE CONTRATO ---
+
+  const handleSwitchView = (newView: "login" | "signup") => {
+    logger.trace(`[AuthForm] El usuario cambió la vista a: '${newView}'.`);
+    setView(newView);
+  };
 
   return (
     <TiltCard
@@ -51,13 +71,13 @@ export function AuthForm({ content, locale }: AuthFormProps) {
             <LoginForm
               content={content}
               locale={locale}
-              onSwitchView={() => setView("signup")}
+              onSwitchView={() => handleSwitchView("signup")}
             />
           ) : (
             <SignUpForm
               content={content}
               locale={locale}
-              onSwitchView={() => setView("login")}
+              onSwitchView={() => handleSwitchView("login")}
             />
           )}
         </motion.div>

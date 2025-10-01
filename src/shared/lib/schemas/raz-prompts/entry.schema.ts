@@ -3,7 +3,7 @@
  * @file entry.schema.ts
  * @description Schema ensamblador y SSoT para una entrada completa en RaZPrompts.
  * @version 6.0.0 (Definitive & Holistically Aligned)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 import { z } from "zod";
 import { PromptVersionSchema, RaZPromptsSesaTagsSchema } from "./atomic.schema";

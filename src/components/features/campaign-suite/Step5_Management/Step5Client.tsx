@@ -4,8 +4,8 @@
  * @description Orquestador de cliente para el Paso 5. Cumple estrictamente
  *              con las Reglas de los Hooks de React y está blindado con
  *              guardianes de resiliencia y observabilidad de élite.
- * @version 9.0.0 (React Hooks & Contract Compliance)
- * @author L.I.A. Legacy
+ * @version 9.1.0 (API Contract Compliance)
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
@@ -38,10 +38,9 @@ export function Step5Client({
   stepContent,
 }: Step5ClientProps): React.ReactElement {
   const traceId = useMemo(
-    () => logger.startTrace("Step5Client_Lifecycle_v9.0"),
+    () => logger.startTrace("Step5Client_Lifecycle_v9.1"),
     []
   );
-
   useEffect(() => {
     logger.info("[Step5Client] Componente montado y listo para operaciones.", {
       traceId,
@@ -51,9 +50,6 @@ export function Step5Client({
     };
   }, [traceId]);
 
-  // --- [INICIO: REFACTORIZACIÓN ARQUITECTÓNICA (REGLAS DE HOOKS)] ---
-  // Todos los hooks se mueven al nivel superior, ANTES de cualquier
-  // lógica condicional o retorno temprano.
   const assembledDraft = useAssembledDraft();
   const { isCelebrating, endCelebration } = useCelebrationStore();
   const { goToPrevStep } = useWizard();
@@ -114,10 +110,7 @@ export function Step5Client({
     },
     [onSaveAsTemplate, traceId]
   );
-  // --- [FIN: REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
-  // --- [GUARDIANES DE RESILIENCIA] ---
-  // Los guardianes ahora se ejecutan DESPUÉS de la llamada a los hooks.
   if (!stepContent) {
     const errorMsg =
       "Contrato de UI violado: La prop 'stepContent' es nula o indefinida.";
@@ -163,10 +156,13 @@ export function Step5Client({
         isSavingTemplate={isSavingTemplate}
         isLaunchReady={isLaunchReady}
         artifactHistorySlot={
+          // --- [INICIO DE CORRECCIÓN DE CONTRATO (TS2322)] ---
+          // Se pasa el objeto 'artifactHistory' completo a la prop 'content'.
           <ArtifactHistory
             draftId={assembledDraft.draftId}
-            title={stepContent.artifactHistoryTitle}
+            content={stepContent.artifactHistory}
           />
+          // --- [FIN DE CORRECCIÓN DE CONTRATO] ---
         }
       />
       <DigitalConfetti isActive={isCelebrating} onComplete={endCelebration} />

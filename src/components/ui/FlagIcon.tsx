@@ -3,7 +3,7 @@
  * @file FlagIcon.tsx
  * @description Componente despachador inteligente para iconos de banderas, ahora resiliente.
  * @version 2.0.0 (Resilient Fallback)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

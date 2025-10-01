@@ -25,4 +25,3 @@ export * from "./getTemplates.action";
 export * from "./getCampaignTemplates.action";
 export * from "./getArtifactDownloadUrl.action";
 export * from "./getArtifactsForDraft.action";
-

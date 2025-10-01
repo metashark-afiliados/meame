@@ -4,7 +4,7 @@
  * @description Hook soberano y agregador de estado. Ensambla el borrador de
  *              campaña completo desde los stores atómicos de Zustand.
  * @version 1.1.0 (Type Contract Restoration)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 

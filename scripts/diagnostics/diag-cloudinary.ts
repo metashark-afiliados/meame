@@ -3,7 +3,7 @@
  * @file diag-cloudinary.ts
  * @description Herramienta de diagnóstico atómica para la conexión con Cloudinary.
  * @version 2.0.0 (Elite Logging & Observability)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { v2 as cloudinary } from "cloudinary";
 import { loadEnvironment } from "./_utils";

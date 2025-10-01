@@ -3,7 +3,7 @@
  * @file getArticlesIndex.action.ts
  * @description Server Action de élite para obtener un índice de versiones.
  * @version 3.1.0 (Code Hygiene)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 "use server";
 
@@ -54,4 +54,3 @@ export async function getArticlesIndexAction(): Promise<
     };
   }
 }
-

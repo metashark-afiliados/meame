@@ -5,7 +5,7 @@
  *              definición de tipo recursiva para sub-enlaces anidados y se alinea
  *              con la arquitectura de autenticación actual.
  * @version 7.1.0 (Sign Up Button Integration & Elite Compliance)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { z } from "zod";
 

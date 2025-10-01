@@ -4,7 +4,7 @@
  * @description SSoT para la transformación de datos de la Admin API de Shopify.
  *              Inyectado con observabilidad de élite y guardianes de resiliencia.
  * @version 2.0.0 (Observable & Resilient)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import "server-only";
 import { z } from "zod";

@@ -1,9 +1,10 @@
 // RUTA: src/components/features/campaign-suite/_components/WizardClientLayout.tsx
 /**
  * @file WizardClientLayout.tsx
- * @description Componente de presentación puro para el layout de la SDC.
- * @version 14.0.0 (Data Flow Propagation)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente de presentación puro para el layout de la SDC, ahora
+ *              actúa como un conductor de datos del servidor hacia el canvas.
+ * @version 15.0.0 (Server Data Conductor)
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use client";
 
@@ -12,6 +13,8 @@ import { DynamicIcon } from "@/components/ui";
 import { LivePreviewCanvas } from "./LivePreviewCanvas";
 import { logger } from "@/shared/lib/logging";
 import type { LoadedFragments } from "@/shared/lib/actions/campaign-suite";
+import type { BaviManifest } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
+import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 interface WizardClientLayoutProps {
   children: React.ReactNode;
@@ -21,6 +24,8 @@ interface WizardClientLayoutProps {
   };
   isLoadingDraft: boolean;
   loadedFragments: LoadedFragments;
+  baviManifest: BaviManifest;
+  dictionary: Dictionary;
 }
 
 export function WizardClientLayout({
@@ -28,9 +33,11 @@ export function WizardClientLayout({
   previewContent,
   isLoadingDraft,
   loadedFragments,
+  baviManifest,
+  dictionary,
 }: WizardClientLayoutProps): React.ReactElement {
   logger.info(
-    "[WizardClientLayout] Renderizando layout de presentación v14.0."
+    "[WizardClientLayout] Renderizando layout de presentación v15.0."
   );
 
   if (isLoadingDraft) {
@@ -57,9 +64,10 @@ export function WizardClientLayout({
         <LivePreviewCanvas
           content={previewContent}
           loadedFragments={loadedFragments}
+          baviManifest={baviManifest}
+          dictionary={dictionary}
         />
       </div>
     </div>
   );
 }
-// RUTA: src/components/features/campaign-suite/_components/WizardClientLayout.tsx

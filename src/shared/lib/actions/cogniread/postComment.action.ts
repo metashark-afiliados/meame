@@ -3,7 +3,7 @@
  * @file postComment.action.ts
  * @description Server Action para publicar un nuevo comentario en un artículo.
  * @version 3.0.0 (Architecturally Pure)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
  */
 "use server";
 

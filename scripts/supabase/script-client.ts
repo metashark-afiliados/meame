@@ -4,7 +4,7 @@
  * @description SSoT para la creación de un cliente de Supabase aislado y
  *              seguro, para uso EXCLUSIVO en scripts del lado del servidor (Node.js).
  * @version 1.0.0
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { createClient } from "@supabase/supabase-js";
 import { logger } from "../../src/shared/lib/logging"; // El logger es seguro para importar

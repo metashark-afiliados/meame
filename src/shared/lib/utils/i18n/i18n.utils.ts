@@ -4,7 +4,7 @@
  * @description Aparato de utilidades puras y sin estado para la lógica de i18n.
  *              Ahora blindado para garantizar siempre un retorno de locale válido.
  * @version 2.3.0 (Resilient Fallback)
- * @author L.I.A. Legacy
+ *@author RaZ Podestá - MetaShark Tech
  */
 import {
   supportedLocales,

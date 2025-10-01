@@ -2,10 +2,13 @@
 /**
  * @file gemini.schemas.ts
  * @description SSoT para los contratos de datos de la capa de integración de Gemini.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.0.0 (Architectural Fix): Se elimina la directiva "use server".
+ *@author RaZ Podestá - MetaShark Tech
  */
-"use server";
+
+// --- [CORRECCIÓN ARQUITECTÓNICA] ---
+// Un archivo de schema no es un módulo de acción, por lo tanto no debe usar "use server".
+// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
 
 import { z } from "zod";
 import { GEMINI_MODELS } from "./models.config";

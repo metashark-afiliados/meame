@@ -2,10 +2,11 @@
 /**
  * @file session.ts
  * @description SSoT para la configuración y gestión de sesiones encriptadas.
- *              v3.0.0 (Elite Observability): Inyectado con logging de élite para
- *              trazar el ciclo de vida de la sesión en el servidor.
- * @version 3.0.0
- * @author RaZ Podestá - MetaShark Tech
+ *              v4.0.0 (Session ID Integration): Se enriquece el contrato de datos
+ *              de la sesión para incluir un identificador único y persistente,
+ *              mejorando la trazabilidad y la observabilidad.
+ * @version 4.0.0
+ *@author RaZ Podestá - MetaShark Tech
  */
 import { getIronSession, type IronSession } from "iron-session";
 import { cookies } from "next/headers";
@@ -13,6 +14,7 @@ import { logger } from "@/shared/lib/logging";
 
 // SSoT del Contrato de Datos de la Sesión
 export interface SessionData {
+  id?: string; // <-- Propiedad añadida para un ID de sesión único y logueable
   isDevAuthenticated?: boolean;
 }
 

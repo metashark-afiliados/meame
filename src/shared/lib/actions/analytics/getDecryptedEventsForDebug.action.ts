@@ -1,9 +1,10 @@
 // RUTA: src/shared/lib/actions/analytics/getDecryptedEventsForDebug.action.ts
 /**
  * @file getDecryptedEventsForDebug.action.ts
- * @description Server Action para obtener y desencriptar eventos de campaña.
- * @version 1.2.0 (Elite Code Hygiene Restoration)
- * @author L.I.A. Legacy - Asistente de Refactorización
+ * @description Server Action para obtener y desencriptar eventos de campaña, forjada
+ *              con un guardián de resiliencia granular y observabilidad de élite.
+ * @version 2.2.0 (Elite Code Hygiene Restoration)
+ *@author RaZ Podestá - MetaShark Tech
  */
 "use server";
 
@@ -39,11 +40,8 @@ interface GetDecryptedEventsInput {
 export async function getDecryptedEventsForDebugAction(
   input: GetDecryptedEventsInput
 ): Promise<ActionResult<{ events: AuraEventPayload[]; total: number }>> {
-  const traceId = logger.startTrace("getDecryptedEventsForDebugAction_v1.2");
-  logger.info("[Analytics Action] Solicitando eventos encriptados...", {
-    input,
-    traceId,
-  });
+  const traceId = logger.startTrace("getDecryptedEventsForDebugAction_v2.2");
+  logger.startGroup(`[Action] Obteniendo eventos desencriptados...`);
 
   const supabase = createServerClient();
   const {
@@ -51,6 +49,7 @@ export async function getDecryptedEventsForDebugAction(
   } = await supabase.auth.getUser();
 
   if (!user && !input.sessionId) {
+    logger.warn("[Action] Intento no autorizado.", { traceId });
     return { success: false, error: "auth_required" };
   }
 
@@ -59,19 +58,15 @@ export async function getDecryptedEventsForDebugAction(
     const offset = (page - 1) * limit;
 
     let queryBuilder;
-    let targetTable: "anonymous_campaign_events" | "visitor_campaign_events";
-
     if (userId) {
-      targetTable = "visitor_campaign_events";
       queryBuilder = supabase
-        .from(targetTable)
+        .from("visitor_campaign_events")
         .select("*, count()", { count: "exact" })
         .eq("user_id", userId)
         .eq("campaign_id", campaignId);
     } else if (sessionId) {
-      targetTable = "anonymous_campaign_events";
       queryBuilder = supabase
-        .from(targetTable)
+        .from("anonymous_campaign_events")
         .select("*, count()", { count: "exact" })
         .eq("session_id", sessionId)
         .eq("campaign_id", campaignId);
@@ -79,17 +74,44 @@ export async function getDecryptedEventsForDebugAction(
       throw new Error("Se requiere un userId o sessionId.");
     }
 
+    logger.traceEvent(traceId, "Ejecutando consulta a Supabase...", { input });
     const { data, error, count } = await queryBuilder
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) throw new Error(error.message);
     if (!data) return { success: true, data: { events: [], total: 0 } };
+    logger.traceEvent(
+      traceId,
+      `Se obtuvieron ${data.length} eventos de la DB.`
+    );
 
     const decryptedEvents: AuraEventPayload[] = data.map(
       (event: SupabaseEventRecord) => {
+        const baseEventData = {
+          eventType: event.event_type,
+          sessionId: event.session_id,
+          campaignId: event.campaign_id,
+          variantId: event.variant_id,
+          timestamp: new Date(event.created_at).getTime(),
+        };
+
+        let decryptedPayloadString: string;
         try {
-          const decryptedPayloadString = decryptServerData(event.payload);
+          decryptedPayloadString = decryptServerData(event.payload);
+        } catch {
+          // --- [INICIO DE CORRECCIÓN DE HIGIENE] --- Se elimina `_decryptionError`
+          logger.warn(
+            `[Action] Fallo al desencriptar payload para evento ${event.id}`,
+            { traceId, eventId: event.id }
+          );
+          return {
+            ...baseEventData,
+            payload: { error: "Failed to decrypt payload." },
+          };
+        } // --- [FIN DE CORRECCIÓN DE HIGIENE] ---
+
+        try {
           const decryptedPayloadObject = JSON.parse(decryptedPayloadString);
           const validation = AuraEventSchema.pick({
             eventType: true,
@@ -99,37 +121,33 @@ export async function getDecryptedEventsForDebugAction(
             variantId: true,
             timestamp: true,
           }).safeParse({
-            eventType: event.event_type,
+            ...baseEventData,
             payload: decryptedPayloadObject,
-            sessionId: event.session_id,
-            campaignId: event.campaign_id,
-            variantId: event.variant_id,
-            timestamp: new Date(event.created_at).getTime(),
           });
 
           if (!validation.success) {
-            return {
-              eventType: event.event_type,
-              sessionId: event.session_id,
-              campaignId: event.campaign_id,
-              variantId: event.variant_id,
-              timestamp: new Date(event.created_at).getTime(),
-              payload: decryptedPayloadObject,
-            };
+            logger.warn(
+              `[Action] Payload desencriptado para evento ${event.id} no cumple con el schema.`,
+              { traceId, eventId: event.id, errors: validation.error.flatten() }
+            );
           }
-          return validation.data;
+          return { ...baseEventData, payload: decryptedPayloadObject };
         } catch {
-          // --- CORRECCIÓN DE HIGIENE DE CÓDIGO APLICADA AQUÍ ---
+          // --- [INICIO DE CORRECCIÓN DE HIGIENE] --- Se elimina `_parseError`
+          logger.warn(
+            `[Action] Fallo al parsear JSON del payload para evento ${event.id}`,
+            { traceId, eventId: event.id }
+          );
           return {
-            eventType: event.event_type,
-            sessionId: event.session_id,
-            campaignId: event.campaign_id,
-            variantId: event.variant_id,
-            timestamp: new Date(event.created_at).getTime(),
-            payload: { error: "Failed to decrypt or parse payload" },
+            ...baseEventData,
+            payload: { error: "Failed to parse decrypted JSON payload." },
           };
-        }
+        } // --- [FIN DE CORRECCIÓN DE HIGIENE] ---
       }
+    );
+    logger.traceEvent(
+      traceId,
+      `Se procesaron ${decryptedEvents.length} eventos.`
     );
 
     return {
@@ -138,12 +156,17 @@ export async function getDecryptedEventsForDebugAction(
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error("[Action] Fallo crítico al obtener eventos.", {
+      error: errorMessage,
+      traceId,
+    });
     return {
       success: false,
       error: `No se pudieron obtener los eventos: ${errorMessage}`,
     };
   } finally {
+    logger.endGroup();
     logger.endTrace(traceId);
   }
 }
