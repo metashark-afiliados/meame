@@ -1,9 +1,9 @@
 // RUTA: scripts/diagnostics/diag-shopify.ts
 /**
  * @file diag-shopify.ts
- * @description Guardián de Integridad de Shopify, ahora arquitectónicamente aislado,
- *              con observabilidad de élite y un flujo de control resiliente.
- * @version 5.0.0 (Elite & Resilient)
+ * @description Guardián de Integridad de Shopify, forjado con resiliencia ante
+ *              errores de API, observabilidad de élite y un flujo de control robusto.
+ * @version 5.1.0 (API Error Resilience)
  * @author L.I.A. Legacy
  */
 import chalk from "chalk";
@@ -13,9 +13,8 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import type { ActionResult } from "@/shared/lib/types/actions.types";
 
-// --- INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA: LÓGICA AISLADA ---
+// --- CONTRATOS SOBERANOS ---
 
-// Se mueven los contratos y la lógica de fetch aquí, dentro del script.
 interface ShopifyError {
   message: string;
 }
@@ -30,7 +29,7 @@ interface ShopifyDiagnosticReport {
   errors: string[];
 }
 
-// La consulta no utilizada 'getAdminProductsQuery' ha sido eliminada.
+// --- LÓGICA DE BAJO NIVEL ---
 
 async function shopifyGraphQLRequest<T>(
   url: string,
@@ -52,17 +51,34 @@ async function shopifyGraphQLRequest<T>(
     body: JSON.stringify({ query }),
   });
   const json = await response.json();
+
+  // --- [INICIO] GUARDIÁN DE RESILIENCIA DE ERRORES DE API v5.1 ---
   if (json.errors) {
-    throw new Error(json.errors.map((e: ShopifyError) => e.message).join("\n"));
+    logger.error("[Shopify DAL] La API de GraphQL devolvió errores.", {
+      errors: json.errors,
+    });
+    let errorMessage = "Error desconocido de la API de GraphQL.";
+    if (Array.isArray(json.errors)) {
+      errorMessage = json.errors.map((e: ShopifyError) => e.message).join("\n");
+    } else if (typeof json.errors === "object") {
+      errorMessage = JSON.stringify(json.errors);
+    } else {
+      errorMessage = String(json.errors);
+    }
+    throw new Error(errorMessage);
   }
+  // --- [FIN] GUARDIÁN DE RESILIENCIA DE ERRORES DE API v5.1 ---
+
   return json;
 }
 
-// --- FIN DE REFACTORIZACIÓN ARQUITECTÓNICA ---
+// --- ORQUESTADOR PRINCIPAL ---
 
 async function runShopifyDiagnostics(): Promise<ActionResult<string>> {
-  const traceId = logger.startTrace("runShopifyDiagnostics_v5.0");
-  logger.startGroup("🛍️  Iniciando Diagnóstico de Shopify (v5.0 - Elite)...");
+  const traceId = logger.startTrace("runShopifyDiagnostics_v5.1");
+  logger.startGroup(
+    "🛍️  Iniciando Diagnóstico de Shopify (v5.1 - Resilient)..."
+  );
 
   const fullReport: ShopifyDiagnosticReport = {
     generatedAt: new Date().toISOString(),
@@ -103,7 +119,9 @@ async function runShopifyDiagnostics(): Promise<ActionResult<string>> {
         )
       );
     } catch (error) {
-      const msg = `Fallo al conectar con Admin API: ${error instanceof Error ? error.message : "Error"}`;
+      const msg = `Fallo al conectar con Admin API: ${
+        error instanceof Error ? error.message : "Error"
+      }`;
       fullReport.errors.push(msg);
       fullReport.connection_status.admin_api = "FAILED";
       console.error(chalk.red(`  ❌ ${msg}`));
@@ -122,20 +140,22 @@ async function runShopifyDiagnostics(): Promise<ActionResult<string>> {
       fullReport.connection_status.storefront_api = "OK";
       console.log(chalk.green("  ✅ Conexión a Storefront API exitosa."));
     } catch (error) {
-      const msg = `Fallo al conectar con Storefront API: ${error instanceof Error ? error.message : "Error"}`;
+      const msg = `Fallo al conectar con Storefront API: ${
+        error instanceof Error ? error.message : "Error"
+      }`;
       fullReport.errors.push(msg);
       fullReport.connection_status.storefront_api = "FAILED";
       console.error(chalk.red(`  ❌ ${msg}`));
       operationStatus = "failure";
     }
   } catch (error) {
-    const msg = `Excepción no controlada: ${error instanceof Error ? error.message : "Error"}`;
+    const msg = `Excepción no controlada: ${
+      error instanceof Error ? error.message : "Error"
+    }`;
     fullReport.errors.push(msg);
     operationStatus = "failure";
   }
 
-  // --- REFACTORIZACIÓN DE CONTROL DE FLUJO SEGURO ---
-  // La lógica de escritura de archivo y retorno se mueve fuera del bloque finally.
   const reportDir = path.resolve(process.cwd(), "shopify", "reports");
   await fs.mkdir(reportDir, { recursive: true });
   const reportPath = path.resolve(reportDir, `latest-shopify-diagnostics.json`);
@@ -145,7 +165,9 @@ async function runShopifyDiagnostics(): Promise<ActionResult<string>> {
   logger.endTrace(traceId);
 
   if (operationStatus === "failure") {
-    finalMessage = fullReport.errors.join("\n");
+    finalMessage = `Diagnóstico fallido. Revisa tus credenciales de Shopify en .env.local. Detalles: \n- ${fullReport.errors.join(
+      "\n- "
+    )}`;
     return { success: false, error: finalMessage };
   }
 
