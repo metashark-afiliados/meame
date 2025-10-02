@@ -1,106 +1,93 @@
-// RUTA: src/app/[locale]/(public)/page.tsx
+// RUTA: src/app/[locale]/(public)/news/page.tsx
 /**
  * @file page.tsx
- * @description Homepage del portal, actuando como un "Ensamblador de Servidor"
- *              de élite, con integridad de contrato restaurada y resiliencia mejorada.
- * @version 15.0.0 (Holistic Contract Restoration & Elite Resilience)
+ * @description Página de índice del blog ("Server Shell"), forjada con resiliencia,
+ *              observabilidad de élite y una arquitectura de importación soberana.
+ * @version 1.0.0 (Holistic Elite Leveling)
  * @author L.I.A. Legacy
  */
+import "server-only";
 import React from "react";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
-import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 import { SectionAnimator } from "@/components/layout/SectionAnimator";
-import {
-  SocialProofLogos,
-  CommunitySection,
-  ScrollingBanner,
-  HeroNews,
-  NewsGrid,
-} from "@/components/sections";
+// --- [INICIO] REFACTORIZACIÓN POR ERRADICACIÓN DE BARREL FILE ---
+import { HeroNews } from "@/components/sections/HeroNews";
+import { NewsGrid } from "@/components/sections/NewsGrid";
+// --- [FIN] REFACTORIZACIÓN POR ERRADICACIÓN DE BARREL FILE ---
 import { getPublishedArticlesAction } from "@/shared/lib/actions/cogniread";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 
-interface HomePageProps {
+interface NewsPageProps {
   params: { locale: Locale };
 }
 
-export default async function HomePage({ params: { locale } }: HomePageProps) {
-  const traceId = logger.startTrace("HomePage_Render_v15.0");
+export default async function NewsPage({ params: { locale } }: NewsPageProps) {
+  const traceId = logger.startTrace("NewsPage_Render_v1.0");
   logger.startGroup(
-    `[HomePage Shell] Renderizando v15.0 para locale: ${locale}`
+    `[NewsPage Shell] Ensamblando datos para locale: ${locale}...`,
+    traceId
   );
 
   try {
+    logger.traceEvent(
+      traceId,
+      "Iniciando obtención de datos en paralelo (Artículos y Diccionario)..."
+    );
     const [{ dictionary, error: dictError }, articlesResult] =
       await Promise.all([
         getDictionary(locale),
-        getPublishedArticlesAction({ page: 1, limit: 4 }),
+        getPublishedArticlesAction({ page: 1, limit: 10 }), // Cargar más artículos para la página principal del blog
       ]);
+    logger.traceEvent(traceId, "Obtención de datos completada.");
 
-    const {
-      socialProofLogos,
-      communitySection,
-      scrollingBanner,
-      heroNews,
-      newsGrid,
-    } = dictionary;
+    // --- [INICIO] GUARDIÁN DE RESILIENCIA ---
+    if (dictError) throw dictError;
 
-    // --- [INICIO] GUARDIÁN DE RESILIENCIA REFORZADO ---
-    if (
-      dictError ||
-      !socialProofLogos ||
-      !communitySection ||
-      !scrollingBanner ||
-      !heroNews ||
-      !newsGrid
-    ) {
-      const missingKeys = [
-        !socialProofLogos && "socialProofLogos",
-        !communitySection && "communitySection",
-        !scrollingBanner && "scrollingBanner",
-        !heroNews && "heroNews",
-        !newsGrid && "newsGrid",
-      ]
+    const { heroNews, newsGrid } = dictionary;
+
+    if (!heroNews || !newsGrid) {
+      const missingKeys = [!heroNews && "heroNews", !newsGrid && "newsGrid"]
         .filter(Boolean)
         .join(", ");
-
       throw new Error(
-        `Faltan una o más claves de i18n esenciales. Claves ausentes: ${missingKeys}`
+        `Faltan claves de i18n esenciales. Claves ausentes: ${missingKeys}`
       );
     }
-    // --- [FIN] GUARDIÁN DE RESILIENCIA REFORZADO ---
 
     if (!articlesResult.success) {
+      // Este es un fallo recuperable en producción (mostramos la página sin artículos)
+      logger.error(
+        "[NewsPage Shell] No se pudieron obtener los artículos de CogniRead.",
+        { error: articlesResult.error, traceId }
+      );
       if (process.env.NODE_ENV === "development") {
         return (
           <DeveloperErrorDisplay
-            context="HomePage Data Fetching"
+            context="NewsPage Data Fetching"
             errorMessage="Fallo al obtener artículos publicados desde la base de datos."
             errorDetails={articlesResult.error}
           />
         );
       }
-      logger.error(
-        "[HomePage Shell] No se pudieron obtener los artículos de CogniRead en producción.",
-        { error: articlesResult.error, traceId }
-      );
     }
+    // --- [FIN] GUARDIÁN DE RESILIENCIA ---
 
     const articles: CogniReadArticle[] = articlesResult.success
       ? articlesResult.data.articles
       : [];
     const featuredArticle = articles[0];
-    const gridArticles = articles.slice(1, 4);
+    const gridArticles = articles.slice(1);
+
+    logger.success(
+      `[NewsPage Shell] Ensamblaje completado. Renderizando UI con ${articles.length} artículos.`,
+      { traceId }
+    );
 
     return (
       <SectionAnimator>
-        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
-        <ScrollingBanner content={scrollingBanner} locale={locale} />
-        <SocialProofLogos content={socialProofLogos} locale={locale} />
-        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
-
         {featuredArticle && (
           <HeroNews
             content={heroNews}
@@ -115,20 +102,20 @@ export default async function HomePage({ params: { locale } }: HomePageProps) {
             content={newsGrid}
           />
         )}
-
-        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
-        <CommunitySection content={communitySection} locale={locale} />
-        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
       </SectionAnimator>
     );
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error(`[HomePage Shell] ${errorMessage}`, { error: error, traceId });
+    logger.error(
+      "[Guardián] Fallo crítico irrecuperable en NewsPage Shell.",
+      { error: errorMessage, traceId }
+    );
+    // En un fallo crítico (ej. diccionario), mostramos el error en desarrollo.
     return (
       <DeveloperErrorDisplay
-        context="HomePage Server Shell"
-        errorMessage="Fallo crítico al renderizar el Server Shell del Homepage."
+        context="NewsPage Server Shell"
+        errorMessage="Fallo crítico al renderizar la página principal del blog."
         errorDetails={error instanceof Error ? error : errorMessage}
       />
     );

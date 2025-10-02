@@ -1,25 +1,28 @@
 // RUTA: src/components/features/commerce/StoreClient.tsx
 /**
  * @file StoreClient.tsx
- * @description Componente "cerebro" de cliente para la tienda, ahora con
- *              integridad de contrato restaurada y observabilidad de élite.
- * @version 4.0.0 (Prop Contract Restoration & Elite Compliance)
+ * @description Componente "cerebro" de cliente para la tienda, forjado con
+ *              importaciones soberanas, resiliencia y observabilidad de élite.
+ * @version 5.0.0 (Sovereign Imports & Elite Compliance)
  * @author L.I.A. Legacy
  */
 "use client";
 
 import React, { useMemo } from "react";
 import { Container } from "@/components/ui";
-import { ProductFilters } from "@/components/sections/ProductFilters";
-import { ProductGrid } from "@/components/sections/ProductGrid";
-import { FaqAccordion } from "@/components/sections/FaqAccordion";
-import { CommunitySection } from "@/components/sections/CommunitySection";
 import { useProductFilters } from "@/shared/hooks/use-product-filters";
 import type { Product } from "@/shared/lib/schemas/entities/product.schema";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
+
+// --- [INICIO] REFACTORIZACIÓN POR ERRADICACIÓN DE BARREL FILE ---
+import { ProductFilters } from "@/components/sections/ProductFilters";
+import { ProductGrid } from "@/components/sections/ProductGrid";
+import { FaqAccordion } from "@/components/sections/FaqAccordion";
+import { CommunitySection } from "@/components/sections/CommunitySection";
+// --- [FIN] REFACTORIZACIÓN POR ERRADICACIÓN DE BARREL FILE ---
 
 interface StoreClientProps {
   initialProducts: Product[];
@@ -37,33 +40,34 @@ export function StoreClient({
   locale,
 }: StoreClientProps) {
   const traceId = useMemo(
-    () => logger.startTrace("StoreClient_Lifecycle_v4.0"),
+    () => logger.startTrace("StoreClient_Lifecycle_v5.0"),
     []
   );
-  logger.info("[StoreClient] Renderizando orquestador de cliente v4.0.", {
-    traceId,
-  });
+  logger.info("[StoreClient] Renderizando orquestador v5.0.", { traceId });
 
   const { filters, setFilters, filteredProducts } =
     useProductFilters(initialProducts);
 
-  const allTags = React.useMemo(
-    () =>
-      Array.from(
-        new Set(
-          initialProducts.flatMap((p) => [
-            p.categorization.primary,
-            ...(p.categorization.secondary || []),
-          ])
-        )
-      ),
-    [initialProducts]
-  );
+  const allTags = useMemo(() => {
+    logger.traceEvent(traceId, "Calculando todas las etiquetas de productos.");
+    return Array.from(
+      new Set(
+        initialProducts.flatMap((p) => [
+          p.categorization.primary,
+          ...(p.categorization.secondary || []),
+        ])
+      )
+    );
+  }, [initialProducts, traceId]);
 
   // --- [INICIO] GUARDIÁN DE RESILIENCIA DE CONTRATO ---
-  if (!content.storePage) {
+  if (
+    !content.storePage ||
+    !content.faqAccordion ||
+    !content.communitySection
+  ) {
     const errorMsg =
-      "Contrato de UI violado: La propiedad 'content.storePage' es requerida.";
+      "Contrato de UI violado: Faltan una o más propiedades de contenido requeridas.";
     logger.error(`[Guardián] ${errorMsg}`, { traceId });
     return (
       <Container className="py-16">
@@ -91,15 +95,8 @@ export function StoreClient({
         </div>
       </Container>
 
-      {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
-      {/* Se pasa la prop 'locale' requerida a los componentes de sección */}
-      {content.faqAccordion && (
-        <FaqAccordion content={content.faqAccordion} locale={locale} />
-      )}
-      {content.communitySection && (
-        <CommunitySection content={content.communitySection} locale={locale} />
-      )}
-      {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
+      <FaqAccordion content={content.faqAccordion} locale={locale} />
+      <CommunitySection content={content.communitySection} locale={locale} />
     </>
   );
 }

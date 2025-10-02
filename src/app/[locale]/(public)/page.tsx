@@ -2,8 +2,8 @@
 /**
  * @file page.tsx
  * @description Homepage del portal, actuando como un "Ensamblador de Servidor"
- *              de élite, con integridad de contrato restaurada y resiliencia mejorada.
- * @version 15.0.0 (Holistic Contract Restoration & Elite Resilience)
+ *              de élite, ahora con importaciones quirúrgicas y soberanas.
+ * @version 16.0.0 (Surgical Imports & Barrel File Eradication)
  * @author L.I.A. Legacy
  */
 import React from "react";
@@ -12,13 +12,14 @@ import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { SectionAnimator } from "@/components/layout/SectionAnimator";
-import {
-  SocialProofLogos,
-  CommunitySection,
-  ScrollingBanner,
-  HeroNews,
-  NewsGrid,
-} from "@/components/sections";
+// --- [INICIO DE REFACTORIZACIÓN POR ERRADICACIÓN] ---
+// Se reemplaza la importación del barrel file por importaciones directas.
+import { SocialProofLogos } from "@/components/sections/SocialProofLogos";
+import { CommunitySection } from "@/components/sections/CommunitySection";
+import { ScrollingBanner } from "@/components/sections/ScrollingBanner";
+import { HeroNews } from "@/components/sections/HeroNews";
+import { NewsGrid } from "@/components/sections/NewsGrid";
+// --- [FIN DE REFACTORIZACIÓN POR ERRADICACIÓN] ---
 import { getPublishedArticlesAction } from "@/shared/lib/actions/cogniread";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 
@@ -27,9 +28,9 @@ interface HomePageProps {
 }
 
 export default async function HomePage({ params: { locale } }: HomePageProps) {
-  const traceId = logger.startTrace("HomePage_Render_v15.0");
+  const traceId = logger.startTrace("HomePage_Render_v16.0");
   logger.startGroup(
-    `[HomePage Shell] Renderizando v15.0 para locale: ${locale}`
+    `[HomePage Shell] Renderizando v16.0 para locale: ${locale}`
   );
 
   try {
@@ -47,7 +48,6 @@ export default async function HomePage({ params: { locale } }: HomePageProps) {
       newsGrid,
     } = dictionary;
 
-    // --- [INICIO] GUARDIÁN DE RESILIENCIA REFORZADO ---
     if (
       dictError ||
       !socialProofLogos ||
@@ -70,7 +70,6 @@ export default async function HomePage({ params: { locale } }: HomePageProps) {
         `Faltan una o más claves de i18n esenciales. Claves ausentes: ${missingKeys}`
       );
     }
-    // --- [FIN] GUARDIÁN DE RESILIENCIA REFORZADO ---
 
     if (!articlesResult.success) {
       if (process.env.NODE_ENV === "development") {
@@ -96,11 +95,8 @@ export default async function HomePage({ params: { locale } }: HomePageProps) {
 
     return (
       <SectionAnimator>
-        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
         <ScrollingBanner content={scrollingBanner} locale={locale} />
         <SocialProofLogos content={socialProofLogos} locale={locale} />
-        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
-
         {featuredArticle && (
           <HeroNews
             content={heroNews}
@@ -115,10 +111,7 @@ export default async function HomePage({ params: { locale } }: HomePageProps) {
             content={newsGrid}
           />
         )}
-
-        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
         <CommunitySection content={communitySection} locale={locale} />
-        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
       </SectionAnimator>
     );
   } catch (error) {

@@ -1,134 +1,90 @@
-// RUTA: src/app/[locale]/(public)/page.tsx
+// RUTA: src/app/[locale]/(public)/store/page.tsx
 /**
  * @file page.tsx
- * @description Homepage del portal, actuando como un "Ensamblador de Servidor"
- *              de élite, con integridad de contrato restaurada y resiliencia mejorada.
- * @version 15.0.0 (Holistic Contract Restoration & Elite Resilience)
+ * @description Página de la Tienda ("Server Shell"), forjada con resiliencia de
+ *              élite, observabilidad holística y una arquitectura de datos soberana.
+ * @version 4.0.0 (Holistic Elite Leveling)
  * @author L.I.A. Legacy
  */
+import "server-only";
 import React from "react";
+import { notFound } from "next/navigation";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StoreClient } from "@/components/features/commerce/StoreClient";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
+import { getProducts } from "@/shared/lib/commerce";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { SectionAnimator } from "@/components/layout/SectionAnimator";
-import {
-  SocialProofLogos,
-  CommunitySection,
-  ScrollingBanner,
-  HeroNews,
-  NewsGrid,
-} from "@/components/sections";
-import { getPublishedArticlesAction } from "@/shared/lib/actions/cogniread";
-import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 
-interface HomePageProps {
+interface StorePageProps {
   params: { locale: Locale };
 }
 
-export default async function HomePage({ params: { locale } }: HomePageProps) {
-  const traceId = logger.startTrace("HomePage_Render_v15.0");
+export default async function StorePage({
+  params: { locale },
+}: StorePageProps): Promise<React.ReactElement> {
+  const traceId = logger.startTrace("StorePage_Shell_Render_v4.0");
   logger.startGroup(
-    `[HomePage Shell] Renderizando v15.0 para locale: ${locale}`
+    `[StorePage Shell] Ensamblando datos para [${locale}]...`,
+    traceId
   );
 
   try {
-    const [{ dictionary, error: dictError }, articlesResult] =
-      await Promise.all([
-        getDictionary(locale),
-        getPublishedArticlesAction({ page: 1, limit: 4 }),
-      ]);
+    logger.traceEvent(
+      traceId,
+      "Iniciando obtención de datos en paralelo (Diccionario y Productos)..."
+    );
+    const [{ dictionary, error: dictError }, initialProducts] =
+      await Promise.all([getDictionary(locale), getProducts({ locale })]);
+    logger.traceEvent(traceId, "Obtención de datos completada.");
 
-    const {
-      socialProofLogos,
-      communitySection,
-      scrollingBanner,
-      heroNews,
-      newsGrid,
-    } = dictionary;
+    const { storePage, faqAccordion, communitySection } = dictionary;
 
-    // --- [INICIO] GUARDIÁN DE RESILIENCIA REFORZADO ---
-    if (
-      dictError ||
-      !socialProofLogos ||
-      !communitySection ||
-      !scrollingBanner ||
-      !heroNews ||
-      !newsGrid
-    ) {
+    // --- [INICIO] GUARDIÁN DE RESILIENCIA DE CONTRATO ---
+    if (dictError || !storePage || !faqAccordion || !communitySection) {
       const missingKeys = [
-        !socialProofLogos && "socialProofLogos",
+        !storePage && "storePage",
+        !faqAccordion && "faqAccordion",
         !communitySection && "communitySection",
-        !scrollingBanner && "scrollingBanner",
-        !heroNews && "heroNews",
-        !newsGrid && "newsGrid",
       ]
         .filter(Boolean)
         .join(", ");
-
       throw new Error(
-        `Faltan una o más claves de i18n esenciales. Claves ausentes: ${missingKeys}`
+        `Faltan claves de i18n esenciales. Claves ausentes: ${missingKeys}`
       );
     }
-    // --- [FIN] GUARDIÁN DE RESILIENCIA REFORZADO ---
+    logger.traceEvent(traceId, "Contenido i18n validado.");
+    // --- [FIN] GUARDIÁN DE RESILIENCIA DE CONTRATO ---
 
-    if (!articlesResult.success) {
-      if (process.env.NODE_ENV === "development") {
-        return (
-          <DeveloperErrorDisplay
-            context="HomePage Data Fetching"
-            errorMessage="Fallo al obtener artículos publicados desde la base de datos."
-            errorDetails={articlesResult.error}
-          />
-        );
-      }
-      logger.error(
-        "[HomePage Shell] No se pudieron obtener los artículos de CogniRead en producción.",
-        { error: articlesResult.error, traceId }
-      );
-    }
-
-    const articles: CogniReadArticle[] = articlesResult.success
-      ? articlesResult.data.articles
-      : [];
-    const featuredArticle = articles[0];
-    const gridArticles = articles.slice(1, 4);
+    logger.success(
+      "[StorePage Shell] Datos obtenidos y validados. Delegando al cliente...",
+      { traceId }
+    );
 
     return (
       <SectionAnimator>
-        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
-        <ScrollingBanner content={scrollingBanner} locale={locale} />
-        <SocialProofLogos content={socialProofLogos} locale={locale} />
-        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
-
-        {featuredArticle && (
-          <HeroNews
-            content={heroNews}
-            article={featuredArticle}
-            locale={locale}
-          />
-        )}
-        {gridArticles.length > 0 && (
-          <NewsGrid
-            articles={gridArticles}
-            locale={locale}
-            content={newsGrid}
-          />
-        )}
-
-        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
-        <CommunitySection content={communitySection} locale={locale} />
-        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
+        <PageHeader content={storePage} />
+        <StoreClient
+          initialProducts={initialProducts}
+          content={{ storePage, faqAccordion, communitySection }}
+          locale={locale}
+        />
       </SectionAnimator>
     );
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error(`[HomePage Shell] ${errorMessage}`, { error: error, traceId });
+    logger.error("[Guardián] Fallo crítico irrecuperable en StorePage Shell.", {
+      error: errorMessage,
+      traceId,
+    });
+    if (process.env.NODE_ENV === "production") return notFound();
     return (
       <DeveloperErrorDisplay
-        context="HomePage Server Shell"
-        errorMessage="Fallo crítico al renderizar el Server Shell del Homepage."
+        context="StorePage Server Shell"
+        errorMessage="No se pudieron cargar los datos de la tienda."
         errorDetails={error instanceof Error ? error : errorMessage}
       />
     );

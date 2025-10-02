@@ -2,8 +2,8 @@
 /**
  * @file eslint.config.mjs
  * @description SSoT para la configuración de ESLint v9+ (Flat Config).
- * @version 2.2.0 (Vendor Code Isolation)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.3.0 (CJS Environment Override)
+ * @author L.I.A. Legacy
  */
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
@@ -15,13 +15,7 @@ import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
 /** @type {import('eslint').Linter.FlatConfig[]} */
 const config = tseslint.config(
   {
-    // --- [INICIO DE MEJORA DE AISLAMIENTO] ---
-    // Se añade la ruta `public/vendor/**/*.js` al array de ignores globales.
-    // Esto asegura que los scripts de terceros, como webvork.js, no sean
-    // procesados por ESLint, previniendo errores de linting irrelevantes y
-    // mejorando ligeramente el rendimiento.
     ignores: ["**/.next/**", "**/node_modules/**", "public/vendor/**/*.js"],
-    // --- [FIN DE MEJORA DE AISLAMIENTO] ---
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
@@ -44,8 +38,21 @@ const config = tseslint.config(
       ...reactHooksPlugin.configs.recommended.rules,
     },
   },
+  // --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+  // Se añade un objeto de configuración específico para archivos CommonJS.
+  {
+    files: ["**/*.cjs"],
+    languageOptions: {
+      globals: {
+        module: "readonly",
+        require: "readonly",
+        __dirname: "readonly",
+        process: "readonly",
+      },
+    },
+  },
+  // --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
   prettierConfig
 );
 
 export default config;
-// eslint.config.mjs

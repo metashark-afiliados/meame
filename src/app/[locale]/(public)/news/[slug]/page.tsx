@@ -1,10 +1,10 @@
-// RUTA: src/app/[locale]/news/[slug]/page.tsx
+// RUTA: src/app/[locale]/(public)/news/[slug]/page.tsx
 /**
  * @file page.tsx
- * @description Página de artículo de blog, ahora blindada con un Guardián de Resiliencia
- *              Verboso y con observabilidad de élite inyectada.
- * @version 4.0.0 (Resilient & Observable)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Página de artículo de blog, blindada con un Guardián de Resiliencia
+ *              Verboso, observabilidad de élite e importaciones soberanas.
+ * @version 5.0.0 (Holistic Elite Leveling)
+ * @author L.I.A. Legacy
  */
 import React from "react";
 import { notFound } from "next/navigation";
@@ -13,7 +13,10 @@ import type { Metadata } from "next";
 import { type Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { ArticleBody, CommentSection } from "@/components/sections";
+// --- [INICIO] REFACTORIZACIÓN POR ERRADICACIÓN DE BARREL FILE ---
+import { ArticleBody } from "@/components/sections/ArticleBody";
+import { CommentSection } from "@/components/sections/CommentSection";
+// --- [FIN] REFACTORIZACIÓN POR ERRADICACIÓN DE BARREL FILE ---
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { SectionAnimator } from "@/components/layout/SectionAnimator";
 import {
@@ -57,79 +60,91 @@ export async function generateMetadata({
 export default async function NewsArticlePage({
   params: { locale, slug },
 }: NewsArticlePageProps): Promise<React.ReactElement> {
-  const traceId = logger.startTrace(`NewsArticlePage:${slug}`);
-  logger.info(
-    `[Observabilidad][SERVIDOR] Renderizando NewsArticlePage v4.0 para slug: "${slug}", locale: ${locale}`,
-    { traceId }
+  const traceId = logger.startTrace(`NewsArticlePage_Render_v5.0:${slug}`);
+  logger.startGroup(
+    `[NewsArticlePage Shell] Ensamblando datos para slug: "${slug}"...`,
+    traceId
   );
 
-  const articleResult = await getArticleBySlugAction(slug, locale);
+  try {
+    logger.traceEvent(traceId, "Iniciando obtención de datos del artículo...");
+    const articleResult = await getArticleBySlugAction(slug, locale);
+    logger.traceEvent(traceId, "Obtención de datos completada.");
 
-  if (!articleResult.success) {
-    logger.error(`[Guardián de Resiliencia] Fallo la obtención del artículo.`, {
-      error: articleResult.error,
-      traceId,
-    });
-    return (
-      <DeveloperErrorDisplay
-        context="NewsArticlePage"
-        errorMessage={`No se pudo cargar el artículo [slug: ${slug}].`}
-        errorDetails={articleResult.error}
-      />
-    );
-  }
+    // --- [INICIO] GUARDIÁN DE RESILIENCIA Y OBSERVABILIDAD ---
+    if (!articleResult.success) {
+      // Este error es crítico y debe detener el renderizado.
+      throw new Error(articleResult.error);
+    }
 
-  if (!articleResult.data.article) {
-    logger.warn(
-      `[Guardián de Resiliencia] Artículo no encontrado para slug: "${slug}". Renderizando 404.`,
+    if (!articleResult.data.article) {
+      logger.warn(
+        `[Guardián] Artículo no encontrado para slug: "${slug}". Renderizando 404.`,
+        { traceId }
+      );
+      return notFound();
+    }
+
+    const { article } = articleResult.data;
+    const content = article.content[locale];
+
+    if (!content || !content.title || !content.summary || !content.body) {
+      const errorMessage = `El contenido para el locale '${locale}' en el artículo '${article.articleId}' está incompleto o ausente.`;
+      logger.error(`[Guardián de Contrato] ${errorMessage}`, {
+        articleId: article.articleId,
+        locale,
+        traceId,
+      });
+      return notFound();
+    }
+    logger.traceEvent(traceId, "Datos y contenido del artículo validados.");
+    // --- [FIN] GUARDIÁN DE RESILIENCIA Y OBSERVABILIDAD ---
+
+    logger.success(
+      `[NewsArticlePage Shell] Ensamblaje completado. Renderizando UI para "${content.title}".`,
       { traceId }
     );
-    return notFound();
-  }
 
-  const { article } = articleResult.data;
-  const content = article.content[locale];
-
-  // --- INICIO DEL GUARDIÁN DE RESILIENCIA VERBOSO ---
-  if (!content || !content.title || !content.summary || !content.body) {
-    const errorMessage = `El contenido para el locale '${locale}' en el artículo '${article.articleId}' está incompleto o ausente.`;
-    logger.error(`[Guardián de Resiliencia] ${errorMessage}`, {
-      articleId: article.articleId,
-      locale,
-      traceId,
-    });
-    // En producción, esto mostrará una página 404, lo cual es el comportamiento correcto.
-    return notFound();
-  }
-  // --- FIN DEL GUARDIÁN DE RESILIENCIA VERBOSO ---
-
-  logger.success(
-    `[NewsArticlePage] Datos validados. Procediendo a renderizar.`,
-    { traceId }
-  );
-  logger.endTrace(traceId);
-
-  return (
-    <>
-      <PageHeader
-        content={{ title: content.title, subtitle: content.summary }}
+    return (
+      <>
+        <PageHeader
+          content={{ title: content.title, subtitle: content.summary }}
+        />
+        <SectionAnimator>
+          {article.baviHeroImageId && (
+            <div className="relative w-full aspect-video max-w-5xl mx-auto -mt-16 rounded-lg overflow-hidden shadow-lg z-10">
+              <CldImage
+                src={article.baviHeroImageId}
+                alt={content.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 1280px"
+                priority
+              />
+            </div>
+          )}
+          <ArticleBody content={content.body} />
+        </SectionAnimator>
+        <CommentSection articleId={article.articleId} articleSlug={slug} />
+      </>
+    );
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error(
+      `[Guardián] Fallo crítico irrecuperable en NewsArticlePage para slug: "${slug}"`,
+      { error: errorMessage, traceId }
+    );
+    if (process.env.NODE_ENV === "production") return notFound();
+    return (
+      <DeveloperErrorDisplay
+        context="NewsArticlePage Server Shell"
+        errorMessage={`No se pudo cargar el artículo [slug: ${slug}].`}
+        errorDetails={error instanceof Error ? error : errorMessage}
       />
-      <SectionAnimator>
-        {article.baviHeroImageId && (
-          <div className="relative w-full aspect-video max-w-5xl mx-auto -mt-16 rounded-lg overflow-hidden shadow-lg z-10">
-            <CldImage
-              src={article.baviHeroImageId}
-              alt={content.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 1280px"
-              priority
-            />
-          </div>
-        )}
-        <ArticleBody content={content.body} />
-      </SectionAnimator>
-      <CommentSection articleId={article.articleId} articleSlug={slug} />
-    </>
-  );
+    );
+  } finally {
+    logger.endGroup();
+    logger.endTrace(traceId);
+  }
 }
