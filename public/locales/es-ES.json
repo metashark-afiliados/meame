@@ -32,6 +32,16 @@
     "description": "Lo sentimos, no pudimos encontrar la página que estás buscando.",
     "buttonText": "Volver al Inicio"
   },
+  "selectLanguage": {
+    "title": "Selecciona tu idioma",
+    "subtitle": "Elige tu idioma preferido para continuar.",
+    "languages": {
+      "it-IT": "Italiano",
+      "es-ES": "Español",
+      "en-US": "Inglés",
+      "pt-BR": "Portugués"
+    }
+  },
   "aboutPage": {
     "title": "Sobre Nosotros",
     "subtitle": "Nuestra misión es potenciar el bienestar global a través de la ciencia y la innovación.",
@@ -609,7 +619,11 @@
       "emailPlaceholder": "juan.perez@example.com",
       "subjectLabel": "Asunto",
       "subjectPlaceholder": "Selecciona un asunto",
-      "subjectOptions": ["Desarrollo Web", "Marketing Digital", "Otro"],
+      "subjectOptions": [
+        "Desarrollo Web",
+        "Marketing Digital",
+        "Otro"
+      ],
       "messageLabel": "Mensaje",
       "messagePlaceholder": "Tu mensaje...",
       "submitButtonText": "Enviar Mensaje"
@@ -892,7 +906,10 @@
         "imageUrl": "/pravatar/58",
         "firstName": "Leo",
         "lastName": "Miranda",
-        "positions": ["Desarrollador Frontend", "Creador de Este Sitio Web"],
+        "positions": [
+          "Desarrollador Frontend",
+          "Creador de Este Sitio Web"
+        ],
         "socialNetworks": [
           {
             "name": "LinkedIn",
@@ -915,7 +932,9 @@
         "imageUrl": "/unsplash/woman-portrait",
         "firstName": "Elizabeth",
         "lastName": "Moore",
-        "positions": ["Diseñadora UI/UX"],
+        "positions": [
+          "Diseñadora UI/UX"
+        ],
         "socialNetworks": [
           {
             "name": "LinkedIn",
@@ -1232,7 +1251,10 @@
       },
       "categorization": {
         "primary": "Rendimiento",
-        "secondary": ["recuperacion", "fuerza"]
+        "secondary": [
+          "recuperacion",
+          "fuerza"
+        ]
       },
       "targetProfile": {
         "userType": "Atletas",

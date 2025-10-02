@@ -32,6 +32,16 @@
     "description": "Desculpe, não conseguimos encontrar a página que você está procurando.",
     "buttonText": "Voltar para o Início"
   },
+  "selectLanguage": {
+    "title": "Selecione seu idioma",
+    "subtitle": "Escolha o seu idioma de preferência para continuar.",
+    "languages": {
+      "it-IT": "Italiano",
+      "es-ES": "Espanhol",
+      "en-US": "Inglês",
+      "pt-BR": "Português"
+    }
+  },
   "aboutPage": {
     "title": "Sobre Nós",
     "subtitle": "Nossa missão é potenciar o bem-estar global através da ciência e da inovação.",
@@ -609,7 +619,11 @@
       "emailPlaceholder": "joao.silva@example.com",
       "subjectLabel": "Assunto",
       "subjectPlaceholder": "Selecione um assunto",
-      "subjectOptions": ["Desenvolvimento Web", "Marketing Digital", "Outro"],
+      "subjectOptions": [
+        "Desenvolvimento Web",
+        "Marketing Digital",
+        "Outro"
+      ],
       "messageLabel": "Mensagem",
       "messagePlaceholder": "Sua mensagem...",
       "submitButtonText": "Enviar Mensagem"
@@ -827,7 +841,10 @@
         "imageUrl": "/pravatar/58",
         "firstName": "Leo",
         "lastName": "Miranda",
-        "positions": ["Desenvolvedor Frontend", "Criador Deste Site"],
+        "positions": [
+          "Desenvolvedor Frontend",
+          "Criador Deste Site"
+        ],
         "socialNetworks": [
           {
             "name": "LinkedIn",
@@ -1127,7 +1144,10 @@
       },
       "categorization": {
         "primary": "Desempenho",
-        "secondary": ["recuperacao", "forca"]
+        "secondary": [
+          "recuperacao",
+          "forca"
+        ]
       },
       "targetProfile": {
         "userType": "Atletas",

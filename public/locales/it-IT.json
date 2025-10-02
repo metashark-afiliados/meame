@@ -32,6 +32,16 @@
     "description": "Spiacenti, non siamo riusciti a trovare la pagina che stai cercando.",
     "buttonText": "Torna alla Home"
   },
+  "selectLanguage": {
+    "title": "Seleziona la tua lingua",
+    "subtitle": "Scegli la tua lingua preferita per continuare.",
+    "languages": {
+      "it-IT": "Italiano",
+      "es-ES": "Spagnolo",
+      "en-US": "Inglese",
+      "pt-BR": "Portoghese"
+    }
+  },
   "aboutPage": {
     "title": "Chi Siamo",
     "subtitle": "La nostra missione è migliorare il benessere globale attraverso la scienza e l'innovazione.",
@@ -609,7 +619,11 @@
       "emailPlaceholder": "mario.rossi@example.com",
       "subjectLabel": "Oggetto",
       "subjectPlaceholder": "Seleziona un oggetto",
-      "subjectOptions": ["Sviluppo Web", "Marketing Digitale", "Altro"],
+      "subjectOptions": [
+        "Sviluppo Web",
+        "Marketing Digitale",
+        "Altro"
+      ],
       "messageLabel": "Messaggio",
       "messagePlaceholder": "Il tuo messaggio...",
       "submitButtonText": "Invia Messaggio"
@@ -892,7 +906,10 @@
         "imageUrl": "/pravatar/58",
         "firstName": "Leo",
         "lastName": "Miranda",
-        "positions": ["Sviluppatore Frontend", "Creatore di Questo Sito"],
+        "positions": [
+          "Sviluppatore Frontend",
+          "Creatore di Questo Sito"
+        ],
         "socialNetworks": [
           {
             "name": "LinkedIn",
@@ -915,7 +932,9 @@
         "imageUrl": "/unsplash/woman-portrait",
         "firstName": "Elizabeth",
         "lastName": "Moore",
-        "positions": ["Designer UI/UX"],
+        "positions": [
+          "Designer UI/UX"
+        ],
         "socialNetworks": [
           {
             "name": "LinkedIn",
@@ -1232,7 +1251,10 @@
       },
       "categorization": {
         "primary": "Prestazione",
-        "secondary": ["recupero", "forza"]
+        "secondary": [
+          "recupero",
+          "forza"
+        ]
       },
       "targetProfile": {
         "userType": "Atleti",
