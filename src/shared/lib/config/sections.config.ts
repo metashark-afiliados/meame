@@ -1,11 +1,11 @@
 // RUTA: src/shared/lib/config/sections.config.ts
 /**
  * @file sections.config.ts
- * @description SSoT Soberana para el registro de METADATOS y COMPONENTES de sección.
- *              v32.0.0 (Barrel File Eradication): Refactorizado para usar
- *              importaciones quirúrgicas y directas, eliminando la dependencia del
- *              "barrel file" y resolviendo el error crítico de build.
- * @version 32.0.0
+ * @description SSoT Soberana para el registro de METADATOS y COMPONENTES.
+ *              v33.0.0 (Definitive Build Fix): Refactorizado para importar
+ *              únicamente componentes seguros para el cliente, erradicando la
+ *              causa raíz de las violaciones de la frontera Cliente-Servidor.
+ * @version 33.0.0
  * @author L.I.A. Legacy
  */
 import { z } from "zod";
@@ -15,10 +15,14 @@ import * as Schemas from "@/shared/lib/schemas/components";
 import type { SectionProps } from "@/shared/lib/types/sections.types";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
-// --- [INICIO DE REFACTORIZACIÓN POR ERRADICACIÓN] ---
-// Se reemplaza la importación del "barrel file" por importaciones directas y soberanas.
+// --- [INICIO DE REFACTORIZACIÓN DEFINITIVA] ---
+// Se importan las contrapartes de CLIENTE para los componentes que tienen
+// una arquitectura dividida (Server Shell + Client Core).
+import { HeroClient } from "@/components/sections/HeroClient";
+import { SocialProofLogosClient } from "@/components/sections/SocialProofLogosClient";
+import { CommentSectionClient } from "@/components/sections/comments/CommentSectionClient";
+// Se importan los componentes que son seguros para el cliente o puros.
 import { BenefitsSection } from "@/components/sections/BenefitsSection";
-import { CommentSection } from "@/components/sections/CommentSection";
 import { CommunitySection } from "@/components/sections/CommunitySection";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { DoubleScrollingBanner } from "@/components/sections/DoubleScrollingBanner";
@@ -26,26 +30,24 @@ import { FaqAccordion } from "@/components/sections/FaqAccordion";
 import { FeaturedArticlesCarousel } from "@/components/sections/FeaturedArticlesCarousel";
 import { FeaturesSection } from "@/components/sections/FeaturesSection";
 import { GuaranteeSection } from "@/components/sections/GuaranteeSection";
-import { Hero } from "@/components/sections/Hero";
 import { HeroNews } from "@/components/sections/HeroNews";
 import { IngredientAnalysis } from "@/components/sections/IngredientAnalysis";
-import { NewsGrid } from "@/components/sections/NewsGrid";
+import { NewsGridClient } from "@/components/sections/NewsGridClient";
 import { OrderSection } from "@/components/sections/OrderSection";
 import { PricingSection } from "@/components/sections/PricingSection";
 import { ProductShowcase } from "@/components/sections/ProductShowcase";
 import { ScrollingBanner } from "@/components/sections/ScrollingBanner";
 import { ServicesSection } from "@/components/sections/ServicesSection";
-import { SocialProofLogos } from "@/components/sections/SocialProofLogos";
 import { SponsorsSection } from "@/components/sections/SponsorsSection";
 import { TeamSection } from "@/components/sections/TeamSection";
 import { TestimonialCarouselSection } from "@/components/sections/TestimonialCarouselSection";
 import { TestimonialGrid } from "@/components/sections/TestimonialGrid";
 import { TextSection } from "@/components/sections/TextSection";
 import { ThumbnailCarousel } from "@/components/sections/ThumbnailCarousel";
-// --- [FIN DE REFACTORIZACIÓN POR ERRADICACIÓN] ---
+// --- [FIN DE REFACTORIZACIÓN DEFINITIVA] ---
 
 logger.trace(
-  "[sections.config.ts] Manifiesto soberano de secciones cargado (v32.0)."
+  "[sections.config.ts] Manifiesto soberano de secciones cargado (v33.0)."
 );
 
 interface SectionMetadata {
@@ -72,7 +74,7 @@ export const sectionsConfig = {
   CommentSection: {
     dictionaryKey: "commentSection",
     schema: Schemas.CommentSectionContentSchema,
-    component: CommentSection,
+    component: CommentSectionClient, // <-- CORREGIDO
   },
   ContactSection: {
     dictionaryKey: "contactSection",
@@ -107,7 +109,7 @@ export const sectionsConfig = {
   Hero: {
     dictionaryKey: "hero",
     schema: Schemas.HeroContentSchema,
-    component: Hero,
+    component: HeroClient, // <-- CORREGIDO
   },
   HeroNews: {
     dictionaryKey: "heroNews",
@@ -122,7 +124,7 @@ export const sectionsConfig = {
   NewsGrid: {
     dictionaryKey: "newsGrid",
     schema: Schemas.NewsGridContentSchema,
-    component: NewsGrid,
+    component: NewsGridClient, // <-- CORREGIDO
   },
   OrderSection: {
     dictionaryKey: "orderSection",
@@ -152,7 +154,7 @@ export const sectionsConfig = {
   SocialProofLogos: {
     dictionaryKey: "socialProofLogos",
     schema: Schemas.SocialProofLogosContentSchema,
-    component: SocialProofLogos,
+    component: SocialProofLogosClient, // <-- CORREGIDO
   },
   SponsorsSection: {
     dictionaryKey: "sponsorsSection",
