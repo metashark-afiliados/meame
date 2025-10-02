@@ -1,5 +1,5 @@
 // RUTA: .pnpmfile.cjs
-/* eslint-env node */ // <-- DIRECTIVA SOBERANA PARA ESLINT
+/* eslint-env node */
 
 /**
  * @file .pnpmfile.cjs

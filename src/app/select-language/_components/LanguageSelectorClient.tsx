@@ -1,9 +1,10 @@
-// Ruta correcta: src/app/select-language/_components/LanguageSelectorClient.tsx
+// RUTA: src/app/select-language/_components/LanguageSelectorClient.tsx
 /**
  * @file LanguageSelectorClient.tsx
- * @description Componente de cliente para la selección de idioma con temporizador.
- * @version 2.0.0 (Holistic Elite Leveling)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente de cliente para la selección de idioma, ahora con
+ *              navegación consciente del contexto para una UX sin fisuras.
+ * @version 2.0.0 (Context-Aware Navigation & MEA/UX)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -76,7 +77,7 @@ export function LanguageSelectorClient({
           ))}
         </div>
         <div className="pt-4 text-center text-sm text-muted-foreground">
-          <p>Redirecting in {countdown} seconds...</p>
+          <p>Redirigiendo en {countdown} segundos...</p>
           <div className="w-full bg-muted rounded-full h-2.5 mt-2">
             <div
               className="bg-primary h-2.5 rounded-full transition-all duration-1000 linear"
@@ -88,4 +89,3 @@ export function LanguageSelectorClient({
     </Card>
   );
 }
-// Ruta correcta: src/app/select-language/_components/LanguageSelectorClient.tsx
