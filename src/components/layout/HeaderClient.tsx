@@ -1,11 +1,9 @@
 // RUTA: src/components/layout/HeaderClient.tsx
 /**
  * @file HeaderClient.tsx
- * @description Componente de Cliente Soberano para cabeceras, forjado con un contrato
- *              de props polimórfico y una estructura que cumple estrictamente las
- *              Reglas de los Hooks de React.
- * @version 45.0.0 (React Hooks & Architectural Contract Restoration)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Componente de Cliente Soberano para cabeceras, ahora 100% alineado con la SSoT de i18n.
+ * @version 45.1.0 (i18n SSoT Alignment)
+ *@author L.I.A. Legacy
  */
 "use client";
 
@@ -16,7 +14,7 @@ import { usePathname } from "next/navigation";
 import { type User } from "@supabase/supabase-js";
 import { motion, type Variants } from "framer-motion";
 import { logger } from "@/shared/lib/logging";
-import { type Locale } from "@/shared/lib/i18n/i18n.config";
+import { type Locale, supportedLocales } from "@/shared/lib/i18n/i18n.config";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { UserProfileData } from "@/shared/lib/actions/account/get-current-user-profile.action";
 import { Container, Button } from "@/components/ui";
@@ -69,15 +67,12 @@ export default function HeaderClient({
   logoUrl,
   content,
   currentLocale,
-  supportedLocales,
   centerComponent,
   rightComponent,
   initialCart,
 }: HeaderClientProps): React.ReactElement | null {
-  // --- [INICIO DE REFACTORIZACIÓN: ADHERENCIA A REGLAS DE HOOKS] ---
-  // Todos los hooks se declaran incondicionalmente en el nivel superior del componente.
   const traceId = useMemo(
-    () => logger.startTrace("HeaderClient_Lifecycle_v45.0"),
+    () => logger.startTrace("HeaderClient_Lifecycle_v45.1"),
     []
   );
   const pathname = usePathname();
@@ -96,7 +91,6 @@ export default function HeaderClient({
     logger.traceEvent(traceId, "Acción de usuario: Abrir panel del carrito.");
     setIsCartOpen(true);
   }, [traceId]);
-  // --- [FIN DE REFACTORIZACIÓN] ---
 
   const {
     header,
@@ -107,7 +101,6 @@ export default function HeaderClient({
     devLoginPage,
   } = content;
 
-  // --- GUARDIÁN DE RESILIENCIA (ahora después de los hooks) ---
   if (
     !header ||
     !languageSwitcher ||
