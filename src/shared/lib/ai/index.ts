@@ -2,16 +2,17 @@
 /**
  * @file index.ts (Barrel File)
  * @description Fachada pública para la Capa de Integración de IA Soberana.
- *              v2.0.0 (Architectural Fix): Se elimina la directiva "use server"
- *              para cumplir con el contrato de los módulos de servidor de Next.js.
- * @version 2.0.0
- *@author RaZ Podestá - MetaShark Tech
+ *              v3.0.0 (Architectural Purity): Se refactoriza para exportar
+ *              funciones de acción y módulos de datos puros por separado.
+ * @version 3.0.0
+ * @author L.I.A. Legacy
  */
 
-// --- [CORRECCIÓN ARQUITECTÓNICA] ---
-// Se elimina la directiva "use server"; de este archivo "barrel".
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
+// Se agrupan las exportaciones de acciones en un objeto 'gemini' para
+// mantener la API de consumo (gemini.generateText) intacta.
+import * as geminiClient from "./gemini.client";
+export const gemini = geminiClient;
 
-export * from "./gemini.client";
+// Se exportan los módulos de datos puros.
 export * from "./gemini.schemas";
 export * from "./models.config";

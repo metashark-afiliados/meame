@@ -3,7 +3,7 @@
  * @file models.config.ts
  * @description SSoT para los modelos de IA de Gemini disponibles en el ecosistema.
  * @version 2.0.0 (Architectural Fix): Se elimina la directiva "use server".
- *@author RaZ Podestá - MetaShark Tech
+ * @author RaZ Podestá - MetaShark Tech
  */
 
 // --- [CORRECCIÓN ARQUITECTÓNICA] ---

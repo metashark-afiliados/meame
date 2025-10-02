@@ -3,7 +3,7 @@
  * @file gemini.schemas.ts
  * @description SSoT para los contratos de datos de la capa de integración de Gemini.
  * @version 2.0.0 (Architectural Fix): Se elimina la directiva "use server".
- *@author RaZ Podestá - MetaShark Tech
+ * @author RaZ Podestá - MetaShark Tech
  */
 
 // --- [CORRECCIÓN ARQUITECTÓNICA] ---

@@ -1,15 +1,15 @@
-// RUTA: src/components/features/auth/_components/LoginForm.tsx
+// RUTA: src/components/features/auth/components/LoginForm.tsx
 /**
  * @file LoginForm.tsx
  * @description Componente de presentación puro para el formulario de login.
- *              v5.1.0 (Build Integrity Restoration): Corrige una ruta de importación
- *              rota, restaurando la integridad arquitectónica y del build.
- * @version 5.1.0
- *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
+ *              v8.0.0 (React Hooks Contract Restoration & Elite Compliance): Se
+ *              corrigen las reglas de los hooks y se alinea el contrato de props.
+ * @version 8.0.0
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useMemo, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,19 +21,19 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/Card";
-import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/Form";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import { DynamicIcon } from "@/components/ui/DynamicIcon";
-import { Dialog, DialogContent } from "@/components/ui/Dialog";
+  Input,
+  Button,
+  DynamicIcon,
+  Dialog,
+  DialogContent,
+  Separator,
+} from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
 import { routes } from "@/shared/lib/navigation";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
@@ -44,32 +44,44 @@ import {
 } from "@/shared/lib/schemas/auth/login.schema";
 import { loginWithPasswordAction } from "@/shared/lib/actions/auth/auth.actions";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
+import { OAuthButtons } from "./OAuthButtons";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
 type LoginFormContent = NonNullable<Dictionary["devLoginPage"]>;
+type OAuthButtonsContent = NonNullable<Dictionary["oAuthButtons"]>;
 
 interface LoginFormProps {
   content: LoginFormContent;
+  oAuthContent: OAuthButtonsContent;
   locale: Locale;
   onSwitchView: () => void;
 }
 
 const formVariants: Variants = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
+  visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
 };
 
 const fieldVariants: Variants = {
   hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0 },
+  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 120 } },
 };
 
-export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
-  logger.info("[LoginForm] Renderizando v5.1 (Build Integrity Restoration).");
+export function LoginForm({
+  content,
+  oAuthContent,
+  locale,
+  onSwitchView,
+}: LoginFormProps) {
+  const traceId = useMemo(
+    () => logger.startTrace("LoginForm_Lifecycle_v8.0"),
+    []
+  );
+  useEffect(() => {
+    logger.info("[LoginForm] Componente montado.", { traceId });
+    return () => logger.endTrace(traceId);
+  }, [traceId]);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -86,21 +98,41 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
     },
   });
 
+  if (!content || !oAuthContent) {
+    const errorMsg =
+      "Contrato de UI violado: Faltan props de contenido requeridas.";
+    logger.error(`[Guardián] ${errorMsg}`, { traceId });
+    return (
+      <DeveloperErrorDisplay context="LoginForm" errorMessage={errorMsg} />
+    );
+  }
+
   const onSubmit = (data: LoginFormData) => {
+    const submitTraceId = logger.startTrace("LoginForm_onSubmit");
+    logger.startGroup("[LoginForm] Procesando envío de credenciales...");
+
     startTransition(async () => {
       const result = await loginWithPasswordAction(data);
       if (result.success) {
         toast.success("Login exitoso. Redirigiendo...");
-        const redirectTo = searchParams.get("redirectedFrom");
-        const destination = redirectTo || routes.devDashboard.path({ locale });
-        logger.info(
-          `[LoginForm] Redirección post-login. Destino: ${destination}`
+        const redirectTo =
+          searchParams.get("redirectedFrom") ||
+          routes.devDashboard.path({ locale });
+        logger.success(
+          `[LoginForm] Autenticación con contraseña exitosa. Redirigiendo a: ${redirectTo}`,
+          { traceId: submitTraceId }
         );
-        router.push(destination);
+        router.push(redirectTo);
       } else {
         toast.error("Error de Login", { description: result.error });
         form.setError("root", { message: result.error });
+        logger.error("[LoginForm] Fallo en la autenticación por contraseña.", {
+          error: result.error,
+          traceId: submitTraceId,
+        });
       }
+      logger.endGroup();
+      logger.endTrace(submitTraceId);
     });
   };
 
@@ -215,6 +247,20 @@ export function LoginForm({ content, locale, onSwitchView }: LoginFormProps) {
               </motion.div>
             </motion.form>
           </Form>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <Separator />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                O continúa con
+              </span>
+            </div>
+          </div>
+
+          <OAuthButtons content={oAuthContent} />
+
           <div className="mt-4 text-center text-sm">
             {content.signUpPrompt}{" "}
             <button

@@ -221,6 +221,12 @@
       "table": "cogniread_articles",
       "timing": "BEFORE",
       "trigger_name": "on_cogniread_content_change"
+    },
+    {
+      "event": "INSERT",
+      "table": "profiles",
+      "timing": "AFTER",
+      "trigger_name": "on_new_profile_create_workspace"
     }
   ],
   "extensions": [
@@ -1884,6 +1890,10 @@
     },
     {
       "name": "handle_profile_update",
+      "type": "FUNCTION"
+    },
+    {
+      "name": "handle_new_profile_workspace",
       "type": "FUNCTION"
     },
     {

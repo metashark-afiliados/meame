@@ -619,11 +619,7 @@
       "emailPlaceholder": "joao.silva@example.com",
       "subjectLabel": "Assunto",
       "subjectPlaceholder": "Selecione um assunto",
-      "subjectOptions": [
-        "Desenvolvimento Web",
-        "Marketing Digital",
-        "Outro"
-      ],
+      "subjectOptions": ["Desenvolvimento Web", "Marketing Digital", "Outro"],
       "messageLabel": "Mensagem",
       "messagePlaceholder": "Sua mensagem...",
       "submitButtonText": "Enviar Mensagem"
@@ -841,10 +837,7 @@
         "imageUrl": "/pravatar/58",
         "firstName": "Leo",
         "lastName": "Miranda",
-        "positions": [
-          "Desenvolvedor Frontend",
-          "Criador Deste Site"
-        ],
+        "positions": ["Desenvolvedor Frontend", "Criador Deste Site"],
         "socialNetworks": [
           {
             "name": "LinkedIn",
@@ -1144,10 +1137,7 @@
       },
       "categorization": {
         "primary": "Desempenho",
-        "secondary": [
-          "recuperacao",
-          "forca"
-        ]
+        "secondary": ["recuperacao", "forca"]
       },
       "targetProfile": {
         "userType": "Atletas",
@@ -1367,5 +1357,10 @@
     "payButton": "Pagar Agora",
     "processingButton": "Processando Pagamento...",
     "unexpectedError": "Ocorreu um erro inesperado. Por favor, tente novamente."
+  },
+  "oAuthButtons": {
+    "google": "Continuar com o Google",
+    "apple": "Continuar com a Apple (Em Breve)",
+    "facebook": "Continuar com o Facebook (Em Breve)"
   }
 }

@@ -619,11 +619,7 @@
       "emailPlaceholder": "john.doe@example.com",
       "subjectLabel": "Subject",
       "subjectPlaceholder": "Select a subject",
-      "subjectOptions": [
-        "Web Development",
-        "Digital Marketing",
-        "Other"
-      ],
+      "subjectOptions": ["Web Development", "Digital Marketing", "Other"],
       "messageLabel": "Message",
       "messagePlaceholder": "Your message...",
       "submitButtonText": "Send Message"
@@ -841,10 +837,7 @@
         "imageUrl": "/pravatar/58",
         "firstName": "Leo",
         "lastName": "Miranda",
-        "positions": [
-          "Frontend Developer",
-          "Creator Of This Website"
-        ],
+        "positions": ["Frontend Developer", "Creator Of This Website"],
         "socialNetworks": [
           {
             "name": "LinkedIn",
@@ -1144,10 +1137,7 @@
       },
       "categorization": {
         "primary": "Performance",
-        "secondary": [
-          "recovery",
-          "strength"
-        ]
+        "secondary": ["recovery", "strength"]
       },
       "targetProfile": {
         "userType": "Athletes",
@@ -1367,5 +1357,10 @@
     "payButton": "Pay Now",
     "processingButton": "Processing Payment...",
     "unexpectedError": "An unexpected error occurred. Please try again."
+  },
+  "oAuthButtons": {
+    "google": "Continue with Google",
+    "apple": "Continue with Apple (Coming Soon)",
+    "facebook": "Continue with Facebook (Coming Soon)"
   }
 }

@@ -1,10 +1,10 @@
 // RUTA: src/shared/lib/stores/use-workspace.store.ts
 /**
  * @file use-workspace.store.ts
- * @description Store de Zustand y SSoT para gestionar el estado del workspace
- *              activo y su caché de recursos (plantillas).
- * @version 2.0.0 (Template Caching)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Store de Zustand y SSoT para gestionar el estado del workspace,
+ *              ahora con lógica de fallback resiliente para el workspace activo.
+ * @version 3.1.0 (Export Integrity Restoration)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -17,46 +17,57 @@ import type { CampaignTemplate } from "@/shared/lib/schemas/campaigns/template.s
 interface WorkspaceState {
   activeWorkspaceId: string | null;
   availableWorkspaces: Workspace[];
-  templates: CampaignTemplate[]; // <-- NUEVO ESTADO PARA CACHÉ
-  isLoadingTemplates: boolean; // <-- NUEVO ESTADO DE CARGA
+  templates: CampaignTemplate[];
+  isLoadingTemplates: boolean;
 }
 
 interface WorkspaceActions {
   setActiveWorkspace: (workspaceId: string) => void;
   setAvailableWorkspaces: (workspaces: Workspace[]) => void;
-  setTemplates: (templates: CampaignTemplate[]) => void; // <-- NUEVA ACCIÓN
-  setLoadingTemplates: (isLoading: boolean) => void; // <-- NUEVA ACCIÓN
+  setTemplates: (templates: CampaignTemplate[]) => void;
+  setLoadingTemplates: (isLoading: boolean) => void;
   clearWorkspaceState: () => void;
 }
 
 const initialState: WorkspaceState = {
   activeWorkspaceId: null,
   availableWorkspaces: [],
-  templates: [], // <-- VALOR INICIAL
-  isLoadingTemplates: true, // <-- VALOR INICIAL
+  templates: [],
+  isLoadingTemplates: true,
 };
 
+// --- [INICIO DE CORRECCIÓN DE INTEGRIDAD DE BUILD] ---
+// Se añade la palabra clave 'export' para hacer el store accesible a otros módulos.
 export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
+  // --- [FIN DE CORRECCIÓN DE INTEGRIDAD DE BUILD] ---
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
       setActiveWorkspace: (workspaceId) => {
-        logger.info(
-          `[WorkspaceStore] Cambiando workspace activo a: ${workspaceId}. Invalidando caché de plantillas.`
-        );
-        set({
-          activeWorkspaceId: workspaceId,
-          templates: [],
-          isLoadingTemplates: true,
-        }); // Al cambiar de workspace, se limpia la caché de plantillas
+        const currentActiveId = get().activeWorkspaceId;
+        if (currentActiveId !== workspaceId) {
+          logger.info(
+            `[WorkspaceStore] Cambiando workspace activo a: ${workspaceId}. Invalidando caché de plantillas.`
+          );
+          set({
+            activeWorkspaceId: workspaceId,
+            templates: [],
+            isLoadingTemplates: true,
+          });
+        }
       },
       setAvailableWorkspaces: (workspaces) => {
         set((state) => {
+          const currentActiveId = state.activeWorkspaceId;
           const activeWorkspaceStillExists = workspaces.some(
-            (ws) => ws.id === state.activeWorkspaceId
+            (ws) => ws.id === currentActiveId
           );
-          if (!state.activeWorkspaceId || !activeWorkspaceStillExists) {
+
+          if (!currentActiveId || !activeWorkspaceStillExists) {
             const newActiveId = workspaces[0]?.id || null;
+            logger.info(
+              `[WorkspaceStore] Lógica de fallback activada. Nuevo workspace activo: ${newActiveId}`
+            );
             return {
               availableWorkspaces: workspaces,
               activeWorkspaceId: newActiveId,
@@ -64,6 +75,7 @@ export const useWorkspaceStore = create<WorkspaceState & WorkspaceActions>()(
               isLoadingTemplates: true,
             };
           }
+
           return { availableWorkspaces: workspaces };
         });
       },

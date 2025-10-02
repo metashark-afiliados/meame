@@ -619,11 +619,7 @@
       "emailPlaceholder": "mario.rossi@example.com",
       "subjectLabel": "Oggetto",
       "subjectPlaceholder": "Seleziona un oggetto",
-      "subjectOptions": [
-        "Sviluppo Web",
-        "Marketing Digitale",
-        "Altro"
-      ],
+      "subjectOptions": ["Sviluppo Web", "Marketing Digitale", "Altro"],
       "messageLabel": "Messaggio",
       "messagePlaceholder": "Il tuo messaggio...",
       "submitButtonText": "Invia Messaggio"
@@ -906,10 +902,7 @@
         "imageUrl": "/pravatar/58",
         "firstName": "Leo",
         "lastName": "Miranda",
-        "positions": [
-          "Sviluppatore Frontend",
-          "Creatore di Questo Sito"
-        ],
+        "positions": ["Sviluppatore Frontend", "Creatore di Questo Sito"],
         "socialNetworks": [
           {
             "name": "LinkedIn",
@@ -932,9 +925,7 @@
         "imageUrl": "/unsplash/woman-portrait",
         "firstName": "Elizabeth",
         "lastName": "Moore",
-        "positions": [
-          "Designer UI/UX"
-        ],
+        "positions": ["Designer UI/UX"],
         "socialNetworks": [
           {
             "name": "LinkedIn",
@@ -1251,10 +1242,7 @@
       },
       "categorization": {
         "primary": "Prestazione",
-        "secondary": [
-          "recupero",
-          "forza"
-        ]
+        "secondary": ["recupero", "forza"]
       },
       "targetProfile": {
         "userType": "Atleti",
@@ -1474,5 +1462,10 @@
     "payButton": "Paga Adesso",
     "processingButton": "Elaborazione Pagamento...",
     "unexpectedError": "Si è verificato un errore inaspettato. Per favore, riprova."
+  },
+  "oAuthButtons": {
+    "google": "Continua con Google",
+    "apple": "Continua con Apple (Prossimamente)",
+    "facebook": "Continua con Facebook (Prossimamente)"
   }
 }

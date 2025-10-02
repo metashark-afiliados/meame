@@ -3,8 +3,8 @@
  * @file page.tsx
  * @description Página de login para el DCC, con resiliencia de datos, logging
  *              verboso y una UX más limpia y enfocada.
- * @version 7.0.0 (Resilient & UX-Aligned)
- *@author RaZ Podestá - MetaShark Tech
+ * @version 8.0.0 (Holistic Data Propagation & Elite Observability)
+ * @author L.I.A. Legacy
  */
 import React from "react";
 import Image from "next/image";
@@ -27,8 +27,10 @@ interface DevLoginPageProps {
 export default async function DevLoginPage({
   params: { locale },
 }: DevLoginPageProps) {
-  const traceId = logger.startTrace("DevLoginPage_Render_v7.0");
-  logger.startGroup(`[DevLoginPage] Renderizando v7.0 para locale: ${locale}`);
+  const traceId = logger.startTrace("DevLoginPage_Render_v8.0");
+  logger.startGroup(
+    `[DevLoginPage Shell] Renderizando v8.0 para locale: ${locale}`
+  );
 
   let backgroundImageUrl = "/img/dev/login/bg-1.png"; // Fallback estático robusto
 
@@ -43,10 +45,18 @@ export default async function DevLoginPage({
     ]);
     logger.traceEvent(traceId, "Obtención de datos completada.");
 
-    const content = dictionary.devLoginPage;
-    if (dictError || !content) {
+    const { devLoginPage: content, oAuthButtons: oAuthContent } = dictionary;
+
+    // Guardián de Resiliencia Holístico
+    if (dictError || !content || !oAuthContent) {
+      const missingKeys = [
+        !content && "devLoginPage",
+        !oAuthContent && "oAuthButtons",
+      ]
+        .filter(Boolean)
+        .join(", ");
       throw new Error(
-        "Fallo al cargar el contenido i18n para la página de Login del DCC."
+        `Faltan claves de i18n esenciales. Ausentes: ${missingKeys}`
       );
     }
     logger.traceEvent(traceId, "Contenido i18n validado.");
@@ -66,18 +76,18 @@ export default async function DevLoginPage({
       if (publicId) {
         backgroundImageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,w_1920/${publicId}`;
         logger.success(
-          `[DevLoginPage] URL de fondo de BAVI resuelta con éxito.`,
+          `[DevLoginPage Shell] URL de fondo de BAVI resuelta con éxito.`,
           { traceId }
         );
       } else {
         logger.warn(
-          `[DevLoginPage] Asset ID '${content.backgroundImageAssetId}' no encontrado en BAVI. Usando fallback estático.`,
+          `[DevLoginPage Shell] Asset ID '${content.backgroundImageAssetId}' no encontrado en BAVI. Usando fallback estático.`,
           { traceId }
         );
       }
     }
 
-    logger.traceEvent(traceId, "Renderizando UI...");
+    logger.traceEvent(traceId, "Renderizando UI principal...");
     return (
       <div className="relative min-h-screen w-full overflow-hidden bg-background flex flex-col items-center justify-center p-4">
         <div className="absolute inset-0 z-0 opacity-20">
@@ -92,28 +102,29 @@ export default async function DevLoginPage({
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
         </div>
         <main className="relative z-10 flex w-full max-w-sm flex-col items-center">
-          <AuthForm content={content} locale={locale} />
+          <AuthForm
+            content={content}
+            oAuthContent={oAuthContent}
+            locale={locale}
+          />
         </main>
       </div>
     );
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error(
-      "[DevLoginPage] Fallo crítico durante el renderizado del Server Shell.",
-      { error: errorMessage, traceId }
+    logger.error("[DevLoginPage Shell] Fallo crítico durante el renderizado.", {
+      error: errorMessage,
+      traceId,
+    });
+    if (process.env.NODE_ENV === "production") return notFound();
+    return (
+      <DeveloperErrorDisplay
+        context="DevLoginPage Server Shell"
+        errorMessage="No se pudo renderizar la página de login."
+        errorDetails={error instanceof Error ? error : errorMessage}
+      />
     );
-
-    if (process.env.NODE_ENV === "development") {
-      return (
-        <DeveloperErrorDisplay
-          context="DevLoginPage Server Shell"
-          errorMessage="No se pudo renderizar la página de login."
-          errorDetails={error instanceof Error ? error : errorMessage}
-        />
-      );
-    }
-    return notFound();
   } finally {
     logger.endGroup();
     logger.endTrace(traceId);

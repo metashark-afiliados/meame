@@ -3,12 +3,14 @@
  * @file AuthForm.tsx
  * @description Orquestador de UI para autenticación, inyectado con MEA/UX de élite,
  *              observabilidad y un guardián de resiliencia de contrato.
- * @version 3.0.0 (Elite Observability & Resilience Guardian)
- *@author RaZ Podestá - MetaShark Tech
+ *              v4.0.0 (Elite Observability & Data Propagation): Refactorizado para
+ *              propagar correctamente el contenido a los componentes hijos.
+ * @version 4.0.0
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { TiltCard } from "@/components/ui/TiltCard";
 import { LoginForm } from "./components/LoginForm";
@@ -19,33 +21,39 @@ import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 type AuthFormContent = NonNullable<Dictionary["devLoginPage"]>;
+type OAuthButtonsContent = NonNullable<Dictionary["oAuthButtons"]>;
 
 interface AuthFormProps {
   content: AuthFormContent;
+  oAuthContent: OAuthButtonsContent;
   locale: Locale;
 }
 
-export function AuthForm({ content, locale }: AuthFormProps) {
-  logger.info("[AuthForm] Renderizando orquestador v3.0 (Elite).");
+export function AuthForm({ content, oAuthContent, locale }: AuthFormProps) {
+  const traceId = useMemo(
+    () => logger.startTrace("AuthForm_Lifecycle_v4.0"),
+    []
+  );
+  useEffect(() => {
+    logger.info("[AuthForm] Orquestador montado.", { traceId });
+    return () => logger.endTrace(traceId);
+  }, [traceId]);
+
   const [view, setView] = useState<"login" | "signup">("login");
 
-  // --- [INICIO] GUARDIÁN DE RESILIENCIA DE CONTRATO ---
-  if (!content) {
+  // --- Pilar de Resiliencia: Guardián de Contrato ---
+  if (!content || !oAuthContent) {
     const errorMsg =
-      "Contrato de UI violado: La prop 'content' para AuthForm es requerida.";
-    logger.error(`[Guardián] ${errorMsg}`);
-    return (
-      <DeveloperErrorDisplay
-        context="AuthForm"
-        errorMessage={errorMsg}
-        errorDetails="El Server Shell que renderiza este componente no proporcionó los datos de i18n necesarios."
-      />
-    );
+      "Contrato de UI violado: Faltan las props 'content' u 'oAuthContent'.";
+    logger.error(`[Guardián] ${errorMsg}`, { traceId });
+    return <DeveloperErrorDisplay context="AuthForm" errorMessage={errorMsg} />;
   }
-  // --- [FIN] GUARDIÁN DE RESILIENCIA DE CONTRATO ---
 
   const handleSwitchView = (newView: "login" | "signup") => {
-    logger.trace(`[AuthForm] El usuario cambió la vista a: '${newView}'.`);
+    logger.traceEvent(
+      traceId,
+      `Acción de usuario: Cambiando vista a '${newView}'.`
+    );
     setView(newView);
   };
 
@@ -70,12 +78,14 @@ export function AuthForm({ content, locale }: AuthFormProps) {
           {view === "login" ? (
             <LoginForm
               content={content}
+              oAuthContent={oAuthContent}
               locale={locale}
               onSwitchView={() => handleSwitchView("signup")}
             />
           ) : (
             <SignUpForm
               content={content}
+              oAuthContent={oAuthContent}
               locale={locale}
               onSwitchView={() => handleSwitchView("login")}
             />
