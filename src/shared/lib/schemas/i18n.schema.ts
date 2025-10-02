@@ -2,10 +2,10 @@
 /**
  * @file i18n.schema.ts
  * @description Aparato ensamblador y SSoT para el contrato del diccionario i18n.
- *              v34.0.0 (SelectLanguage Schema Integration): Se integra el schema
- *              faltante para la página de selección de idioma, resolviendo un
- *              error de validación de Zod en tiempo de build.
- * @version 34.0.0
+ *              v35.0.0 (Module Integrity Restoration): Se corrige la importación y
+ *              lógica de fusión para el SelectLanguagePageLocaleSchema,
+ *              restaurando la integridad del build.
+ * @version 35.0.0
  * @author L.I.A. Legacy
  */
 import { z } from "zod";
@@ -15,9 +15,7 @@ import { GlobalsLocaleSchema } from "./globals.schema";
 import { StorePageLocaleSchema } from "./pages/store-page.schema";
 import { TextPageContentSchema } from "./pages/text-page.schema";
 import { NotFoundPageLocaleSchema } from "./pages/not-found-page.schema";
-// --- [INICIO DE REFACTORIZACIÓN DE INTEGRIDAD] ---
 import { SelectLanguagePageLocaleSchema } from "./pages/select-language.schema";
-// --- [FIN DE REFACTORIZACIÓN DE INTEGRIDAD] ---
 
 // [DOMINIO DCC - PÁGINAS]
 import { DevDashboardLocaleSchema } from "./pages/dev-dashboard.schema";
