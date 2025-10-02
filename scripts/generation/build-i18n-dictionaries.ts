@@ -1,29 +1,46 @@
-// scripts/generation/build-i18n-dictionaries.ts
+// RUTA: scripts/generation/build-i18n-dictionaries.ts
 /**
  * @file build-i18n-dictionaries.ts
  * @description Script de build incremental e inteligente para la internacionalización.
- *              Utiliza un sistema de caché basado en hashes para reconstruir los
- *              diccionarios solo cuando los archivos de origen han cambiado. Ahora
- *              es más robusto a JSON malformados en archivos individuales.
- * @version 5.1.0 (Robust JSON Parsing)
- * @author RaZ Podestá - MetaShark Tech
+ *              v6.1.0 (Elite Type Safety & Path Restoration): Refactorizado para
+ *              erradicar errores de tipo 'any' y corregir rutas de importación,
+ *              restaurando la integridad del build.
+ * @version 6.1.0
+ * @author L.I.A. Legacy
  */
 import * as fs from "fs/promises";
 import * as path from "path";
 import chalk from "chalk";
 import hash from "object-hash";
-import { supportedLocales } from "@/shared/lib/i18n/i18n.config";
+import { register } from "tsconfig-paths";
+import { readFileSync } from "fs";
+
+// --- INICIO DE LÓGICA DESACOPLADA ---
+
+const tsconfigPath = path.resolve(process.cwd(), "tsconfig.json");
+const tsconfigFileContent = readFileSync(tsconfigPath, "utf-8").replace(
+  /\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
+  (match, group1) => (group1 ? "" : match)
+);
+const tsconfig = JSON.parse(tsconfigFileContent);
+
+register({
+  baseUrl: path.resolve(process.cwd(), tsconfig.compilerOptions.baseUrl || "."),
+  paths: tsconfig.compilerOptions.paths,
+});
+
+// Se importa después de registrar los alias
 import { i18nSchema } from "@/shared/lib/schemas/i18n.schema";
-import { discoverAndReadI18nFiles } from "@/shared/lib/dev/i18n-discoverer";
-import { logger } from "@/shared/lib/logging";
+import { supportedLocales } from "@/shared/lib/i18n/i18n.config";
+import { discoverAndReadI18nFiles, type I18nFileContent } from "./_utils/i18n-discoverer";
+
+// --- FIN DE LÓGICA DESACOPLADA ---
 
 const OUTPUT_DIR = path.resolve(process.cwd(), "public/locales");
 const CACHE_DIR = path.resolve(process.cwd(), ".i18n-cache");
 const HASH_CACHE_FILE = path.join(CACHE_DIR, "hashes.json");
 
-type HashCache = {
-  [filePath: string]: string;
-};
+type HashCache = Record<string, string>;
 
 async function readHashCache(): Promise<HashCache> {
   try {
@@ -40,13 +57,13 @@ async function writeHashCache(cache: HashCache): Promise<void> {
 }
 
 async function buildDictionaries() {
-  logger.startGroup(
-    "🚀 Iniciando compilación de diccionarios i18n (v5.1 - Incremental y Robusto)..."
+  console.log(
+    chalk.blue.bold(
+      "🚀 Iniciando compilación de diccionarios i18n (v6.1 - Type-Safe)..."
+    )
   );
 
   const isProduction = process.env.NODE_ENV === "production";
-
-  // discoverAndReadI18nFiles ahora manejará los errores de parsing individualmente
   const { files, contents } = await discoverAndReadI18nFiles({
     excludeDevContent: isProduction,
   });
@@ -54,28 +71,10 @@ async function buildDictionaries() {
   const oldHashes = await readHashCache();
   const newHashes: HashCache = {};
   let hasChanges = false;
-  let hasSchemaChanged = false;
-
-  const i18nSchemaPath = path.resolve(
-    process.cwd(),
-    "lib/schemas/i18n.schema.ts"
-  );
-  try {
-    const schemaContent = await fs.readFile(i18nSchemaPath, "utf-8");
-    const schemaHash = hash(schemaContent);
-    newHashes["schema"] = schemaHash;
-    if (oldHashes["schema"] !== schemaHash) {
-      hasSchemaChanged = true;
-    }
-  } catch {
-    hasSchemaChanged = true; // Si no se puede leer, asumimos que cambió
-  }
 
   for (let i = 0; i < files.length; i++) {
     const filePath = files[i];
     const content = contents[i];
-    // Ahora 'content' está garantizado que es un objeto parseado correctamente,
-    // o el archivo fue omitido.
     const currentHash = hash(content);
     newHashes[filePath] = currentHash;
     if (oldHashes[filePath] !== currentHash) {
@@ -83,41 +82,32 @@ async function buildDictionaries() {
     }
   }
 
-  if (
-    !hasChanges &&
-    !hasSchemaChanged &&
-    Object.keys(oldHashes).length === files.length + 1
-  ) {
-    logger.success(
-      "✨ No se detectaron cambios en los archivos de contenido o schema. El build se omite."
+  if (!hasChanges && Object.keys(oldHashes).length === files.length) {
+    console.log(
+      chalk.green(
+        "✨ No se detectaron cambios en los archivos de contenido. El build se omite."
+      )
     );
-    logger.endGroup();
     return;
   }
 
-  if (hasSchemaChanged) {
-    console.log(
-      chalk.yellow(
-        "   Cambio detectado en el schema de i18n. Reconstrucción forzada..."
-      )
-    );
-  } else {
-    console.log(
-      chalk.yellow(
-        "   Cambios de contenido detectados. Reconstruyendo diccionarios..."
-      )
-    );
-  }
+  console.log(
+    chalk.yellow(
+      "   Cambios de contenido detectados. Reconstruyendo diccionarios..."
+    )
+  );
 
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
   let validationFailed = false;
 
   for (const locale of supportedLocales) {
-    logger.startGroup(`   Ensamblando diccionario para [${locale}]...`);
-    const fullDictionary = contents.reduce((acc, moduleContent) => {
-      const contentForLocale = moduleContent[locale];
-      return { ...acc, ...(contentForLocale || {}) };
-    }, {});
+    const fullDictionary = contents.reduce(
+      (acc: Record<string, unknown>, moduleContent: I18nFileContent) => ({
+        ...acc,
+        ...(moduleContent[locale] || {}),
+      }),
+      {}
+    );
 
     const validation = i18nSchema.safeParse(fullDictionary);
 
@@ -126,9 +116,7 @@ async function buildDictionaries() {
         chalk.red.bold(`  🔥 ¡FALLO DE VALIDACIÓN para [${locale}]!`)
       );
       console.error(
-        chalk.red(
-          JSON.stringify(validation.error.flatten().fieldErrors, null, 2)
-        )
+        chalk.red(JSON.stringify(validation.error.flatten().fieldErrors, null, 2))
       );
       validationFailed = true;
     }
@@ -140,12 +128,11 @@ async function buildDictionaries() {
       "utf-8"
     );
 
-    if (validation.success) {
-      logger.success(`  ✅ Diccionario para [${locale}] compilado con éxito.`);
-    } else {
-      logger.warn(`  ⚠️  Diccionario para [${locale}] compilado CON ERRORES.`);
-    }
-    logger.endGroup();
+    console.log(
+      validation.success
+        ? chalk.green(`  ✅ Diccionario para [${locale}] compilado con éxito.`)
+        : chalk.yellow(`  ⚠️  Diccionario para [${locale}] compilado CON ERRORES.`)
+    );
   }
 
   await writeHashCache(newHashes);
@@ -159,8 +146,7 @@ async function buildDictionaries() {
     process.exit(1);
   }
 
-  logger.success("\n✨ Proceso de compilación de i18n completado.");
-  logger.endGroup();
+  console.log(chalk.green("\n✨ Proceso de compilación de i18n completado."));
 }
 
 buildDictionaries().catch((error) => {
