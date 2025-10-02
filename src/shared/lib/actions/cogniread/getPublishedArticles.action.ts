@@ -1,4 +1,4 @@
-// src/shared/lib/actions/cogniread/getPublishedArticles.action.ts
+// RUTA: src/shared/lib/actions/cogniread/getPublishedArticles.action.ts
 /**
  * @file getPublishedArticles.action.ts
  * @description Server Action para obtener artículos publicados.
