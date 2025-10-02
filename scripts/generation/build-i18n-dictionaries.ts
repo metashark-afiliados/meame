@@ -32,7 +32,10 @@ register({
 // Se importa después de registrar los alias
 import { i18nSchema } from "@/shared/lib/schemas/i18n.schema";
 import { supportedLocales } from "@/shared/lib/i18n/i18n.config";
-import { discoverAndReadI18nFiles, type I18nFileContent } from "./_utils/i18n-discoverer";
+import {
+  discoverAndReadI18nFiles,
+  type I18nFileContent,
+} from "./_utils/i18n-discoverer";
 
 // --- FIN DE LÓGICA DESACOPLADA ---
 
@@ -116,7 +119,9 @@ async function buildDictionaries() {
         chalk.red.bold(`  🔥 ¡FALLO DE VALIDACIÓN para [${locale}]!`)
       );
       console.error(
-        chalk.red(JSON.stringify(validation.error.flatten().fieldErrors, null, 2))
+        chalk.red(
+          JSON.stringify(validation.error.flatten().fieldErrors, null, 2)
+        )
       );
       validationFailed = true;
     }
@@ -131,7 +136,9 @@ async function buildDictionaries() {
     console.log(
       validation.success
         ? chalk.green(`  ✅ Diccionario para [${locale}] compilado con éxito.`)
-        : chalk.yellow(`  ⚠️  Diccionario para [${locale}] compilado CON ERRORES.`)
+        : chalk.yellow(
+            `  ⚠️  Diccionario para [${locale}] compilado CON ERRORES.`
+          )
     );
   }
 
