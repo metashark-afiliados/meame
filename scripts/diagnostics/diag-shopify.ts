@@ -1,11 +1,9 @@
 // RUTA: scripts/diagnostics/diag-shopify.ts
 /**
  * @file diag-shopify.ts
- * @description Guardián de Integridad de Shopify, ahora arquitectónicamente aislado.
- *              v4.0.0 (Architectural Isolation): Refactorizado para no depender
- *              de las Server Actions de la aplicación, resolviendo errores de
- *              frontera Servidor-Cliente durante la ejecución de scripts.
- * @version 4.0.0
+ * @description Guardián de Integridad de Shopify, ahora arquitectónicamente aislado,
+ *              con observabilidad de élite y un flujo de control resiliente.
+ * @version 5.0.0 (Elite & Resilient)
  * @author L.I.A. Legacy
  */
 import chalk from "chalk";
@@ -32,28 +30,7 @@ interface ShopifyDiagnosticReport {
   errors: string[];
 }
 
-const adminProductFragment = `
-  fragment adminProduct on Product {
-    id
-    title
-    status
-    createdAt
-    updatedAt
-  }
-`;
-
-const getAdminProductsQuery = `
-  query getAdminProducts($first: Int!) {
-    products(first: $first) {
-      edges {
-        node {
-          ...adminProduct
-        }
-      }
-    }
-  }
-  ${adminProductFragment}
-`;
+// La consulta no utilizada 'getAdminProductsQuery' ha sido eliminada.
 
 async function shopifyGraphQLRequest<T>(
   url: string,
@@ -84,14 +61,17 @@ async function shopifyGraphQLRequest<T>(
 // --- FIN DE REFACTORIZACIÓN ARQUITECTÓNICA ---
 
 async function runShopifyDiagnostics(): Promise<ActionResult<string>> {
-  const traceId = logger.startTrace("runShopifyDiagnostics_v4.0");
-  logger.startGroup("🛍️  Iniciando Diagnóstico de Shopify (v4.0 - Aislado)...");
+  const traceId = logger.startTrace("runShopifyDiagnostics_v5.0");
+  logger.startGroup("🛍️  Iniciando Diagnóstico de Shopify (v5.0 - Elite)...");
 
   const fullReport: ShopifyDiagnosticReport = {
     generatedAt: new Date().toISOString(),
     connection_status: {},
     errors: [],
   };
+
+  let operationStatus: "success" | "failure" = "success";
+  let finalMessage: string = "Diagnóstico de Shopify completado sin errores.";
 
   try {
     loadEnvironment([
@@ -111,6 +91,7 @@ async function runShopifyDiagnostics(): Promise<ActionResult<string>> {
 
     // Test Admin API
     try {
+      logger.traceEvent(traceId, "Probando conexión a Admin API...");
       const adminResponse = await shopifyGraphQLRequest<{
         data: { shop: { name: string } };
       }>(ADMIN_URL, ADMIN_TOKEN, `{ shop { name } }`);
@@ -126,10 +107,12 @@ async function runShopifyDiagnostics(): Promise<ActionResult<string>> {
       fullReport.errors.push(msg);
       fullReport.connection_status.admin_api = "FAILED";
       console.error(chalk.red(`  ❌ ${msg}`));
+      operationStatus = "failure";
     }
 
     // Test Storefront API
     try {
+      logger.traceEvent(traceId, "Probando conexión a Storefront API...");
       await shopifyGraphQLRequest(
         STOREFRONT_URL,
         STOREFRONT_TOKEN,
@@ -143,30 +126,30 @@ async function runShopifyDiagnostics(): Promise<ActionResult<string>> {
       fullReport.errors.push(msg);
       fullReport.connection_status.storefront_api = "FAILED";
       console.error(chalk.red(`  ❌ ${msg}`));
+      operationStatus = "failure";
     }
   } catch (error) {
     const msg = `Excepción no controlada: ${error instanceof Error ? error.message : "Error"}`;
     fullReport.errors.push(msg);
-  } finally {
-    const reportDir = path.resolve(process.cwd(), "shopify", "reports");
-    await fs.mkdir(reportDir, { recursive: true });
-    const reportPath = path.resolve(
-      reportDir,
-      `latest-shopify-diagnostics.json`
-    );
-    await fs.writeFile(reportPath, JSON.stringify(fullReport, null, 2));
-
-    if (fullReport.errors.length > 0) {
-      logger.endGroup();
-      return { success: false, error: fullReport.errors.join("\n") };
-    }
-
-    logger.endGroup();
-    return {
-      success: true,
-      data: "Diagnóstico de Shopify completado sin errores.",
-    };
+    operationStatus = "failure";
   }
+
+  // --- REFACTORIZACIÓN DE CONTROL DE FLUJO SEGURO ---
+  // La lógica de escritura de archivo y retorno se mueve fuera del bloque finally.
+  const reportDir = path.resolve(process.cwd(), "shopify", "reports");
+  await fs.mkdir(reportDir, { recursive: true });
+  const reportPath = path.resolve(reportDir, `latest-shopify-diagnostics.json`);
+  await fs.writeFile(reportPath, JSON.stringify(fullReport, null, 2));
+
+  logger.endGroup();
+  logger.endTrace(traceId);
+
+  if (operationStatus === "failure") {
+    finalMessage = fullReport.errors.join("\n");
+    return { success: false, error: finalMessage };
+  }
+
+  return { success: true, data: finalMessage };
 }
 
 export default runShopifyDiagnostics;

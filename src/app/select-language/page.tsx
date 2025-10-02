@@ -1,60 +1,54 @@
-// Ruta correcta: src/app/select-language/page.tsx
+// RUTA: src/app/select-language/page.tsx
 /**
  * @file page.tsx
- * @description Página de selección de idioma. Orquesta la carga de contenido
- *              multilingüe y lo pasa al componente de cliente.
- * @version 2.0.0 (Holistic Elite Leveling)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Página de selección de idioma, ahora blindada con un guardián de
+ *              contrato de datos para una resiliencia y seguridad de tipos de élite.
+ * @version 4.0.0 (Elite Contract Guardian)
+ * @author L.I.A. Legacy
  */
 import React from "react";
-import { promises as fs } from "fs";
-import path from "path";
 import { logger } from "@/shared/lib/logging";
 import { LanguageSelectorClient } from "./_components/LanguageSelectorClient";
-import { SelectLanguagePageContentSchema } from "@/shared/lib/schemas/pages/select-language.schema";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
-
-async function getSelectLanguageContent() {
-  const filePath = path.join(
-    process.cwd(),
-    "src",
-    "messages",
-    "pages",
-    "select-language.i18n.json"
-  );
-  try {
-    const fileContent = await fs.readFile(filePath, "utf-8");
-    const jsonData = JSON.parse(fileContent);
-    return SelectLanguagePageContentSchema.parse(jsonData);
-  } catch (error) {
-    logger.error(
-      "[SelectLanguagePage] Fallo crítico al cargar o validar el contenido i18n.",
-      { error }
-    );
-    return null;
-  }
-}
+import { getDictionary } from "@/shared/lib/i18n/i18n";
+import { defaultLocale } from "@/shared/lib/i18n/i18n.config";
+import { SelectLanguagePageContentSchema } from "@/shared/lib/schemas/pages/select-language.schema";
 
 export default async function SelectLanguagePage() {
   logger.info(
-    "[SelectLanguagePage] Renderizando página de selección de idioma v2.0."
+    "[SelectLanguagePage] Renderizando v4.0 (Elite Contract Guardian)."
   );
 
-  const content = await getSelectLanguageContent();
+  // Se obtiene el diccionario usando el locale por defecto como base.
+  const { dictionary, error: dictError } = await getDictionary(defaultLocale);
 
-  if (!content) {
+  // --- [INICIO DE GUARDIÁN DE CONTRATO DE ÉLITE] ---
+  // 1. Se valida la estructura del contenido contra el schema soberano.
+  const contentValidation = SelectLanguagePageContentSchema.safeParse(
+    dictionary.selectLanguage
+  );
+
+  // 2. Se comprueba tanto el error de carga como el fallo de validación.
+  if (dictError || !contentValidation.success) {
+    const errorDetails = dictError || contentValidation.error;
+    logger.error(
+      "[Guardián] Fallo al cargar o validar el contenido para SelectLanguagePage.",
+      { error: errorDetails }
+    );
     return (
       <DeveloperErrorDisplay
         context="SelectLanguagePage"
-        errorMessage="No se pudo cargar el contenido de la página de selección de idioma."
+        errorMessage="No se pudo cargar o validar el contenido de la página de selección de idioma."
+        errorDetails={errorDetails}
       />
     );
   }
+  // --- [FIN DE GUARDIÁN DE CONTRATO DE ÉLITE] ---
 
+  // 3. Se pasa el objeto `validation.data` ya validado y tipado al componente cliente.
   return (
     <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
-      <LanguageSelectorClient content={content} />
+      <LanguageSelectorClient content={contentValidation.data} />
     </div>
   );
 }
-// Ruta correcta: src/app/select-language/page.tsx

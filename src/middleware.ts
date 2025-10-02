@@ -1,8 +1,8 @@
 // RUTA: src/middleware.ts
 /**
  * @file middleware.ts
- * @description Guardián de la puerta de entrada, alineado con el contrato del pipeline v4.0.
- * @version 15.0.0 (Pipeline Contract Alignment)
+ * @description Guardián de la puerta de entrada, ahora completamente agnóstico al runtime de Supabase.
+ * @version 16.0.0 (Runtime Agnostic)
  * @author L.I.A. Legacy
  */
 import { type NextRequest, NextResponse } from "next/server";
@@ -13,7 +13,6 @@ import {
   i18nHandler,
   authHandler,
 } from "./shared/lib/middleware/handlers";
-import { updateSession } from "./shared/lib/supabase/middleware";
 
 const pipeline = createPipeline([
   visitorIntelligenceHandler,
@@ -24,28 +23,18 @@ const pipeline = createPipeline([
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const traceId = logger.startTrace(`middleware:${request.nextUrl.pathname}`);
   logger.startGroup(
-    `[Middleware v15.0] Procesando: ${request.method} ${request.nextUrl.pathname}`
+    `[Middleware v16.0] Procesando: ${request.method} ${request.nextUrl.pathname}`
   );
 
   try {
-    // 1. Obtener la respuesta inicial del manejador de sesión de Supabase.
-    const supabaseResponse = await updateSession(request);
-    logger.traceEvent(traceId, "Manejador de sesión de Supabase completado.");
-
-    // 2. Pasar la petición y la respuesta inicial a través del pipeline principal.
-    const finalResponse = await pipeline(request, supabaseResponse);
-    logger.traceEvent(traceId, "Pipeline principal ejecutado con éxito.");
-
-    logger.success(
-      `[Middleware] Pipeline completado. Estado final: ${finalResponse.status}`,
-      { traceId }
-    );
+    const initialResponse = NextResponse.next({
+      request: { headers: request.headers },
+    });
+    const finalResponse = await pipeline(request, initialResponse);
     return finalResponse;
   } catch (error) {
     const errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Error desconocido en el middleware.";
+      error instanceof Error ? error.message : "Error desconocido.";
     logger.error("[Middleware] Error no controlado.", {
       error: errorMessage,
       traceId,
