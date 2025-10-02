@@ -107,10 +107,10 @@ export default async function NewsPage({ params: { locale } }: NewsPageProps) {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error(
-      "[Guardián] Fallo crítico irrecuperable en NewsPage Shell.",
-      { error: errorMessage, traceId }
-    );
+    logger.error("[Guardián] Fallo crítico irrecuperable en NewsPage Shell.", {
+      error: errorMessage,
+      traceId,
+    });
     // En un fallo crítico (ej. diccionario), mostramos el error en desarrollo.
     return (
       <DeveloperErrorDisplay
