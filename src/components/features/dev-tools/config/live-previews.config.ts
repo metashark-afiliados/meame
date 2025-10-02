@@ -42,14 +42,14 @@ import { TextSection } from "@/components/sections/TextSection";
 import { ThumbnailCarousel } from "@/components/sections/ThumbnailCarousel";
 // --- [INICIO DE REFACTORIZACIÓN DE FRONTERA] ---
 // Se importa el Header y CommentSection en su versión de CLIENTE para el canvas.
-import Header from "@/components/layout/Header"; // Header es un Server Shell, pero el preview lo manejará
+import HeaderClient from "@/components/layout/HeaderClient";
 import { CommentSectionClient } from "@/components/sections/comments/CommentSectionClient";
 // --- [FIN DE REFACTORIZACIÓN DE FRONTERA] ---
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const livePreviewComponentMap: Record<string, ComponentType<any>> = {
-  StandardHeader: Header,
-  MinimalHeader: Header,
+  StandardHeader: HeaderClient,
+  MinimalHeader: HeaderClient,
   StandardFooter: Footer,
   BenefitsSection,
   CommunitySection,
