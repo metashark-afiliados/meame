@@ -1,4 +1,4 @@
-// RUTA: src/shared/lib/actions/cogniread/getPublishedArticles.action.ts
+// src/shared/lib/actions/cogniread/getPublishedArticles.action.ts
 /**
  * @file getPublishedArticles.action.ts
  * @description Server Action para obtener artículos publicados.
@@ -7,7 +7,7 @@
  *              para su consumo en contextos sin petición (request), como
  *              generateStaticParams, resolviendo un fallo crítico de build.
  * @version 8.0.0
- *@author L.I.A. Legacy
+ * @author L.I.A. Legacy
  */
 "use server";
 
