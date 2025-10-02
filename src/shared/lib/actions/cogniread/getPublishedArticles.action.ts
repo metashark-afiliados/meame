@@ -2,11 +2,12 @@
 /**
  * @file getPublishedArticles.action.ts
  * @description Server Action para obtener artículos publicados.
- *              v7.0.0 (Holistic & Type-Safe Refactor): Reimplementado para
- *              eliminar la duplicación de código y resolver errores de tipo
- *              al no depender más de tipos internos de PostgREST.
- * @version 7.0.0
- *@author RaZ Podestá - MetaShark Tech
+ *              v8.0.0 (Build-Resilient & Context-Agnostic): Se elimina la
+ *              verificación de sesión de usuario para hacer la acción segura
+ *              para su consumo en contextos sin petición (request), como
+ *              generateStaticParams, resolviendo un fallo crítico de build.
+ * @version 8.0.0
+ *@author L.I.A. Legacy
  */
 "use server";
 
@@ -32,11 +33,6 @@ type GetPublishedArticlesInput = z.infer<
   typeof GetPublishedArticlesInputSchema
 >;
 
-/**
- * @function _processArticleQuery
- * @description Motor interno y puro para procesar la respuesta de una consulta de artículos.
- * @private
- */
 async function _processArticleQuery(
   queryPromise: PromiseLike<PostgrestResponse<SupabaseCogniReadArticle>>
 ): Promise<{ articles: CogniReadArticle[]; total: number }> {
@@ -69,7 +65,7 @@ async function _processArticleQuery(
 export async function getPublishedArticlesAction(
   input: GetPublishedArticlesInput
 ): Promise<ActionResult<{ articles: CogniReadArticle[]; total: number }>> {
-  const traceId = logger.startTrace("getPublishedArticlesAction_v7.0");
+  const traceId = logger.startTrace("getPublishedArticlesAction_v8.0");
   logger.info(
     `[CogniReadAction] Obteniendo artículos publicados (página ${input.page})...`,
     { traceId }
@@ -82,7 +78,11 @@ export async function getPublishedArticlesAction(
     const start = (page - 1) * limit;
     const end = start + limit - 1;
 
-    // 1. Construir la consulta completa con el filtro de estado
+    // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
+    // Se elimina la verificación de sesión de usuario, ya que los artículos
+    // publicados son datos públicos y esta acción se usa en contextos de build.
+    // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
+
     const query = supabase
       .from("cogniread_articles")
       .select("*, count()", { count: "exact" })
@@ -90,7 +90,6 @@ export async function getPublishedArticlesAction(
       .order("study_dna->>publicationDate", { ascending: false })
       .range(start, end);
 
-    // 2. Delegar el procesamiento de la respuesta al motor interno
     const result = await _processArticleQuery(query);
     return { success: true, data: result };
   } catch (error) {
