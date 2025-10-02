@@ -1,61 +1,93 @@
 // RUTA: src/components/sections/ThumbnailCarousel.tsx
 /**
  * @file ThumbnailCarousel.tsx
- * @description Un carrusel visual que cicla a través de una serie de imágenes.
- * @version 5.3.0 (Polymorphic Button Fix)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Un carrusel visual que cicla a través de una serie de imágenes,
+ *              ahora con funcionalidad de navegación completa y código limpio.
+ * @version 6.2.0 (Code Hygiene & Functionality Restoration)
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  forwardRef,
+  useMemo,
+} from "react";
 import Image from "next/image";
-import Link from "next/link"; // <-- Importar Link
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/Button";
-import { Container } from "@/components/ui/Container";
+import { Button, Container, DynamicIcon } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import { cn } from "@/shared/lib/utils/cn";
+import type { SectionProps } from "@/shared/lib/types/sections.types";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
-interface ThumbnailCarouselProps {
-  content?: Dictionary["thumbnailCarousel"];
+interface ThumbnailCarouselProps extends SectionProps<"thumbnailCarousel"> {
   interval?: number;
+  isFocused?: boolean;
 }
 
-export function ThumbnailCarousel({
-  content,
-  interval = 5000,
-}: ThumbnailCarouselProps): React.ReactElement | null {
-  logger.info("[ThumbnailCarousel] Renderizando componente v5.3...");
+export const ThumbnailCarousel = forwardRef<
+  HTMLElement,
+  ThumbnailCarouselProps
+>(({ content, interval = 5000, isFocused }, ref) => {
+  const traceId = useMemo(
+    () => logger.startTrace("ThumbnailCarousel_v6.2"),
+    []
+  );
+  logger.info("[ThumbnailCarousel] Renderizando v6.2.", { traceId });
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-
-  const thumbnails = useMemo(() => content?.thumbnails || [], [content]);
+  const thumbnails = content?.thumbnails || [];
 
   const nextSlide = useCallback(() => {
     if (thumbnails.length > 1) {
+      logger.traceEvent(traceId, "Navegación automática: Siguiente slide.");
       setCurrentIndex((prevIndex) => (prevIndex + 1) % thumbnails.length);
     }
-  }, [thumbnails.length]);
+  }, [thumbnails.length, traceId]);
 
   useEffect(() => {
-    if (thumbnails.length <= 1 || isHovered) {
-      return;
-    }
+    if (thumbnails.length <= 1 || isHovered) return;
     const timer = setInterval(nextSlide, interval);
     return () => clearInterval(timer);
   }, [currentIndex, thumbnails.length, interval, isHovered, nextSlide]);
 
   if (!content || thumbnails.length === 0) {
-    logger.warn("[ThumbnailCarousel] Contenido inválido. No se renderizará.");
-    return null;
+    return (
+      <DeveloperErrorDisplay
+        context="ThumbnailCarousel"
+        errorMessage="Contrato de UI violado: Faltan 'content' o 'thumbnails'."
+      />
+    );
   }
 
   const { affiliateUrl, playButtonAriaLabel, playButtonTitle } = content;
   const currentThumbnail = thumbnails[currentIndex];
 
+  const prevSlide = () => {
+    logger.traceEvent(traceId, "Navegación manual: Slide anterior.");
+    setCurrentIndex(
+      (prev) => (prev - 1 + thumbnails.length) % thumbnails.length
+    );
+  };
+
+  // La función nextSlide ya está definida en el useCallback, la reusamos para el botón.
+  const handleNextClick = () => {
+    logger.traceEvent(traceId, "Navegación manual: Siguiente slide.");
+    nextSlide();
+  };
+
   return (
     <section
-      className="py-16 sm:py-24"
+      ref={ref}
+      className={cn(
+        "py-16 sm:py-24 transition-all duration-300",
+        isFocused && "ring-2 ring-primary"
+      )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -83,9 +115,8 @@ export function ThumbnailCarousel({
             )}
           </AnimatePresence>
           <div className="absolute inset-0 bg-foreground/10 flex items-center justify-center transition-opacity duration-300 group-hover:bg-foreground/20">
-            {/* --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] --- */}
             <Button
-              asChild // Indica al botón que renderice su hijo en lugar de un <button>
+              asChild
               className="p-0 bg-transparent shadow-none hover:scale-110 transition-transform duration-300 focus-visible:ring-0 focus-visible:ring-offset-0"
               aria-label={playButtonAriaLabel}
             >
@@ -103,10 +134,29 @@ export function ThumbnailCarousel({
                 </div>
               </Link>
             </Button>
-            {/* --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] --- */}
           </div>
+          {/* --- FUNCIONALIDAD RESTAURADA --- */}
+          <Button
+            onClick={prevSlide}
+            variant="secondary"
+            size="icon"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 opacity-50 hover:opacity-100 transition-opacity"
+            aria-label="Artículo anterior"
+          >
+            <DynamicIcon name="ChevronLeft" />
+          </Button>
+          <Button
+            onClick={handleNextClick}
+            variant="secondary"
+            size="icon"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 opacity-50 hover:opacity-100 transition-opacity"
+            aria-label="Siguiente artículo"
+          >
+            <DynamicIcon name="ChevronRight" />
+          </Button>
         </div>
       </Container>
     </section>
   );
-}
+});
+ThumbnailCarousel.displayName = "ThumbnailCarousel";

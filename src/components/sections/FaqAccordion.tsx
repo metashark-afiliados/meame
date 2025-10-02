@@ -1,13 +1,12 @@
-// RUTA: components/sections/FaqAccordion.tsx
+// RUTA: src/components/sections/FaqAccordion.tsx
 /**
  * @file FaqAccordion.tsx
- * @description Sección de Preguntas Frecuentes (FAQ). Nivelada a un estándar de
- *              élite, consumiendo el nuevo sistema de Acordeón composicional y animado.
- *              Resuelve el error de tipo TS2322 de forma arquitectónica.
- * @version 7.0.0 (Elite & Compositional)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Sección de Preguntas Frecuentes (FAQ), nivelada a un estándar de élite,
+ *              consumiendo el sistema de Acordeón composicional y animado.
+ * @version 8.0.0 (Sovereign Contract & Focus-Aware)
+ * @author L.I.A. Legacy
  */
-"use client"; // Necesario para el componente Accordion interactivo
+"use client";
 
 import React, { forwardRef } from "react";
 import { motion, type Variants } from "framer-motion";
@@ -20,13 +19,11 @@ import {
 import { Container } from "@/components/ui/Container";
 import { logger } from "@/shared/lib/logging";
 import { cn } from "@/shared/lib/utils/cn";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import type { SectionProps } from "@/shared/lib/types/sections.types";
 import type { FaqItem } from "@/shared/lib/schemas/components/faq-accordion.schema";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
-type FaqAccordionContent = NonNullable<Dictionary["faqAccordion"]>;
-
-interface FaqAccordionProps {
-  content: FaqAccordionContent;
+interface FaqAccordionProps extends SectionProps<"faqAccordion"> {
   isFocused?: boolean;
 }
 
@@ -41,13 +38,18 @@ const sectionVariants: Variants = {
 
 export const FaqAccordion = forwardRef<HTMLElement, FaqAccordionProps>(
   ({ content, isFocused }, ref) => {
-    logger.info("[FaqAccordion] Renderizando v7.0 (Elite & Compositional).");
+    logger.info("[FaqAccordion] Renderizando v8.0 (Focus-Aware).");
 
     if (!content) {
-      logger.warn(
-        "[FaqAccordion] No se proporcionó contenido. No se renderizará."
+      logger.error(
+        "[Guardián] Prop 'content' no proporcionada a FaqAccordion."
       );
-      return null;
+      return (
+        <DeveloperErrorDisplay
+          context="FaqAccordion"
+          errorMessage="Contrato de UI violado: La prop 'content' es requerida."
+        />
+      );
     }
 
     const { title, faqs } = content;
@@ -73,7 +75,6 @@ export const FaqAccordion = forwardRef<HTMLElement, FaqAccordionProps>(
           </h2>
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faqItem: FaqItem, index: number) => (
-              // Se utiliza el patrón de composición, resolviendo el error de tipo.
               <AccordionItem key={index} value={`item-${index}`}>
                 <AccordionTrigger>{faqItem.question}</AccordionTrigger>
                 <AccordionContent>

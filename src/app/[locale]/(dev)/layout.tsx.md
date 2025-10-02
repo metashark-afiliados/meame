@@ -135,6 +135,7 @@ error: errorMessage,
 traceId,
 });
 return (
+
 <html lang={locale}>
 <body>
 <DeveloperErrorDisplay

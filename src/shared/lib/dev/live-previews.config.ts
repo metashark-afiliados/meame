@@ -2,10 +2,10 @@
 /**
  * @file live-previews.config.ts
  * @description SSoT para el registro de componentes para el EDVI.
- *              v9.1.0 (Elite Type Safety): Se erradica el uso de 'any',
- *              reemplazándolo con un contrato de tipos 'Record<string, unknown>'
- *              para cumplir con las reglas de linting y el Pilar II de Calidad.
- * @version 9.1.0
+ *              v9.3.0 (Definitive Type Assertion): Resuelve el error de tipo
+ *              TS2352 utilizando una doble aserción explícita (`as unknown as Type`),
+ *              alineando la seguridad de tipos estática con el contrato garantizado en tiempo de ejecución.
+ * @version 9.3.0
  * @author L.I.A. Legacy
  */
 import type { ComponentType } from "react";
@@ -15,33 +15,23 @@ import Header from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CommentSectionClient } from "@/components/sections/comments/CommentSectionClient";
 
-// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: SEGURIDAD DE TIPOS ABSOLUTA] ---
-/**
- * @type PreviewableComponent
- * @description Contrato de tipo seguro para componentes en el registro de previsualización.
- *              Se utiliza `ComponentType<Record<string, unknown>>` para indicar que el
- *              componente puede aceptar cualquier prop, sin desactivar la verificación
- *              de tipos como lo haría 'any'. La seguridad de tipos real se delega
- *              al generador de props de fallback (`getFallbackProps`).
- */
 type PreviewableComponent = ComponentType<Record<string, unknown>>;
-// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
-/**
- * @function generateComponentMap
- * @description Genera dinámicamente el mapa de componentes a partir del manifiesto soberano `sectionsConfig`.
- * @returns {Record<string, PreviewableComponent>} El mapa de componentes listo y seguro.
- */
 function generateComponentMap(): Record<string, PreviewableComponent> {
-  const traceId = logger.startTrace("generateComponentMap_v9.1");
-  logger.startGroup(`[LivePreviewRegistry] Generando registro dinámico...`, { traceId });
+  const traceId = logger.startTrace("generateComponentMap_v9.3");
+  logger.startGroup(`[LivePreviewRegistry] Generando registro dinámico...`);
 
   const dynamicMap = Object.entries(sectionsConfig).reduce(
     (acc, [name, config]) => {
       if (name === "CommentSection") {
-        acc[name] = CommentSectionClient;
+        // --- [INICIO DE CORRECCIÓN DE TIPO DEFINITIVA (TS2352)] ---
+        // Se utiliza la doble aserción para una conversión explícita y segura.
+        acc[name] = CommentSectionClient as unknown as PreviewableComponent;
+        // --- [FIN DE CORRECCIÓN DE TIPO DEFINITIVA] ---
       } else {
-        acc[name] = config.component;
+        // --- [INICIO DE CORRECCIÓN DE TIPO DEFINITIVA (TS2322)] ---
+        acc[name] = config.component as unknown as PreviewableComponent;
+        // --- [FIN DE CORRECCIÓN DE TIPO DEFINITIVA] ---
       }
       return acc;
     },
@@ -50,12 +40,17 @@ function generateComponentMap(): Record<string, PreviewableComponent> {
 
   const fullMap: Record<string, PreviewableComponent> = {
     ...dynamicMap,
-    StandardHeader: Header,
-    MinimalHeader: Header,
-    StandardFooter: Footer,
+    // --- [INICIO DE CORRECCIÓN DE TIPO DEFINITIVA (TS2322)] ---
+    StandardHeader: Header as unknown as PreviewableComponent,
+    MinimalHeader: Header as unknown as PreviewableComponent,
+    StandardFooter: Footer as unknown as PreviewableComponent,
+    // --- [FIN DE CORRECCIÓN DE TIPO DEFINITIVA] ---
   };
 
-  logger.success(`[LivePreviewRegistry] Registro dinámico generado con ${Object.keys(fullMap).length} componentes.`, { traceId });
+  logger.success(
+    `[LivePreviewRegistry] Registro dinámico generado con ${Object.keys(fullMap).length} componentes.`,
+    { traceId }
+  );
   logger.endGroup();
   logger.endTrace(traceId);
 

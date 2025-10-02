@@ -2,10 +2,10 @@
 /**
  * @file LivePreviewCanvas.tsx
  * @description Orquestador de élite para el lienzo de previsualización (EDVI).
- *              Ahora es un componente de cliente más puro que recibe todos los
- *              datos del servidor como props, eliminando el doble fetch.
- * @version 18.0.0 (Pure Data Consumer)
- *@author RaZ Podestá - MetaShark Tech
+ *              Ahora consume el hook `useAssembledDraft` como SSoT para el estado
+ *              del borrador, eliminando la suscripción a múltiples stores.
+ * @version 19.0.0 (Assembled Draft Consumer)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -19,7 +19,9 @@ import {
   PreviewContent,
   PreviewErrorOverlay,
 } from "./LivePreviewCanvas/_components";
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import { useAssembledDraft } from "@/shared/hooks/campaign-suite/use-assembled-draft.hook";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { logger } from "@/shared/lib/logging";
 import type { LoadedFragments } from "@/shared/lib/actions/campaign-suite";
@@ -40,9 +42,13 @@ export function LivePreviewCanvas({
   baviManifest,
   dictionary,
 }: LivePreviewCanvasProps) {
-  logger.info("[LivePreviewCanvas] Renderizando orquestador puro v18.0.");
+  logger.info("[LivePreviewCanvas] Renderizando orquestador v19.0.");
 
+  // --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+  // Se consume el hook agregador como ÚNICA fuente de verdad para el borrador.
   const draft = useAssembledDraft();
+  // --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+
   const { theme, error: themeError } = usePreviewTheme(loadedFragments);
   const { iframeRef, iframeBody } = useIframe();
   const { focusedSection, sectionRefs } = usePreviewFocus();
@@ -52,7 +58,6 @@ export function LivePreviewCanvas({
     draft.layoutConfig,
     "it-IT"
   );
-  // Ensambla el diccionario final fusionando el base con el del borrador.
   const finalDictionary = {
     ...dictionary,
     ...draftDictionary,

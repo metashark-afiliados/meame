@@ -1,14 +1,14 @@
-// components/sections/FeaturedArticlesCarousel.tsx
+// RUTA: src/components/sections/FeaturedArticlesCarousel.tsx
 /**
  * @file FeaturedArticlesCarousel.tsx
- * @description Un carrusel interactivo y automático que muestra artículos de blog destacados.
- *              - v1.1.0 (Resilience): La prop `content` ahora es opcional.
- * @version 1.1.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description Un carrusel interactivo y automático que muestra artículos
+ *              destacados, ahora con cumplimiento estricto de las Reglas de Hooks.
+ * @version 2.1.0 (React Hooks Contract Restoration)
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, forwardRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,60 +17,71 @@ import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { logger } from "@/shared/lib/logging";
 import { cn } from "@/shared/lib/utils/cn";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import type { SectionProps } from "@/shared/lib/types/sections.types";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
-interface FeaturedArticlesCarouselProps {
-  // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
-  content?: Dictionary["featuredArticlesCarousel"];
-  // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
+interface FeaturedArticlesCarouselProps
+  extends SectionProps<"featuredArticlesCarousel"> {
   interval?: number;
+  isFocused?: boolean;
 }
 
-export function FeaturedArticlesCarousel({
-  content,
-  interval = 4000,
-}: FeaturedArticlesCarouselProps): React.ReactElement | null {
-  logger.info("[Observabilidad] Renderizando FeaturedArticlesCarousel");
+export const FeaturedArticlesCarousel = forwardRef<
+  HTMLElement,
+  FeaturedArticlesCarouselProps
+>(({ content, interval = 4000, isFocused }, ref) => {
+  logger.info(
+    "[FeaturedArticlesCarousel] Renderizando v2.1 (Hooks Compliant)."
+  );
 
+  // [INICIO DE REFACTORIZACIÓN DE REGLAS DE HOOKS]
+  // Todos los hooks se declaran incondicionalmente en el nivel superior.
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  const nextSlide = useCallback(() => {
-    if (content?.articles) {
-      setCurrentIndex((prev) => (prev + 1) % content.articles.length);
-    }
-  }, [content?.articles]);
+  const articles = content?.articles || [];
 
-  const prevSlide = () => {
-    if (content?.articles) {
-      setCurrentIndex(
-        (prev) => (prev - 1 + content.articles.length) % content.articles.length
-      );
+  const nextSlide = useCallback(() => {
+    if (articles.length > 1) {
+      setCurrentIndex((prev) => (prev + 1) % articles.length);
     }
-  };
+  }, [articles.length]);
 
   useEffect(() => {
-    if (!isHovered && content?.articles && content.articles.length > 1) {
+    if (!isHovered && articles.length > 1) {
       const timer = setInterval(nextSlide, interval);
       return () => clearInterval(timer);
     }
-  }, [currentIndex, isHovered, interval, nextSlide, content?.articles]);
+  }, [currentIndex, isHovered, interval, nextSlide, articles.length]);
+  // [FIN DE REFACTORIZACIÓN DE REGLAS DE HOOKS]
 
-  // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
-  if (!content || !content.articles || content.articles.length === 0) {
-    logger.warn(
-      "[FeaturedArticlesCarousel] No se proporcionó contenido válido. La sección no se renderizará."
+  // El guardián de resiliencia ahora se ejecuta DESPUÉS de los hooks.
+  if (!content || articles.length === 0) {
+    logger.error(
+      "[Guardián] Prop 'content' inválida o vacía en FeaturedArticlesCarousel."
     );
-    return null;
+    return (
+      <DeveloperErrorDisplay
+        context="FeaturedArticlesCarousel"
+        errorMessage="Contrato de UI violado: La prop 'content' o sus 'articles' son requeridos."
+      />
+    );
   }
-  // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
 
-  const { eyebrow, title, articles } = content;
+  const { eyebrow, title } = content;
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + articles.length) % articles.length);
+  };
 
   return (
     <section
+      ref={ref}
       id="featured-articles"
-      className="py-24 sm:py-32 bg-background/50 overflow-hidden"
+      className={cn(
+        "py-24 sm:py-32 bg-background/50 overflow-hidden transition-all duration-300",
+        isFocused && "ring-2 ring-primary"
+      )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -101,16 +112,8 @@ export function FeaturedArticlesCarousel({
                   opacity: 0,
                   zIndex: 0,
                 }}
-                animate={{
-                  x: `${offset * 50}%`,
-                  scale: scale,
-                  opacity: opacity,
-                  zIndex: zIndex,
-                }}
-                exit={{
-                  opacity: 0,
-                  scale: 0.5,
-                }}
+                animate={{ x: `${offset * 50}%`, scale, opacity, zIndex }}
+                exit={{ opacity: 0, scale: 0.5 }}
                 transition={{ type: "spring", stiffness: 260, damping: 30 }}
               >
                 <div
@@ -163,5 +166,5 @@ export function FeaturedArticlesCarousel({
       </div>
     </section>
   );
-}
-// components/sections/FeaturedArticlesCarousel.tsx
+});
+FeaturedArticlesCarousel.displayName = "FeaturedArticlesCarousel";

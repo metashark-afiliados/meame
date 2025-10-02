@@ -1,40 +1,51 @@
 // RUTA: src/components/sections/Hero.tsx
 /**
  * @file Hero.tsx
- * @description Aparato "Server Shell" para la sección Hero.
- * @version 12.0.0 (Elite & Resilient Shell Pattern)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Aparato "Server Shell" para la sección Hero, ahora Focus-Aware.
+ * @version 13.0.0 (Focus-Aware & Elite Resilience)
+ * @author L.I.A. Legacy
  */
+import "server-only";
 import React from "react";
 import { logger } from "@/shared/lib/logging";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { getBaviManifest } from "@/shared/lib/bavi";
-import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 import { HeroClient } from "./HeroClient";
+import type { SectionProps } from "@/shared/lib/types/sections.types";
 import type {
   BaviAsset,
   BaviVariant,
 } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 
-type HeroContent = NonNullable<Dictionary["hero"]>;
-interface HeroProps {
-  content: HeroContent;
+interface HeroProps extends SectionProps<"hero"> {
+  isFocused?: boolean;
 }
 
 export async function Hero({
   content,
+  locale,
+  isFocused,
 }: HeroProps): Promise<React.ReactElement | null> {
-  // --- [INYECCIÓN DE LOGGING] ---
-  logger.info(`[Hero Shell v12.0] Iniciando obtención de datos para Hero.`);
+  const traceId = logger.startTrace("Hero_Shell_v13.0");
+  logger.info("[Hero Shell] Iniciando obtención de datos para Hero.", {
+    traceId,
+  });
 
   if (!content) {
-    logger.warn("[Hero Shell] No se proporcionó contenido. No se renderizará.");
-    return null;
+    logger.error("[Guardián] Prop 'content' no proporcionada a Hero.", {
+      traceId,
+    });
+    logger.endTrace(traceId);
+    return (
+      <DeveloperErrorDisplay
+        context="Hero Server Shell"
+        errorMessage="Contrato de UI violado: La prop 'content' es requerida."
+      />
+    );
   }
 
   let backgroundImageUrl = "";
 
-  // --- [INYECCIÓN DE RESILIENCIA] ---
   if (content.backgroundImageAssetId) {
     try {
       const baviManifest = await getBaviManifest();
@@ -44,33 +55,35 @@ export async function Hero({
       const publicId = asset?.variants.find(
         (v: BaviVariant) => v.state === "orig"
       )?.publicId;
+
       if (publicId) {
         backgroundImageUrl = `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto,w_1920/${publicId}`;
-        logger.trace(
-          `[Hero Shell] URL de imagen de fondo resuelta: ${backgroundImageUrl}`
+        logger.traceEvent(
+          traceId,
+          "URL de imagen de fondo resuelta desde BAVI."
         );
       } else {
         logger.warn(
-          `[Hero Shell] Asset ID '${content.backgroundImageAssetId}' no encontrado en BAVI.`
+          `[Hero Shell] Asset ID '${content.backgroundImageAssetId}' no encontrado en BAVI.`,
+          { traceId }
         );
       }
     } catch (error) {
       logger.error("[Hero Shell] Fallo crítico al cargar datos de BAVI.", {
-        error,
+        error: error instanceof Error ? error.message : String(error),
+        traceId,
       });
-      if (process.env.NODE_ENV === "development") {
-        return (
-          <DeveloperErrorDisplay
-            context="Hero Server Shell"
-            errorMessage="No se pudo cargar la imagen de fondo desde la BAVI."
-            errorDetails={error instanceof Error ? error : String(error)}
-          />
-        );
-      }
     }
   }
 
+  logger.endTrace(traceId);
+
   return (
-    <HeroClient content={content} backgroundImageUrl={backgroundImageUrl} />
+    <HeroClient
+      content={content}
+      locale={locale}
+      backgroundImageUrl={backgroundImageUrl}
+      isFocused={isFocused}
+    />
   );
 }

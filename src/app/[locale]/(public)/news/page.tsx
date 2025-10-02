@@ -1,85 +1,139 @@
-// RUTA: src/app/[locale]/news/page.tsx
+// RUTA: src/app/[locale]/(public)/page.tsx
 /**
  * @file page.tsx
- * @description Página de archivo del blog, ahora alimentada por CogniRead y
- *              arquitectónicamente soberana.
- * @version 4.0.0 (Holistic Integrity Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Homepage del portal, actuando como un "Ensamblador de Servidor"
+ *              de élite, con integridad de contrato restaurada y resiliencia mejorada.
+ * @version 15.0.0 (Holistic Contract Restoration & Elite Resilience)
+ * @author L.I.A. Legacy
  */
 import React from "react";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { NewsGrid } from "@/components/sections/NewsGrid";
-import { CommunitySection } from "@/components/sections/CommunitySection";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
-import { getPublishedArticlesAction } from "@/shared/lib/actions/cogniread"; // <-- RUTA CORREGIDA
-import { notFound } from "next/navigation";
+import { SectionAnimator } from "@/components/layout/SectionAnimator";
+import {
+  SocialProofLogos,
+  CommunitySection,
+  ScrollingBanner,
+  HeroNews,
+  NewsGrid,
+} from "@/components/sections";
+import { getPublishedArticlesAction } from "@/shared/lib/actions/cogniread";
+import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 
-interface NewsArchivePageProps {
+interface HomePageProps {
   params: { locale: Locale };
 }
 
-export default async function NewsArchivePage({
-  params: { locale },
-}: NewsArchivePageProps) {
-  logger.info(
-    `[NewsArchivePage] Renderizando v4.0 (Holistic) para locale: ${locale}`
+export default async function HomePage({ params: { locale } }: HomePageProps) {
+  const traceId = logger.startTrace("HomePage_Render_v15.0");
+  logger.startGroup(
+    `[HomePage Shell] Renderizando v15.0 para locale: ${locale}`
   );
 
-  // Cargar contenido estático y artículos dinámicos en paralelo
-  const [{ dictionary, error: dictError }, articlesResult] = await Promise.all([
-    getDictionary(locale),
-    getPublishedArticlesAction({
-      page: 1,
-      limit: 9,
-    }),
-  ]);
+  try {
+    const [{ dictionary, error: dictError }, articlesResult] =
+      await Promise.all([
+        getDictionary(locale),
+        getPublishedArticlesAction({ page: 1, limit: 4 }),
+      ]);
 
-  const pageContent = dictionary.newsGrid;
-  const communityContent = dictionary.communitySection;
+    const {
+      socialProofLogos,
+      communitySection,
+      scrollingBanner,
+      heroNews,
+      newsGrid,
+    } = dictionary;
 
-  // --- Guardia de Resiliencia para Contenido i18n ---
-  if (dictError || !pageContent) {
+    // --- [INICIO] GUARDIÁN DE RESILIENCIA REFORZADO ---
+    if (
+      dictError ||
+      !socialProofLogos ||
+      !communitySection ||
+      !scrollingBanner ||
+      !heroNews ||
+      !newsGrid
+    ) {
+      const missingKeys = [
+        !socialProofLogos && "socialProofLogos",
+        !communitySection && "communitySection",
+        !scrollingBanner && "scrollingBanner",
+        !heroNews && "heroNews",
+        !newsGrid && "newsGrid",
+      ]
+        .filter(Boolean)
+        .join(", ");
+
+      throw new Error(
+        `Faltan una o más claves de i18n esenciales. Claves ausentes: ${missingKeys}`
+      );
+    }
+    // --- [FIN] GUARDIÁN DE RESILIENCIA REFORZADO ---
+
+    if (!articlesResult.success) {
+      if (process.env.NODE_ENV === "development") {
+        return (
+          <DeveloperErrorDisplay
+            context="HomePage Data Fetching"
+            errorMessage="Fallo al obtener artículos publicados desde la base de datos."
+            errorDetails={articlesResult.error}
+          />
+        );
+      }
+      logger.error(
+        "[HomePage Shell] No se pudieron obtener los artículos de CogniRead en producción.",
+        { error: articlesResult.error, traceId }
+      );
+    }
+
+    const articles: CogniReadArticle[] = articlesResult.success
+      ? articlesResult.data.articles
+      : [];
+    const featuredArticle = articles[0];
+    const gridArticles = articles.slice(1, 4);
+
+    return (
+      <SectionAnimator>
+        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
+        <ScrollingBanner content={scrollingBanner} locale={locale} />
+        <SocialProofLogos content={socialProofLogos} locale={locale} />
+        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
+
+        {featuredArticle && (
+          <HeroNews
+            content={heroNews}
+            article={featuredArticle}
+            locale={locale}
+          />
+        )}
+        {gridArticles.length > 0 && (
+          <NewsGrid
+            articles={gridArticles}
+            locale={locale}
+            content={newsGrid}
+          />
+        )}
+
+        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
+        <CommunitySection content={communitySection} locale={locale} />
+        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
+      </SectionAnimator>
+    );
+  } catch (error) {
     const errorMessage =
-      "Fallo al cargar el contenido i18n para la página de noticias.";
-    logger.error(`[NewsArchivePage] ${errorMessage}`, { error: dictError });
-    if (process.env.NODE_ENV === "production") return notFound();
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error(`[HomePage Shell] ${errorMessage}`, { error: error, traceId });
     return (
       <DeveloperErrorDisplay
-        context="NewsArchivePage"
-        errorMessage={errorMessage}
-        errorDetails={
-          dictError || "La clave 'newsGrid' falta en el diccionario."
-        }
+        context="HomePage Server Shell"
+        errorMessage="Fallo crítico al renderizar el Server Shell del Homepage."
+        errorDetails={error instanceof Error ? error : errorMessage}
       />
     );
+  } finally {
+    logger.endGroup();
+    logger.endTrace(traceId);
   }
-
-  // --- Guardia de Resiliencia para Datos Dinámicos ---
-  if (!articlesResult.success) {
-    return (
-      <DeveloperErrorDisplay
-        context="NewsArchivePage"
-        errorMessage="No se pudieron cargar los artículos desde CogniRead."
-        errorDetails={articlesResult.error}
-      />
-    );
-  }
-
-  return (
-    <>
-      <PageHeader content={pageContent} />
-
-      {/* --- CONTRATO DE PROPS CUMPLIDO --- */}
-      <NewsGrid
-        articles={articlesResult.data.articles}
-        locale={locale}
-        content={pageContent}
-      />
-
-      {communityContent && <CommunitySection content={communityContent} />}
-    </>
-  );
 }

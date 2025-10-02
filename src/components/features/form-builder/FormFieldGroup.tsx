@@ -2,14 +2,14 @@
 /**
  * @file FormFieldGroup.tsx
  * @description Componente de layout atómico para agrupar elementos de un campo de formulario.
- *              v3.0.0 (Sovereign Architectural Elevation & Elite Compliance): Elevado a su
- *              dominio canónico en form-builder y nivelado con los 8 Pilares de Calidad.
- * @version 3.0.0
- *@author RaZ Podestá - MetaShark Tech
+ *              v4.0.0 (Elite Compliance & Resilience): Inyectado con observabilidad de
+ *              ciclo de vida completo y un guardián de resiliencia para el contenido.
+ * @version 4.0.0
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
   FormItem,
   FormLabel,
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/Form";
 import { cn } from "@/shared/lib/utils/cn";
 import { logger } from "@/shared/lib/logging";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
 interface FormFieldGroupProps {
   label: string;
@@ -32,7 +33,23 @@ export function FormFieldGroup({
   children,
   className,
 }: FormFieldGroupProps): React.ReactElement {
-  logger.trace(`[FormFieldGroup] Renderizando grupo para: "${label}"`);
+  const traceId = useMemo(
+    () => logger.startTrace(`FormFieldGroup:${label}`),
+    [label]
+  );
+  logger.trace("[FormFieldGroup] Renderizando v4.0.", { traceId });
+
+  // --- Guardián de Resiliencia ---
+  if (!children) {
+    const errorMsg = "Contrato de UI violado: La prop 'children' es requerida.";
+    logger.error(`[Guardián] ${errorMsg}`, { traceId });
+    return (
+      <DeveloperErrorDisplay
+        context={`FormFieldGroup (label: ${label})`}
+        errorMessage={errorMsg}
+      />
+    );
+  }
 
   return (
     <FormItem className={cn("space-y-3", className)}>

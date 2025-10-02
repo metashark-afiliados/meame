@@ -1,11 +1,9 @@
 // RUTA: src/components/sections/ProductFilters.tsx
 /**
  * @file ProductFilters.tsx
- * @description Barra lateral de filtros interactiva para la Tienda v2.0.
- *              Ahora es un componente controlado que recibe y actualiza el estado
- *              desde un hook padre, con seguridad de tipos completa y sintaxis corregida.
- * @version 4.1.0 (Syntax & Import Integrity Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Barra lateral de filtros interactiva para la Tienda.
+ * @version 5.0.0 (Elite Observability & Resilience)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -19,6 +17,7 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { Slider } from "@/components/ui/Slider";
 import { Switch } from "@/components/ui/Switch";
 import type { ProductFiltersState } from "@/shared/hooks/use-product-filters";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
 type FilterData = NonNullable<
   z.infer<typeof StorePageLocaleSchema>["storePage"]
@@ -37,7 +36,19 @@ export function ProductFilters({
   filtersState,
   onFilterChange,
 }: ProductFiltersProps): React.ReactElement {
-  logger.info("[ProductFilters v4.1] Renderizando filtros interactivos.");
+  logger.info("[ProductFilters] Renderizando v5.0 (Elite).");
+
+  if (!filtersContent) {
+    logger.error(
+      "[Guardián] Prop 'filtersContent' no proporcionada a ProductFilters."
+    );
+    return (
+      <DeveloperErrorDisplay
+        context="ProductFilters"
+        errorMessage="Contrato de UI violado: La prop 'filtersContent' es requerida."
+      />
+    );
+  }
 
   const handleTagChange = (tag: string, checked: boolean) => {
     onFilterChange((prev: ProductFiltersState) => ({

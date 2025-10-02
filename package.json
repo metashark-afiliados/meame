@@ -1,4 +1,3 @@
-
 {
   "name": "meame-authority-portal",
   "version": "1.4.0",
@@ -40,8 +39,9 @@
     "diag:cloudinary:schema": "tsx scripts/run-with-env.ts scripts/diagnostics/diag-cloudinary-schema.ts",
     "diag:cloudinary:content": "tsx scripts/run-with-env.ts scripts/diagnostics/diag-cloudinary-content.ts",
     "diag:cloudinary:all": "pnpm diag:cloudinary:connect && pnpm diag:cloudinary:schema && pnpm diag:cloudinary:content",
-    "diag:all": "pnpm diag:supabase:all && pnpm diag:mongo:all && pnpm diag:cloudinary:all",
-    "diag:shopify": "pnpm tsx scripts/run-with-env.ts scripts/diagnostics/diag-shopify.ts"
+    "diag:shopify": "pnpm tsx scripts/run-with-env.ts scripts/diagnostics/diag-shopify.ts",
+    "test:stripe": "pnpm tsx scripts/run-with-env.ts scripts/testing/test-stripe-flow.ts",
+    "test:all": "tsx scripts/testing/test-all-services.ts"
   },
   "dependencies": {
     "@devnomic/marquee": "^1.0.2",

@@ -1,11 +1,10 @@
 // RUTA: src/components/features/campaign-suite/Step5_Management/Step5Client.tsx
 /**
  * @file Step5Client.tsx
- * @description Orquestador de cliente para el Paso 5. Cumple estrictamente
- *              con las Reglas de los Hooks de React y está blindado con
- *              guardianes de resiliencia y observabilidad de élite.
- * @version 9.1.0 (API Contract Compliance)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Orquestador de cliente para el Paso 5, ahora consume el hook
+ *              agregador `useAssembledDraft` como SSoT para el estado del borrador.
+ * @version 10.0.0 (Assembled Draft Consumer)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -21,10 +20,12 @@ import { validateDraftForLaunch } from "@/shared/lib/utils/campaign-suite/draft.
 import { Step5Form } from "./Step5Form";
 import { DigitalConfetti } from "@/components/ui/DigitalConfetti";
 import { logger } from "@/shared/lib/logging";
-import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
+import { DeveloperErrorDisplay } from "../../dev-tools";
 import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store";
 import { ArtifactHistory } from "./_components/ArtifactHistory";
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 import { useAssembledDraft } from "@/shared/hooks/campaign-suite/use-assembled-draft.hook";
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
 type Content = z.infer<typeof Step5ContentSchema>;
 
@@ -38,19 +39,19 @@ export function Step5Client({
   stepContent,
 }: Step5ClientProps): React.ReactElement {
   const traceId = useMemo(
-    () => logger.startTrace("Step5Client_Lifecycle_v9.1"),
+    () => logger.startTrace("Step5Client_Lifecycle_v10.0"),
     []
   );
   useEffect(() => {
-    logger.info("[Step5Client] Componente montado y listo para operaciones.", {
-      traceId,
-    });
-    return () => {
-      logger.endTrace(traceId);
-    };
+    logger.info("[Step5Client] Componente montado (v10.0).", { traceId });
+    return () => logger.endTrace(traceId);
   }, [traceId]);
 
+  // --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+  // Se consume el hook agregador como ÚNICA fuente de verdad para el borrador.
   const assembledDraft = useAssembledDraft();
+  // --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+
   const { isCelebrating, endCelebration } = useCelebrationStore();
   const { goToPrevStep } = useWizard();
   const activeWorkspaceId = useWorkspaceStore((s) => s.activeWorkspaceId);
@@ -76,26 +77,17 @@ export function Step5Client({
   );
 
   const handlePublish = useCallback(() => {
-    logger.traceEvent(
-      traceId,
-      "Intento de PUBLICACIÓN iniciado por el usuario."
-    );
+    logger.traceEvent(traceId, "Intento de PUBLICACIÓN iniciado.");
     onPublish();
   }, [onPublish, traceId]);
 
   const handlePackage = useCallback(() => {
-    logger.traceEvent(
-      traceId,
-      "Intento de EMPAQUETADO iniciado por el usuario."
-    );
+    logger.traceEvent(traceId, "Intento de EMPAQUETADO iniciado.");
     onPackage();
   }, [onPackage, traceId]);
 
   const handleDelete = useCallback(() => {
-    logger.warn(
-      "[Step5Client] Intento de ELIMINACIÓN DE BORRADOR iniciado por el usuario.",
-      { traceId }
-    );
+    logger.warn("[Step5Client] Intento de ELIMINACIÓN iniciado.", { traceId });
     onDelete();
   }, [onDelete, traceId]);
 
@@ -111,30 +103,20 @@ export function Step5Client({
     [onSaveAsTemplate, traceId]
   );
 
+  // --- Guardianes de Resiliencia ---
   if (!stepContent) {
-    const errorMsg =
-      "Contrato de UI violado: La prop 'stepContent' es nula o indefinida.";
-    logger.error(`[Step5Client] ${errorMsg}`, { traceId });
     return (
       <DeveloperErrorDisplay
-        context="Step5Client Guardián de Contenido"
-        errorMessage={errorMsg}
+        context="Step5Client"
+        errorMessage="Contenido i18n no proporcionado."
       />
     );
   }
-
   if (!assembledDraft.draftId || !activeWorkspaceId) {
-    const errorMsg = "Faltan datos críticos para la gestión de la campaña.";
-    logger.error(`[Step5Client] ${errorMsg}`, {
-      hasDraftId: !!assembledDraft.draftId,
-      hasWorkspaceId: !!activeWorkspaceId,
-      traceId,
-    });
     return (
       <DeveloperErrorDisplay
-        context="Step5Client Guardián de Datos"
-        errorMessage={errorMsg}
-        errorDetails="El ID del borrador (draftId) o el ID del workspace activo no están disponibles en el estado global."
+        context="Step5Client"
+        errorMessage="Faltan datos críticos (draftId o workspaceId)."
       />
     );
   }
@@ -156,13 +138,10 @@ export function Step5Client({
         isSavingTemplate={isSavingTemplate}
         isLaunchReady={isLaunchReady}
         artifactHistorySlot={
-          // --- [INICIO DE CORRECCIÓN DE CONTRATO (TS2322)] ---
-          // Se pasa el objeto 'artifactHistory' completo a la prop 'content'.
           <ArtifactHistory
             draftId={assembledDraft.draftId}
             content={stepContent.artifactHistory}
           />
-          // --- [FIN DE CORRECCIÓN DE CONTRATO] ---
         }
       />
       <DigitalConfetti isActive={isCelebrating} onComplete={endCelebration} />

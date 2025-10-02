@@ -1,25 +1,27 @@
 // RUTA: src/components/sections/SocialProofLogos.tsx
 /**
  * @file SocialProofLogos.tsx
- * @description Aparato "Server Shell" para la sección de prueba social.
- * @version 8.1.0 (Elite Error Handling & Type Safety)
- *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
+ * @description Aparato "Server Shell" para la sección de prueba social,
+ *              ahora Focus-Aware y con contrato soberano.
+ * @version 9.0.0 (Sovereign Contract & Focus-Aware)
+ * @author L.I.A. Legacy
  */
+import "server-only";
 import React from "react";
 import { getBaviManifest } from "@/shared/lib/bavi";
 import { logger } from "@/shared/lib/logging";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { SocialProofLogosClient } from "./SocialProofLogosClient";
+import type { SectionProps } from "@/shared/lib/types/sections.types";
 import type {
   BaviAsset,
   BaviVariant,
 } from "@/shared/lib/schemas/bavi/bavi.manifest.schema";
 
-type SocialProofContent = NonNullable<Dictionary["socialProofLogos"]>;
-interface SocialProofLogosProps {
-  content?: SocialProofContent;
+interface SocialProofLogosProps extends SectionProps<"socialProofLogos"> {
+  isFocused?: boolean;
 }
+
 type ResolvedLogo = {
   alt: string;
   publicId: string;
@@ -29,8 +31,21 @@ type ResolvedLogo = {
 
 export async function SocialProofLogos({
   content,
+  isFocused,
 }: SocialProofLogosProps): Promise<React.ReactElement | null> {
-  if (!content || !content.logos || content.logos.length === 0) return null;
+  const traceId = logger.startTrace("SocialProofLogos_Shell_v9.0");
+  logger.info("[SocialProofLogos Shell] Iniciando obtención de datos.", {
+    traceId,
+  });
+
+  if (!content || !content.logos || content.logos.length === 0) {
+    logger.warn(
+      "[Guardián] Contenido inválido o ausente para SocialProofLogos.",
+      { traceId }
+    );
+    logger.endTrace(traceId);
+    return null;
+  }
 
   try {
     const baviManifest = await getBaviManifest();
@@ -44,7 +59,8 @@ export async function SocialProofLogos({
         );
         if (!baviAsset || !variant) {
           logger.warn(
-            `[SocialProofLogos Shell] Logo assetId '${logo.assetId}' no encontrado en BAVI.`
+            `[SocialProofLogos Shell] Logo assetId '${logo.assetId}' no encontrado en BAVI.`,
+            { traceId }
           );
           return null;
         }
@@ -57,23 +73,29 @@ export async function SocialProofLogos({
       })
       .filter((logo): logo is ResolvedLogo => logo !== null);
 
+    logger.endTrace(traceId);
     return (
-      <SocialProofLogosClient title={content.title} logos={resolvedLogos} />
+      <SocialProofLogosClient
+        title={content.title}
+        logos={resolvedLogos}
+        isFocused={isFocused}
+      />
     );
   } catch (error) {
     const errorMessage =
       "No se pudo cargar o procesar el manifiesto de la BAVI.";
     logger.error("[SocialProofLogos Shell] Fallo crítico al renderizar.", {
-      error,
+      error: error instanceof Error ? error.message : String(error),
+      traceId,
     });
+    logger.endTrace(traceId);
 
     if (process.env.NODE_ENV === "development") {
-      const errorDetails = error instanceof Error ? error : String(error);
       return (
         <DeveloperErrorDisplay
           context="SocialProofLogos Server Shell"
           errorMessage={errorMessage}
-          errorDetails={errorDetails}
+          errorDetails={error instanceof Error ? error : String(error)}
         />
       );
     }

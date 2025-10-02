@@ -1,14 +1,14 @@
 // RUTA: src/components/features/commerce/StoreClient.tsx
 /**
  * @file StoreClient.tsx
- * @description Componente "cerebro" del lado del cliente para la página de la tienda.
- *              Gestiona el estado de los filtros y la lógica de interacción.
- * @version 3.0.0 (Definitive Build Fix)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente "cerebro" de cliente para la tienda, ahora con
+ *              integridad de contrato restaurada y observabilidad de élite.
+ * @version 4.0.0 (Prop Contract Restoration & Elite Compliance)
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Container } from "@/components/ui";
 import { ProductFilters } from "@/components/sections/ProductFilters";
 import { ProductGrid } from "@/components/sections/ProductGrid";
@@ -18,13 +18,15 @@ import { useProductFilters } from "@/shared/hooks/use-product-filters";
 import type { Product } from "@/shared/lib/schemas/entities/product.schema";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
+import { logger } from "@/shared/lib/logging";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
 interface StoreClientProps {
   initialProducts: Product[];
   content: {
-    storePage: Dictionary["storePage"];
-    faqAccordion: Dictionary["faqAccordion"];
-    communitySection: Dictionary["communitySection"];
+    storePage?: Dictionary["storePage"];
+    faqAccordion?: Dictionary["faqAccordion"];
+    communitySection?: Dictionary["communitySection"];
   };
   locale: Locale;
 }
@@ -34,6 +36,14 @@ export function StoreClient({
   content,
   locale,
 }: StoreClientProps) {
+  const traceId = useMemo(
+    () => logger.startTrace("StoreClient_Lifecycle_v4.0"),
+    []
+  );
+  logger.info("[StoreClient] Renderizando orquestador de cliente v4.0.", {
+    traceId,
+  });
+
   const { filters, setFilters, filteredProducts } =
     useProductFilters(initialProducts);
 
@@ -50,14 +60,18 @@ export function StoreClient({
     [initialProducts]
   );
 
-  // Guardia de resiliencia para el contenido
+  // --- [INICIO] GUARDIÁN DE RESILIENCIA DE CONTRATO ---
   if (!content.storePage) {
+    const errorMsg =
+      "Contrato de UI violado: La propiedad 'content.storePage' es requerida.";
+    logger.error(`[Guardián] ${errorMsg}`, { traceId });
     return (
       <Container className="py-16">
-        <p>Error: Falta el contenido de la página de la tienda.</p>
+        <DeveloperErrorDisplay context="StoreClient" errorMessage={errorMsg} />
       </Container>
     );
   }
+  // --- [FIN] GUARDIÁN DE RESILIENCIA DE CONTRATO ---
 
   return (
     <>
@@ -76,10 +90,16 @@ export function StoreClient({
           />
         </div>
       </Container>
-      {content.faqAccordion && <FaqAccordion content={content.faqAccordion} />}
-      {content.communitySection && (
-        <CommunitySection content={content.communitySection} />
+
+      {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
+      {/* Se pasa la prop 'locale' requerida a los componentes de sección */}
+      {content.faqAccordion && (
+        <FaqAccordion content={content.faqAccordion} locale={locale} />
       )}
+      {content.communitySection && (
+        <CommunitySection content={content.communitySection} locale={locale} />
+      )}
+      {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
     </>
   );
 }

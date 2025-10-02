@@ -35,7 +35,9 @@ export async function loadComponentAndProps(
     logger.traceEvent(traceId, "Obteniendo entrada del registro...");
     const entry = getComponentByName(componentName);
     if (!entry) {
-      throw new Error(`Componente "${componentName}" no encontrado en ComponentRegistry.`);
+      throw new Error(
+        `Componente "${componentName}" no encontrado en ComponentRegistry.`
+      );
     }
     logger.traceEvent(traceId, "Entrada del registro obtenida con éxito.");
 
@@ -44,7 +46,10 @@ export async function loadComponentAndProps(
     logger.traceEvent(traceId, "Props de fallback generadas.");
 
     const dynamicPath = `@/` + entry.componentPath.replace("@/", "");
-    logger.traceEvent(traceId, `Importando dinámicamente desde: ${dynamicPath}`);
+    logger.traceEvent(
+      traceId,
+      `Importando dinámicamente desde: ${dynamicPath}`
+    );
     const componentModule = await import(dynamicPath);
 
     const ComponentToRender =
@@ -60,16 +65,20 @@ export async function loadComponentAndProps(
     }
     logger.traceEvent(traceId, "Módulo del componente resuelto y cargado.");
 
-    logger.success(`[Loader] Componente "${componentName}" listo para renderizar.`);
+    logger.success(
+      `[Loader] Componente "${componentName}" listo para renderizar.`
+    );
     return { ComponentToRender, componentProps, entry };
-
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
     logger.error(`[Loader] Fallo crítico al cargar "${componentName}".`, {
       error: errorMessage,
       traceId,
     });
-    throw new Error(`No se pudo orquestar la carga del componente: ${errorMessage}`);
+    throw new Error(
+      `No se pudo orquestar la carga del componente: ${errorMessage}`
+    );
   } finally {
     logger.endGroup();
     logger.endTrace(traceId);

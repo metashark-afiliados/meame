@@ -1,14 +1,14 @@
 // RUTA: src/app/[locale]/(public)/page.tsx
 /**
  * @file page.tsx
- * @description Homepage del portal, ahora en su ubicación arquitectónica correcta y con la ruta de importación nivelada.
- * @version 12.0.0 (Architectural Alignment Fix)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Homepage del portal, actuando como un "Ensamblador de Servidor"
+ *              de élite, con integridad de contrato restaurada y resiliencia mejorada.
+ * @version 15.0.0 (Holistic Contract Restoration & Elite Resilience)
+ * @author L.I.A. Legacy
  */
 import React from "react";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { logger } from "@/shared/lib/logging";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { SectionAnimator } from "@/components/layout/SectionAnimator";
@@ -16,65 +16,109 @@ import {
   SocialProofLogos,
   CommunitySection,
   ScrollingBanner,
+  HeroNews,
+  NewsGrid,
 } from "@/components/sections";
-import { HomePageClient } from "../HomePageClient"; // <-- RUTA CORREGIDA
+import { getPublishedArticlesAction } from "@/shared/lib/actions/cogniread";
+import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 
 interface HomePageProps {
   params: { locale: Locale };
 }
 
 export default async function HomePage({ params: { locale } }: HomePageProps) {
-  const traceId = logger.startTrace("HomePage_Render_v12.0");
+  const traceId = logger.startTrace("HomePage_Render_v15.0");
   logger.startGroup(
-    `[HomePage Shell] Renderizando v12.0 para locale: ${locale}`
+    `[HomePage Shell] Renderizando v15.0 para locale: ${locale}`
   );
 
   try {
-    const { dictionary, error: dictError } = await getDictionary(locale);
+    const [{ dictionary, error: dictError }, articlesResult] =
+      await Promise.all([
+        getDictionary(locale),
+        getPublishedArticlesAction({ page: 1, limit: 4 }),
+      ]);
 
     const {
       socialProofLogos,
-      heroNews,
-      newsGrid,
       communitySection,
       scrollingBanner,
+      heroNews,
+      newsGrid,
     } = dictionary;
 
+    // --- [INICIO] GUARDIÁN DE RESILIENCIA REFORZADO ---
     if (
       dictError ||
       !socialProofLogos ||
-      !heroNews ||
-      !newsGrid ||
       !communitySection ||
-      !scrollingBanner
+      !scrollingBanner ||
+      !heroNews ||
+      !newsGrid
     ) {
       const missingKeys = [
         !socialProofLogos && "socialProofLogos",
-        !heroNews && "heroNews",
-        !newsGrid && "newsGrid",
         !communitySection && "communitySection",
         !scrollingBanner && "scrollingBanner",
+        !heroNews && "heroNews",
+        !newsGrid && "newsGrid",
       ]
         .filter(Boolean)
         .join(", ");
 
-      const errorMessage = `Faltan datos de i18n esenciales para el Homepage. Claves ausentes: ${missingKeys}`;
-      logger.error(`[Guardián de Resiliencia] ${errorMessage}`, {
-        dictError,
-        traceId,
-      });
-      throw new Error(errorMessage);
+      throw new Error(
+        `Faltan una o más claves de i18n esenciales. Claves ausentes: ${missingKeys}`
+      );
+    }
+    // --- [FIN] GUARDIÁN DE RESILIENCIA REFORZADO ---
+
+    if (!articlesResult.success) {
+      if (process.env.NODE_ENV === "development") {
+        return (
+          <DeveloperErrorDisplay
+            context="HomePage Data Fetching"
+            errorMessage="Fallo al obtener artículos publicados desde la base de datos."
+            errorDetails={articlesResult.error}
+          />
+        );
+      }
+      logger.error(
+        "[HomePage Shell] No se pudieron obtener los artículos de CogniRead en producción.",
+        { error: articlesResult.error, traceId }
+      );
     }
 
-    const fullDictionary = dictionary as Dictionary;
-    logger.traceEvent(traceId, "Datos i18n obtenidos y validados.");
+    const articles: CogniReadArticle[] = articlesResult.success
+      ? articlesResult.data.articles
+      : [];
+    const featuredArticle = articles[0];
+    const gridArticles = articles.slice(1, 4);
 
     return (
       <SectionAnimator>
-        <ScrollingBanner content={scrollingBanner} />
-        <SocialProofLogos content={socialProofLogos} />
-        <HomePageClient locale={locale} dictionary={fullDictionary} />
-        <CommunitySection content={communitySection} />
+        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
+        <ScrollingBanner content={scrollingBanner} locale={locale} />
+        <SocialProofLogos content={socialProofLogos} locale={locale} />
+        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
+
+        {featuredArticle && (
+          <HeroNews
+            content={heroNews}
+            article={featuredArticle}
+            locale={locale}
+          />
+        )}
+        {gridArticles.length > 0 && (
+          <NewsGrid
+            articles={gridArticles}
+            locale={locale}
+            content={newsGrid}
+          />
+        )}
+
+        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
+        <CommunitySection content={communitySection} locale={locale} />
+        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
       </SectionAnimator>
     );
   } catch (error) {

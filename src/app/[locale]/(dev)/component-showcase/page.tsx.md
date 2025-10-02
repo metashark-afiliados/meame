@@ -1,15 +1,16 @@
 // app/[locale]/(dev)/dev/component-showcase/page.tsx
-/**
- * @file page.tsx
- * @description Página de vitrina para componentes de ShadCN/ui base.
- *              v1.1.0 (PageHeader Contract Fix): Se alinea la llamada a PageHeader
- *              con su contrato de API de élite.
- * @version 1.1.0
- * @author RaZ Podestá - MetaShark Tech
- */
-import React from "react";
-import { PageHeader } from "@/components/layout/PageHeader";
-import {
+/\*\*
+
+- @file page.tsx
+- @description Página de vitrina para componentes de ShadCN/ui base.
+-              v1.1.0 (PageHeader Contract Fix): Se alinea la llamada a PageHeader
+-              con su contrato de API de élite.
+- @version 1.1.0
+- @author RaZ Podestá - MetaShark Tech
+  \*/
+  import React from "react";
+  import { PageHeader } from "@/components/layout/PageHeader";
+  import {
   Container,
   Card,
   CardHeader,
@@ -19,16 +20,16 @@ import {
   AlertTitle,
   AlertDescription,
   Button,
-} from "@/components/ui";
-import {
+  } from "@/components/ui";
+  import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/Table";
-import {
+  } from "@/components/ui/Table";
+  import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -36,46 +37,47 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-} from "@/components/ui/Dialog";
-import { DynamicIcon } from "@/components/ui";
+  } from "@/components/ui/Dialog";
+  import { DynamicIcon } from "@/components/ui";
 
 export default async function ComponentShowcasePage() {
-  const invoices = [
-    {
-      invoice: "INV001",
-      paymentStatus: "Pagado",
-      totalAmount: "$250.00",
-      paymentMethod: "Tarjeta de Crédito",
-    },
-    {
-      invoice: "INV002",
-      paymentStatus: "Pendiente",
-      totalAmount: "$150.00",
-      paymentMethod: "PayPal",
-    },
-  ];
+const invoices = [
+{
+invoice: "INV001",
+paymentStatus: "Pagado",
+totalAmount: "$250.00",
+paymentMethod: "Tarjeta de Crédito",
+},
+{
+invoice: "INV002",
+paymentStatus: "Pendiente",
+totalAmount: "$150.00",
+paymentMethod: "PayPal",
+},
+];
 
-  return (
-    <>
-      {/* --- [INICIO DE CORRECCIÓN DE CONTRATO] --- */}
-      <PageHeader
-        content={{
+return (
+<>
+{/_ --- [INICIO DE CORRECCIÓN DE CONTRATO] --- _/}
+<PageHeader
+content={{
           title: "Vitrina de Componentes",
           subtitle:
             "Una instancia base de cada componente ShadCN/ui instalado para pruebas visuales.",
         }}
-      />
-      {/* --- [FIN DE CORRECCIÓN DE CONTRATO] --- */}
-      <Container className="py-12 space-y-12">
-        {/* Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Card</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Este es un componente de tarjeta base.</p>
-          </CardContent>
-        </Card>
+/>
+{/_ --- [FIN DE CORRECCIÓN DE CONTRATO] --- _/}
+<Container className="py-12 space-y-12">
+{/_ Card _/}
+<Card>
+<CardHeader>
+<CardTitle>Card</CardTitle>
+</CardHeader>
+<CardContent>
+
+<p>Este es un componente de tarjeta base.</p>
+</CardContent>
+</Card>
 
         {/* Alert */}
         <Alert>
@@ -162,6 +164,7 @@ export default async function ComponentShowcasePage() {
         </Card>
       </Container>
     </>
-  );
+
+);
 }
 // app/[locale]/(dev)/dev/component-showcase/page.tsx

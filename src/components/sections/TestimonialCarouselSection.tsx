@@ -1,15 +1,13 @@
-// components/sections/TestimonialCarouselSection.tsx
+// RUTA: src/components/sections/TestimonialCarouselSection.tsx
 /**
  * @file TestimonialCarouselSection.tsx
  * @description Componente de sección para mostrar testimonios en un formato de carrusel interactivo.
- *              - v1.1.0: Iconografía estandarizada.
- *              - v1.2.0 (Resilience): La prop `content` ahora es opcional.
- * @version 1.2.0
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.0.0 (Sovereign Contract & Focus-Aware)
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React from "react";
+import React, { forwardRef } from "react";
 import Image from "next/image";
 import {
   Carousel,
@@ -22,57 +20,63 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { DynamicIcon } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import { cn } from "@/shared/lib/utils/cn";
+import type { SectionProps } from "@/shared/lib/types/sections.types";
 import type { ReviewItem } from "@/shared/lib/schemas/components/testimonial-carousel-section.schema";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
-interface TestimonialCarouselSectionProps {
-  // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
-  content?: Dictionary["testimonialCarouselSection"];
-  // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
+interface TestimonialCarouselSectionProps
+  extends SectionProps<"testimonialCarouselSection"> {
+  isFocused?: boolean;
 }
 
-const StarRating = ({ rating }: { rating: number }) => {
-  logger.trace("[Observabilidad] Renderizando StarRating");
-  return (
-    <div className="flex gap-1 text-yellow-500">
-      {[...Array(5)].map((_, i) => (
-        <DynamicIcon
-          key={i}
-          name="Star"
-          className="w-4 h-4"
-          fill={i < rating ? "currentColor" : "none"}
-        />
-      ))}
-    </div>
-  );
-};
+const StarRating = ({ rating }: { rating: number }) => (
+  <div className="flex gap-1 text-yellow-500">
+    {[...Array(5)].map((_, i) => (
+      <DynamicIcon
+        key={i}
+        name="Star"
+        className="w-4 h-4"
+        fill={i < rating ? "currentColor" : "none"}
+      />
+    ))}
+  </div>
+);
 
-export function TestimonialCarouselSection({
-  content,
-}: TestimonialCarouselSectionProps): React.ReactElement | null {
-  logger.info("[Observabilidad] Renderizando TestimonialCarouselSection");
+export const TestimonialCarouselSection = forwardRef<
+  HTMLElement,
+  TestimonialCarouselSectionProps
+>(({ content, isFocused }, ref) => {
+  logger.info("[TestimonialCarouselSection] Renderizando v2.0 (Focus-Aware).");
 
-  // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
   if (!content) {
-    logger.warn(
-      "[TestimonialCarouselSection] No se proporcionó contenido. La sección no se renderizará."
+    logger.error(
+      "[Guardián] Prop 'content' no proporcionada a TestimonialCarouselSection."
     );
-    return null;
+    return (
+      <DeveloperErrorDisplay
+        context="TestimonialCarouselSection"
+        errorMessage="Contrato de UI violado: La prop 'content' es requerida."
+      />
+    );
   }
-  // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
 
   const { eyebrow, title, reviews } = content;
 
   return (
-    <section id="testimonials-carousel" className="py-24 sm:py-32">
+    <section
+      ref={ref}
+      id="testimonials-carousel"
+      className={cn(
+        "py-24 sm:py-32 transition-all duration-300",
+        isFocused && "ring-2 ring-primary"
+      )}
+    >
       <Container className="text-center">
         <h2 className="text-lg text-primary mb-2 tracking-wider">{eyebrow}</h2>
         <h3 className="text-3xl md:text-4xl font-bold mb-12">{title}</h3>
         <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
+          opts={{ align: "start", loop: true }}
           className="w-full max-w-4xl mx-auto"
         >
           <CarouselContent>
@@ -112,5 +116,5 @@ export function TestimonialCarouselSection({
       </Container>
     </section>
   );
-}
-// components/sections/TestimonialCarouselSection.tsx
+});
+TestimonialCarouselSection.displayName = "TestimonialCarouselSection";

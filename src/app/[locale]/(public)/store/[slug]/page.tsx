@@ -1,134 +1,139 @@
-// RUTA: src/app/[locale]/store/[slug]/page.tsx
+// RUTA: src/app/[locale]/(public)/page.tsx
 /**
  * @file page.tsx
- * @description Página de detalle de producto, ahora con validación de contrato de élite.
- * @version 4.0.0 (Data Contract Guardian)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Homepage del portal, actuando como un "Ensamblador de Servidor"
+ *              de élite, con integridad de contrato restaurada y resiliencia mejorada.
+ * @version 15.0.0 (Holistic Contract Restoration & Elite Resilience)
+ * @author L.I.A. Legacy
  */
 import React from "react";
-import { headers } from "next/headers";
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
-import { supportedLocales, type Locale } from "@/shared/lib/i18n/i18n.config";
+import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { logger } from "@/shared/lib/logging";
-import { Container } from "@/components/ui";
-import { ProductGallery } from "@/components/sections/ProductGallery";
-import { ProductInfo } from "@/components/sections/ProductInfo";
-import { ProductGrid } from "@/components/sections/ProductGrid";
-import { getProducts, getProductBySlug } from "@/shared/lib/commerce";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
-import type { Product } from "@/shared/lib/schemas/entities/product.schema";
-import { ProductDetailPageContentSchema } from "@/shared/lib/schemas/pages/product-detail-page.schema";
+import { SectionAnimator } from "@/components/layout/SectionAnimator";
+import {
+  SocialProofLogos,
+  CommunitySection,
+  ScrollingBanner,
+  HeroNews,
+  NewsGrid,
+} from "@/components/sections";
+import { getPublishedArticlesAction } from "@/shared/lib/actions/cogniread";
+import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
 
-// ... (generateStaticParams y generateMetadata sin cambios) ...
-export async function generateStaticParams(): Promise<
-  { locale: Locale; slug: string }[]
-> {
-  const products = await getProducts({ locale: "es-ES" });
-  const paths = supportedLocales.flatMap((locale) =>
-    products.map((product: Product) => ({
-      locale,
-      slug: product.slug,
-    }))
-  );
-  return paths;
+interface HomePageProps {
+  params: { locale: Locale };
 }
 
-export async function generateMetadata({
-  params: { locale, slug },
-}: ProductDetailPageProps): Promise<Metadata> {
-  const product = await getProductBySlug({ locale, slug });
-  if (!product) return { title: "Producto no encontrado" };
-  return { title: product.name, description: product.description };
-}
-
-interface ProductDetailPageProps {
-  params: { locale: Locale; slug: string };
-}
-
-export default async function ProductDetailPage({
-  params: { locale, slug },
-}: ProductDetailPageProps) {
-  logger.info(
-    `[ProductDetailPage] Renderizando v4.0 (Guardian) para slug: "${slug}"`
+export default async function HomePage({ params: { locale } }: HomePageProps) {
+  const traceId = logger.startTrace("HomePage_Render_v15.0");
+  logger.startGroup(
+    `[HomePage Shell] Renderizando v15.0 para locale: ${locale}`
   );
 
-  const [{ dictionary, error: dictError }, product] = await Promise.all([
-    getDictionary(locale),
-    getProductBySlug({ locale, slug }),
-  ]);
+  try {
+    const [{ dictionary, error: dictError }, articlesResult] =
+      await Promise.all([
+        getDictionary(locale),
+        getPublishedArticlesAction({ page: 1, limit: 4 }),
+      ]);
 
-  const dynamicContent = dictionary[slug as keyof typeof dictionary];
+    const {
+      socialProofLogos,
+      communitySection,
+      scrollingBanner,
+      heroNews,
+      newsGrid,
+    } = dictionary;
 
-  // --- [INICIO DE GUARDIA DE CONTRATO ZOD] ---
-  const contentValidation =
-    ProductDetailPageContentSchema.safeParse(dynamicContent);
+    // --- [INICIO] GUARDIÁN DE RESILIENCIA REFORZADO ---
+    if (
+      dictError ||
+      !socialProofLogos ||
+      !communitySection ||
+      !scrollingBanner ||
+      !heroNews ||
+      !newsGrid
+    ) {
+      const missingKeys = [
+        !socialProofLogos && "socialProofLogos",
+        !communitySection && "communitySection",
+        !scrollingBanner && "scrollingBanner",
+        !heroNews && "heroNews",
+        !newsGrid && "newsGrid",
+      ]
+        .filter(Boolean)
+        .join(", ");
 
-  if (dictError || !product || !contentValidation.success) {
-    const errorMessage = `Fallo al cargar o validar datos para la página del producto [slug: ${slug}]`;
-    logger.error(`[ProductDetailPage] ${errorMessage}`, {
-      dictError,
-      productExists: !!product,
-      validationSuccess: contentValidation.success,
-      validationErrors:
-        !contentValidation.success && contentValidation.error.flatten(),
-    });
-    if (process.env.NODE_ENV === "production") return notFound();
+      throw new Error(
+        `Faltan una o más claves de i18n esenciales. Claves ausentes: ${missingKeys}`
+      );
+    }
+    // --- [FIN] GUARDIÁN DE RESILIENCIA REFORZADO ---
+
+    if (!articlesResult.success) {
+      if (process.env.NODE_ENV === "development") {
+        return (
+          <DeveloperErrorDisplay
+            context="HomePage Data Fetching"
+            errorMessage="Fallo al obtener artículos publicados desde la base de datos."
+            errorDetails={articlesResult.error}
+          />
+        );
+      }
+      logger.error(
+        "[HomePage Shell] No se pudieron obtener los artículos de CogniRead en producción.",
+        { error: articlesResult.error, traceId }
+      );
+    }
+
+    const articles: CogniReadArticle[] = articlesResult.success
+      ? articlesResult.data.articles
+      : [];
+    const featuredArticle = articles[0];
+    const gridArticles = articles.slice(1, 4);
+
+    return (
+      <SectionAnimator>
+        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
+        <ScrollingBanner content={scrollingBanner} locale={locale} />
+        <SocialProofLogos content={socialProofLogos} locale={locale} />
+        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
+
+        {featuredArticle && (
+          <HeroNews
+            content={heroNews}
+            article={featuredArticle}
+            locale={locale}
+          />
+        )}
+        {gridArticles.length > 0 && (
+          <NewsGrid
+            articles={gridArticles}
+            locale={locale}
+            content={newsGrid}
+          />
+        )}
+
+        {/* --- [INICIO DE RESTAURACIÓN DE CONTRATO] --- */}
+        <CommunitySection content={communitySection} locale={locale} />
+        {/* --- [FIN DE RESTAURACIÓN DE CONTRATO] --- */}
+      </SectionAnimator>
+    );
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error(`[HomePage Shell] ${errorMessage}`, { error: error, traceId });
     return (
       <DeveloperErrorDisplay
-        context="ProductDetailPage"
-        errorMessage={errorMessage}
-        errorDetails={
-          dictError ||
-          (!contentValidation.success && contentValidation.error) ||
-          `Producto o contenido i18n para slug '${slug}' no encontrado o inválido.`
-        }
+        context="HomePage Server Shell"
+        errorMessage="Fallo crítico al renderizar el Server Shell del Homepage."
+        errorDetails={error instanceof Error ? error : errorMessage}
       />
     );
+  } finally {
+    logger.endGroup();
+    logger.endTrace(traceId);
   }
-
-  const content = contentValidation.data;
-  // --- [FIN DE GUARDIA DE CONTRATO ZOD] ---
-
-  const allProducts = await getProducts({ locale });
-  const relatedProducts = allProducts
-    .filter(
-      (p) =>
-        p.id !== product.id &&
-        p.categorization.primary === product.categorization.primary
-    )
-    .slice(0, 3);
-
-  const headersList = headers();
-  const host = headersList.get("host") || "global-fitwell.com";
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-  const absoluteUrl = `${protocol}://${host}/${locale}/store/${slug}`;
-
-  return (
-    <Container className="py-16 sm:py-24">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-        <ProductGallery images={content.galleryImages} />
-        <ProductInfo
-          product={product}
-          content={content}
-          absoluteUrl={absoluteUrl}
-        />
-      </div>
-
-      {relatedProducts.length > 0 && dictionary.storePage && (
-        <div className="mt-24">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            {content.relatedProductsTitle}
-          </h2>
-          <ProductGrid
-            products={relatedProducts}
-            locale={locale}
-            content={dictionary.storePage}
-          />
-        </div>
-      )}
-    </Container>
-  );
 }
-// RUTA: src/app/[locale]/store/[slug]/page.tsx

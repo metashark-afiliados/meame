@@ -2,8 +2,8 @@
 /**
  * @file BenefitsSection.tsx
  * @description Componente de presentación para la sección de Beneficios.
- * @version 8.0.0 (Focus-Aware & Elite Compliance)
- * @author RaZ Podestá - MetaShark Tech
+ * @version 9.0.0 (Elite Contract & Focus-Aware)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -19,13 +19,11 @@ import {
 } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
 import { cn } from "@/shared/lib/utils/cn";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import type { SectionProps } from "@/shared/lib/types/sections.types";
 import type { BenefitItem } from "@/shared/lib/schemas/components/benefits-section.schema";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
-type BenefitsSectionContent = NonNullable<Dictionary["benefitsSection"]>;
-
-interface BenefitsSectionProps {
-  content: BenefitsSectionContent;
+interface BenefitsSectionProps extends SectionProps<"benefitsSection"> {
   isFocused?: boolean;
 }
 
@@ -40,9 +38,25 @@ const sectionVariants: Variants = {
 
 export const BenefitsSection = forwardRef<HTMLElement, BenefitsSectionProps>(
   ({ content, isFocused }, ref) => {
-    logger.info("[BenefitsSection] Renderizando v8.0 (Focus-Aware).");
+    const traceId = logger.startTrace("BenefitsSection_Render_v9.0");
+    logger.info("[BenefitsSection] Renderizando (Focus-Aware).", { traceId });
+
+    if (!content) {
+      logger.error(
+        "[Guardián] Prop 'content' no proporcionada a BenefitsSection.",
+        { traceId }
+      );
+      logger.endTrace(traceId);
+      return (
+        <DeveloperErrorDisplay
+          context="BenefitsSection"
+          errorMessage="Contrato de UI violado: La prop 'content' es requerida."
+        />
+      );
+    }
 
     const { eyebrow, title, subtitle, benefits } = content;
+    logger.endTrace(traceId);
 
     return (
       <motion.section

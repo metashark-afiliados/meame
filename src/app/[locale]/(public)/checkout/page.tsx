@@ -1,26 +1,19 @@
-// RUTA: src/app/[locale]/checkout/page.tsx
+// RUTA: src/app/[locale]/(public)/checkout/page.tsx
 /**
  * @file page.tsx
- * @description Página de checkout (Server Shell). Actúa como un Guardián de
- *              Contratos, garantizando la integridad de todos los datos
- *              antes de renderizar el componente de cliente.
- * @version 4.0.0 (Holistic Contract Guardian)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Página de checkout (Server Shell), ahora con una separación de
+ *              responsabilidades arquitectónicamente pura.
+ * @version 5.0.0 (Server Shell Pattern)
+ * @author L.I.A. Legacy
  */
 import React from "react";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 import { Container } from "@/components/ui";
-import { CheckoutForm } from "@/components/features/commerce/CheckoutForm";
 import { getDictionary } from "@/shared/lib/i18n/i18n";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
 import { createCheckoutSessionAction } from "@/shared/lib/actions/commerce/checkout.action";
 import { DeveloperErrorDisplay } from "@/components/features/dev-tools/";
 import { CheckoutFormContentSchema } from "@/shared/lib/schemas/components/commerce/checkout-form.schema";
-
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
+import { CheckoutClient } from "./CheckoutClient";
 
 export default async function CheckoutPage({
   params: { locale },
@@ -32,7 +25,6 @@ export default async function CheckoutPage({
     createCheckoutSessionAction(),
   ]);
 
-  // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: GUARDIÁN DE CONTRATO ZOD] ---
   const contentValidation = CheckoutFormContentSchema.safeParse(
     dictionary.checkoutForm
   );
@@ -51,20 +43,22 @@ export default async function CheckoutPage({
     );
   }
 
-  // A partir de aquí, 'content' y 'checkoutResult.data' son 100% seguros a nivel de tipos.
   const content = contentValidation.data;
   const { clientSecret } = checkoutResult.data;
-  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
+
+  if (!clientSecret) {
+    return (
+      <DeveloperErrorDisplay
+        context="CheckoutPage"
+        errorMessage="El clientSecret de Stripe no pudo ser generado."
+      />
+    );
+  }
 
   return (
     <Container className="py-24 max-w-lg">
       <h1 className="text-3xl font-bold mb-8 text-center">{content.title}</h1>
-      <Elements
-        options={{ clientSecret: clientSecret ?? undefined }}
-        stripe={stripePromise}
-      >
-        <CheckoutForm content={content} />
-      </Elements>
+      <CheckoutClient clientSecret={clientSecret} content={content} />
     </Container>
   );
 }

@@ -1,15 +1,17 @@
-// Ruta correcta: src/components/features/commerce/AddToCartForm.tsx
+// RUTA: src/components/features/commerce/AddToCartForm.tsx
 /**
  * @file AddToCartForm.tsx
- * @description Componente de cliente atómico y de élite que encapsula toda la
- *              lógica para añadir una variante de producto al carrito.
- * @version 1.3.0 (Sovereign Action Import Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente de cliente atómico y de élite para añadir al carrito.
+ *              v2.0.0 (Architectural Normalization): Refactorizado para usar
+ *              `useTransition` en lugar de `useActionState`, alineándose con
+ *              la arquitectura soberana del proyecto y resolviendo errores de build.
+ * @version 2.0.0
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React, { useState } from "react";
-import { useActionState } from "react";
+import React, { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { Button, DynamicIcon, Input, Label } from "@/components/ui";
 import { addItem } from "@/shared/lib/actions/commerce/cart.actions";
 import { logger } from "@/shared/lib/logging";
@@ -29,8 +31,8 @@ export function AddToCartForm({
   variantId,
   content,
 }: AddToCartFormProps) {
-  logger.trace("[AddToCartForm] Renderizando v1.3 (Sovereign Action Import).");
-  const [message, formAction] = useActionState(addItem, undefined);
+  logger.trace("[AddToCartForm] Renderizando v2.0 (Normalized).");
+  const [isPending, startTransition] = useTransition();
   const [quantity, setQuantity] = useState(1);
 
   if (!isAvailable) {
@@ -41,9 +43,21 @@ export function AddToCartForm({
     );
   }
 
+  const handleSubmit = (formData: FormData) => {
+    startTransition(async () => {
+      const result = await addItem(undefined, formData);
+      if (result) {
+        // Asumiendo que el resultado es una clave de i18n para el error
+        toast.error("Error", { description: result });
+      } else {
+        toast.success("Producto añadido al carrito.");
+      }
+    });
+  };
+
   return (
     <form
-      action={formAction}
+      action={handleSubmit}
       className="flex flex-col sm:flex-row items-center gap-4"
     >
       <input type="hidden" name="variantId" value={variantId} />
@@ -57,7 +71,7 @@ export function AddToCartForm({
             size="icon"
             className="h-9 w-9"
             type="button"
-            onClick={() => setQuantity((q: number) => Math.max(1, q - 1))}
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
           >
             <DynamicIcon name="Minus" className="h-4 w-4" />
           </Button>
@@ -76,20 +90,27 @@ export function AddToCartForm({
             size="icon"
             className="h-9 w-9"
             type="button"
-            onClick={() => setQuantity((q: number) => q + 1)}
+            onClick={() => setQuantity((q) => q + 1)}
           >
             <DynamicIcon name="Plus" className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      <Button type="submit" size="lg" className="w-full sm:w-auto flex-1">
-        <DynamicIcon name="ShoppingCart" className="mr-2 h-5 w-5" />
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full sm:w-auto flex-1"
+        disabled={isPending}
+      >
+        {isPending && (
+          <DynamicIcon
+            name="LoaderCircle"
+            className="mr-2 h-4 w-4 animate-spin"
+          />
+        )}
         {content.addToCartButton}
       </Button>
-
-      {message && <p className="text-sm text-red-500 mt-2">{message}</p>}
     </form>
   );
 }
-// Ruta correcta: src/components/features/commerce/AddToCartForm.tsx

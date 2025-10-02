@@ -3,12 +3,12 @@
  * @file PromptCreatorForm.tsx
  * @description Orquestador de presentación de élite para el creador de prompts.
  *              Ensambla grupos de campos atómicos para una máxima granularidad.
- * @version 8.0.0 (Hyper-Atomic Composition)
- *@author RaZ Podestá - MetaShark Tech
+ * @version 9.0.0 (Architectural Integrity & Elite Compliance)
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { motion, type Variants } from "framer-motion";
 import {
@@ -21,7 +21,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui";
-import { FormFieldGroup } from "@/components/forms/FormFieldGroup";
+import { FormFieldGroup } from "@/components/features/form-builder/FormFieldGroup";
 import { SesaTagsFormGroup } from "./SesaTagsFormGroup";
 import { ParameterSelectorsGroup } from "./ParameterSelectorsGroup";
 import { PromptIdentityGroup } from "./PromptIdentityGroup";
@@ -61,16 +61,18 @@ export function PromptCreatorForm({
   isPending,
   content,
 }: PromptCreatorFormProps) {
-  const traceId = logger.startTrace("PromptCreatorForm_Render_v8.0");
-  logger.info(
-    "[PromptCreatorForm] Renderizando orquestador de presentación atómico.",
-    { traceId }
+  const traceId = useMemo(
+    () => logger.startTrace("PromptCreatorForm_v9.0"),
+    []
   );
+  logger.info("[PromptCreatorForm] Renderizando orquestador v9.0.", {
+    traceId,
+  });
 
+  // --- Guardián de Resiliencia de Contrato ---
   if (!content) {
     const errorMsg = "Contrato de UI violado: La prop 'content' es requerida.";
     logger.error(`[Guardián] ${errorMsg}`, { traceId });
-    logger.endTrace(traceId);
     return (
       <DeveloperErrorDisplay
         context="PromptCreatorForm"
@@ -79,7 +81,6 @@ export function PromptCreatorForm({
     );
   }
 
-  logger.endTrace(traceId);
   return (
     <Card>
       <CardHeader>

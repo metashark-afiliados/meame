@@ -4,12 +4,13 @@
  * @description Formulario de pedido de élite, "Guardián de la Conversión".
  *              v9.0.0 (Sovereign Architectural Elevation): Elevado a su dominio
  *              canónico en `features/commerce` para una cohesión arquitectónica total.
+ *              Forjado con observabilidad de élite y MEA/UX.
  * @version 9.0.0
- *@author RaZ Podestá - MetaShark Tech
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useMemo } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +21,9 @@ import { useProducerLogic } from "@/shared/hooks/use-producer-logic";
 import { HiddenFormFields } from "@/components/features/commerce/HiddenFormFields";
 import { FormInput } from "@/components/ui/FormInput";
 import { Button, DynamicIcon } from "@/components/ui";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
+
+// --- SSoT de Contratos y Animaciones ---
 
 const OrderFormSchema = z.object({
   name: z.string().min(2, "Il nome è obbligatorio"),
@@ -59,7 +63,13 @@ const fieldVariants: Variants = {
 };
 
 export function OrderForm({ content }: OrderFormProps): React.ReactElement {
-  logger.info("[OrderForm] Renderizando v9.0 (Sovereign Elevation).");
+  const traceId = useMemo(
+    () => logger.startTrace("OrderForm_Lifecycle_v9.0"),
+    []
+  );
+  logger.info("[OrderForm] Renderizando v9.0 (Sovereign Elevation).", {
+    traceId,
+  });
 
   const formRef = useRef<HTMLFormElement>(null);
   const producerConfig = getProducerConfig();
@@ -76,10 +86,19 @@ export function OrderForm({ content }: OrderFormProps): React.ReactElement {
   const onSubmit: SubmitHandler<OrderFormData> = (data) => {
     logger.success(
       "[OrderForm] Validación de cliente exitosa. Enviando formulario nativo...",
-      { action: producerConfig.ACTION_URL, data }
+      { action: producerConfig.ACTION_URL, data, traceId }
     );
     formRef.current?.submit();
   };
+
+  // --- Guardián de Resiliencia de Contrato ---
+  if (!content) {
+    const errorMsg = "Contrato de UI violado: La prop 'content' es requerida.";
+    logger.error(`[Guardián] ${errorMsg}`, { traceId });
+    return (
+      <DeveloperErrorDisplay context="OrderForm" errorMessage={errorMsg} />
+    );
+  }
 
   return (
     <motion.form

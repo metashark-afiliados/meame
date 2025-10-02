@@ -1,17 +1,17 @@
 // RUTA: src/components/features/raz-prompts/components/ParameterSelectorsGroup.tsx
 /**
  * @file ParameterSelectorsGroup.tsx
- * @description Orquestador de presentación data-driven para los parámetros de la IA,
- *              forjado con MEA/UX y observabilidad de élite.
- * @version 5.0.0 (Holistic Contract Alignment)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Orquestador de presentación para los parámetros de la IA,
+ *              con integridad de ruta restaurada y resiliencia de élite.
+ * @version 6.0.0 (Architectural Integrity & Elite Resilience)
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import type { Control } from "react-hook-form";
 import { motion, type Variants } from "framer-motion";
-import { FormFieldGroup } from "@/components/forms/FormFieldGroup";
+import { FormFieldGroup } from "@/components/features/form-builder/FormFieldGroup";
 import type { CreatePromptFormData } from "@/shared/hooks/raz-prompts/use-prompt-creator";
 import type { z } from "zod";
 import { logger } from "@/shared/lib/logging";
@@ -36,18 +36,17 @@ export function ParameterSelectorsGroup({
   control,
   content,
 }: ParameterSelectorsGroupProps) {
-  const traceId = logger.startTrace("ParameterSelectorsGroup_Render_v5.0");
-  logger.info(
-    "[ParameterSelectorsGroup] Renderizando orquestador data-driven.",
-    { traceId }
+  const traceId = useMemo(
+    () => logger.startTrace("ParameterSelectorsGroup_v6.0"),
+    []
   );
+  logger.info("[ParameterSelectorsGroup] Renderizando v6.0.", { traceId });
 
-  // --- GUARDIÁN DE CONTRATO ---
-  if (!content || !content.parameterOptions || !content.sesaLabels) {
+  // --- Guardián de Resiliencia de Contrato ---
+  if (!content?.parameterOptions || !content?.sesaLabels) {
     const errorMsg =
       "Contrato de UI violado: Faltan datos de i18n para los parámetros.";
     logger.error(`[Guardián] ${errorMsg}`, { traceId });
-    logger.endTrace(traceId);
     return (
       <DeveloperErrorDisplay
         context="ParameterSelectorsGroup"
@@ -56,7 +55,6 @@ export function ParameterSelectorsGroup({
     );
   }
 
-  logger.endTrace(traceId);
   return (
     <FormFieldGroup label={content.parametersGroupLabel} className="space-y-4">
       <motion.div
@@ -66,14 +64,12 @@ export function ParameterSelectorsGroup({
         animate="visible"
       >
         {IDEOGRAM_PARAMETERS_CONFIG.map((config) => {
-          // --- [INICIO DE REFACTORIZACIÓN DE LÓGICA] ---
-          // La lógica ahora es segura a nivel de tipos y consume el schema correcto.
           const options = content.parameterOptions[config.id] || [];
           return (
             <motion.div key={config.id} variants={fieldVariants}>
               <ParameterSelectField
                 control={control}
-                name={`parameters.${config.id}`} // <-- Ahora es seguro a nivel de tipos gracias al Path<T>
+                name={`parameters.${config.id}`}
                 label={
                   content.sesaLabels[
                     config.labelKey as keyof typeof content.sesaLabels
@@ -88,7 +84,6 @@ export function ParameterSelectorsGroup({
               />
             </motion.div>
           );
-          // --- [FIN DE REFACTORIZACIÓN DE LÓGICA] ---
         })}
       </motion.div>
     </FormFieldGroup>

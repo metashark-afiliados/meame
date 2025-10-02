@@ -1,42 +1,52 @@
-// components/sections/IngredientAnalysis.tsx
+// RUTA: src/components/sections/IngredientAnalysis.tsx
 /**
  * @file IngredientAnalysis.tsx
- * @description Sección de Análisis de Ingredientes.
- *              - v2.0.0: Adherido al contrato de props unificado.
- *              - v2.1.0 (Resilience): La prop `content` ahora es opcional.
- * @version 2.1.0
- * @author RaZ Podestá - MetaShark Tech
+ * @description Sección de Análisis de Ingredientes, nivelada a un estándar de élite.
+ * @version 2.0.0 (Sovereign Contract & Focus-Aware)
+ * @author L.I.A. Legacy
  */
-import React from "react";
+"use client";
+
+import React, { forwardRef } from "react";
 import { Container } from "@/components/ui/Container";
 import { logger } from "@/shared/lib/logging";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
+import { cn } from "@/shared/lib/utils/cn";
+import type { SectionProps } from "@/shared/lib/types/sections.types";
 import type { Ingredient } from "@/shared/lib/schemas/components/ingredient-analysis.schema";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
-interface IngredientAnalysisProps {
-  // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
-  content?: Dictionary["ingredientAnalysis"];
-  // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
+interface IngredientAnalysisProps extends SectionProps<"ingredientAnalysis"> {
+  isFocused?: boolean;
 }
 
-export function IngredientAnalysis({
-  content,
-}: IngredientAnalysisProps): React.ReactElement | null {
-  logger.info("[Observabilidad] Renderizando IngredientAnalysis");
+export const IngredientAnalysis = forwardRef<
+  HTMLElement,
+  IngredientAnalysisProps
+>(({ content, isFocused }, ref) => {
+  logger.info("[IngredientAnalysis] Renderizando v2.0 (Focus-Aware).");
 
-  // --- [INICIO DE REFACTORIZACIÓN DE RESILIENCIA] ---
   if (!content) {
-    logger.warn(
-      "[IngredientAnalysis] No se proporcionó contenido. La sección no se renderizará."
+    logger.error(
+      "[Guardián] Prop 'content' no proporcionada a IngredientAnalysis."
     );
-    return null;
+    return (
+      <DeveloperErrorDisplay
+        context="IngredientAnalysis"
+        errorMessage="Contrato de UI violado: La prop 'content' es requerida."
+      />
+    );
   }
-  // --- [FIN DE REFACTORIZACIÓN DE RESILIENCIA] ---
 
   const { title, ingredients } = content;
 
   return (
-    <section className="py-16 sm:py-24 bg-background">
+    <section
+      ref={ref}
+      className={cn(
+        "py-16 sm:py-24 bg-background transition-all duration-300",
+        isFocused && "ring-2 ring-primary"
+      )}
+    >
       <Container>
         <h2 className="text-3xl font-bold text-center text-foreground mb-12 sm:text-4xl">
           {title}
@@ -57,5 +67,5 @@ export function IngredientAnalysis({
       </Container>
     </section>
   );
-}
-// components/sections/IngredientAnalysis.tsx
+});
+IngredientAnalysis.displayName = "IngredientAnalysis";

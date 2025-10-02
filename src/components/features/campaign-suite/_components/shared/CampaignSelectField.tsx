@@ -1,9 +1,9 @@
 // RUTA: src/components/features/campaign-suite/_components/shared/CampaignSelectField.tsx
 /**
  * @file CampaignSelectField.tsx
- * @description Componente atómico hiper-especializado para un campo <Select>.
- * @version 2.0.0 (Sovereign Path Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente atómico para un campo <Select>, con integridad de ruta restaurada.
+ * @version 3.0.0 (Architectural Integrity Restoration)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -17,7 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/Select";
-import { FormFieldGroup } from "@/components/forms/FormFieldGroup"; // <-- RUTA CORREGIDA
+// --- [INICIO DE RESTAURACIÓN DE INTEGRIDAD ARQUITECTÓNICA] ---
+import { FormFieldGroup } from "@/components/features/form-builder/FormFieldGroup";
+// --- [FIN DE RESTAURACIÓN DE INTEGRIDAD ARQUITECTÓNICA] ---
 
 interface CampaignSelectFieldProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;

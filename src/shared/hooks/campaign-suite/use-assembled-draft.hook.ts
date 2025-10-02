@@ -1,10 +1,10 @@
-// RUTA: src/shared/lib/hooks/campaign-suite/use-assembled-draft.hook.ts
+// RUTA: src/shared/hooks/campaign-suite/use-assembled-draft.hook.ts
 /**
  * @file use-assembled-draft.hook.ts
- * @description Hook soberano y agregador de estado. Ensambla el borrador de
- *              campaña completo desde los stores atómicos de Zustand.
- * @version 1.1.0 (Type Contract Restoration)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Hook soberano y agregador de estado, ahora con observabilidad de élite.
+ *              Ensambla el borrador de campaña completo desde los stores atómicos.
+ * @version 2.0.0 (Elite Observability & Type Safety)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -25,9 +25,12 @@ import { useStep4ContentStore } from "./use-step4-content.store";
  * @returns {CampaignDraft} El estado completo y ensamblado del borrador.
  */
 export function useAssembledDraft(): CampaignDraft {
-  logger.trace("[useAssembledDraft] Hook de ensamblaje invocado.");
+  // --- [INICIO DE REFACTORIZACIÓN DE OBSERVABILIDAD Y CALIDAD] ---
+  logger.trace(
+    "[useAssembledDraft] Hook de ensamblaje invocado (v2.0 - Observable)."
+  );
 
-  // 1. Suscripción a todos los stores atómicos
+  // 1. Suscripción a todos los stores atómicos (sin cambios en esta parte)
   const metadata = useDraftMetadataStore();
   const identity = useStep0IdentityStore();
   const structure = useStep1StructureStore();
@@ -35,9 +38,9 @@ export function useAssembledDraft(): CampaignDraft {
   const theme = useStep3ThemeStore();
   const content = useStep4ContentStore();
 
-  // 2. Ensamblaje memoizado del borrador
+  // 2. Ensamblaje memoizado del borrador, ahora con tracing
   const assembledDraft = useMemo((): CampaignDraft => {
-    const traceId = logger.startTrace("assembleDraftFromStores");
+    const traceId = logger.startTrace("assembleDraftFromStores_v2.0");
     logger.traceEvent(
       traceId,
       "Dependencias de stores cambiaron. Re-ensamblando borrador..."
@@ -63,15 +66,16 @@ export function useAssembledDraft(): CampaignDraft {
       themeConfig: theme.themeConfig,
       // Step 4
       contentData: content.contentData,
-      // --- [INICIO DE CORRECCIÓN DE CONTRATO (TS2353)] ---
-      // La propiedad 'step' ha sido eliminada para cumplir con el tipo CampaignDraft.
-      // --- [FIN DE CORRECCIÓN DE CONTRATO] ---
     };
 
-    logger.success("[useAssembledDraft] Borrador re-ensamblado.", { traceId });
+    logger.success("[useAssembledDraft] Borrador re-ensamblado con éxito.", {
+      traceId,
+      draftId: draft.draftId,
+    });
     logger.endTrace(traceId);
     return draft;
   }, [metadata, identity, structure, layout, theme, content]);
 
   return assembledDraft;
+  // --- [FIN DE REFACTORIZACIÓN] ---
 }

@@ -1,61 +1,74 @@
-// components/sections/TextSection.tsx
+// RUTA: src/components/sections/TextSection.tsx
 /**
  * @file TextSection.tsx
  * @description Motor de renderizado de contenido estructurado.
- *              - v3.0.0: Refactorizado para ser un renderizador data-driven,
- *                aceptando un array de bloques de contenido y encapsulando
- *                la lógica de renderizado.
- * @version 3.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @version 4.0.0 (Sovereign Contract & Focus-Aware)
+ * @author L.I.A. Legacy
  */
-import React from "react";
+"use client";
+
+import React, { forwardRef } from "react";
 import { Container } from "@/components/ui/Container";
 import { cn } from "@/shared/lib/utils/cn";
 import { logger } from "@/shared/lib/logging";
 import type {
   ContentBlocks,
   ContentBlock,
-} from "@/shared/lib/schemas/components/content-block.schema"; // <-- [1] IMPORTAR CONTRATO
+} from "@/shared/lib/schemas/components/content-block.schema";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
 interface TextSectionProps {
-  content: ContentBlocks; // <-- [2] PROP PRINCIPAL AHORA ES 'content'
+  content: ContentBlocks;
   className?: string;
   spacing?: "default" | "compact" | "loose";
   prose?: boolean;
+  isFocused?: boolean;
 }
 
-export function TextSection({
-  content,
-  className,
-  spacing = "default",
-  prose = true, // Por defecto, aplicamos estilos de prosa
-}: TextSectionProps): React.ReactElement {
-  logger.info("[Observabilidad] Renderizando TextSection (Motor de Contenido)");
+export const TextSection = forwardRef<HTMLElement, TextSectionProps>(
+  (
+    { content, className, spacing = "default", prose = true, isFocused },
+    ref
+  ) => {
+    logger.info("[TextSection] Renderizando v4.0 (Focus-Aware).");
 
-  const spacingClasses = {
-    default: "py-16 sm:py-24",
-    compact: "py-8 sm:py-12",
-    loose: "py-24 sm:py-32",
-  };
+    if (!content) {
+      logger.error("[Guardián] Prop 'content' no proporcionada a TextSection.");
+      return (
+        <DeveloperErrorDisplay
+          context="TextSection"
+          errorMessage="Contrato de UI violado: La prop 'content' es requerida."
+        />
+      );
+    }
 
-  const sectionClasses = cn(spacingClasses[spacing], className);
-  const containerClasses = cn({
-    "prose prose-invert lg:prose-xl mx-auto": prose,
-  });
+    const spacingClasses = {
+      default: "py-16 sm:py-24",
+      compact: "py-8 sm:py-12",
+      loose: "py-24 sm:py-32",
+    };
 
-  return (
-    <section className={sectionClasses}>
-      <Container className={containerClasses}>
-        {/* --- [3] LÓGICA DE RENDERIZADO ENCAPSULADA --- */}
-        {content.map((block: ContentBlock, index: number) => {
-          if (block.type === "h2") {
-            return <h2 key={index}>{block.text}</h2>;
-          }
-          // El caso por defecto es un párrafo
-          return <p key={index}>{block.text}</p>;
-        })}
-        {/* --- FIN DE LA LÓGICA DE RENDERIZADO --- */}
-      </Container>
-    </section>
-  );
-}
+    const sectionClasses = cn(
+      spacingClasses[spacing],
+      className,
+      isFocused && "ring-2 ring-primary"
+    );
+    const containerClasses = cn({
+      "prose prose-invert lg:prose-xl mx-auto": prose,
+    });
+
+    return (
+      <section ref={ref} className={sectionClasses}>
+        <Container className={containerClasses}>
+          {content.map((block: ContentBlock, index: number) => {
+            if (block.type === "h2") {
+              return <h2 key={index}>{block.text}</h2>;
+            }
+            return <p key={index}>{block.text}</p>;
+          })}
+        </Container>
+      </section>
+    );
+  }
+);
+TextSection.displayName = "TextSection";

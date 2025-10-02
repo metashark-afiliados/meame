@@ -1,9 +1,9 @@
-// components/sections/ProductGallery.tsx
+// RUTA: src/components/sections/ProductGallery.tsx
 /**
  * @file ProductGallery.tsx
  * @description Galería de imágenes interactiva para la página de detalle de producto.
- * @version 1.0.0
- * @author RaZ Podestá - MetaShark Tech
+ * @version 2.0.0 (Elite Observability & Resilience)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -11,8 +11,10 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/shared/lib/utils/cn";
+import { logger } from "@/shared/lib/logging";
 import type { z } from "zod";
 import type { ProductDetailPageContentSchema } from "@/shared/lib/schemas/pages/product-detail-page.schema";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
 type GalleryImage = z.infer<
   typeof ProductDetailPageContentSchema
@@ -23,13 +25,30 @@ interface ProductGalleryProps {
 }
 
 export function ProductGallery({ images }: ProductGalleryProps) {
+  logger.info("[ProductGallery] Renderizando v2.0 (Elite).");
   const [activeIndex, setActiveIndex] = useState(0);
 
   if (!images || images.length === 0) {
+    logger.warn(
+      "[Guardián] La prop 'images' está vacía o no fue proporcionada. Se renderizará un placeholder."
+    );
     return <div className="aspect-square bg-muted rounded-xl"></div>;
   }
 
   const activeImage = images[activeIndex];
+
+  if (!activeImage) {
+    logger.error(
+      "[Guardián] El índice activo está fuera de los límites del array de imágenes.",
+      { activeIndex, imageCount: images.length }
+    );
+    return (
+      <DeveloperErrorDisplay
+        context="ProductGallery"
+        errorMessage="Error de estado interno: Índice de imagen activo inválido."
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 sticky top-24">
@@ -80,4 +99,3 @@ export function ProductGallery({ images }: ProductGalleryProps) {
     </div>
   );
 }
-// components/sections/ProductGallery.tsx

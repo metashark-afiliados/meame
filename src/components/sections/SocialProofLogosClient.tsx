@@ -2,16 +2,17 @@
 /**
  * @file SocialProofLogosClient.tsx
  * @description Componente "Client Core" para la sección de prueba social.
- * @version 2.0.0 (Client Core Pattern)
- *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
+ * @version 3.0.0 (Sovereign Contract & Focus-Aware)
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React from "react";
+import React, { forwardRef } from "react";
 import Marquee from "react-fast-marquee";
 import { CldImage } from "next-cloudinary";
 import { Container } from "@/components/ui/Container";
 import { logger } from "@/shared/lib/logging";
+import { cn } from "@/shared/lib/utils/cn";
 
 interface LogoData {
   alt: string;
@@ -19,22 +20,29 @@ interface LogoData {
   width: number;
   height: number;
 }
+
 interface SocialProofLogosClientProps {
   title: string;
   logos: LogoData[];
+  isFocused?: boolean;
 }
 
-export function SocialProofLogosClient({
-  title,
-  logos,
-}: SocialProofLogosClientProps) {
+export const SocialProofLogosClient = forwardRef<
+  HTMLElement,
+  SocialProofLogosClientProps
+>(({ title, logos, isFocused }, ref) => {
   logger.info(
-    `[SocialProofLogosClient] Renderizando UI con ${logos.length} logos.`
+    `[SocialProofLogosClient] Renderizando UI con ${logos.length} logos (v3.0).`
   );
+
   return (
     <section
+      ref={ref}
       aria-labelledby="social-proof-title"
-      className="py-12 bg-background"
+      className={cn(
+        "py-12 bg-background transition-all duration-300",
+        isFocused && "ring-2 ring-primary"
+      )}
     >
       <Container>
         <h2
@@ -71,4 +79,5 @@ export function SocialProofLogosClient({
       </Container>
     </section>
   );
-}
+});
+SocialProofLogosClient.displayName = "SocialProofLogosClient";

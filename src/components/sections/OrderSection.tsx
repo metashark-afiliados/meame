@@ -1,27 +1,26 @@
 // RUTA: src/components/sections/OrderSection.tsx
 /**
  * @file OrderSection.tsx
- * @description Sección dedicada a la conversión, ahora con MEA/UX y arquitectura soberana.
- * @version 7.0.0 (Holistic Elite Leveling & MEA/UX Injection)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Sección de conversión que consume el `OrderForm` soberano.
+ *              v9.0.0 (Architectural Alignment & Elite Compliance): Refactorizado
+ *              para consumir la SSoT canónica de `OrderForm` y cumplir con los 8 Pilares.
+ * @version 9.0.0
+ * @author L.I.A. Legacy
  */
 "use client";
 
-import React from "react";
+import React, { forwardRef, useMemo } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Container } from "@/components/ui/Container";
-// --- [INICIO DE CORRECCIÓN ARQUITECTÓNICA] ---
-// Se corrige la ruta de importación para apuntar a la SSoT soberana.
-import { OrderForm } from "@/components/forms/OrderForm";
-// --- [FIN DE CORRECCIÓN ARQUITECTÓNICA] ---
+import { OrderForm } from "@/components/features/commerce/OrderForm"; // <-- IMPORTACIÓN SOBERANA
 import { PriceDisplay } from "@/components/ui/PriceDisplay";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { logger } from "@/shared/lib/logging";
+import { cn } from "@/shared/lib/utils/cn";
+import type { SectionProps } from "@/shared/lib/types/sections.types";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
-// --- SSoT de Tipos y Animaciones ---
-interface OrderSectionProps {
-  content?: Dictionary["orderSection"];
-  locale: string;
+interface OrderSectionProps extends SectionProps<"orderSection"> {
+  isFocused?: boolean;
 }
 
 const sectionVariants: Variants = {
@@ -36,52 +35,65 @@ const sectionVariants: Variants = {
   },
 };
 
-// --- Componente de Élite ---
-export function OrderSection({
-  content,
-  locale,
-}: OrderSectionProps): React.ReactElement | null {
-  logger.info("[OrderSection] Renderizando v7.0 (Elite & MEA/UX).");
-
-  // --- Guardia de Resiliencia (Pilar VI) ---
-  if (!content) {
-    logger.warn(
-      "[OrderSection] No se proporcionó contenido. No se renderizará."
+export const OrderSection = forwardRef<HTMLElement, OrderSectionProps>(
+  ({ content, locale, isFocused }, ref) => {
+    const traceId = useMemo(
+      () => logger.startTrace("OrderSection_Lifecycle_v9.0"),
+      []
     );
-    return null;
-  }
+    logger.info("[OrderSection] Renderizando v9.0 (Aligned).", { traceId });
 
-  return (
-    <motion.section
-      id="order-form"
-      className="py-16 sm:py-24 bg-secondary/20"
-      variants={sectionVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-    >
-      <Container className="max-w-md">
-        <div className="rounded-lg border border-white/20 bg-black/30 p-6 shadow-2xl backdrop-blur-md">
-          <PriceDisplay
-            originalPrice={content.originalPrice}
-            discountedPrice={content.discountedPrice}
-            locale={locale}
-            originalPriceLabel={content.originalPriceLabel}
-            discountedPriceLabel={content.discountedPriceLabel}
+    // --- Guardián de Resiliencia de Contrato ---
+    if (!content) {
+      const errorMsg =
+        "Contrato de UI violado: La prop 'content' para OrderSection es requerida.";
+      logger.error(`[Guardián] ${errorMsg}`, { traceId });
+      return (
+        <section ref={ref}>
+          <DeveloperErrorDisplay
+            context="OrderSection"
+            errorMessage={errorMsg}
           />
-          <OrderForm
-            content={{
-              nameInputLabel: content.nameInputLabel,
-              nameInputPlaceholder: content.nameInputPlaceholder,
-              phoneInputLabel: content.phoneInputLabel,
-              phoneInputPlaceholder: content.phoneInputPlaceholder,
-              submitButtonText: content.submitButtonText,
-              submitButtonLoadingText: content.submitButtonLoadingText,
-            }}
-          />
-        </div>
-      </Container>
-    </motion.section>
-  );
-}
-// RUTA: src/components/sections/OrderSection.tsx
+        </section>
+      );
+    }
+
+    return (
+      <motion.section
+        ref={ref}
+        id="order-form"
+        className={cn(
+          "py-16 sm:py-24 bg-secondary/20 transition-all duration-300",
+          isFocused && "ring-2 ring-primary"
+        )}
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+      >
+        <Container className="max-w-md">
+          <div className="rounded-lg border border-white/20 bg-black/30 p-6 shadow-2xl backdrop-blur-md">
+            <PriceDisplay
+              originalPrice={content.originalPrice}
+              discountedPrice={content.discountedPrice}
+              locale={locale}
+              originalPriceLabel={content.originalPriceLabel}
+              discountedPriceLabel={content.discountedPriceLabel}
+            />
+            <OrderForm
+              content={{
+                nameInputLabel: content.nameInputLabel,
+                nameInputPlaceholder: content.nameInputPlaceholder,
+                phoneInputLabel: content.phoneInputLabel,
+                phoneInputPlaceholder: content.phoneInputPlaceholder,
+                submitButtonText: content.submitButtonText,
+                submitButtonLoadingText: content.submitButtonLoadingText,
+              }}
+            />
+          </div>
+        </Container>
+      </motion.section>
+    );
+  }
+);
+OrderSection.displayName = "OrderSection";

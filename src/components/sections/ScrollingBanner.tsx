@@ -2,11 +2,8 @@
 /**
  * @file ScrollingBanner.tsx
  * @description Componente de sección para una marquesina de anuncios desplazable.
- *              v2.0.0 (Elite Modernization & MEA/UX): Refactorizado para ser
- *              una entidad soberana, con estilo profesional, animación deliberada
- *              y cumplimiento total de los 8 Pilares de Calidad.
- * @version 2.0.0
- *@author RaZ Podestá - MetaShark Tech
+ * @version 3.0.0 (Sovereign Contract & Focus-Aware)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -15,13 +12,11 @@ import Marquee from "react-fast-marquee";
 import { motion, type Variants } from "framer-motion";
 import { DynamicIcon, Container } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
-import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import { cn } from "@/shared/lib/utils/cn";
+import type { SectionProps } from "@/shared/lib/types/sections.types";
+import { DeveloperErrorDisplay } from "@/components/features/dev-tools";
 
-type ScrollingBannerContent = NonNullable<Dictionary["scrollingBanner"]>;
-
-interface ScrollingBannerProps {
-  content?: ScrollingBannerContent;
+interface ScrollingBannerProps extends SectionProps<"scrollingBanner"> {
   isFocused?: boolean;
 }
 
@@ -36,13 +31,18 @@ const sectionVariants: Variants = {
 
 export const ScrollingBanner = forwardRef<HTMLElement, ScrollingBannerProps>(
   ({ content, isFocused }, ref) => {
-    logger.info("[ScrollingBanner] Renderizando v2.0 (Elite Modernization).");
+    logger.info("[ScrollingBanner] Renderizando v3.0 (Focus-Aware).");
 
     if (!content) {
-      logger.warn(
-        "[ScrollingBanner] No se proporcionó contenido. No se renderizará."
+      logger.error(
+        "[Guardián] Prop 'content' no proporcionada a ScrollingBanner."
       );
-      return null;
+      return (
+        <DeveloperErrorDisplay
+          context="ScrollingBanner"
+          errorMessage="Contrato de UI violado: La prop 'content' es requerida."
+        />
+      );
     }
 
     return (
@@ -50,9 +50,9 @@ export const ScrollingBanner = forwardRef<HTMLElement, ScrollingBannerProps>(
         ref={ref}
         variants={sectionVariants}
         className={cn(
-          "py-3 bg-muted/30 text-muted-foreground border-b",
+          "py-3 bg-muted/30 text-muted-foreground border-b transition-all duration-300",
           isFocused &&
-            "ring-2 ring-primary ring-offset-4 ring-offset-background"
+            "ring-2 ring-primary ring-offset-2 ring-offset-background"
         )}
         role="status"
       >
@@ -79,5 +79,4 @@ export const ScrollingBanner = forwardRef<HTMLElement, ScrollingBannerProps>(
     );
   }
 );
-
 ScrollingBanner.displayName = "ScrollingBanner";
