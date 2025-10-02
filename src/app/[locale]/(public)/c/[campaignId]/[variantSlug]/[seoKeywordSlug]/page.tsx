@@ -1,9 +1,9 @@
 // RUTA: src/app/[locale]/(public)/c/[campaignId]/[variantSlug]/[seoKeywordSlug]/page.tsx
 /**
  * @file page.tsx
- * @description SSoT para el renderizado de campañas. Actúa como un "Ensamblador de Servidor"
- *              de élite, con seguridad de tipos absoluta y observabilidad holística.
- * @version 11.0.0 (Absolute Type Safety & Elite Observability)
+ * @description SSoT para el renderizado de campañas. Forjado con seguridad de
+ *              tipos absoluta, erradicando el error de indexación por 'symbol'.
+ * @version 12.0.0 (Absolute Type Safety & Indexing Fix)
  * @author L.I.A. Legacy
  */
 import "server-only";
@@ -24,11 +24,7 @@ import { ValidationError } from "@/components/ui/ValidationError";
 import type { SectionProps } from "@/shared/lib/types/sections.types";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
-// --- [INICIO DE REFACTORIZACIÓN DE TIPOS Y RESILIENCIA] ---
-// Se crea un alias de tipo que actúa como un "puente" seguro para el renderizador dinámico.
-// Le dice a TypeScript: "Este es un componente que acepta CUALQUIER tipo de contenido de sección válido".
 type AnySectionComponent = React.ComponentType<SectionProps<keyof Dictionary>>;
-// --- [FIN DE REFACTORIZACIÓN DE TIPOS Y RESILIENCIA] ---
 
 interface CampaignPageProps {
   params: {
@@ -78,10 +74,10 @@ export async function generateMetadata({
 export default async function CampaignPage({ params }: CampaignPageProps) {
   const { locale, campaignId, variantSlug } = params;
   const traceId = logger.startTrace(
-    `CampaignPage_v11.0:${campaignId}-${variantSlug}`
+    `CampaignPage_v12.0:${campaignId}-${variantSlug}`
   );
   logger.startGroup(
-    `[CampaignPage Shell] Ensamblando v11.0 para: ${variantSlug}`
+    `[CampaignPage Shell] Ensamblando v12.0 para: ${variantSlug}`
   );
 
   try {
@@ -113,17 +109,19 @@ export default async function CampaignPage({ params }: CampaignPageProps) {
           return null;
         }
 
-        // --- [INICIO DE REFACTORIZACIÓN DE TIPOS Y RESILIENCIA] ---
-        // Se realiza una aserción de tipo al "puente" seguro, no a 'any'.
         const Component = config.component as AnySectionComponent;
-        // --- [FIN DE REFACTORIZACIÓN DE TIPOS Y RESILIENCIA] ---
 
-        const contentData =
-          dictionary[config.dictionaryKey as keyof typeof dictionary];
+        // --- [INICIO DE REFACTORIZACIÓN POR SEGURIDAD DE TIPOS] ---
+        // Se realiza una aserción de tipo sobre el objeto `dictionary` para
+        // garantizar a TypeScript que estamos indexando con un string.
+        const contentData = (dictionary as Record<string, unknown>)[
+          config.dictionaryKey
+        ];
+        // --- [FIN DE REFACTORIZACIÓN POR SEGURIDAD DE TIPOS] ---
+
         const validation = config.schema.safeParse(contentData);
 
         if (!validation.success) {
-          // El logging ahora incluye el traceId para una mejor depuración
           logger.error(
             `[Guardián de Contrato] Fallo de validación para la sección "${sectionName}".`,
             { error: validation.error.flatten(), traceId }

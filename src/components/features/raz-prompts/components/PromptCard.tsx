@@ -1,10 +1,10 @@
 // RUTA: src/components/features/raz-prompts/components/PromptCard.tsx
 /**
  * @file PromptCard.tsx
- * @description Componente de presentación para visualizar un prompt,
- *              inyectado con MEA/UX y visualización de activos BAVI.
- * @version 7.0.0 (Schema Contract Alignment)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Componente de presentación para visualizar un prompt, con seguridad
+ *              de tipos absoluta y cumplimiento de contratos soberanos.
+ * @version 8.0.0 (Absolute Type Safety)
+ *@author L.I.A. Legacy
  */
 "use client";
 
@@ -27,6 +27,9 @@ import type { EnrichedRaZPromptsEntry } from "@/shared/lib/actions/raz-prompts";
 import { logger } from "@/shared/lib/logging";
 import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 import type { RaZPromptsSesaTags } from "@/shared/lib/schemas/raz-prompts/atomic.schema";
+// --- [INICIO DE REFACTORIZACIÓN POR INTEGRIDAD DE TIPOS] ---
+import type { SesaOption } from "@/shared/lib/schemas/raz-prompts/prompt-creator.i18n.schema";
+// --- [FIN DE REFACTORIZACIÓN POR INTEGRIDAD DE TIPOS] ---
 
 type SesaOptions = NonNullable<Dictionary["promptCreator"]>["sesaOptions"];
 type VaultContent = NonNullable<Dictionary["promptVault"]>;
@@ -46,7 +49,7 @@ export function PromptCard({
   content,
   variants,
 }: PromptCardProps): React.ReactElement {
-  logger.trace(`[PromptCard] Renderizando v7.0 para: ${prompt.title}`);
+  logger.trace(`[PromptCard] Renderizando v8.0 para: ${prompt.title}`);
 
   const latestVersion = prompt.versions[prompt.versions.length - 1];
   const formattedDate = new Date(prompt.createdAt).toLocaleDateString();
@@ -57,7 +60,9 @@ export function PromptCard({
   ) => {
     if (!value || !sesaOptions || !sesaOptions[category]) return value || null;
     return (
-      sesaOptions[category]?.find((opt) => opt.value === value)?.label || value
+      // Se añade la anotación de tipo explícita para erradicar 'any'.
+      sesaOptions[category]?.find((opt: SesaOption) => opt.value === value)
+        ?.label || value
     );
   };
 

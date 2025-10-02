@@ -1,11 +1,9 @@
 // RUTA: src/app/[locale]/(dev)/layout.tsx
 /**
  * @file layout.tsx
- * @description Layout Raíz del Developer Command Center (DCC), inspirado en Canva.
- *              Forjado con una arquitectura de 3 paneles, header polimórfico,
- *              inyección de MEA/UX y seguridad de tipos absoluta.
- * @version 12.0.0 (Definitive & Aligned)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Layout Raíz del Developer Command Center (DCC), con seguridad de tipos absoluta.
+ * @version 13.0.0 (Absolute Type Safety)
+ *@author L.I.A. Legacy
  */
 import "server-only";
 import React from "react";
@@ -30,6 +28,10 @@ import { DevRouteMenuContentSchema } from "@/shared/lib/schemas/components/dev/d
 import type { LucideIconName } from "@/shared/lib/config/lucide-icon-names";
 import { getCart } from "@/shared/lib/commerce/cart";
 import { reshapeCartForStore } from "@/shared/lib/commerce/shapers";
+// --- [INICIO DE REFACTORIZACIÓN DE TIPOS] ---
+// Se importa el tipo soberano para una tarjeta de bento.
+import type { BentoCardData } from "@/components/razBits/MagicBento/magic-bento.schema";
+// --- [FIN DE REFACTORIZACIÓN DE TIPOS] ---
 
 // --- CONTRATOS DE TIPO SOBERANOS ---
 interface SidebarTool {
@@ -81,7 +83,7 @@ export default async function DevLayout({
   children,
   params: { locale },
 }: DevLayoutProps) {
-  const traceId = logger.startTrace(`DevLayout_Render_v12.0:${locale}`);
+  const traceId = logger.startTrace(`DevLayout_Render_v13.0:${locale}`);
   logger.startGroup(`[DevLayout] Ensamblando UI del DCC para [${locale}]...`);
 
   try {
@@ -167,7 +169,8 @@ export default async function DevLayout({
       };
 
     const devToolsForSidebar: SidebarTool[] =
-      devDashboardPage.magicBento.cards.map((card) => ({
+      devDashboardPage.magicBento.cards.map((card: BentoCardData) => ({
+        // <-- TIPO EXPLÍCITO AÑADIDO
         name: card.title,
         description: card.description,
         href: toolMetadata[card.title]?.href || `/${locale}/dev`,

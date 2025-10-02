@@ -3,8 +3,8 @@
  * @file prompt-creator.i18n.schema.ts
  * @description SSoT para el contrato de datos del contenido i18n del
  *              componente PromptCreator.
- * @version 4.0.0 (Data-Driven Parameter Options)
- *@author RaZ Podestá - MetaShark Tech
+ * @version 5.0.0 (Sovereign Type Export)
+ *@author L.I.A. Legacy
  */
 import { z } from "zod";
 
@@ -12,6 +12,11 @@ const SesaOptionSchema = z.object({
   value: z.string(),
   label: z.string(),
 });
+
+// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+// Se exporta el tipo soberano para su consumo en componentes de UI.
+export type SesaOption = z.infer<typeof SesaOptionSchema>;
+// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
 export const PromptCreatorContentSchema = z.object({
   titleLabel: z.string(),
@@ -34,7 +39,6 @@ export const PromptCreatorContentSchema = z.object({
     fmt: z.string(),
     typ: z.string(),
     sbj: z.string(),
-    // Labels para los nuevos selectores de parámetros
     styleTypeLabel: z.string(),
     styleTypePlaceholder: z.string(),
     aspectRatioLabel: z.string(),
@@ -47,13 +51,10 @@ export const PromptCreatorContentSchema = z.object({
     typ: z.array(SesaOptionSchema),
     sbj: z.array(SesaOptionSchema),
   }),
-  // --- [INICIO DE REFACTORIZACIÓN DE CONTRATO] ---
-  // Las opciones de los parámetros ahora están agrupadas para un consumo data-driven.
   parameterOptions: z.object({
     styleType: z.array(SesaOptionSchema),
     aspectRatio: z.array(SesaOptionSchema),
   }),
-  // --- [FIN DE REFACTORIZACIÓN DE CONTRATO] ---
 });
 
 export const PromptCreatorLocaleSchema = z.object({
