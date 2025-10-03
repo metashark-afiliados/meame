@@ -3,8 +3,10 @@
  * @file cogniread.shapers.ts
  * @description Módulo soberano para las funciones de transformación ("shaping")
  *              de datos del dominio CogniRead. Es una utilidad pura del lado del servidor.
- * @version 2.0.0 (Holistic & Coherent)
- *@author RaZ Podestá - MetaShark Tech - Asistente de Refactorización
+ *              v2.1.0 (Holistic & Coherent): Se añade el mapeo para `available_languages`
+ *              para una sincronización total con el schema de la base de datos.
+ * @version 2.1.0
+ * @author L.I.A. Legacy
  */
 import "server-only";
 import type { CogniReadArticle } from "@/shared/lib/schemas/cogniread/article.schema";
@@ -57,6 +59,9 @@ export function mapSupabaseToCogniReadArticle(
     studyDna: supabaseArticle.study_dna,
     content: supabaseArticle.content,
     tags: supabaseArticle.tags ?? [],
+    // --- [INICIO DE CORRECCIÓN DE SINCRONIZACIÓN] ---
+    available_languages: supabaseArticle.available_languages ?? [],
+    // --- [FIN DE CORRECCIÓN DE SINCRONIZACIÓN] ---
     baviHeroImageId: supabaseArticle.bavi_hero_image_id ?? undefined,
     relatedPromptIds: supabaseArticle.related_prompt_ids ?? [],
     createdAt: supabaseArticle.created_at,

@@ -2,13 +2,11 @@
 /**
  * @file index.ts
  * @description Capa de Acceso a Datos (DAL) soberana para Stripe.
- *              v3.0.0 (API Version Alignment & Elite Compliance): Actualizado
- *              para usar la última versión estable de la API de Stripe y
- *              reforzado con logging de élite.
- * @version 3.0.0
- * @author RaZ Podestá - MetaShark Tech
+ *              v4.0.0 (Runtime Agnostic): Se elimina la directiva 'server-only'
+ *              para permitir el consumo desde scripts de prueba E2E.
+ * @version 4.0.0
+ * @author L.I.A. Legacy
  */
-import "server-only";
 import Stripe from "stripe";
 import { logger } from "@/shared/lib/logging";
 
@@ -21,12 +19,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  // --- [INICIO DE REFACTORIZACIÓN DE ÉLITE] ---
-  // Se actualiza a la versión de API requerida por el SDK v18.5.0 instalado.
-  // Esto resuelve el error de tipo TS2322.
-  // RECOMENDACIÓN: Actualizar el paquete 'stripe' a una versión estable.
   apiVersion: "2025-08-27.basil",
-  // --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
   typescript: true,
   appInfo: {
     name: "Meame Elite Platform",
@@ -48,7 +41,7 @@ export async function createPaymentIntent(
   metadata: Stripe.MetadataParam
 ): Promise<Stripe.PaymentIntent> {
   const traceId = logger.startTrace("stripe.createPaymentIntent");
-  logger.info("[Stripe DAL] Creando PaymentIntent v3.0...", {
+  logger.info("[Stripe DAL] Creando PaymentIntent v4.0...", {
     amount,
     currency,
     metadata,

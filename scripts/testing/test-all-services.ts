@@ -1,73 +1,78 @@
 // RUTA: scripts/testing/test-all-services.ts
 /**
  * @file test-all-services.ts
- * @description Guardián de Integridad Total. Orquesta la ejecución de todos
- *              los scripts de diagnóstico y pruebas del ecosistema con una
- *              salida de élite para una máxima claridad.
- * @version 2.0.0
+ * @description Guardián de Integridad Total Resiliente. Orquesta la ejecución de
+ *              todos los scripts de diagnóstico y no se detiene ante el primer fallo.
+ * @version 4.0.0 (Holistic & Resilient Orchestrator)
  * @author L.I.A. Legacy
  */
 import { exec } from "child_process";
 import chalk from "chalk";
 
 const tests = [
-  { name: "Supabase", command: "pnpm diag:supabase:all" },
-  { name: "Cloudinary", command: "pnpm diag:cloudinary:all" },
-  { name: "Shopify", command: "pnpm diag:shopify" },
+  { name: "Supabase Connect", command: "pnpm diag:supabase:connect" },
+  { name: "Supabase Schema", command: "pnpm diag:supabase:schema" },
+  { name: "Supabase Content", command: "pnpm diag:supabase:content" },
+  { name: "Supabase Dump", command: "pnpm diag:supabase:dump" },
+  { name: "Cloudinary Connect", command: "pnpm diag:cloudinary:connect" },
+  { name: "Cloudinary Schema", command: "pnpm diag:cloudinary:schema" },
+  { name: "Cloudinary Content", command: "pnpm diag:cloudinary:content" },
+  { name: "Shopify Connect", command: "pnpm diag:shopify" },
   { name: "Stripe E2E Flow", command: "pnpm test:stripe" },
 ];
 
-async function runTest(name: string, command: string): Promise<void> {
-  console.log(chalk.cyan.bold(`\n\n===== INICIANDO PRUEBA: ${name} =====\n`));
-  return new Promise((resolve, reject) => {
-    // --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-    // Se utiliza el patrón de callback idiomático de `exec` para manejar la salida.
-    const childProcess = exec(command, (error, stdout, stderr) => {
-      if (error) {
-        // El 'error' del callback ya incluye el código de salida y otra información.
-        reject(new Error(`La prueba '${name}' falló.\n${stderr}`));
-        return;
-      }
-      resolve();
+interface TestResult {
+  name: string;
+  success: boolean;
+}
+
+async function runTest(name: string, command: string): Promise<TestResult> {
+  console.log(chalk.blue.bold(`\n===== EJECUTANDO: ${chalk.yellow(name)} =====\n`));
+  return new Promise((resolve) => {
+    const child = exec(command, (error) => {
+      // La promesa siempre se resuelve, nunca se rechaza.
+      resolve({
+        name,
+        success: !error,
+      });
     });
 
-    // Redirigir la salida del proceso hijo a la consola del proceso principal en tiempo real.
-    childProcess.stdout?.pipe(process.stdout);
-    childProcess.stderr?.pipe(process.stderr);
-    // --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+    child.stdout?.pipe(process.stdout);
+    child.stderr?.pipe(process.stderr);
   });
 }
 
 async function main() {
   console.log(
     chalk.yellow.bold(
-      "🚀 Iniciando Guardián de Integridad Total del Ecosistema..."
+      "🚀 Iniciando Guardián de Integridad Total del Ecosistema (Modo Resiliente)..."
     )
   );
-  try {
-    for (const test of tests) {
-      await runTest(test.name, test.command);
-      console.log(
-        chalk.green.bold(
-          `\n===== PRUEBA ${test.name} COMPLETADA CON ÉXITO =====`
-        )
-      );
-    }
+
+  const results: TestResult[] = [];
+  for (const test of tests) {
+    const result = await runTest(test.name, test.command);
+    results.push(result);
+  }
+
+  console.log(chalk.blue.bold("\n\n===== 📊 INFORME FINAL DE DIAGNÓSTICO =====\n"));
+
+  results.forEach(result => {
     console.log(
-      chalk.green.bold(
-        "\n\n✅ ¡ÉXITO TOTAL! Todas las pruebas de integración de servicios pasaron."
-      )
+      result.success
+        ? chalk.green.bold(`  ✅ ${result.name}: PASÓ`)
+        : chalk.red.bold(`  ❌ ${result.name}: FALLÓ`)
     );
-  } catch (error) {
-    console.error(
-      chalk.red.bold(
-        "\n\n❌ ¡FALLO CRÍTICO! Una o más pruebas de integración fallaron."
-      )
-    );
-    if (error instanceof Error) {
-      console.error(chalk.white(error.message));
-    }
+  });
+
+  const failures = results.filter(r => !r.success);
+  if (failures.length > 0) {
+    console.log(chalk.red.bold(`\n\n[🔥] ${failures.length} de ${tests.length} diagnósticos fallaron. Revisa la salida de cada uno para más detalles.`));
     process.exit(1);
+  } else {
+    console.log(
+      chalk.green.bold("\n\n[✨] ¡Éxito Total! Todos los diagnósticos del ecosistema pasaron.")
+    );
   }
 }
 

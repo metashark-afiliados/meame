@@ -2,8 +2,9 @@
 /**
  * @file Step4Form.tsx
  * @description Orquestador de presentación puro para el Paso 4.
- * @version 9.0.0 (ACS Path & Build Integrity Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ *              Delega la renderización a componentes atómicos y animados.
+ * @version 10.0.0 (Atomic & Observable)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -14,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui";
 import { logger } from "@/shared/lib/logging";
 import type { CampaignDraft } from "@/shared/lib/types/campaigns/draft.types";
@@ -23,6 +25,7 @@ import { EditorOrchestrator } from "./_components/EditorOrchestrator";
 import type { Step4ContentSchema } from "@/shared/lib/schemas/campaigns/steps/step4.schema";
 import type { z } from "zod";
 import type { Locale } from "@/shared/lib/i18n/i18n.config";
+import { DeveloperErrorDisplay } from "../../dev-tools";
 
 type Content = z.infer<typeof Step4ContentSchema>;
 
@@ -40,7 +43,6 @@ interface Step4FormProps {
   ) => void;
   onBack: () => void;
   onNext: () => void;
-  isPending: boolean;
 }
 
 export function Step4Form({
@@ -52,9 +54,17 @@ export function Step4Form({
   onUpdateContent,
   onBack,
   onNext,
-  isPending,
 }: Step4FormProps): React.ReactElement {
-  logger.info("[Step4Form] Orquestando presentación del Paso 4 (v9.0).");
+  logger.trace("[Step4Form] Renderizando orquestador de presentación v10.0.");
+
+  if (!content) {
+    return (
+      <DeveloperErrorDisplay
+        context="Step4Form"
+        errorMessage="Contenido i18n no proporcionado."
+      />
+    );
+  }
 
   return (
     <>
@@ -73,13 +83,14 @@ export function Step4Form({
               emptyStateDescription: content.emptyStateDescription,
             }}
           />
+        </CardContent>
+        <CardFooter>
           <WizardNavigation
             onBack={onBack}
             onNext={onNext}
-            isPending={isPending}
             nextButtonText={content.nextButtonText}
           />
-        </CardContent>
+        </CardFooter>
       </Card>
 
       <EditorOrchestrator

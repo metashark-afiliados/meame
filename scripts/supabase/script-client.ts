@@ -3,23 +3,33 @@
  * @file script-client.ts
  * @description SSoT para la creación de un cliente de Supabase aislado, soberano y
  *              arquitectónicamente puro para uso EXCLUSIVO en scripts de Node.js.
- *              v2.0.0 (Architectural Purity): Se eliminan TODAS las dependencias
- *              hacia el directorio `src/`, resolviendo errores de module boundary.
- * @version 2.0.0
+ *              Esta versión es arquitectónicamente pura, sin dependencias hacia `src`.
+ * @version 5.0.0 (Architecturally Pure)
  * @author L.I.A. Legacy
  */
+import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import chalk from "chalk";
 
 // Guardia de configuración a nivel de módulo para fallar rápido.
-if (
-  !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  !process.env.SUPABASE_SERVICE_ROLE_KEY
-) {
-  const errorMsg =
-    "CRÍTICO: Las variables de entorno de Supabase (URL y SERVICE_ROLE_KEY) no están definidas.";
-  console.error(chalk.red.bold(`[Supabase Script Client] ${errorMsg}`));
-  throw new Error(errorMsg);
+try {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
+    throw new Error(
+      "Las variables de entorno de Supabase (URL y SERVICE_ROLE_KEY) no están definidas."
+    );
+  }
+} catch (error) {
+  const errorMessage =
+    error instanceof Error ? error.message : "Error desconocido.";
+  console.error(
+    chalk.red.bold(
+      `[Supabase Script Client] CRÍTICO: Fallo de configuración inicial. ${errorMessage}`
+    )
+  );
+  throw error;
 }
 
 /**
@@ -31,7 +41,7 @@ if (
 export function createScriptClient() {
   console.log(
     chalk.gray(
-      "[Supabase] Creando instancia de cliente para SCRIPT (v2.0 - Aislado)..."
+      "[Supabase] Creando instancia de cliente para SCRIPT (v5.0 - Aislado)..."
     )
   );
   return createSupabaseClient(

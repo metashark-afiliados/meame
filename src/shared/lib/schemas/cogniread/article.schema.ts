@@ -2,10 +2,10 @@
 /**
  * @file article.schema.ts
  * @description SSoT para el contrato de datos de la entidad Artículo de CogniRead.
- *              v5.0.0 (Schema Synchronization): Se añade la propiedad `available_languages`
- *              para alinear el contrato de código con el schema de la base de datos.
- * @version 5.0.0
- *@author RaZ Podestá - MetaShark Tech
+ *              v5.2.0 (Data Integrity Restoration): Se restaura la validación
+ *              estricta de CUID2 en `relatedPromptIds` tras alinear los datos de origen.
+ * @version 5.2.0
+ * @author L.I.A. Legacy
  */
 import { z } from "zod";
 import { supportedLocales } from "@/shared/lib/i18n/i18n.config";
@@ -84,12 +84,10 @@ export const CogniReadArticleSchema = z.object({
     .array(z.string())
     .optional()
     .describe("Etiquetas temáticas para búsqueda y filtrado."),
-  // --- [INICIO DE SINCRONIZACIÓN DE SCHEMA] ---
   available_languages: z
     .array(z.string())
     .optional()
     .describe("Lista autogenerada de idiomas disponibles en 'content'."),
-  // --- [FIN DE SINCRONIZACIÓN DE SCHEMA] ---
   baviHeroImageId: z
     .string()
     .refine((s) => s.includes("/"), {
@@ -98,6 +96,7 @@ export const CogniReadArticleSchema = z.object({
     })
     .optional()
     .describe("ID público del activo visual de BAVI para la imagen destacada."),
+  // --- [INICIO DE RESTAURACIÓN DE CONTRATO ESTRICTO] ---
   relatedPromptIds: z
     .array(
       z
@@ -106,6 +105,7 @@ export const CogniReadArticleSchema = z.object({
     )
     .optional()
     .describe("IDs de prompts de RaZPrompts relacionados con este artículo."),
+  // --- [FIN DE RESTAURACIÓN DE CONTRATO ESTRICTO] ---
 });
 
 export type CogniReadArticle = z.infer<typeof CogniReadArticleSchema>;

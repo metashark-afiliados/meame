@@ -3,7 +3,7 @@
  * @file diag-shopify.ts
  * @description Guardián de Integridad de Shopify, forjado con resiliencia ante
  *              errores de API, observabilidad de élite y un flujo de control robusto.
- * @version 5.1.0 (API Error Resilience)
+ * @version 6.0.0 (Strict Error Reporting & Path Correction)
  * @author L.I.A. Legacy
  */
 import chalk from "chalk";
@@ -52,7 +52,6 @@ async function shopifyGraphQLRequest<T>(
   });
   const json = await response.json();
 
-  // --- [INICIO] GUARDIÁN DE RESILIENCIA DE ERRORES DE API v5.1 ---
   if (json.errors) {
     logger.error("[Shopify DAL] La API de GraphQL devolvió errores.", {
       errors: json.errors,
@@ -67,7 +66,6 @@ async function shopifyGraphQLRequest<T>(
     }
     throw new Error(errorMessage);
   }
-  // --- [FIN] GUARDIÁN DE RESILIENCIA DE ERRORES DE API v5.1 ---
 
   return json;
 }
@@ -75,9 +73,9 @@ async function shopifyGraphQLRequest<T>(
 // --- ORQUESTADOR PRINCIPAL ---
 
 async function runShopifyDiagnostics(): Promise<ActionResult<string>> {
-  const traceId = logger.startTrace("runShopifyDiagnostics_v5.1");
+  const traceId = logger.startTrace("runShopifyDiagnostics_v6.0");
   logger.startGroup(
-    "🛍️  Iniciando Diagnóstico de Shopify (v5.1 - Resilient)..."
+    "🛍️  Iniciando Diagnóstico de Shopify (v6.0 - Strict & Aligned)..."
   );
 
   const fullReport: ShopifyDiagnosticReport = {
@@ -156,7 +154,9 @@ async function runShopifyDiagnostics(): Promise<ActionResult<string>> {
     operationStatus = "failure";
   }
 
-  const reportDir = path.resolve(process.cwd(), "shopify", "reports");
+  // --- [INICIO DE REFACTORIZACIÓN DE RUTA] ---
+  const reportDir = path.resolve(process.cwd(), "reports", "shopify");
+  // --- [FIN DE REFACTORIZACIÓN DE RUTA] ---
   await fs.mkdir(reportDir, { recursive: true });
   const reportPath = path.resolve(reportDir, `latest-shopify-diagnostics.json`);
   await fs.writeFile(reportPath, JSON.stringify(fullReport, null, 2));

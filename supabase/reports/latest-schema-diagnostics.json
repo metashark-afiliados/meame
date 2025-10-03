@@ -37,16 +37,16 @@
       "index_name": "campaign_templates_pkey"
     },
     {
-      "table": "bavi_assets",
-      "index_name": "bavi_assets_pkey"
-    },
-    {
       "table": "campaign_drafts",
       "index_name": "campaign_drafts_pkey"
     },
     {
       "table": "bavi_variants",
       "index_name": "bavi_variants_pkey"
+    },
+    {
+      "table": "bavi_assets",
+      "index_name": "bavi_assets_pkey"
     },
     {
       "table": "visitor_campaign_events",
@@ -448,18 +448,68 @@
   "schema_columns": [
     {
       "type": "uuid",
-      "table": "notifications",
+      "table": "campaign_templates",
       "column": "id"
     },
     {
       "type": "uuid",
+      "table": "campaign_templates",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
+      "table": "anonymous_campaign_events",
+      "column": "workspace_id"
+    },
+    {
+      "type": "boolean",
       "table": "notifications",
+      "column": "is_read"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "notifications",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "invitations",
+      "column": "created_at"
+    },
+    {
+      "type": "jsonb",
+      "table": "anonymous_campaign_events",
+      "column": "payload"
+    },
+    {
+      "type": "uuid",
+      "table": "profiles",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "profiles",
       "column": "user_id"
+    },
+    {
+      "type": "jsonb",
+      "table": "campaign_templates",
+      "column": "draft_data"
     },
     {
       "type": "timestamp with time zone",
       "table": "campaign_templates",
       "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "profiles",
+      "column": "updated_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "profiles",
+      "column": "last_sign_in_at"
     },
     {
       "type": "timestamp with time zone",
@@ -472,34 +522,29 @@
       "column": "workspace_id"
     },
     {
-      "type": "jsonb",
-      "table": "bavi_assets",
-      "column": "tags"
-    },
-    {
-      "type": "jsonb",
-      "table": "bavi_assets",
-      "column": "metadata"
-    },
-    {
       "type": "timestamp with time zone",
-      "table": "bavi_assets",
+      "table": "profiles",
       "column": "created_at"
     },
     {
-      "type": "timestamp with time zone",
-      "table": "bavi_assets",
-      "column": "updated_at"
+      "type": "uuid",
+      "table": "commerce_orders",
+      "column": "id"
     },
     {
       "type": "uuid",
-      "table": "bavi_assets",
+      "table": "user_activity_events",
+      "column": "id"
+    },
+    {
+      "type": "uuid",
+      "table": "commerce_orders",
       "column": "user_id"
     },
     {
-      "type": "uuid",
-      "table": "bavi_assets",
-      "column": "workspace_id"
+      "type": "numeric",
+      "table": "commerce_orders",
+      "column": "amount"
     },
     {
       "type": "uuid",
@@ -517,14 +562,84 @@
       "column": "created_at"
     },
     {
+      "type": "jsonb",
+      "table": "commerce_orders",
+      "column": "items"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "commerce_orders",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "commerce_orders",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "community_comments",
+      "column": "id"
+    },
+    {
       "type": "timestamp with time zone",
       "table": "campaign_drafts",
       "column": "updated_at"
     },
     {
       "type": "uuid",
+      "table": "community_comments",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
       "table": "campaign_drafts",
       "column": "workspace_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "user_activity_events",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "user_activity_events",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
+      "table": "community_comments",
+      "column": "parent_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "community_comments",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "community_comments",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "user_activity_events",
+      "column": "workspace_id"
+    },
+    {
+      "type": "uuid",
+      "table": "razprompts_entries",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
+      "table": "razprompts_entries",
+      "column": "workspace_id"
+    },
+    {
+      "type": "uuid",
+      "table": "invitations",
+      "column": "id"
     },
     {
       "type": "integer",
@@ -542,6 +657,106 @@
       "column": "created_at"
     },
     {
+      "type": "jsonb",
+      "table": "razprompts_entries",
+      "column": "versions"
+    },
+    {
+      "type": "jsonb",
+      "table": "razprompts_entries",
+      "column": "tags"
+    },
+    {
+      "type": "uuid",
+      "table": "invitations",
+      "column": "workspace_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "razprompts_entries",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "razprompts_entries",
+      "column": "updated_at"
+    },
+    {
+      "type": "jsonb",
+      "table": "user_activity_events",
+      "column": "payload"
+    },
+    {
+      "type": "uuid",
+      "table": "workspaces",
+      "column": "id"
+    },
+    {
+      "type": "jsonb",
+      "table": "cogniread_articles",
+      "column": "study_dna"
+    },
+    {
+      "type": "jsonb",
+      "table": "cogniread_articles",
+      "column": "content"
+    },
+    {
+      "type": "jsonb",
+      "table": "bavi_assets",
+      "column": "tags"
+    },
+    {
+      "type": "jsonb",
+      "table": "bavi_assets",
+      "column": "metadata"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "cogniread_articles",
+      "column": "created_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "cogniread_articles",
+      "column": "updated_at"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "bavi_assets",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "notifications",
+      "column": "id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "bavi_assets",
+      "column": "updated_at"
+    },
+    {
+      "type": "uuid",
+      "table": "bavi_assets",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
+      "table": "bavi_assets",
+      "column": "workspace_id"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "workspaces",
+      "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "invitations",
+      "column": "invited_by_user_id"
+    },
+    {
       "type": "uuid",
       "table": "visitor_campaign_events",
       "column": "id"
@@ -550,6 +765,11 @@
       "type": "timestamp with time zone",
       "table": "visitor_campaign_events",
       "column": "created_at"
+    },
+    {
+      "type": "uuid",
+      "table": "workspaces",
+      "column": "owner_id"
     },
     {
       "type": "uuid",
@@ -562,9 +782,29 @@
       "column": "workspace_id"
     },
     {
+      "type": "uuid",
+      "table": "workspace_members",
+      "column": "workspace_id"
+    },
+    {
+      "type": "uuid",
+      "table": "workspace_members",
+      "column": "user_id"
+    },
+    {
+      "type": "uuid",
+      "table": "notifications",
+      "column": "user_id"
+    },
+    {
       "type": "jsonb",
       "table": "visitor_campaign_events",
       "column": "payload"
+    },
+    {
+      "type": "timestamp with time zone",
+      "table": "workspace_members",
+      "column": "created_at"
     },
     {
       "type": "uuid",
@@ -592,244 +832,9 @@
       "column": "created_at"
     },
     {
-      "type": "uuid",
-      "table": "anonymous_campaign_events",
-      "column": "workspace_id"
-    },
-    {
-      "type": "jsonb",
-      "table": "anonymous_campaign_events",
-      "column": "payload"
-    },
-    {
-      "type": "uuid",
-      "table": "profiles",
-      "column": "id"
-    },
-    {
-      "type": "uuid",
-      "table": "profiles",
-      "column": "user_id"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "profiles",
-      "column": "updated_at"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "profiles",
-      "column": "last_sign_in_at"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "profiles",
-      "column": "created_at"
-    },
-    {
-      "type": "uuid",
-      "table": "commerce_orders",
-      "column": "id"
-    },
-    {
-      "type": "uuid",
-      "table": "commerce_orders",
-      "column": "user_id"
-    },
-    {
-      "type": "numeric",
-      "table": "commerce_orders",
-      "column": "amount"
-    },
-    {
-      "type": "jsonb",
-      "table": "commerce_orders",
-      "column": "items"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "commerce_orders",
-      "column": "created_at"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "commerce_orders",
-      "column": "updated_at"
-    },
-    {
-      "type": "uuid",
-      "table": "community_comments",
-      "column": "id"
-    },
-    {
-      "type": "uuid",
-      "table": "community_comments",
-      "column": "user_id"
-    },
-    {
-      "type": "uuid",
-      "table": "community_comments",
-      "column": "parent_id"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "community_comments",
-      "column": "created_at"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "community_comments",
-      "column": "updated_at"
-    },
-    {
-      "type": "uuid",
-      "table": "razprompts_entries",
-      "column": "user_id"
-    },
-    {
-      "type": "uuid",
-      "table": "razprompts_entries",
-      "column": "workspace_id"
-    },
-    {
-      "type": "jsonb",
-      "table": "razprompts_entries",
-      "column": "versions"
-    },
-    {
-      "type": "jsonb",
-      "table": "razprompts_entries",
-      "column": "tags"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "razprompts_entries",
-      "column": "created_at"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "razprompts_entries",
-      "column": "updated_at"
-    },
-    {
-      "type": "jsonb",
+      "type": "ARRAY",
       "table": "cogniread_articles",
-      "column": "study_dna"
-    },
-    {
-      "type": "jsonb",
-      "table": "cogniread_articles",
-      "column": "content"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "cogniread_articles",
-      "column": "created_at"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "cogniread_articles",
-      "column": "updated_at"
-    },
-    {
-      "type": "boolean",
-      "table": "notifications",
-      "column": "is_read"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "notifications",
-      "column": "created_at"
-    },
-    {
-      "type": "uuid",
-      "table": "invitations",
-      "column": "id"
-    },
-    {
-      "type": "uuid",
-      "table": "invitations",
-      "column": "workspace_id"
-    },
-    {
-      "type": "uuid",
-      "table": "invitations",
-      "column": "invited_by_user_id"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "invitations",
-      "column": "created_at"
-    },
-    {
-      "type": "uuid",
-      "table": "user_activity_events",
-      "column": "id"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "user_activity_events",
-      "column": "created_at"
-    },
-    {
-      "type": "uuid",
-      "table": "user_activity_events",
-      "column": "user_id"
-    },
-    {
-      "type": "uuid",
-      "table": "user_activity_events",
-      "column": "workspace_id"
-    },
-    {
-      "type": "jsonb",
-      "table": "user_activity_events",
-      "column": "payload"
-    },
-    {
-      "type": "uuid",
-      "table": "workspaces",
-      "column": "id"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "workspaces",
-      "column": "created_at"
-    },
-    {
-      "type": "uuid",
-      "table": "workspaces",
-      "column": "owner_id"
-    },
-    {
-      "type": "uuid",
-      "table": "workspace_members",
-      "column": "workspace_id"
-    },
-    {
-      "type": "uuid",
-      "table": "workspace_members",
-      "column": "user_id"
-    },
-    {
-      "type": "timestamp with time zone",
-      "table": "workspace_members",
-      "column": "created_at"
-    },
-    {
-      "type": "uuid",
-      "table": "campaign_templates",
-      "column": "id"
-    },
-    {
-      "type": "uuid",
-      "table": "campaign_templates",
-      "column": "user_id"
-    },
-    {
-      "type": "jsonb",
-      "table": "campaign_templates",
-      "column": "draft_data"
+      "column": "available_languages"
     },
     {
       "type": "text",
@@ -848,31 +853,6 @@
     },
     {
       "type": "text",
-      "table": "cogniread_articles",
-      "column": "id"
-    },
-    {
-      "type": "text",
-      "table": "commerce_orders",
-      "column": "stripe_payment_intent_id"
-    },
-    {
-      "type": "text",
-      "table": "cogniread_articles",
-      "column": "status"
-    },
-    {
-      "type": "text",
-      "table": "razprompts_entries",
-      "column": "title"
-    },
-    {
-      "type": "text",
-      "table": "commerce_orders",
-      "column": "currency"
-    },
-    {
-      "type": "text",
       "table": "invitations",
       "column": "invitee_email"
     },
@@ -888,31 +868,6 @@
     },
     {
       "type": "text",
-      "table": "visitor_campaign_events",
-      "column": "session_id"
-    },
-    {
-      "type": "text",
-      "table": "commerce_orders",
-      "column": "status"
-    },
-    {
-      "type": "text",
-      "table": "commerce_orders",
-      "column": "customer_email"
-    },
-    {
-      "type": "text",
-      "table": "visitor_campaign_events",
-      "column": "campaign_id"
-    },
-    {
-      "type": "text",
-      "table": "visitor_campaign_events",
-      "column": "variant_id"
-    },
-    {
-      "type": "text",
       "table": "user_activity_events",
       "column": "session_id"
     },
@@ -920,21 +875,6 @@
       "type": "text",
       "table": "user_activity_events",
       "column": "event_type"
-    },
-    {
-      "type": "text",
-      "table": "visitor_campaign_events",
-      "column": "event_type"
-    },
-    {
-      "type": "text",
-      "table": "razprompts_entries",
-      "column": "status"
-    },
-    {
-      "type": "text",
-      "table": "visitor_fingerprints",
-      "column": "fingerprint_id"
     },
     {
       "type": "text",
@@ -943,38 +883,8 @@
     },
     {
       "type": "text",
-      "table": "razprompts_entries",
-      "column": "ai_service"
-    },
-    {
-      "type": "ARRAY",
-      "table": "razprompts_entries",
-      "column": "keywords"
-    },
-    {
-      "type": "ARRAY",
-      "table": "cogniread_articles",
-      "column": "tags"
-    },
-    {
-      "type": "text",
       "table": "workspace_members",
       "column": "role"
-    },
-    {
-      "type": "text",
-      "table": "community_comments",
-      "column": "article_id"
-    },
-    {
-      "type": "ARRAY",
-      "table": "cogniread_articles",
-      "column": "available_languages"
-    },
-    {
-      "type": "text",
-      "table": "anonymous_campaign_events",
-      "column": "fingerprint_id"
     },
     {
       "type": "text",
@@ -993,98 +903,8 @@
     },
     {
       "type": "text",
-      "table": "anonymous_campaign_events",
-      "column": "session_id"
-    },
-    {
-      "type": "text",
-      "table": "community_comments",
-      "column": "author_name"
-    },
-    {
-      "type": "text",
-      "table": "anonymous_campaign_events",
-      "column": "campaign_id"
-    },
-    {
-      "type": "text",
-      "table": "anonymous_campaign_events",
-      "column": "variant_id"
-    },
-    {
-      "type": "text",
-      "table": "bavi_assets",
-      "column": "asset_id"
-    },
-    {
-      "type": "text",
-      "table": "bavi_assets",
-      "column": "provider"
-    },
-    {
-      "type": "text",
-      "table": "bavi_assets",
-      "column": "prompt_id"
-    },
-    {
-      "type": "text",
-      "table": "anonymous_campaign_events",
-      "column": "event_type"
-    },
-    {
-      "type": "text",
-      "table": "community_comments",
-      "column": "author_avatar_url"
-    },
-    {
-      "type": "text",
-      "table": "community_comments",
-      "column": "comment_text"
-    },
-    {
-      "type": "ARRAY",
-      "table": "razprompts_entries",
-      "column": "bavi_asset_ids"
-    },
-    {
-      "type": "text",
-      "table": "profiles",
-      "column": "full_name"
-    },
-    {
-      "type": "text",
-      "table": "profiles",
-      "column": "avatar_url"
-    },
-    {
-      "type": "text",
       "table": "campaign_drafts",
       "column": "draft_id"
-    },
-    {
-      "type": "text",
-      "table": "cogniread_articles",
-      "column": "bavi_hero_image_id"
-    },
-    {
-      "type": "ARRAY",
-      "table": "cogniread_articles",
-      "column": "related_prompt_ids"
-    },
-    {
-      "type": "text",
-      "table": "profiles",
-      "column": "last_sign_in_ip"
-    },
-    {
-      "type": "text",
-      "table": "profiles",
-      "column": "last_sign_in_location"
-    },
-    {
-      "type": "text",
-      "table": "razprompts_entries",
-      "column": "id"
     },
     {
       "type": "text",
@@ -1105,6 +925,196 @@
       "type": "text",
       "table": "bavi_variants",
       "column": "state"
+    },
+    {
+      "type": "text",
+      "table": "bavi_assets",
+      "column": "asset_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_assets",
+      "column": "provider"
+    },
+    {
+      "type": "text",
+      "table": "bavi_assets",
+      "column": "prompt_id"
+    },
+    {
+      "type": "text",
+      "table": "bavi_assets",
+      "column": "status"
+    },
+    {
+      "type": "text",
+      "table": "bavi_assets",
+      "column": "description"
+    },
+    {
+      "type": "text",
+      "table": "visitor_campaign_events",
+      "column": "session_id"
+    },
+    {
+      "type": "text",
+      "table": "visitor_campaign_events",
+      "column": "campaign_id"
+    },
+    {
+      "type": "text",
+      "table": "visitor_campaign_events",
+      "column": "variant_id"
+    },
+    {
+      "type": "text",
+      "table": "visitor_campaign_events",
+      "column": "event_type"
+    },
+    {
+      "type": "text",
+      "table": "visitor_fingerprints",
+      "column": "fingerprint_id"
+    },
+    {
+      "type": "text",
+      "table": "anonymous_campaign_events",
+      "column": "fingerprint_id"
+    },
+    {
+      "type": "text",
+      "table": "anonymous_campaign_events",
+      "column": "session_id"
+    },
+    {
+      "type": "text",
+      "table": "anonymous_campaign_events",
+      "column": "campaign_id"
+    },
+    {
+      "type": "text",
+      "table": "anonymous_campaign_events",
+      "column": "variant_id"
+    },
+    {
+      "type": "text",
+      "table": "anonymous_campaign_events",
+      "column": "event_type"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "full_name"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "avatar_url"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "last_sign_in_ip"
+    },
+    {
+      "type": "text",
+      "table": "profiles",
+      "column": "last_sign_in_location"
+    },
+    {
+      "type": "text",
+      "table": "commerce_orders",
+      "column": "stripe_payment_intent_id"
+    },
+    {
+      "type": "text",
+      "table": "commerce_orders",
+      "column": "currency"
+    },
+    {
+      "type": "text",
+      "table": "commerce_orders",
+      "column": "status"
+    },
+    {
+      "type": "text",
+      "table": "commerce_orders",
+      "column": "customer_email"
+    },
+    {
+      "type": "text",
+      "table": "community_comments",
+      "column": "article_id"
+    },
+    {
+      "type": "text",
+      "table": "community_comments",
+      "column": "author_name"
+    },
+    {
+      "type": "text",
+      "table": "community_comments",
+      "column": "author_avatar_url"
+    },
+    {
+      "type": "text",
+      "table": "community_comments",
+      "column": "comment_text"
+    },
+    {
+      "type": "text",
+      "table": "razprompts_entries",
+      "column": "id"
+    },
+    {
+      "type": "text",
+      "table": "razprompts_entries",
+      "column": "title"
+    },
+    {
+      "type": "text",
+      "table": "razprompts_entries",
+      "column": "status"
+    },
+    {
+      "type": "text",
+      "table": "razprompts_entries",
+      "column": "ai_service"
+    },
+    {
+      "type": "ARRAY",
+      "table": "razprompts_entries",
+      "column": "keywords"
+    },
+    {
+      "type": "ARRAY",
+      "table": "razprompts_entries",
+      "column": "bavi_asset_ids"
+    },
+    {
+      "type": "text",
+      "table": "cogniread_articles",
+      "column": "id"
+    },
+    {
+      "type": "text",
+      "table": "cogniread_articles",
+      "column": "status"
+    },
+    {
+      "type": "text",
+      "table": "cogniread_articles",
+      "column": "bavi_hero_image_id"
+    },
+    {
+      "type": "ARRAY",
+      "table": "cogniread_articles",
+      "column": "related_prompt_ids"
+    },
+    {
+      "type": "ARRAY",
+      "table": "cogniread_articles",
+      "column": "tags"
     }
   ],
   "table_constraints": [
@@ -1222,6 +1232,11 @@
       "type": "PRIMARY KEY",
       "table": "bavi_assets",
       "constraint_name": "bavi_assets_pkey"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_assets",
+      "constraint_name": "bavi_assets_status_check"
     },
     {
       "type": "FOREIGN KEY",
@@ -1552,6 +1567,16 @@
       "type": "CHECK",
       "table": "bavi_assets",
       "constraint_name": "2200_23176_8_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_assets",
+      "constraint_name": "2200_23176_9_not_null"
+    },
+    {
+      "type": "CHECK",
+      "table": "bavi_assets",
+      "constraint_name": "2200_23176_10_not_null"
     },
     {
       "type": "CHECK",

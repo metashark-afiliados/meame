@@ -3,14 +3,11 @@
  * @file script-client.ts
  * @description SSoT para la creación de un cliente de Supabase aislado y
  *              seguro, para uso EXCLUSIVO en scripts del lado del servidor (Node.js).
- *              v4.0.0 (Architectural Isolation): Esta versión es arquitectónicamente
- *              pura. No tiene NINGUNA dependencia que apunte al directorio `src`,
- *              creando una barrera infranqueable entre el entorno de scripts y
- *              el entorno de la aplicación Next.js para prevenir errores de boundary.
- * @version 4.0.0
- *@author RaZ Podestá - MetaShark Tech
+ *              v5.0.0 (Runtime Agnostic): Se elimina la directiva 'server-only' para
+ *              garantizar la compatibilidad con el entorno de ejecución de Node.js.
+ * @version 5.0.0
+ * @author L.I.A. Legacy
  */
-import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import chalk from "chalk";
 
@@ -42,9 +39,10 @@ try {
  * @returns Una instancia del cliente de Supabase.
  */
 export function createScriptClient() {
-  // Se utiliza console.log directamente para evitar importar el logger de la aplicación.
   console.log(
-    chalk.gray("[Supabase] Creando instancia de cliente para SCRIPT (v4.0)...")
+    chalk.gray(
+      "[Supabase] Creando instancia de cliente para SCRIPT (v5.0 - Runtime Agnostic)..."
+    )
   );
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

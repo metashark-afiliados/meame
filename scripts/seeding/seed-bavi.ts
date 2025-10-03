@@ -2,28 +2,26 @@
 /**
  * @file seed-bavi.ts
  * @description Script de "siembra" para poblar las tablas de la BAVI en Supabase.
- * @version 4.1.0 (Auth-Aware & Resilient)
- *@author RaZ Podestá - MetaShark Tech
+ * @version 6.0.0 (Architectural Purity)
+ * @author L.I.A. Legacy
  */
 import { promises as fs } from "fs";
 import * as path from "path";
-import { createScriptClient } from "../../src/shared/lib/supabase/script-client";
+import { createScriptClient } from "../supabase/script-client"; // <-- RUTA CORREGIDA
 import { BaviManifestSchema } from "../../src/shared/lib/schemas/bavi/bavi.manifest.schema";
 import { logger } from "../../src/shared/lib/logging";
 import type { ActionResult } from "../../src/shared/lib/types/actions.types";
 
 async function seedBavi(): Promise<ActionResult<{ seededAssets: number }>> {
-  const traceId = logger.startTrace("seedBavi_v4.1");
+  const traceId = logger.startTrace("seedBavi_v6.0");
   logger.startGroup(
-    "🌱 Iniciando siembra de DB para BAVI v4.1 (Auth-Aware)..."
+    "🌱 Iniciando siembra de DB para BAVI v6.0 (Architectural Purity)..."
   );
 
   try {
     const supabaseAdmin = createScriptClient();
     const superUserEmail = "superuser@webvork.dev";
 
-    // --- [INICIO DE REFACTORIZACIÓN DE CAUSA RAÍZ] ---
-    // Se utiliza el método correcto para buscar al usuario en el esquema 'auth'.
     const {
       data: { users },
       error: userError,
@@ -42,7 +40,6 @@ async function seedBavi(): Promise<ActionResult<{ seededAssets: number }>> {
     }
     const superUserId = superUser.id;
     logger.success(`Superusuario encontrado. ID: ${superUserId}`);
-    // --- [FIN DE REFACTORIZACIÓN DE CAUSA RAÍZ] ---
 
     const manifestPath = path.join(
       process.cwd(),
@@ -63,11 +60,13 @@ async function seedBavi(): Promise<ActionResult<{ seededAssets: number }>> {
           {
             asset_id: asset.assetId,
             provider: asset.provider,
+            status: asset.status,
+            description: asset.description,
             prompt_id: asset.promptId,
             tags: asset.tags,
             metadata: asset.metadata,
-            user_id: superUserId, // Se asigna el ID correcto.
-            workspace_id: null,
+            user_id: superUserId,
+            workspace_id: "4df72b1f-627a-47e9-b93d-f6e083068000",
           },
           { onConflict: "asset_id" }
         );
@@ -94,7 +93,7 @@ async function seedBavi(): Promise<ActionResult<{ seededAssets: number }>> {
               width: variant.dimensions.width,
               height: variant.dimensions.height,
             },
-            { onConflict: "variant_id" }
+            { onConflict: "variant_id, asset_id" }
           );
 
         if (variantError) {

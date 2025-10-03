@@ -1,9 +1,9 @@
-// RUTA: scripts/diagnostics/_utils.ts
+// scripts/diagnostics/_utils.ts
 /**
  * @file _utils.ts
  * @description Helper de utilidad compartido para los scripts de diagnóstico.
- * @author Raz Podestá - MetaShark Tech
- * @version 2.2.0 (Shopify Keys Added)
+ * @version 3.0.0 (Elite & Unchanged)
+ * @author L.I.A. Legacy
  */
 import chalk from "chalk";
 import * as dotenv from "dotenv";

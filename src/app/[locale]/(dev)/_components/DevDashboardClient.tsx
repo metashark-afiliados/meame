@@ -1,7 +1,7 @@
 // RUTA: src/app/[locale]/(dev)/_components/DevDashboardClient.tsx
 /**
  * @file DevDashboardClient.tsx
- * @description Orquestador de cliente para el dashboard del DCC, ahora renderizando
+ * @description Orquestador de cliente para el dashboard del DCC, renderizando
  *              el MagicBento para una MEA/UX de élite.
  * @version 2.0.0 (Bento Grid Orchestrator)
  *@author RaZ Podestá - MetaShark Tech

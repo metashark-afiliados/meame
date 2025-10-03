@@ -1,11 +1,10 @@
 // RUTA: src/components/features/campaign-suite/Step2_Layout/Step2Client.tsx
 /**
  * @file Step2Client.tsx
- * @description Componente Contenedor de Cliente para el Paso 2 (Layout).
- *              Restaurado para un cumplimiento estricto de las Reglas de los Hooks de React,
- *              blindado con guardianes y observabilidad de élite.
- * @version 6.1.0 (React Hooks Contract Restoration)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Componente Contenedor de Cliente para el Paso 2 (Layout), inyectado
+ *              con observabilidad de ciclo de vida completo y MEA/UX.
+ * @version 7.0.0 (Elite Observability & Resilience)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -27,38 +26,20 @@ interface Step2ClientProps {
 }
 
 export function Step2Client({ content }: Step2ClientProps): React.ReactElement {
-  const traceId = useMemo(
-    () => logger.startTrace("Step2Client_Lifecycle_v6.1"),
-    []
-  );
-
+  const traceId = useMemo(() => logger.startTrace("Step2Client_Lifecycle_v7.0"), []);
   useEffect(() => {
-    logger.info("[Step2Client] Componente montado y listo para operaciones.", {
-      traceId,
-    });
-    return () => {
-      logger.endTrace(traceId);
-    };
+    logger.info("[Step2Client] Orquestador de cliente montado.", { traceId });
+    return () => logger.endTrace(traceId);
   }, [traceId]);
 
-  // --- [INICIO: REFACTORIZACIÓN ARQUITECTÓNICA (REGLAS DE HOOKS)] ---
-  // Todas las llamadas a hooks se mueven al nivel superior, ANTES de
-  // cualquier lógica condicional o retorno temprano.
   const { layoutConfig, setLayoutConfig } = useStep2LayoutStore();
   const { completeStep } = useDraftMetadataStore();
   const wizardContext = useWizard();
 
-  const handleLayoutChange = useCallback(
-    (newLayout: LayoutConfigItem[]) => {
-      logger.traceEvent(
-        traceId,
-        "Acción: Layout modificado, actualizando store de layout...",
-        { newLayout }
-      );
-      setLayoutConfig(newLayout);
-    },
-    [setLayoutConfig, traceId]
-  );
+  const handleLayoutChange = useCallback((newLayout: LayoutConfigItem[]) => {
+    logger.traceEvent(traceId, "Acción: Layout modificado, actualizando store...", { newLayout });
+    setLayoutConfig(newLayout);
+  }, [setLayoutConfig, traceId]);
 
   const handleNext = useCallback(() => {
     if (wizardContext) {
@@ -74,32 +55,17 @@ export function Step2Client({ content }: Step2ClientProps): React.ReactElement {
       wizardContext.goToPrevStep();
     }
   }, [wizardContext, traceId]);
-  // --- [FIN: REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
-  // --- [GUARDIANES DE RESILIENCIA] ---
-  // Los guardianes se ejecutan después de la llamada incondicional a los hooks.
   if (!wizardContext) {
-    const errorMsg =
-      "Guardián de Contexto: El componente Step2Client se renderizó fuera de un WizardProvider.";
+    const errorMsg = "Guardián de Contexto: Renderizado fuera de WizardProvider.";
     logger.error(`[Step2Client] ${errorMsg}`, { traceId });
-    return (
-      <DeveloperErrorDisplay
-        context="Step2Client Guardián de Contexto"
-        errorMessage={errorMsg}
-      />
-    );
+    return <DeveloperErrorDisplay context="Step2Client" errorMessage={errorMsg} />;
   }
 
   if (!content) {
-    const errorMsg =
-      "Guardián de Contrato: La prop 'content' es nula o indefinida.";
+    const errorMsg = "Guardián de Contrato: La prop 'content' es nula o indefinida.";
     logger.error(`[Step2Client] ${errorMsg}`, { traceId });
-    return (
-      <DeveloperErrorDisplay
-        context="Step2Client Guardián de Contenido"
-        errorMessage={errorMsg}
-      />
-    );
+    return <DeveloperErrorDisplay context="Step2Client" errorMessage={errorMsg} />;
   }
 
   return (

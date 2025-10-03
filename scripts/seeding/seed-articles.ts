@@ -2,11 +2,11 @@
 /**
  * @file seed-articles.ts
  * @description Script de siembra para CogniRead. SSoT para la inyección de artículos.
- *              v11.0.0 (Architectural Isolation): Esta versión consume el nuevo
+ *              v12.0.0 (Architectural Purity): Esta versión consume el nuevo
  *              cliente de Supabase aislado, rompiendo todas las cadenas de importación
  *              hacia el directorio `src` y resolviendo los errores de module boundary.
- * @version 11.0.0
- *@author RaZ Podestá - MetaShark Tech
+ * @version 12.0.0
+ * @author L.I.A. Legacy
  */
 import * as fs from "fs/promises";
 import * as path from "path";
@@ -17,10 +17,7 @@ import {
   CogniReadArticleSchema,
   type CogniReadArticle,
 } from "../../src/shared/lib/schemas/cogniread/article.schema";
-// --- [INICIO DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
-// Se importa el cliente aislado, que no tiene dependencias hacia `src` ni Next.js.
-import { createScriptClient } from "../../src/shared/lib/supabase/script-client";
-// --- [FIN DE REFACTORIZACIÓN ARQUITECTÓNICA] ---
+import { createScriptClient } from "../supabase/script-client"; // <-- RUTA CORREGIDA
 import type { ActionResult } from "../../src/shared/lib/types/actions.types";
 
 type ArticleInput = Omit<
@@ -35,13 +32,13 @@ type ArticleInput = Omit<
 async function seedSingleCogniReadArticle(): Promise<
   ActionResult<{ articleId: string }>
 > {
-  const traceId = logger.startTrace("seedCogniReadArticle_v11.0");
-  logger.startGroup("🌱 Iniciando siembra de artículo de CogniRead (v11.0)...");
+  const traceId = logger.startTrace("seedCogniReadArticle_v12.0");
+  logger.startGroup("🌱 Iniciando siembra de artículo de CogniRead (v12.0)...");
 
-  const fixturePathArgument = process.argv[2]; // Ajustado para run-with-env
+  const fixturePathArgument = process.argv[2];
   if (!fixturePathArgument) {
     const errorMsg =
-      "No se especificó la ruta al archivo de fixture. Uso: pnpm db:seed:articles <ruta/al/fixture.json>";
+      "No se especificó la ruta al archivo de fixture. Uso: pnpm tsx scripts/run-with-env.ts scripts/seeding/seed-articles.ts <ruta/al/fixture.json>";
     logger.error(`[Seeder] ${errorMsg}`);
     logger.endGroup();
     logger.endTrace(traceId);
@@ -49,7 +46,6 @@ async function seedSingleCogniReadArticle(): Promise<
   }
   const fixturePath = path.resolve(process.cwd(), fixturePathArgument);
 
-  // Se invoca al cliente correcto, diseñado para este entorno.
   const supabase = createScriptClient();
 
   try {
@@ -132,5 +128,4 @@ async function seedSingleCogniReadArticle(): Promise<
   }
 }
 
-// Exportamos como default para que el orquestador run-with-env pueda invocarlo.
 export default seedSingleCogniReadArticle;

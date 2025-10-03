@@ -1,9 +1,10 @@
 // RUTA: src/components/features/campaign-suite/Step2_Layout/Step2Form.tsx
 /**
  * @file Step2Form.tsx
- * @description Componente de Presentación Puro para la UI del Paso 2 (Layout).
- * @version 7.0.0 (ACS Path Restoration)
- * @author RaZ Podestá - MetaShark Tech
+ * @description Componente de Presentación Puro para la UI del Paso 2 (Layout),
+ *              con observabilidad inyectada y delegación de datos robusta.
+ * @version 8.0.0 (Observable & Resilient Data Delegation)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -40,9 +41,7 @@ export function Step2Form({
   onBack,
   onNext,
 }: Step2FormProps): React.ReactElement {
-  logger.info(
-    "[Step2Form] Renderizando formulario de presentación puro (v7.0)."
-  );
+  logger.trace("[Step2Form] Renderizando formulario de presentación puro (v8.0).");
 
   return (
     <Card>

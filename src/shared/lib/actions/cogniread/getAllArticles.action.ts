@@ -2,11 +2,11 @@
 /**
  * @file getAllArticles.action.ts
  * @description Server Action para obtener una lista paginada de TODOS los artículos.
- *              v7.0.0 (Holistic & Type-Safe Refactor): Se abstrae la lógica de
- *              procesamiento de respuesta para eliminar la dependencia de tipos internos
- *              de PostgREST, resolviendo errores TS2305 y no-explicit-any.
- * @version 7.0.0
- *@author RaZ Podestá - MetaShark Tech
+ *              v7.1.0 (Supabase Query Fix): Se corrige la sintaxis de la llamada
+ *              a .select() para eliminar el uso inválido de funciones de agregación
+ *              directamente en la cadena de selección, resolviendo un error crítico de PostgREST.
+ * @version 7.1.0
+ * @author L.I.A. Legacy
  */
 "use server";
 
@@ -30,13 +30,6 @@ const GetArticlesInputSchema = z.object({
 });
 type GetArticlesInput = z.infer<typeof GetArticlesInputSchema>;
 
-/**
- * @function _processArticleQuery
- * @description Motor interno y puro para procesar la respuesta de una consulta de artículos.
- * @private
- * @param {PromiseLike<PostgrestResponse<SupabaseCogniReadArticle>>} queryPromise - La promesa devuelta por el PostgrestBuilder.
- * @returns {Promise<{ articles: CogniReadArticle[]; total: number }>}
- */
 async function _processArticleQuery(
   queryPromise: PromiseLike<PostgrestResponse<SupabaseCogniReadArticle>>
 ): Promise<{ articles: CogniReadArticle[]; total: number }> {
@@ -69,7 +62,7 @@ async function _processArticleQuery(
 export async function getAllArticlesAction(
   input: GetArticlesInput
 ): Promise<ActionResult<{ articles: CogniReadArticle[]; total: number }>> {
-  const traceId = logger.startTrace("getAllArticlesAction_v7.0");
+  const traceId = logger.startTrace("getAllArticlesAction_v7.1");
   logger.info(
     `[CogniReadAction] Obteniendo todos los artículos (página ${input.page})...`,
     { traceId }
@@ -82,14 +75,16 @@ export async function getAllArticlesAction(
     const start = (page - 1) * limit;
     const end = start + limit - 1;
 
-    // 1. Construir la consulta completa
+    // --- [INICIO DE REFACTORIZACIÓN QUIRÚRGICA] ---
+    // Se corrige el método .select() para usar la sintaxis correcta del SDK de Supabase,
+    // eliminando la función de agregación "count()" de la cadena de selección.
     const query = supabase
       .from("cogniread_articles")
-      .select("*, count()", { count: "exact" })
+      .select("*", { count: "exact" }) // CORREGIDO: Se elimina ", count()"
       .order("updated_at", { ascending: false })
       .range(start, end);
+    // --- [FIN DE REFACTORIZACIÓN QUIRÚRGICA] ---
 
-    // 2. Delegar el procesamiento de la respuesta al motor interno
     const result = await _processArticleQuery(query);
     return { success: true, data: result };
   } catch (error) {

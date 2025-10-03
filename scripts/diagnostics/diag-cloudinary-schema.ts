@@ -1,9 +1,9 @@
-// RUTA: scripts/diagnostics/diag-cloudinary-schema.ts
+// scripts/diagnostics/diag-cloudinary-schema.ts
 /**
  * @file diag-cloudinary-schema.ts
- * @description Herramienta de auditoría para inspeccionar la configuración y "esquema" de Cloudinary.
- * @version 8.0.0 (Holistic Integrity Restoration)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Herramienta de auditoría para inspeccionar la configuración de Cloudinary.
+ * @version 9.0.0 (Centralized Reporting & Elite Observability)
+ * @author L.I.A. Legacy
  */
 import { v2 as cloudinary } from "cloudinary";
 import * as fs from "fs/promises";
@@ -11,19 +11,6 @@ import * as path from "path";
 import { loadEnvironment } from "./_utils";
 import { logger } from "../../src/shared/lib/logging";
 import type { ActionResult } from "../../src/shared/lib/types/actions.types";
-
-// --- [INICIO DE REFACTORIZACIÓN DE ÉLITE: CONTRATOS DE TIPO SOBERANOS] ---
-interface UploadPreset {
-  name: string;
-  settings: {
-    folder?: string;
-  };
-}
-
-interface Transformation {
-  name: string;
-  used: boolean;
-}
 
 interface MetadataField {
   label: string;
@@ -34,11 +21,10 @@ interface MetadataField {
 interface CorrectMetadataFieldsApiResponse {
   fields: MetadataField[];
 }
-// --- [FIN DE REFACTORIZACIÓN DE ÉLITE] ---
 
 async function diagnoseCloudinarySchema(): Promise<ActionResult<string>> {
-  const traceId = logger.startTrace("diagnoseCloudinarySchema_v8.0");
-  logger.startGroup("🔬 Auditando configuración de Cloudinary (v8.0)...");
+  const traceId = logger.startTrace("diagnoseCloudinarySchema_v9.0");
+  logger.startGroup("🔬 Auditando configuración de Cloudinary...");
 
   try {
     loadEnvironment([
@@ -57,8 +43,6 @@ async function diagnoseCloudinarySchema(): Promise<ActionResult<string>> {
       traceId,
     });
 
-    const fullReport: Record<string, unknown> = {};
-
     const [presets, transformations, tags, metadataFieldsResponse] =
       await Promise.all([
         cloudinary.api.upload_presets(),
@@ -68,48 +52,14 @@ async function diagnoseCloudinarySchema(): Promise<ActionResult<string>> {
       ]);
     logger.traceEvent(traceId, "Datos de esquema obtenidos de la API.");
 
-    // --- [INICIO DE RESTAURACIÓN DE LÓGICA] ---
-    const metadataFields: MetadataField[] = metadataFieldsResponse.fields || [];
+    const fullReport = {
+      upload_presets: presets.presets,
+      transformations: transformations.transformations,
+      tags: tags.tags,
+      metadata_fields: metadataFieldsResponse.fields || [],
+    };
 
-    fullReport.upload_presets = presets.presets;
-    fullReport.transformations = transformations.transformations;
-    fullReport.tags = tags.tags;
-    fullReport.metadata_fields = metadataFields;
-
-    logger.info("--- PRESETS DE SUBIDA ---", {
-      data: presets.presets.map((p: UploadPreset) => ({
-        Nombre: p.name,
-        Opciones: `${p.settings.folder ? `Carpeta: ${p.settings.folder}` : ""}`,
-      })),
-    });
-
-    logger.info("--- TRANSFORMACIONES GUARDADAS ---", {
-      data: transformations.transformations.map((t: Transformation) => ({
-        Nombre: t.name,
-        Usada: t.used,
-      })),
-    });
-
-    logger.info("--- ETIQUETAS (TAGS) EN USO ---", {
-      tags: tags.tags.join(", "),
-    });
-
-    if (metadataFields.length > 0) {
-      logger.info("--- CAMPOS DE METADATOS ESTRUCTURADOS ---", {
-        data: metadataFields.map((f: MetadataField) => ({
-          Label: f.label,
-          External_ID: f.external_id,
-          Tipo: f.type,
-        })),
-      });
-    } else {
-      logger.info("--- CAMPOS DE METADATOS ESTRUCTURADOS ---", {
-        data: "No se encontraron campos de metadatos definidos.",
-      });
-    }
-    // --- [FIN DE RESTAURACIÓN DE LÓGICA] ---
-
-    const reportDir = path.resolve(process.cwd(), "cloudinary/reports");
+    const reportDir = path.resolve(process.cwd(), "reports", "cloudinary");
     await fs.mkdir(reportDir, { recursive: true });
     const reportPath = path.resolve(
       reportDir,

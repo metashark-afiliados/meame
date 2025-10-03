@@ -1,11 +1,13 @@
+// APARATO REVISADO Y NIVELADO POR L.I.A. LEGACY - VERSIÓN 9.1.0
+// ADVERTENCIA: No modificar sin consultar para evaluar el impacto holístico.
+
 // RUTA: src/shared/lib/middleware/handlers/auth.handler.ts
 /**
  * @file auth.handler.ts
- * @description Manejador de autenticación para el middleware, ahora con una única
- *              fuente de verdad para la detección de rutas protegidas y una higiene
- *              de código de élite.
- * @version 8.1.0 (Elite Code Hygiene)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Manejador de autenticación para el middleware, con redirección
+ *              contextual, una única SSoT para rutas protegidas y higiene de código de élite.
+ * @version 9.1.0 (Elite Code Hygiene)
+ * @author L.I.A. Legacy
  */
 "use server";
 
@@ -16,20 +18,13 @@ import { logger } from "../../logging";
 import { routes, RouteType } from "../../navigation";
 import { getCurrentLocaleFromPathname } from "../../utils/i18n/i18n.utils";
 
-/**
- * @function isProtectedRoute
- * @description Determina si una ruta es protegida consumiendo la SSoT `navigation.ts`.
- * @param {string} pathname - La ruta de la petición actual.
- * @param {string} locale - El locale extraído de la ruta.
- * @returns {boolean} - Verdadero si la ruta coincide con una definición marcada como `DevOnly`.
- */
 function isProtectedRoute(pathname: string, locale: string): boolean {
   for (const routeKey in routes) {
     const route = routes[routeKey as keyof typeof routes];
     const regexPath = route.template
-      .replace(/\[\[\.\.\..*?\]\]/g, "(?:/.*)?")
-      .replace(/\[\.\.\..*?\]/g, "/.*")
-      .replace(/\[.*?\]/g, "[^/]+");
+      .replace(/\[\[\.\.\..*?\]\]/g, "(?:/.*)?") // [[...slug]]
+      .replace(/\[\.\.\..*?\]/g, "/.*") // [...slug]
+      .replace(/\[.*?\]/g, "[^/]+"); // [slug]
 
     const routeRegex = new RegExp(`^/${locale}${regexPath}/?$`);
 
@@ -41,7 +36,7 @@ function isProtectedRoute(pathname: string, locale: string): boolean {
 }
 
 export const authHandler: MiddlewareHandler = async (req, res) => {
-  const traceId = logger.startTrace("authHandler_v8.1");
+  const traceId = logger.startTrace("authHandler_v9.1");
   const { pathname } = req.nextUrl;
   const ip = req.headers.get("x-visitor-ip") || "IP desconocida";
   const locale = getCurrentLocaleFromPathname(pathname);
@@ -83,9 +78,17 @@ export const authHandler: MiddlewareHandler = async (req, res) => {
     if (!user) {
       const loginUrl = new URL(routes.login.path({ locale }), req.url);
       loginUrl.searchParams.set("redirectedFrom", pathname);
+      loginUrl.searchParams.set("reason", "protected_route_access");
+
       logger.warn(
         `[AuthHandler] Decisión: Redirigir. Razón: ACCESO NO AUTORIZADO a ruta protegida.`,
-        { path: pathname, ip, redirectTo: loginUrl.pathname, traceId }
+        {
+          path: pathname,
+          ip,
+          redirectTo: loginUrl.pathname,
+          reason: "protected_route_access",
+          traceId,
+        }
       );
       return NextResponse.redirect(loginUrl);
     }

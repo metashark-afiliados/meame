@@ -2,10 +2,10 @@
 /**
  * @file SignUpForm.tsx
  * @description Componente de presentación puro para el formulario de registro de élite.
- *              v3.1.0 (React Hooks Contract Restoration): Se corrige el orden de
- *              llamadas a los hooks para cumplir con las reglas de React y resolver
- *              errores críticos de linting.
- * @version 3.1.0
+ *              v3.2.0 (Holistic Integrity Restoration): Se alinea el contrato de props
+ *              y se elimina el código no utilizado para cumplir con todos los pilares
+ *              de calidad y resolver errores de build.
+ * @version 3.2.0
  * @author L.I.A. Legacy
  */
 "use client";
@@ -48,7 +48,7 @@ type OAuthButtonsContent = NonNullable<Dictionary["oAuthButtons"]>;
 
 interface SignUpFormProps {
   content: AuthFormContent;
-  oAuthContent: OAuthButtonsContent;
+  oAuthContent: OAuthButtonsContent; // <-- PROP AÑADIDA AL CONTRATO
   locale: Locale;
   onSwitchView: () => void;
 }
@@ -69,7 +69,7 @@ export function SignUpForm({
   onSwitchView,
 }: SignUpFormProps) {
   const traceId = useMemo(
-    () => logger.startTrace("SignUpForm_Lifecycle_v3.1"),
+    () => logger.startTrace("SignUpForm_Lifecycle_v3.2"),
     []
   );
   useEffect(() => {

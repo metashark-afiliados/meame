@@ -4,8 +4,8 @@
  * @description SSoT para las operaciones de lectura de la BAVI. Es agnóstico
  *              al contexto y seguro para su uso tanto en Server Components
  *              como en scripts de Node.js.
- * @version 7.2.0 (Granular Error Logging & Resilience)
- *@author RaZ Podestá - MetaShark Tech
+ * @version 8.0.0 (DB Schema Alignment)
+ * @author L.I.A. Legacy
  */
 import * as React from "react";
 import { createServerClient } from "@/shared/lib/supabase/server";
@@ -39,6 +39,10 @@ interface SupabaseBaviVariant {
 interface SupabaseBaviAsset {
   asset_id: string;
   provider: "cloudinary";
+  // --- [INICIO DE NIVELACIÓN DE ESQUEMA v8.0.0] ---
+  status: "active" | "archived" | "pending";
+  description: string | null;
+  // --- [FIN DE NIVELACIÓN DE ESQUEMA v8.0.0] ---
   prompt_id: string | null;
   tags: Partial<RaZPromptsSesaTags> | null;
   metadata: { altText?: Record<string, string> } | null;
@@ -54,7 +58,7 @@ interface SupabaseBaviAsset {
  * @returns {Promise<BaviManifest>} El manifiesto de activos validado.
  */
 const getBaviManifestFn = async (): Promise<BaviManifest> => {
-  const traceId = logger.startTrace("getBaviManifestFn_v7.2");
+  const traceId = logger.startTrace("getBaviManifestFn_v8.0");
   const supabase = createServerClient();
 
   const { data: assetsData, error: assetsError } = await supabase
@@ -73,11 +77,13 @@ const getBaviManifestFn = async (): Promise<BaviManifest> => {
 
   const validAssets: BaviAsset[] = [];
   for (const asset of (assetsData || []) as SupabaseBaviAsset[]) {
+    // --- [INICIO DE NIVELACIÓN DE LÓGICA v8.0.0] ---
+    // Se eliminan los valores harcodeados y se leen los datos reales de la DB.
     const transformedAsset = {
       assetId: asset.asset_id,
-      status: "active",
+      status: asset.status,
       provider: asset.provider,
-      description: "Asset de la base de datos",
+      description: asset.description ?? undefined,
       promptId: asset.prompt_id ?? undefined,
       tags: asset.tags ?? undefined,
       variants: asset.bavi_variants.map((v: SupabaseBaviVariant) => ({
@@ -90,27 +96,25 @@ const getBaviManifestFn = async (): Promise<BaviManifest> => {
       createdAt: asset.created_at,
       updatedAt: asset.updated_at,
     };
+    // --- [FIN DE NIVELACIÓN DE LÓGICA v8.0.0] ---
 
     const validation = BaviAssetSchema.safeParse(transformedAsset);
     if (validation.success) {
       validAssets.push(validation.data);
     } else {
-      // --- [INICIO DE MEJORA DE OBSERVABILIDAD] ---
-      // Se añade el objeto de datos que falló la validación al log.
       logger.error(
         `[BAVI DAL] Activo corrupto ignorado en DB: ${asset.asset_id}`,
         {
           error: validation.error.flatten(),
           traceId,
-          corruptData: transformedAsset, // <-- Log granular del error
+          corruptData: transformedAsset,
         }
       );
-      // --- [FIN DE MEJORA DE OBSERVABILIDAD] ---
     }
   }
 
   logger.success(
-    `[BAVI DAL v7.2] Manifiesto ensamblado con ${validAssets.length} activos válidos.`
+    `[BAVI DAL v8.0] Manifiesto ensamblado con ${validAssets.length} activos válidos.`
   );
   logger.endTrace(traceId);
   return { assets: validAssets };

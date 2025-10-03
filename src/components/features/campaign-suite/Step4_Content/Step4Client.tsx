@@ -1,12 +1,11 @@
 // RUTA: src/components/features/campaign-suite/Step4_Content/Step4Client.tsx
 /**
  * @file Step4Client.tsx
- * @description Componente Contenedor de Cliente para el Paso 4 (Contenido).
- *              Reconstruido para cumplir estrictamente con las Reglas de Hooks de React,
- *              utilizar el hook soberano `useAssembledDraft` y estar blindado con
- *              guardianes de resiliencia y observabilidad de élite.
- * @version 7.0.0 (React Hooks & Architectural Contract Restoration)
- *@author RaZ Podestá - MetaShark Tech
+ * @description Componente Contenedor de Cliente para el Paso 4 (Contenido),
+ *              reconstruido para consumir el hook soberano `useAssembledDraft`
+ *              y blindado con guardianes y observabilidad de élite.
+ * @version 8.0.0 (Sovereign Draft Consumption & Elite Observability)
+ * @author L.I.A. Legacy
  */
 "use client";
 
@@ -29,34 +28,22 @@ interface Step4ClientProps {
 }
 
 export function Step4Client({ content }: Step4ClientProps): React.ReactElement {
-  const traceId = useMemo(
-    () => logger.startTrace("Step4Client_Lifecycle_v7.0"),
-    []
-  );
+  const traceId = useMemo(() => logger.startTrace("Step4Client_Lifecycle_v8.0"), []);
   useEffect(() => {
     logger.info("[Step4Client] Componente montado.", { traceId });
     return () => logger.endTrace(traceId);
   }, [traceId]);
 
-  // --- [INICIO: REFACTORIZACIÓN ARQUITECTÓNICA (HOOKS SOBERANOS)] ---
-  // Se llaman todos los hooks incondicionalmente en el nivel superior.
   const assembledDraft = useAssembledDraft();
   const { setSectionContent } = useStep4ContentStore();
   const { completeStep } = useDraftMetadataStore();
   const wizardContext = useWizard();
   const [editingSection, setEditingSection] = useState<string | null>(null);
 
-  const handleUpdateContent = useCallback(
-    (sectionName: string, locale: Locale, field: string, value: unknown) => {
-      logger.traceEvent(traceId, "Acción: Actualizando contenido de sección.", {
-        sectionName,
-        locale,
-        field,
-      });
-      setSectionContent(sectionName, locale, field, value);
-    },
-    [setSectionContent, traceId]
-  );
+  const handleUpdateContent = useCallback((sectionName: string, locale: Locale, field: string, value: unknown) => {
+    logger.traceEvent(traceId, "Acción: Actualizando contenido de sección.", { sectionName, locale, field });
+    setSectionContent(sectionName, locale, field, value);
+  }, [setSectionContent, traceId]);
 
   const handleNext = useCallback(() => {
     if (wizardContext) {
@@ -72,31 +59,16 @@ export function Step4Client({ content }: Step4ClientProps): React.ReactElement {
       wizardContext.goToPrevStep();
     }
   }, [wizardContext, traceId]);
-  // --- [FIN: REFACTORIZACIÓN ARQUITECTÓNICA] ---
 
-  // --- [GUARDIANES DE RESILIENCIA] ---
   if (!wizardContext) {
-    const errorMsg =
-      "Guardián de Contexto: Renderizado fuera de WizardProvider.";
+    const errorMsg = "Guardián de Contexto: Renderizado fuera de WizardProvider.";
     logger.error(`[Step4Client] ${errorMsg}`, { traceId });
-    return (
-      <DeveloperErrorDisplay
-        context="Step4Client Guardián de Contexto"
-        errorMessage={errorMsg}
-      />
-    );
+    return <DeveloperErrorDisplay context="Step4Client" errorMessage={errorMsg} />;
   }
-
   if (!content) {
-    const errorMsg =
-      "Guardián de Contrato: La prop 'content' es nula o indefinida.";
+    const errorMsg = "Guardián de Contrato: La prop 'content' es nula o indefinida.";
     logger.error(`[Step4Client] ${errorMsg}`, { traceId });
-    return (
-      <DeveloperErrorDisplay
-        context="Step4Client Guardián de Contenido"
-        errorMessage={errorMsg}
-      />
-    );
+    return <DeveloperErrorDisplay context="Step4Client" errorMessage={errorMsg} />;
   }
 
   return (
@@ -109,7 +81,6 @@ export function Step4Client({ content }: Step4ClientProps): React.ReactElement {
       onUpdateContent={handleUpdateContent}
       onBack={handleBack}
       onNext={handleNext}
-      isPending={false} // No hay transiciones de servidor iniciadas desde este componente.
     />
   );
 }

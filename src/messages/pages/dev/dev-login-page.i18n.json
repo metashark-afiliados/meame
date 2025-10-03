@@ -3,6 +3,10 @@
     "devLoginPage": {
       "title": "Accesso DCC",
       "subtitle": "Inserisci le tue credenziali per accedere alla suite di sviluppo.",
+      "contextualMessages": {
+        "protected_route_access": "Per accedere alla risorsa richiesta, devi prima effettuare l'accesso.",
+        "session_expired": "La tua sessione è scaduta. Per favore, accedi di nuovo."
+      },
       "emailLabel": "Email",
       "emailPlaceholder": "tu@esempio.com",
       "passwordLabel": "Password",
@@ -36,6 +40,10 @@
     "devLoginPage": {
       "title": "Acceso al DCC",
       "subtitle": "Introduce tus credenciales para acceder a la suite de desarrollo.",
+      "contextualMessages": {
+        "protected_route_access": "Para acceder al recurso solicitado, primero debes iniciar sesión.",
+        "session_expired": "Tu sesión ha expirado. Por favor, inicia sesión de nuevo."
+      },
       "emailLabel": "Email",
       "emailPlaceholder": "tu@ejemplo.com",
       "passwordLabel": "Contraseña",
@@ -69,6 +77,10 @@
     "devLoginPage": {
       "title": "DCC Access",
       "subtitle": "Enter your credentials to access the development suite.",
+      "contextualMessages": {
+        "protected_route_access": "To access the requested resource, you must first sign in.",
+        "session_expired": "Your session has expired. Please sign in again."
+      },
       "emailLabel": "Email",
       "emailPlaceholder": "you@example.com",
       "passwordLabel": "Password",
@@ -102,6 +114,10 @@
     "devLoginPage": {
       "title": "Acesso ao DCC",
       "subtitle": "Insira suas credenciais para acessar a suíte de desenvolvimento.",
+      "contextualMessages": {
+        "protected_route_access": "Para acessar o recurso solicitado, você deve primeiro fazer login.",
+        "session_expired": "Sua sessão expirou. Por favor, faça login novamente."
+      },
       "emailLabel": "Email",
       "emailPlaceholder": "voce@exemplo.com",
       "passwordLabel": "Senha",

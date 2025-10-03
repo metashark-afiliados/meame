@@ -1,9 +1,10 @@
 // RUTA: src/app/[locale]/(dev)/layout.tsx
 /**
  * @file layout.tsx
- * @description Layout Raíz del Developer Command Center (DCC), con seguridad de tipos absoluta.
- * @version 13.0.0 (Absolute Type Safety)
- *@author L.I.A. Legacy
+ * @description Layout Raíz Soberano del DCC. Forjado con un Guardián de Resiliencia
+ *              de Contrato de Datos definitivo para una seguridad de tipos absoluta.
+ * @version 15.0.0 (Definitive Type Safety & Elite Resilience)
+ * @author L.I.A. Legacy
  */
 import "server-only";
 import React from "react";
@@ -28,10 +29,8 @@ import { DevRouteMenuContentSchema } from "@/shared/lib/schemas/components/dev/d
 import type { LucideIconName } from "@/shared/lib/config/lucide-icon-names";
 import { getCart } from "@/shared/lib/commerce/cart";
 import { reshapeCartForStore } from "@/shared/lib/commerce/shapers";
-// --- [INICIO DE REFACTORIZACIÓN DE TIPOS] ---
-// Se importa el tipo soberano para una tarjeta de bento.
-import type { BentoCardData } from "@/components/razBits/MagicBento/magic-bento.schema";
-// --- [FIN DE REFACTORIZACIÓN DE TIPOS] ---
+import { BentoCardData } from "@/components/razBits/MagicBento/magic-bento.schema";
+import type { Dictionary } from "@/shared/lib/schemas/i18n.schema";
 
 // --- CONTRATOS DE TIPO SOBERANOS ---
 interface SidebarTool {
@@ -83,18 +82,50 @@ export default async function DevLayout({
   children,
   params: { locale },
 }: DevLayoutProps) {
-  const traceId = logger.startTrace(`DevLayout_Render_v13.0:${locale}`);
-  logger.startGroup(`[DevLayout] Ensamblando UI del DCC para [${locale}]...`);
+  const traceId = logger.startTrace(`DevLayout_Render_v15.0:${locale}`);
+  logger.startGroup(`[DCC Layout Shell] Ensamblando UI para [${locale}]...`);
 
   try {
+    logger.traceEvent(traceId, "Iniciando obtención de datos en paralelo...");
     const [dictionaryResult, fragmentsResult, cartResult] = await Promise.all([
       getDictionary(locale),
       loadAllThemeFragmentsAction(),
       getCart(),
     ]);
+    logger.traceEvent(traceId, "Todas las fuentes de datos respondieron.");
 
     const initialCart = reshapeCartForStore(cartResult);
     const { dictionary, error } = dictionaryResult;
+
+    // --- [INICIO] GUARDIÁN DE RESILIENCIA DE CONTRATO DE DATOS DEFINITIVO ---
+    const requiredKeys: (keyof Dictionary)[] = [
+      "header",
+      "toggleTheme",
+      "languageSwitcher",
+      "userNav",
+      "notificationBell",
+      "devLoginPage",
+      "cart",
+      "devRouteMenu",
+      "suiteStyleComposer",
+      "devDashboardPage",
+    ];
+    const missingKeys = requiredKeys.filter((key) => !dictionary[key]);
+    const isDevDashboardContentMissing =
+      !dictionary.devDashboardPage?.magicBento;
+
+    if (error || missingKeys.length > 0 || isDevDashboardContentMissing) {
+      if (isDevDashboardContentMissing)
+        missingKeys.push("devDashboardPage.magicBento");
+      throw new Error(
+        `Faltan datos de i18n esenciales para el layout del DCC. Claves ausentes: ${missingKeys.join(", ")}`
+      );
+    }
+    logger.traceEvent(
+      traceId,
+      "Contrato de diccionario i18n validado con éxito."
+    );
+
     const {
       header,
       toggleTheme,
@@ -107,28 +138,14 @@ export default async function DevLayout({
       suiteStyleComposer,
       devDashboardPage,
     } = dictionary;
+    // --- [FIN] GUARDIÁN DE RESILIENCIA DE CONTRATO DE DATOS DEFINITIVO ---
 
-    if (
-      error ||
-      !header ||
-      !languageSwitcher ||
-      !userNav ||
-      !notificationBell ||
-      !devLoginPage ||
-      !cart ||
-      !devRouteMenu ||
-      !suiteStyleComposer ||
-      !devDashboardPage?.magicBento
-    ) {
-      throw new Error(
-        "Contenido i18n esencial para el layout del DCC está ausente o incompleto."
-      );
-    }
     if (!fragmentsResult.success) {
       throw new Error(
         `No se pudieron cargar los fragmentos de tema: ${fragmentsResult.error}`
       );
     }
+    logger.traceEvent(traceId, "Fragmentos de tema cargados con éxito.");
 
     const headerContent = {
       header,
@@ -170,13 +187,16 @@ export default async function DevLayout({
 
     const devToolsForSidebar: SidebarTool[] =
       devDashboardPage.magicBento.cards.map((card: BentoCardData) => ({
-        // <-- TIPO EXPLÍCITO AÑADIDO
         name: card.title,
         description: card.description,
         href: toolMetadata[card.title]?.href || `/${locale}/dev`,
         icon: toolMetadata[card.title]?.icon || "HelpCircle",
       }));
 
+    logger.success(
+      "[DCC Layout Shell] Ensamblaje de datos completado. Renderizando UI...",
+      { traceId }
+    );
     return (
       <>
         <HeaderClient
@@ -207,13 +227,13 @@ export default async function DevLayout({
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[DevLayout] Fallo crítico al renderizar el layout del DCC.", {
+    logger.error("[DCC Layout Shell] Fallo crítico al renderizar el layout.", {
       error: errorMessage,
       traceId,
     });
     return (
       <DeveloperErrorDisplay
-        context="DevLayout"
+        context="DevLayout (Server Shell)"
         errorMessage="No se pudo construir el layout del Developer Command Center."
         errorDetails={error instanceof Error ? error : errorMessage}
       />

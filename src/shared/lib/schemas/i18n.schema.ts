@@ -2,10 +2,10 @@
 /**
  * @file i18n.schema.ts
  * @description Aparato ensamblador y SSoT para el contrato del diccionario i18n.
- *              v35.0.0 (Module Integrity Restoration): Se corrige la importación y
- *              lógica de fusión para el SelectLanguagePageLocaleSchema,
- *              restaurando la integridad del build.
- * @version 35.0.0
+ *              v36.0.0 (OAuthButtons Contract Restoration): Se restaura la importación
+ *              y fusión del schema para `oAuthButtons`, resolviendo un error crítico
+ *              de tipo TS2739 en el flujo de autenticación.
+ * @version 36.0.0
  * @author L.I.A. Legacy
  */
 import { z } from "zod";
@@ -42,6 +42,9 @@ import { LanguageSwitcherLocaleSchema } from "./components/language-switcher.sch
 import { PageHeaderLocaleSchema } from "./components/page-header.schema";
 import { CartLocaleSchema } from "./components/cart.schema";
 import { UserNavLocaleSchema } from "./components/auth/user-nav.schema";
+// --- [INICIO DE NIVELACIÓN DE INTEGRIDAD v36.0.0] ---
+import { OAuthButtonsLocaleSchema } from "./components/auth/oauth-buttons.schema";
+// --- [FIN DE NIVELACIÓN DE INTEGRIDAD v36.0.0] ---
 import { NotificationBellLocaleSchema } from "./components/notifications.schema";
 import { ValidationErrorLocaleSchema } from "./components/validation-error.schema";
 import { SuiteStyleComposerLocaleSchema } from "./components/dev/suite-style-composer.schema";
@@ -118,6 +121,9 @@ const baseSchema = z.object({
   ...PageHeaderLocaleSchema.shape,
   ...CartLocaleSchema.shape,
   ...UserNavLocaleSchema.shape,
+  // --- [INICIO DE NIVELACIÓN DE INTEGRIDAD v36.0.0] ---
+  ...OAuthButtonsLocaleSchema.shape,
+  // --- [FIN DE NIVELACIÓN DE INTEGRIDAD v36.0.0] ---
   ...NotificationBellLocaleSchema.shape,
   ...ValidationErrorLocaleSchema.shape,
   ...SuiteStyleComposerLocaleSchema.shape,

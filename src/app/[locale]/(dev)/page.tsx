@@ -59,10 +59,13 @@ export default async function DevDashboardPage({
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[DCC Shell] Fallo crítico irrecuperable en el Server Shell.", {
-      error: errorMessage,
-      traceId,
-    });
+    logger.error(
+      "[DCC Shell] Fallo crítico irrecuperable en el Server Shell.",
+      {
+        error: errorMessage,
+        traceId,
+      }
+    );
     return (
       <DeveloperErrorDisplay
         context="DevDashboardPage (Server Shell)"

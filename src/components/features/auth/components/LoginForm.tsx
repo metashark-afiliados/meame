@@ -1,16 +1,19 @@
+// APARATO REVISADO Y NIVELADO POR L.I.A. LEGACY - VERSIÓN 9.0.0
+// ADVERTENCIA: No modificar sin consultar para evaluar el impacto holístico.
+
 // RUTA: src/components/features/auth/components/LoginForm.tsx
 /**
  * @file LoginForm.tsx
  * @description Componente de presentación puro para el formulario de login.
- *              v8.0.0 (React Hooks Contract Restoration & Elite Compliance): Se
- *              corrigen las reglas de los hooks y se alinea el contrato de props.
- * @version 8.0.0
+ *              v9.0.0 (Contextual Redirect Logic): Ahora acepta una URL de
+ *              redirección para una experiencia de usuario post-login sin fisuras.
+ * @version 9.0.0
  * @author L.I.A. Legacy
  */
 "use client";
 
 import React, { useState, useTransition, useMemo, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -55,6 +58,7 @@ interface LoginFormProps {
   oAuthContent: OAuthButtonsContent;
   locale: Locale;
   onSwitchView: () => void;
+  redirectUrl?: string;
 }
 
 const formVariants: Variants = {
@@ -72,18 +76,18 @@ export function LoginForm({
   oAuthContent,
   locale,
   onSwitchView,
+  redirectUrl,
 }: LoginFormProps) {
   const traceId = useMemo(
-    () => logger.startTrace("LoginForm_Lifecycle_v8.0"),
+    () => logger.startTrace("LoginForm_Lifecycle_v9.0"),
     []
   );
   useEffect(() => {
-    logger.info("[LoginForm] Componente montado.", { traceId });
+    logger.info("[LoginForm] Componente montado.", { traceId, redirectUrl });
     return () => logger.endTrace(traceId);
-  }, [traceId]);
+  }, [traceId, redirectUrl]);
 
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -99,11 +103,11 @@ export function LoginForm({
   });
 
   if (!content || !oAuthContent) {
-    const errorMsg =
-      "Contrato de UI violado: Faltan props de contenido requeridas.";
-    logger.error(`[Guardián] ${errorMsg}`, { traceId });
     return (
-      <DeveloperErrorDisplay context="LoginForm" errorMessage={errorMsg} />
+      <DeveloperErrorDisplay
+        context="LoginForm"
+        errorMessage="Contenido i18n incompleto."
+      />
     );
   }
 
@@ -115,18 +119,16 @@ export function LoginForm({
       const result = await loginWithPasswordAction(data);
       if (result.success) {
         toast.success("Login exitoso. Redirigiendo...");
-        const redirectTo =
-          searchParams.get("redirectedFrom") ||
-          routes.devDashboard.path({ locale });
+        const redirectTo = redirectUrl || routes.devDashboard.path({ locale });
         logger.success(
-          `[LoginForm] Autenticación con contraseña exitosa. Redirigiendo a: ${redirectTo}`,
+          `[LoginForm] Autenticación exitosa. Redirigiendo a: ${redirectTo}`,
           { traceId: submitTraceId }
         );
         router.push(redirectTo);
       } else {
         toast.error("Error de Login", { description: result.error });
         form.setError("root", { message: result.error });
-        logger.error("[LoginForm] Fallo en la autenticación por contraseña.", {
+        logger.error("[LoginForm] Fallo en la autenticación.", {
           error: result.error,
           traceId: submitTraceId,
         });
@@ -247,7 +249,6 @@ export function LoginForm({
               </motion.div>
             </motion.form>
           </Form>
-
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <Separator />
@@ -258,9 +259,7 @@ export function LoginForm({
               </span>
             </div>
           </div>
-
           <OAuthButtons content={oAuthContent} />
-
           <div className="mt-4 text-center text-sm">
             {content.signUpPrompt}{" "}
             <button

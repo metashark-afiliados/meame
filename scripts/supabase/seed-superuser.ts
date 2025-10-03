@@ -2,25 +2,23 @@
 /**
  * @file seed-superuser.ts
  * @description Script de seed para crear un superusuario de desarrollo en Supabase.
- * @version 3.0.0 (Holistic & Orchestrator-Compliant)
- *@author RaZ Podestá - MetaShark Tech
+ * @version 4.0.0 (Architectural Purity)
+ * @author L.I.A. Legacy
  */
-import { createScriptClient } from "../../src/shared/lib/supabase/script-client";
+import { createScriptClient } from "./script-client"; // <-- RUTA CORREGIDA
 import { logger } from "../../src/shared/lib/logging";
 import type { ActionResult } from "../../src/shared/lib/types/actions.types";
 
 async function createSuperUser(): Promise<ActionResult<{ userId: string }>> {
-  const traceId = logger.startTrace("createSuperUser_v3.0");
+  const traceId = logger.startTrace("createSuperUser_v4.0");
   logger.startGroup("🌱 Iniciando creación de Superusuario en Supabase...");
 
   try {
-    // Se consume la SSoT para crear el cliente, adhiriéndose al principio DRY.
     const supabaseAdmin = createScriptClient();
 
     const superUserEmail = "superuser@webvork.dev";
     const superUserPassword = "superuserpassword123";
 
-    // 1. Verificar si el usuario ya existe usando la API de admin.
     const {
       data: { users },
       error: listError,
@@ -39,7 +37,6 @@ async function createSuperUser(): Promise<ActionResult<{ userId: string }>> {
       return { success: true, data: { userId: existingUser.id } };
     }
 
-    // 2. Crear el nuevo usuario.
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email: superUserEmail,
       password: superUserPassword,
@@ -80,5 +77,4 @@ async function createSuperUser(): Promise<ActionResult<{ userId: string }>> {
   }
 }
 
-// Se exporta la función principal como 'default' para cumplir con el contrato del orquestador.
 export default createSuperUser;

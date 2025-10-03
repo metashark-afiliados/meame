@@ -5,8 +5,9 @@
  *              que obtiene los fragmentos de tema y los delega a su cliente,
  *              blindado con un Guardián de Resiliencia y observabilidad de élite.
  * @version 9.0.0 (Resilient Data Provider & Elite Compliance)
- *@author RaZ Podestá - MetaShark Tech
+ * @author L.I.A. Legacy
  */
+import "server-only";
 import React from "react";
 import { logger } from "@/shared/lib/logging";
 import { Step3Client } from "./Step3Client";
@@ -18,14 +19,9 @@ import { loadAllThemeFragmentsAction } from "@/shared/lib/actions/campaign-suite
 
 type Content = z.infer<typeof Step3ContentSchema>;
 
-export default async function Step3({
-  content,
-}: StepProps<Content>): Promise<React.ReactElement> {
+export default async function Step3({ content }: StepProps<Content>): Promise<React.ReactElement> {
   const traceId = logger.startTrace("Step3_ServerShell_Render_v9.0");
-  logger.startGroup(
-    "[Step3 Shell] Ensamblando datos para el Paso 3...",
-    `traceId: ${traceId}`
-  );
+  logger.startGroup(`[Step3 Shell] Ensamblando datos para el Paso 3...`);
 
   try {
     if (!content) {
@@ -36,7 +32,6 @@ export default async function Step3({
     const fragmentsResult = await loadAllThemeFragmentsAction();
 
     if (!fragmentsResult.success) {
-      // Lanzamos el error para que sea capturado por el Guardián holístico.
       throw new Error(fragmentsResult.error);
     }
     logger.traceEvent(traceId, "Fragmentos de tema cargados con éxito.");
@@ -45,18 +40,14 @@ export default async function Step3({
       <Step3Client
         content={content}
         loadedFragments={fragmentsResult.data}
-        fetchError={null}
       />
     );
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error desconocido.";
+    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
     logger.error("[Guardián de Resiliencia][Step3] Fallo crítico.", {
       error: errorMessage,
       traceId,
     });
-    // En desarrollo, renderizamos un error explícito.
-    // El 'return' aquí es crucial para no seguir ejecutando.
     return (
       <DeveloperErrorDisplay
         context="Step3 Server Shell"
