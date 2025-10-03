@@ -1,15 +1,16 @@
 // APARATO REVISADO Y NIVELADO POR L.I.A. LEGACY - VERSIÓN 3.0.0
 // ADVERTENCIA: No modificar sin consultar para evaluar el impacto holístico.
 
-// _docs/000_MANIFIESTO_MIDDLEWARE.md
-/**
- * @file 000_MANIFIESTO_MIDDLEWARE.md
- * @description Manifiesto Canónico y SSoT para el Pipeline del Middleware v3.0.
- *              Define la arquitectura del "Guardián Inteligente" que perfila,
- *              personaliza y protege cada petición entrante.
- * @version 3.0.0 (Holistic Visitor Profiling & Preference-First i18n)
- * @author L.I.A. Legacy
- */
+// \_docs/000_MANIFIESTO_MIDDLEWARE.md
+/\*\*
+
+- @file 000_MANIFIESTO_MIDDLEWARE.md
+- @description Manifiesto Canónico y SSoT para el Pipeline del Middleware v3.0.
+-              Define la arquitectura del "Guardián Inteligente" que perfila,
+-              personaliza y protege cada petición entrante.
+- @version 3.0.0 (Holistic Visitor Profiling & Preference-First i18n)
+- @author L.I.A. Legacy
+  \*/
 
 # Manifiesto Canónico: El Pipeline del Middleware v3.0 (El Guardián Inteligente)
 
@@ -100,3 +101,4 @@ Migración de Identidad: Se implementará un mecanismo de backend (Supabase Trig
 
 ---
 
+```

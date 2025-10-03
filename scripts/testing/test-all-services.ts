@@ -27,7 +27,9 @@ interface TestResult {
 }
 
 async function runTest(name: string, command: string): Promise<TestResult> {
-  console.log(chalk.blue.bold(`\n===== EJECUTANDO: ${chalk.yellow(name)} =====\n`));
+  console.log(
+    chalk.blue.bold(`\n===== EJECUTANDO: ${chalk.yellow(name)} =====\n`)
+  );
   return new Promise((resolve) => {
     const child = exec(command, (error) => {
       // La promesa siempre se resuelve, nunca se rechaza.
@@ -55,9 +57,11 @@ async function main() {
     results.push(result);
   }
 
-  console.log(chalk.blue.bold("\n\n===== 📊 INFORME FINAL DE DIAGNÓSTICO =====\n"));
+  console.log(
+    chalk.blue.bold("\n\n===== 📊 INFORME FINAL DE DIAGNÓSTICO =====\n")
+  );
 
-  results.forEach(result => {
+  results.forEach((result) => {
     console.log(
       result.success
         ? chalk.green.bold(`  ✅ ${result.name}: PASÓ`)
@@ -65,13 +69,19 @@ async function main() {
     );
   });
 
-  const failures = results.filter(r => !r.success);
+  const failures = results.filter((r) => !r.success);
   if (failures.length > 0) {
-    console.log(chalk.red.bold(`\n\n[🔥] ${failures.length} de ${tests.length} diagnósticos fallaron. Revisa la salida de cada uno para más detalles.`));
+    console.log(
+      chalk.red.bold(
+        `\n\n[🔥] ${failures.length} de ${tests.length} diagnósticos fallaron. Revisa la salida de cada uno para más detalles.`
+      )
+    );
     process.exit(1);
   } else {
     console.log(
-      chalk.green.bold("\n\n[✨] ¡Éxito Total! Todos los diagnósticos del ecosistema pasaron.")
+      chalk.green.bold(
+        "\n\n[✨] ¡Éxito Total! Todos los diagnósticos del ecosistema pasaron."
+      )
     );
   }
 }

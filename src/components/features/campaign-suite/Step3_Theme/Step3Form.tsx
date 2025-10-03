@@ -48,10 +48,17 @@ export function Step3Form({
   onNext,
   onLaunchComposer,
 }: Step3FormProps): React.ReactElement {
-  logger.trace("[Step3Form] Renderizando formulario de presentación v8.0 (MEA/UX).");
+  logger.trace(
+    "[Step3Form] Renderizando formulario de presentación v8.0 (MEA/UX)."
+  );
 
   if (!content || !themeConfig) {
-      return <DeveloperErrorDisplay context="Step3Form" errorMessage="Faltan props de contenido o configuración." />;
+    return (
+      <DeveloperErrorDisplay
+        context="Step3Form"
+        errorMessage="Faltan props de contenido o configuración."
+      />
+    );
   }
 
   return (
@@ -62,10 +69,10 @@ export function Step3Form({
       </CardHeader>
       <CardContent>
         <motion.div
-            className="space-y-4 p-6 border rounded-lg bg-muted/20"
-            variants={itemVariants}
-            initial="hidden"
-            animate="visible"
+          className="space-y-4 p-6 border rounded-lg bg-muted/20"
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
         >
           <h3 className="font-semibold text-lg text-foreground">Tema Activo</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">

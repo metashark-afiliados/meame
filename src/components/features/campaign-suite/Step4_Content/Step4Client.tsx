@@ -28,7 +28,10 @@ interface Step4ClientProps {
 }
 
 export function Step4Client({ content }: Step4ClientProps): React.ReactElement {
-  const traceId = useMemo(() => logger.startTrace("Step4Client_Lifecycle_v8.0"), []);
+  const traceId = useMemo(
+    () => logger.startTrace("Step4Client_Lifecycle_v8.0"),
+    []
+  );
   useEffect(() => {
     logger.info("[Step4Client] Componente montado.", { traceId });
     return () => logger.endTrace(traceId);
@@ -40,10 +43,17 @@ export function Step4Client({ content }: Step4ClientProps): React.ReactElement {
   const wizardContext = useWizard();
   const [editingSection, setEditingSection] = useState<string | null>(null);
 
-  const handleUpdateContent = useCallback((sectionName: string, locale: Locale, field: string, value: unknown) => {
-    logger.traceEvent(traceId, "Acción: Actualizando contenido de sección.", { sectionName, locale, field });
-    setSectionContent(sectionName, locale, field, value);
-  }, [setSectionContent, traceId]);
+  const handleUpdateContent = useCallback(
+    (sectionName: string, locale: Locale, field: string, value: unknown) => {
+      logger.traceEvent(traceId, "Acción: Actualizando contenido de sección.", {
+        sectionName,
+        locale,
+        field,
+      });
+      setSectionContent(sectionName, locale, field, value);
+    },
+    [setSectionContent, traceId]
+  );
 
   const handleNext = useCallback(() => {
     if (wizardContext) {
@@ -61,14 +71,20 @@ export function Step4Client({ content }: Step4ClientProps): React.ReactElement {
   }, [wizardContext, traceId]);
 
   if (!wizardContext) {
-    const errorMsg = "Guardián de Contexto: Renderizado fuera de WizardProvider.";
+    const errorMsg =
+      "Guardián de Contexto: Renderizado fuera de WizardProvider.";
     logger.error(`[Step4Client] ${errorMsg}`, { traceId });
-    return <DeveloperErrorDisplay context="Step4Client" errorMessage={errorMsg} />;
+    return (
+      <DeveloperErrorDisplay context="Step4Client" errorMessage={errorMsg} />
+    );
   }
   if (!content) {
-    const errorMsg = "Guardián de Contrato: La prop 'content' es nula o indefinida.";
+    const errorMsg =
+      "Guardián de Contrato: La prop 'content' es nula o indefinida.";
     logger.error(`[Step4Client] ${errorMsg}`, { traceId });
-    return <DeveloperErrorDisplay context="Step4Client" errorMessage={errorMsg} />;
+    return (
+      <DeveloperErrorDisplay context="Step4Client" errorMessage={errorMsg} />
+    );
   }
 
   return (

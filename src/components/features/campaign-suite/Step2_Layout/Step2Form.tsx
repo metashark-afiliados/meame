@@ -41,7 +41,9 @@ export function Step2Form({
   onBack,
   onNext,
 }: Step2FormProps): React.ReactElement {
-  logger.trace("[Step2Form] Renderizando formulario de presentación puro (v8.0).");
+  logger.trace(
+    "[Step2Form] Renderizando formulario de presentación puro (v8.0)."
+  );
 
   return (
     <Card>

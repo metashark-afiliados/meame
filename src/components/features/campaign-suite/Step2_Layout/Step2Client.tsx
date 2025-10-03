@@ -26,7 +26,10 @@ interface Step2ClientProps {
 }
 
 export function Step2Client({ content }: Step2ClientProps): React.ReactElement {
-  const traceId = useMemo(() => logger.startTrace("Step2Client_Lifecycle_v7.0"), []);
+  const traceId = useMemo(
+    () => logger.startTrace("Step2Client_Lifecycle_v7.0"),
+    []
+  );
   useEffect(() => {
     logger.info("[Step2Client] Orquestador de cliente montado.", { traceId });
     return () => logger.endTrace(traceId);
@@ -36,10 +39,17 @@ export function Step2Client({ content }: Step2ClientProps): React.ReactElement {
   const { completeStep } = useDraftMetadataStore();
   const wizardContext = useWizard();
 
-  const handleLayoutChange = useCallback((newLayout: LayoutConfigItem[]) => {
-    logger.traceEvent(traceId, "Acción: Layout modificado, actualizando store...", { newLayout });
-    setLayoutConfig(newLayout);
-  }, [setLayoutConfig, traceId]);
+  const handleLayoutChange = useCallback(
+    (newLayout: LayoutConfigItem[]) => {
+      logger.traceEvent(
+        traceId,
+        "Acción: Layout modificado, actualizando store...",
+        { newLayout }
+      );
+      setLayoutConfig(newLayout);
+    },
+    [setLayoutConfig, traceId]
+  );
 
   const handleNext = useCallback(() => {
     if (wizardContext) {
@@ -57,15 +67,21 @@ export function Step2Client({ content }: Step2ClientProps): React.ReactElement {
   }, [wizardContext, traceId]);
 
   if (!wizardContext) {
-    const errorMsg = "Guardián de Contexto: Renderizado fuera de WizardProvider.";
+    const errorMsg =
+      "Guardián de Contexto: Renderizado fuera de WizardProvider.";
     logger.error(`[Step2Client] ${errorMsg}`, { traceId });
-    return <DeveloperErrorDisplay context="Step2Client" errorMessage={errorMsg} />;
+    return (
+      <DeveloperErrorDisplay context="Step2Client" errorMessage={errorMsg} />
+    );
   }
 
   if (!content) {
-    const errorMsg = "Guardián de Contrato: La prop 'content' es nula o indefinida.";
+    const errorMsg =
+      "Guardián de Contrato: La prop 'content' es nula o indefinida.";
     logger.error(`[Step2Client] ${errorMsg}`, { traceId });
-    return <DeveloperErrorDisplay context="Step2Client" errorMessage={errorMsg} />;
+    return (
+      <DeveloperErrorDisplay context="Step2Client" errorMessage={errorMsg} />
+    );
   }
 
   return (

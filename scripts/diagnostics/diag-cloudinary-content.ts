@@ -11,7 +11,9 @@ import * as path from "path";
 import { loadEnvironment } from "./_utils";
 import { scriptLogger, type ScriptActionResult } from "../_utils/script-logger";
 
-async function diagnoseCloudinaryContent(): Promise<ScriptActionResult<string>> {
+async function diagnoseCloudinaryContent(): Promise<
+  ScriptActionResult<string>
+> {
   scriptLogger.startGroup("📊 Realizando censo de contenido en Cloudinary...");
 
   try {
@@ -57,9 +59,12 @@ async function diagnoseCloudinaryContent(): Promise<ScriptActionResult<string>> 
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error desconocido.";
-    scriptLogger.error("🔥 Fallo al realizar el censo de contenido en Cloudinary:", {
-      error: errorMessage,
-    });
+    scriptLogger.error(
+      "🔥 Fallo al realizar el censo de contenido en Cloudinary:",
+      {
+        error: errorMessage,
+      }
+    );
     return { success: false, error: errorMessage };
   } finally {
     scriptLogger.endGroup();

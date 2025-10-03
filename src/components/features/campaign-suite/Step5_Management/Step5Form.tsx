@@ -71,7 +71,9 @@ export function Step5Form({
   isLaunchReady,
   artifactHistorySlot,
 }: Step5FormProps): React.ReactElement {
-  logger.trace("[Step5Form] Renderizando orquestador de presentación v17.0 (MEA/UX).");
+  logger.trace(
+    "[Step5Form] Renderizando orquestador de presentación v17.0 (MEA/UX)."
+  );
 
   return (
     <AlertDialog>
@@ -100,13 +102,17 @@ export function Step5Form({
             </div>
 
             {artifactHistorySlot && (
-              <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
+              <motion.div
+                variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+              >
                 <Separator />
                 {artifactHistorySlot}
               </motion.div>
             )}
 
-            <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
+            <motion.div
+              variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
+            >
               <ManagementActions
                 onBack={onBack}
                 onPublish={onPublish}

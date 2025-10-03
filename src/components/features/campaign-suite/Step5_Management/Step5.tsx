@@ -30,16 +30,24 @@ export function Step5({ content }: StepProps<Content>): React.ReactElement {
 
   try {
     if (!content) {
-      throw new Error("Contrato de UI violado: La prop 'content' para Step5 es nula o indefinida.");
+      throw new Error(
+        "Contrato de UI violado: La prop 'content' para Step5 es nula o indefinida."
+      );
     }
     logger.traceEvent(traceId, "Contrato de contenido validado con éxito.");
 
-    logger.success("[Step5 Shell] Datos validados. Renderizando Step5Client...", { traceId });
+    logger.success(
+      "[Step5 Shell] Datos validados. Renderizando Step5Client...",
+      { traceId }
+    );
     return <Step5Client locale={locale} stepContent={content} />;
-
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
-    logger.error("[Guardián de Resiliencia][Step5] Fallo crítico en el ensamblador.", { error: errorMessage, traceId });
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
+    logger.error(
+      "[Guardián de Resiliencia][Step5] Fallo crítico en el ensamblador.",
+      { error: errorMessage, traceId }
+    );
     return (
       <DeveloperErrorDisplay
         context="Step5 Shell"

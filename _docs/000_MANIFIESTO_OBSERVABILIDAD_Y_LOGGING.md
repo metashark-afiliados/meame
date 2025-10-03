@@ -95,15 +95,17 @@ Resiliencia: Toda la lógica DEBE estar en un try...catch. El bloque catch DEBE 
 Renderizado y Ciclo de Vida: Utilizar logger.trace para registrar el renderizado y el montaje/desmontaje (useEffect4 (CORREGIDO Y REFORZADO):src/app/[locale]/login/page.tsx`\*\*
 
 ---
+
 ACTUALIZACION
-// _docs/000_MANIFIESTO_OBSERVABILIDAD_Y_LOGGING.md
-/**
- * @file 000_MANIFIESTO_OBSERVABILIDAD_Y_LOGGING.md
- * @description Manifiesto Canónico y SSoT para el Protocolo de Observabilidad,
- *              ahora incluyendo la persistencia de telemetría.
- * @version 2.0.0 (Telemetry Persistence)
- * @author L.I.A. Legacy
- */
+// \_docs/000_MANIFIESTO_OBSERVABILIDAD_Y_LOGGING.md
+/\*\*
+
+- @file 000_MANIFIESTO_OBSERVABILIDAD_Y_LOGGING.md
+- @description Manifiesto Canónico y SSoT para el Protocolo de Observabilidad,
+-              ahora incluyendo la persistencia de telemetría.
+- @version 2.0.0 (Telemetry Persistence)
+- @author L.I.A. Legacy
+  \*/
 
 # Manifiesto Canónico: Protocolo de Observabilidad y Logging de Élite v2.0
 
@@ -115,13 +117,12 @@ Este manifiesto define cómo cada aparato reporta su estado y cómo la inteligen
 
 ## 5. Pilar V: Persistencia de Telemetría (NUEVO)
 
-*   **Directiva:** Más allá del logging volátil para la depuración, la inteligencia de visitante crítica recopilada por el middleware **DEBE** ser persistida en una tabla soberana en la base de datos (ej. `visitor_sessions`).
-*   **Seguridad:** Todos los datos de sesión persistidos que puedan contener información sensible (como la URL completa con parámetros) **DEBEN** ser encriptados en el servidor antes de su inserción en la base de datos.
-*   **Propósito:** Esta persistencia transforma la telemetría de una herramienta de depuración a un activo de negocio estratégico, permitiendo:
-    *   **Análisis de Comportamiento de Usuario:** Entender los flujos de navegación y los puntos de fricción.
-    *   **Auditoría de Seguridad:** Rastrear el origen y la actividad de las peticiones.
-    *   **Inteligencia de Negocio:** Analizar patrones de tráfico y geolocalización a lo largo del tiempo.
-*   **Fundamento:** La toma de decisiones basada en datos es un principio de ingeniería de élite.
+- **Directiva:** Más allá del logging volátil para la depuración, la inteligencia de visitante crítica recopilada por el middleware **DEBE** ser persistida en una tabla soberana en la base de datos (ej. `visitor_sessions`).
+- **Seguridad:** Todos los datos de sesión persistidos que puedan contener información sensible (como la URL completa con parámetros) **DEBEN** ser encriptados en el servidor antes de su inserción en la base de datos.
+- **Propósito:** Esta persistencia transforma la telemetría de una herramienta de depuración a un activo de negocio estratégico, permitiendo:
+  - **Análisis de Comportamiento de Usuario:** Entender los flujos de navegación y los puntos de fricción.
+  - **Auditoría de Seguridad:** Rastrear el origen y la actividad de las peticiones.
+  - **Inteligencia de Negocio:** Analizar patrones de tráfico y geolocalización a lo largo del tiempo.
+- **Fundamento:** La toma de decisiones basada en datos es un principio de ingeniería de élite.
 
 ---
-

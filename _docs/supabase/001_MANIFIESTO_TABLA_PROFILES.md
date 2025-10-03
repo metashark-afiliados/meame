@@ -1,11 +1,12 @@
-// _docs/supabase/001_MANIFIESTO_TABLA_PROFILES.md
-/**
- * @file 001_MANIFIESTO_TABLA_PROFILES.md
- * @description Manifiesto Canónico y SSoT para la tabla 'public.profiles',
- *              ahora con soporte para múltiples proveedores de identidad.
- * @version 2.0.0 (Multi-Provider Identity)
- * @author L.I.A. Legacy
- */
+// \_docs/supabase/001_MANIFIESTO_TABLA_PROFILES.md
+/\*\*
+
+- @file 001_MANIFIESTO_TABLA_PROFILES.md
+- @description Manifiesto Canónico y SSoT para la tabla 'public.profiles',
+-              ahora con soporte para múltiples proveedores de identidad.
+- @version 2.0.0 (Multi-Provider Identity)
+- @author L.I.A. Legacy
+  \*/
 
 # Manifiesto de Tabla Soberana: `public.profiles` v2.0
 
@@ -44,3 +45,4 @@ COMMENT ON COLUMN public.profiles.provider_avatar_url IS 'La URL del avatar orig
 
 ---
 
+```

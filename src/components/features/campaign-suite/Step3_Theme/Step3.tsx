@@ -19,7 +19,9 @@ import { loadAllThemeFragmentsAction } from "@/shared/lib/actions/campaign-suite
 
 type Content = z.infer<typeof Step3ContentSchema>;
 
-export default async function Step3({ content }: StepProps<Content>): Promise<React.ReactElement> {
+export default async function Step3({
+  content,
+}: StepProps<Content>): Promise<React.ReactElement> {
   const traceId = logger.startTrace("Step3_ServerShell_Render_v9.0");
   logger.startGroup(`[Step3 Shell] Ensamblando datos para el Paso 3...`);
 
@@ -37,13 +39,11 @@ export default async function Step3({ content }: StepProps<Content>): Promise<Re
     logger.traceEvent(traceId, "Fragmentos de tema cargados con éxito.");
 
     return (
-      <Step3Client
-        content={content}
-        loadedFragments={fragmentsResult.data}
-      />
+      <Step3Client content={content} loadedFragments={fragmentsResult.data} />
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido.";
+    const errorMessage =
+      error instanceof Error ? error.message : "Error desconocido.";
     logger.error("[Guardián de Resiliencia][Step3] Fallo crítico.", {
       error: errorMessage,
       traceId,

@@ -8,7 +8,13 @@
  */
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, useTransition } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
 import { logger } from "@/shared/lib/logging";
 import type { ThemeConfig } from "@/shared/lib/types/campaigns/draft.types";
@@ -16,7 +22,10 @@ import { useWizard } from "@/components/features/campaign-suite/_context/WizardC
 import { useStep3ThemeStore } from "@/shared/hooks/campaign-suite/use-step3-theme.store";
 import { useDraftMetadataStore } from "@/shared/hooks/campaign-suite/use-draft-metadata.store";
 import { useWorkspaceStore } from "@/shared/lib/stores/use-workspace.store";
-import { getThemePresetsAction, createThemePresetAction } from "@/shared/lib/actions/theme-presets";
+import {
+  getThemePresetsAction,
+  createThemePresetAction,
+} from "@/shared/lib/actions/theme-presets";
 import { Step3Form } from "./Step3Form";
 import { ThemeComposerModal } from "./_components/ThemeComposerModal";
 import { DynamicIcon } from "@/components/ui";
@@ -38,8 +47,14 @@ interface Step3ClientProps {
   loadedFragments: LoadedFragments;
 }
 
-export function Step3Client({ content, loadedFragments }: Step3ClientProps): React.ReactElement {
-  const traceId = useMemo(() => logger.startTrace("Step3Client_Lifecycle_v12.0"), []);
+export function Step3Client({
+  content,
+  loadedFragments,
+}: Step3ClientProps): React.ReactElement {
+  const traceId = useMemo(
+    () => logger.startTrace("Step3Client_Lifecycle_v12.0"),
+    []
+  );
   useEffect(() => {
     logger.info("[Step3Client] Componente montado.", { traceId });
     return () => logger.endTrace(traceId);
@@ -60,10 +75,18 @@ export function Step3Client({ content, loadedFragments }: Step3ClientProps): Rea
       const result = await getThemePresetsAction(activeWorkspaceId);
       if (result.success) {
         setPresets(result.data);
-        logger.success(`[Step3Client] Se cargaron ${result.data.global.length + result.data.workspace.length} presets.`, { traceId });
+        logger.success(
+          `[Step3Client] Se cargaron ${result.data.global.length + result.data.workspace.length} presets.`,
+          { traceId }
+        );
       } else {
-        toast.error("Error al cargar los estilos del workspace.", { description: result.error });
-        logger.error("[Step3Client] Fallo al cargar presets.", { error: result.error, traceId });
+        toast.error("Error al cargar los estilos del workspace.", {
+          description: result.error,
+        });
+        logger.error("[Step3Client] Fallo al cargar presets.", {
+          error: result.error,
+          traceId,
+        });
       }
     });
   }, [activeWorkspaceId, traceId]);
@@ -72,17 +95,34 @@ export function Step3Client({ content, loadedFragments }: Step3ClientProps): Rea
     fetchPresets();
   }, [fetchPresets]);
 
-  const handleCreatePreset = useCallback(async (name: string, description: string, type: "color" | "font" | "geometry", config: ThemeConfig) => {
-    if (!activeWorkspaceId) return;
-    logger.traceEvent(traceId, "Acción: Creando nuevo preset de tema.", { name, type });
-    const result = await createThemePresetAction({ workspaceId: activeWorkspaceId, name, description, type, themeConfig: config });
-    if (result.success) {
-      toast.success(`Preset "${name}" creado con éxito.`);
-      fetchPresets();
-    } else {
-      toast.error("Error al crear el preset", { description: result.error });
-    }
-  }, [activeWorkspaceId, fetchPresets, traceId]);
+  const handleCreatePreset = useCallback(
+    async (
+      name: string,
+      description: string,
+      type: "color" | "font" | "geometry",
+      config: ThemeConfig
+    ) => {
+      if (!activeWorkspaceId) return;
+      logger.traceEvent(traceId, "Acción: Creando nuevo preset de tema.", {
+        name,
+        type,
+      });
+      const result = await createThemePresetAction({
+        workspaceId: activeWorkspaceId,
+        name,
+        description,
+        type,
+        themeConfig: config,
+      });
+      if (result.success) {
+        toast.success(`Preset "${name}" creado con éxito.`);
+        fetchPresets();
+      } else {
+        toast.error("Error al crear el preset", { description: result.error });
+      }
+    },
+    [activeWorkspaceId, fetchPresets, traceId]
+  );
 
   const handleNext = useCallback(() => {
     if (wizardContext) {
@@ -93,18 +133,28 @@ export function Step3Client({ content, loadedFragments }: Step3ClientProps): Rea
   }, [completeStep, wizardContext, traceId]);
 
   if (!wizardContext) {
-    const errorMsg = "Guardián de Contexto: Renderizado fuera de WizardProvider.";
+    const errorMsg =
+      "Guardián de Contexto: Renderizado fuera de WizardProvider.";
     logger.error(`[Step3Client] ${errorMsg}`, { traceId });
-    return <DeveloperErrorDisplay context="Step3Client" errorMessage={errorMsg} />;
+    return (
+      <DeveloperErrorDisplay context="Step3Client" errorMessage={errorMsg} />
+    );
   }
   const { goToPrevStep } = wizardContext;
 
   if (isFetching || !presets) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-        <DynamicIcon name="LoaderCircle" className="w-8 h-8 animate-spin text-primary" />
-        <p className="mt-4 text-lg font-semibold text-foreground">Cargando Bóveda de Estilos...</p>
-        <p className="text-sm text-muted-foreground">Sincronizando con la base de datos.</p>
+        <DynamicIcon
+          name="LoaderCircle"
+          className="w-8 h-8 animate-spin text-primary"
+        />
+        <p className="mt-4 text-lg font-semibold text-foreground">
+          Cargando Bóveda de Estilos...
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Sincronizando con la base de datos.
+        </p>
       </div>
     );
   }

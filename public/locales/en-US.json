@@ -484,6 +484,11 @@
     "noNotificationsText": "You have no notifications.",
     "loadingText": "Loading..."
   },
+  "oAuthButtons": {
+    "google": "Continue with Google",
+    "apple": "Continue with Apple (Coming Soon)",
+    "facebook": "Continue with Facebook (Coming Soon)"
+  },
   "notificationBell": {
     "viewAllNotificationsLink": "View all",
     "notificationsLabel": "Notifications",
@@ -1357,10 +1362,5 @@
     "payButton": "Pay Now",
     "processingButton": "Processing Payment...",
     "unexpectedError": "An unexpected error occurred. Please try again."
-  },
-  "oAuthButtons": {
-    "google": "Continue with Google",
-    "apple": "Continue with Apple (Coming Soon)",
-    "facebook": "Continue with Facebook (Coming Soon)"
   }
 }
